@@ -40,7 +40,19 @@
 
   // ---------- Ajustes y estado de la vista ----------
   const H12 = (() => { try { return new Intl.DateTimeFormat('es-MX', { hour: 'numeric' }).resolvedOptions().hourCycle !== 'h23'; } catch (e) { return true; } })();
-  const DEFAULTS = { weekStart: 0, h12: H12, holidays: true, hiddenCats: [], examplesOff: false };
+  const DEFAULTS = { weekStart: 0, h12: H12, holidays: true, hiddenCats: [], examplesOff: false, skin: 'ritmo' };
+  // Temas: nombre y cuatro colores de muestra (fondo, hoja, acción, marcatextos)
+  const SKINS = [
+    ['ritmo', 'Ritmo', ['#F6F7F9', '#FFFFFF', '#1F3FD1', '#FFE15A']],
+    ['clasico', 'Clásico iOS', ['#F2F2F7', '#FFFFFF', '#007AFF', '#FF3B30']],
+    ['rosa', 'Rosa champaña', ['#FBF5F3', '#F5C6CC', '#B8606B', '#3B2422']],
+    ['dorado', 'Negro y dorado', ['#000000', '#1C1C1E', '#D4AF6A', '#F5F5F7']],
+    ['cristal', 'Cristal pastel', ['#EFE4FF', '#FFE6F2', '#8B5CF6', '#EC4899']],
+  ];
+  const applySkin = () => {
+    const s = Store.settings.skin;
+    if (s && s !== 'ritmo') document.documentElement.dataset.skin = s; else delete document.documentElement.dataset.skin;
+  };
   const VIEWS = ['agenda', 'dia', 'semana', 'mes'];
   const S = {
     view: 'agenda', cursor: todayKey(), selected: todayKey(), miniMonth: null,
@@ -230,6 +242,7 @@
   // ---------- Pintar ----------
   const view = $('#view');
   function render() {
+    applySkin();
     syncExamples();
     renderTop();
     renderView();
@@ -1062,6 +1075,7 @@ Instrucciones:
     const s = Store.settings;
     const canSave = !!S.downloads || !(window.claude && typeof window.claude.use === 'function');
     openSheet(`<div class="grab"></div><div class="sh-head"><h2>Ajustes</h2><button type="button" class="icon-btn" data-act="close" aria-label="Cerrar">${I.close}</button></div>
+      <div class="group"><h3>Tema</h3><div class="skins" role="radiogroup" aria-label="Tema">${SKINS.map(([id, name, c]) => `<button type="button" class="skin" role="radio" data-skin="${id}" aria-checked="${(s.skin || 'ritmo') === id}"><span class="sw4">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${name}</button>`).join('')}</div></div>
       <div class="group"><h3>Preferencias</h3>
         <div class="switch-row"><span class="lbl" id="l-ws">La semana empieza en</span><div class="seg" role="group" aria-labelledby="l-ws"><button type="button" data-set="weekStart" data-v="0" aria-pressed="${s.weekStart === 0}">Domingo</button><button type="button" data-set="weekStart" data-v="1" aria-pressed="${s.weekStart === 1}">Lunes</button></div></div>
         <div class="switch-row"><span class="lbl" id="l-h">Formato de hora</span><div class="seg" role="group" aria-labelledby="l-h"><button type="button" data-set="h12" data-v="1" aria-pressed="${s.h12}">5:00 p.m.</button><button type="button" data-set="h12" data-v="0" aria-pressed="${!s.h12}">17:00</button></div></div>
@@ -1082,6 +1096,7 @@ Instrucciones:
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
+        if (b.dataset.skin) { Store.setSettings({ skin: b.dataset.skin }); $$('[data-skin]', root).forEach(x => x.setAttribute('aria-checked', String(x === b))); }
         if (b.dataset.set) { Store.setSettings({ [b.dataset.set]: b.dataset.set === 'h12' ? b.dataset.v === '1' : +b.dataset.v }); $$(`[data-set="${b.dataset.set}"]`, root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); }
         if (b.dataset.toggleSet) { const v = !Store.settings[b.dataset.toggleSet]; Store.setSettings({ [b.dataset.toggleSet]: v }); b.setAttribute('aria-checked', String(v)); }
         if (b.dataset.cat) { toggleCat(b.dataset.cat); b.setAttribute('aria-checked', String(!(Store.settings.hiddenCats || []).includes(b.dataset.cat))); }
