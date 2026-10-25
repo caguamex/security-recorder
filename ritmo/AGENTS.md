@@ -34,6 +34,7 @@ Los archivos `index.html` son fragmentos (sin `<html>` ni `<head>`) porque se pu
 
 ## Lo que falta (en este orden)
 1. **PWA implementada; despliegue pendiente de autorización de costos**: manifest, íconos derivados de `imagenes/icono-1024.png`, service worker, fuentes locales y servidor estático. Publicación generada en `dist/pwa/`. Falta verificar la instalación en un iPhone físico.
+   Vista previa pública sin backend: `https://caguamex.github.io/security-recorder/`, publicada desde `gh-pages`; usa almacenamiento local separado y no solicita tokens.
 2. **Backend implementado; conexión a Railway pendiente del despliegue autorizado** (`servidor/`, Node + TypeScript + Postgres): API con token, versiones, eliminaciones e idempotencia; `belleza/sincronizacion.js` conserva caché, cola y conflictos en `localStorage`. Consulta `docs/DESPLIEGUE.md`.
 3. **WhatsApp automático** con la Cloud API oficial de Meta: plantillas de confirmación, recordatorio 24 h y gracias; webhook para las respuestas "1" (confirmar) y "2" (cambiar); tarea programada cada 5 minutos. Nunca uses librerías no oficiales de WhatsApp Web.
 4. **Calendario**: enlace `.ics` privado en `/calendario/<token>.ics` para suscribirse desde Apple y Google Calendar.

@@ -1,6 +1,14 @@
 # Ritmo Belleza: publicación e instalación
 
-Las tareas 1 y 2 están implementadas: PWA y API Node + TypeScript con PostgreSQL. El despliegue externo queda pendiente de autorizar el servicio y su costo concreto. Este cambio no crea recursos ni activa consumo en Railway.
+Las tareas 1 y 2 están implementadas: PWA y API Node + TypeScript con PostgreSQL. El despliegue del backend queda pendiente de autorizar el servicio y su costo concreto. Este cambio no crea recursos ni activa consumo en Railway.
+
+## Enlace de vista previa
+
+[Abrir Ritmo Belleza](https://caguamex.github.io/security-recorder/).
+
+La vista previa está publicada con GitHub Pages desde la rama `gh-pages`. Sirve para revisar la interfaz y probar el funcionamiento sin conexión; guarda los datos únicamente en el dispositivo. No conecta el backend ni muestra la opción para introducir el token. Sus claves de almacenamiento usan el prefijo `belleza.preview.v1.` para separarlas de la versión de producción. El servidor PostgreSQL sigue pendiente de desplegarse en Railway con costos autorizados.
+
+La rama `gh-pages` contiene una copia de `dist/pwa/` para la vista previa, con la conexión al servidor oculta, el almacenamiento separado y el service worker versionado de nuevo. No se actualiza automáticamente al cambiar la rama de desarrollo.
 
 ## Ejecutar y verificar sin servicios externos
 
