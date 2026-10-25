@@ -52,7 +52,7 @@
     get(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } },
   };
-  const Store = (() => {
+  const ClaudeStore = (() => {
     const K = { items: 'belleza.v1.items', settings: 'belleza.v1.settings', mode: 'belleza.v1.mode', cache: 'belleza.v1.cloudcache' };
     const listeners = new Set();
     let mode = 'local', ready = false, items = new Map(), settings = Object.assign({}, DEFAULTS);
@@ -133,6 +133,32 @@
     };
   })();
 
+  // Conserva la integración original de Claude; fuera de ella usa caché y API propia.
+  const Store = (() => {
+    if (window.claude && typeof window.claude.use === 'function') return ClaudeStore;
+    const listeners = new Set();
+    let sync;
+    const emit = () => listeners.forEach(f => f());
+    const seguro = fn => { try { fn(); return true; } catch { toast('No se pudo guardar. Libera espacio en este dispositivo y vuelve a intentar.'); return false; } };
+    return {
+      get items() { return sync ? sync.items : new Map(); }, get settings() { return sync ? sync.settings : DEFAULTS; },
+      get ready() { return !!sync; }, get mode() { return sync?.connected ? 'servidor' : 'local'; },
+      get sync() { return sync; }, onChange: f => listeners.add(f),
+      init() {
+        try { sync = window.BellezaSync.crear({ storage: localStorage, fetcher: (...args) => fetch(...args), defaults: DEFAULTS, onChange: emit }); }
+        catch { toast('No se pudo abrir el almacenamiento. Revisa el espacio disponible y vuelve a abrir la app.'); return; }
+        emit(); void sync.sync();
+        window.addEventListener('online', () => void sync.sync());
+        window.addEventListener('storage', () => sync.actualizar());
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void sync.sync(); });
+        setInterval(() => { if (document.visibilityState === 'visible') void sync.sync(); }, 30000);
+      },
+      put(it) { return seguro(() => sync.put({ ...it, updatedAt: new Date().toISOString() })); },
+      putMany(items) { return seguro(() => { for (const it of items) sync.put({ ...it, updatedAt: new Date().toISOString() }); }); },
+      remove(id) { return seguro(() => sync.remove(id)); }, setSettings(patch) { return seguro(() => sync.setSettings(patch)); },
+    };
+  })();
+
   // ---------- Ejemplos: se ven mientras no hay datos; se guardan solo si los usas ----------
   function buildExamples() {
     const t = today(), d = n => C.addDays(t, n);
@@ -168,9 +194,9 @@
   const list = kind => all().filter(x => x.kind === kind);
   const byId = id => all().find(x => x.id === id) || null;
   // Antes del primer cambio sobre los ejemplos, se copian a tu agenda para que nada desaparezca.
-  function ensureReal() { if (exampleMode()) Store.putMany(clone(EX || buildExamples())); }
-  const save = it => { ensureReal(); Store.put(it); };
-  const remove = id => { ensureReal(); Store.remove(id); };
+  function ensureReal() { return !exampleMode() || Store.putMany(clone(EX || buildExamples())) !== false; }
+  const save = it => ensureReal() && Store.put(it) !== false;
+  const remove = id => ensureReal() && Store.remove(id) !== false;
 
   // ---------- Utilidades de citas ----------
   const svcOf = c => byId(c.servicio) || { nombre: 'Servicio', categoria: 'Otro', duracion: 60, precio: 0 };
@@ -342,12 +368,61 @@
         <label class="cell"><span class="l">Abre</span><input class="in" type="time" data-setin="abre" value="${esc(s.abre)}" style="max-width:120px"></label>
         <label class="cell"><span class="l">Cierra</span><input class="in" type="time" data-setin="cierra" value="${esc(s.cierra)}" style="max-width:120px"></label>
       </div>
-      <p class="foot">${Store.mode === 'cloud' ? 'Guardado en tu cuenta: lo ves igual en todos tus dispositivos.' : 'Guardado en este dispositivo.'}</p>`;
+      <p class="foot">${Store.mode === 'cloud' ? 'Guardado en tu cuenta: lo ves igual en todos tus dispositivos.' : esc(Store.sync?.status || 'Guardado en este dispositivo.')}</p>
+      ${Store.sync ? `<div class="group" style="margin-top:12px"><button type="button" class="cell" data-act="servidor"><span class="l">Sincronización<small>${Store.sync.connected ? 'Servidor conectado' : 'Conecta tu agenda con tu servidor'}</small></span><span class="chev">${I.chev}</span></button></div>` : ''}`;
   }
 
   // ---------- Hojas ----------
-  const sheet = $('#sheet'), card = $('#sheetCard');
+  function sheetServidor() {
+    const sync = Store.sync;
+    const resumen = data => {
+      if (data === null) return 'Registro eliminado';
+      const labels = { nombre: 'Nombre', telefono: 'WhatsApp', notas: 'Notas', titulo: 'Título', texto: 'Texto', etiqueta: 'Etiqueta',
+        precio: 'Precio', duracion: 'Duración en minutos', categoria: 'Categoría', descripcion: 'Descripción', url: 'Enlace',
+        date: 'Fecha', start: 'Hora', estado: 'Estado', clienta: 'Clienta', servicio: 'Servicio', negocio: 'Negocio',
+        abre: 'Abre', cierra: 'Cierra', skin: 'Tema', examplesOff: 'Ocultar ejemplos', waConfirm: 'Confirmar por WhatsApp',
+        waRecordar: 'Recordar por WhatsApp', waGracias: 'Agradecer por WhatsApp', tplConfirm: 'Mensaje de confirmación',
+        tplRecordar: 'Mensaje de recordatorio', tplGracias: 'Mensaje de agradecimiento', enviados: 'Mensajes enviados', publicado: 'Grupos publicados' };
+      return Object.entries(data).filter(([key]) => labels[key]).map(([key, value]) => {
+        if (['clienta', 'servicio'].includes(key)) value = byId(value)?.nombre || 'Sin registro asociado';
+        else if (key === 'precio') value = money(value);
+        else if (key === 'skin') value = SKINS.find(s => s[0] === value)?.[1] || value;
+        else if (typeof value === 'boolean') value = value ? 'Sí' : 'No';
+        else if (value && typeof value === 'object') value = Object.keys(value).map(id => byId(id)?.nombre || ({ confirmacion: 'Confirmación', recordatorio: 'Recordatorio', gracias: 'Agradecimiento' }[id] || 'Enviado')).join(', ');
+        return `${labels[key]}: ${value || 'Sin datos'}`;
+      }).join('\n');
+    };
+    const conflicto = sync.conflicts.map(c => {
+      const local = sync.pending.find(p => p.id === c.id);
+      return `<p class="gh">${esc(local?.data?.nombre || local?.data?.titulo || c.data?.nombre || c.id)}</p><div class="group"><div class="cell"><span class="l">En este dispositivo<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(local?.data ?? null))}</small></span></div><div class="cell"><span class="l">En el servidor<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(c.data))}</small></span></div><button type="button" class="cell" data-conflicto="${esc(c.id)}" data-local="1">Conservar este dispositivo</button><button type="button" class="cell" data-conflicto="${esc(c.id)}">Conservar el servidor</button></div>`;
+    }).join('');
+    openSheet(`${navSheet('Sincronización', 'Listo')}<p class="foot" role="status" id="sync-status">${esc(sync.status)} · ${sync.pending.length} cambios pendientes.</p>
+      <p class="gh">Tu servidor</p><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
+      <p class="foot">Usa el APP_TOKEN de tu servidor. Se guarda en este dispositivo y se envía únicamente a esta misma dirección.</p>
+      <button type="button" class="cta" id="sync-connect">Conectar</button>
+      ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${conflicto}`,
+    'Sincronización', root => {
+      const feedback = message => { $('#sync-status', root).textContent = message; };
+      root.addEventListener('click', async e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.id === 'sync-connect') {
+          b.disabled = true;
+          try { await sync.conectar($('#sync-token', root).value); sheetServidor(); }
+          catch (error) { feedback(error.status === 401 ? 'El token no es válido.' : 'No se pudo conectar. Revisa el token y tu conexión.'); }
+          finally { b.disabled = false; }
+        } else if (b.id === 'sync-now') { await sync.sync(); sheetServidor(); }
+        else if (b.id === 'sync-disconnect') { sync.desconectar(); sheetServidor(); }
+        else if (b.dataset.conflicto) { sync.resolver(b.dataset.conflicto, !!b.dataset.local); sheetServidor(); }
+        else if (b.hasAttribute('data-done') || b.hasAttribute('data-close')) closeSheet();
+      });
+    });
+  }
+  const sheet = $('#sheet');
+  let card = $('#sheetCard');
   function openSheet(html, label, mount) {
+    // Cada hoja tiene sus propios manejadores; reabrirla no repite escrituras.
+    const fresh = card.cloneNode(false);
+    card.replaceWith(fresh); card = fresh;
     $('#toast').hidden = true;
     card.innerHTML = '<div class="grab"></div>' + html;
     card.setAttribute('aria-label', label);
@@ -407,7 +482,7 @@
             const nombre = $('#c-nombre', root).value.trim();
             if (!nombre) { toast('Escribe el nombre de la clienta.'); $('#c-nombre', root).focus(); return; }
             cliId = newId();
-            save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), notas: '' });
+            if (!save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), notas: '' })) return;
           }
           if (!cliId) { toast('Elige una clienta.'); return; }
           if (!st.servicio) { toast('Elige un servicio.'); return; }
@@ -415,7 +490,7 @@
           const cita = Object.assign(edit ? clone(edit) : { id: newId(), kind: 'cita', estado: 'pendiente', enviados: {} }, { clienta: cliId, servicio: st.servicio, date: st.date, start: st.start, notas: $('#c-notas', root).value.trim() });
           delete cita.example;
           const wa = !edit && $('#c-wa', root) && $('#c-wa', root).getAttribute('aria-checked') === 'true';
-          save(cita);
+          if (!save(cita)) return;
           S.day = cita.date; S.tab = 'agenda'; lastScrollDay = null;
           closeSheet(); render();
           if (wa) sheetListo(cita.id); else toast(edit ? 'Cita guardada' : 'Cita agendada');
@@ -455,9 +530,9 @@
         if (!b) return;
         if (b.hasAttribute('data-close')) closeSheet();
         if (b.hasAttribute('data-edit')) { closeSheet(); sheetCita({ id }); }
-        if (b.dataset.estado) { const u = clone(byId(id)); u.estado = b.dataset.estado; delete u.example; save(u); closeSheet(); toast('Cita: ' + estadoTxt(u.estado).toLowerCase()); }
+        if (b.dataset.estado) { const u = clone(byId(id)); u.estado = b.dataset.estado; delete u.example; if (!save(u)) return; closeSheet(); toast('Cita: ' + estadoTxt(u.estado).toLowerCase()); }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(byId(id)); remove(id); closeSheet(); toast('Cita eliminada', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(byId(id)); if (!remove(id)) return; closeSheet(); toast('Cita eliminada', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -482,10 +557,10 @@
           const nombre = $('#k-nombre', root).value.trim();
           if (!nombre) { toast('Escribe el nombre.'); return; }
           const it = Object.assign(k ? clone(k) : { id: newId(), kind: 'clienta' }, { nombre, telefono: $('#k-tel', root).value.trim(), notas: $('#k-notas', root).value.trim() });
-          delete it.example; save(it); closeSheet(); toast('Clienta guardada');
+          delete it.example; if (!save(it)) return; closeSheet(); toast('Clienta guardada');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(k); remove(k.id); closeSheet(); toast('Clienta eliminada', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(k); if (!remove(k.id)) return; closeSheet(); toast('Clienta eliminada', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -509,10 +584,10 @@
           const nombre = $('#s-nombre', root).value.trim();
           if (!nombre) { toast('Escribe el nombre del servicio.'); return; }
           const it = Object.assign(s ? clone(s) : { id: newId(), kind: 'servicio' }, { nombre, categoria: $('#s-cat', root).value, duracion: +$('#s-dur', root).value, precio: Math.max(0, +$('#s-precio', root).value || 0), descripcion: $('#s-desc', root).value.trim() });
-          delete it.example; save(it); closeSheet(); toast('Servicio guardado');
+          delete it.example; if (!save(it)) return; closeSheet(); toast('Servicio guardado');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(s); remove(s.id); closeSheet(); toast('Servicio eliminado', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(s); if (!remove(s.id)) return; closeSheet(); toast('Servicio eliminado', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -547,18 +622,18 @@
         if (b.dataset.pub) {
           copy();
           const u = clone(byId(p.id)); u.publicado = Object.assign({}, u.publicado, { [b.dataset.pub]: new Date().toISOString() }); delete u.example;
-          save(u);
+          if (!save(u)) return;
           setTimeout(() => { closeSheet(); sheetPromo(p.id); toast('Texto copiado: pégalo en el grupo'); }, 50);
         }
-        if (b.hasAttribute('data-reset')) { const u = clone(byId(p.id)); u.publicado = {}; delete u.example; save(u); closeSheet(); sheetPromo(p.id); }
+        if (b.hasAttribute('data-reset')) { const u = clone(byId(p.id)); u.publicado = {}; delete u.example; if (!save(u)) return; closeSheet(); sheetPromo(p.id); }
         if (b.hasAttribute('data-done')) {
           const titulo = $('#p-tit', root).value.trim();
           if (!titulo) { toast('Escribe el título.'); return; }
           const it = Object.assign(p ? clone(p) : { id: newId(), kind: 'promo', publicado: {} }, { titulo, etiqueta: $('#p-et', root).value.trim(), texto: $('#p-txt', root).value.trim(), color });
-          delete it.example; save(it); closeSheet(); S.tab = 'promos'; render(); toast('Promoción guardada');
+          delete it.example; if (!save(it)) return; closeSheet(); S.tab = 'promos'; render(); toast('Promoción guardada');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(p); remove(p.id); closeSheet(); toast('Promoción eliminada', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(p); if (!remove(p.id)) return; closeSheet(); toast('Promoción eliminada', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -582,10 +657,10 @@
           if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
           if (url && !/^https:\/\/([a-z0-9-]+\.)?(facebook\.com|fb\.com)\//i.test(url)) { toast('Usa un enlace de facebook.com'); return; }
           const it = Object.assign(g ? clone(g) : { id: newId(), kind: 'grupo' }, { nombre, url });
-          delete it.example; save(it); closeSheet(); toast('Grupo guardado');
+          delete it.example; if (!save(it)) return; closeSheet(); toast('Grupo guardado');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(g); remove(g.id); closeSheet(); toast('Grupo eliminado', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(g); if (!remove(g.id)) return; closeSheet(); toast('Grupo eliminado', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -602,7 +677,7 @@
         const b = e.target.closest('button');
         if (!b) return;
         if (b.hasAttribute('data-close')) closeSheet();
-        if (b.hasAttribute('data-done')) { const p = {}; $$('[data-tpl]', root).forEach(t => { p[t.dataset.tpl] = t.value.trim() || DEFAULTS[t.dataset.tpl]; }); Store.setSettings(p); closeSheet(); toast('Mensajes guardados'); }
+        if (b.hasAttribute('data-done')) { const p = {}; $$('[data-tpl]', root).forEach(t => { p[t.dataset.tpl] = t.value.trim() || DEFAULTS[t.dataset.tpl]; }); if (Store.setSettings(p) === false) return; closeSheet(); toast('Mensajes guardados'); }
       });
     });
   }
@@ -701,9 +776,9 @@
     else if (d.act) ({
       mes: sheetMes, hoy: () => { S.day = today(); lastScrollDay = null; render(); },
       'nueva-clienta': () => sheetClienta(null), 'nuevo-servicio': () => sheetServicio(null), 'nueva-promo': () => sheetPromo(null), 'nuevo-grupo': () => sheetGrupo(null),
-      'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes,
-      'sin-ejemplos': () => { Store.setSettings({ examplesOff: true }); toast('Listo. Empieza agregando tus servicios.'); },
-      'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); ex.forEach(x => Store.remove(x.id)); toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
+      'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes, servidor: sheetServidor,
+      'sin-ejemplos': () => { if (Store.setSettings({ examplesOff: true }) === false) return; toast('Listo. Empieza agregando tus servicios.'); },
+      'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); for (const x of ex) if (Store.remove(x.id) === false) return; toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
     })[d.act]?.();
   });
   $('#fab').addEventListener('click', () => sheetCita({ date: S.day }));
