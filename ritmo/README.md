@@ -25,6 +25,8 @@ node ritmo/herramientas/empaquetar.mjs     # genera dist/ritmo.html
 node ritmo/herramientas/capturas.mjs       # regenera imagenes/ (requiere Playwright)
 ```
 
-## Siguiente paso
+## Ritmo Belleza: PWA y backend
 
-Abre Claude Code en este repositorio y pega el prompt 0 de `docs/PROMPTS.md`.
+La app del salón cuenta con versión instalable, archivos para usarla sin conexión y backend Node + TypeScript con PostgreSQL. Consulta [publicación e instalación en iPhone](docs/DESPLIEGUE.md) para las variables de Railway, los comandos locales y la sincronización.
+
+El despliegue externo queda pendiente de autorizar su costo. Los archivos de publicación están en `dist/pwa/`; `dist/belleza.html` sigue siendo la descarga de un solo archivo.

@@ -33,13 +33,17 @@ Los archivos `index.html` son fragmentos (sin `<html>` ni `<head>`) porque se pu
 - Modelo de Belleza: un solo arreglo de objetos con `kind`: `servicio`, `clienta`, `cita`, `promo` y `grupo` (ver `buildExamples()` en `belleza.js`).
 
 ## Lo que falta (en este orden)
-1. **Desplegar como PWA instalable en iPhone**: crea `manifest.webmanifest` e íconos (usa `imagenes/icono-1024.png`), un service worker para que funcione sin conexión y un servidor estático. Debe poder "Agregarse a pantalla de inicio" desde Safari.
-2. **Backend en Railway** (`servidor/`, Node + TypeScript + Postgres): API con token para los cinco tipos de objeto y la sincronización de la app con ella (conserva `localStorage` como caché sin conexión).
+1. **PWA implementada; despliegue pendiente de autorización de costos**: manifest, íconos derivados de `imagenes/icono-1024.png`, service worker, fuentes locales y servidor estático. Publicación generada en `dist/pwa/`. Falta verificar la instalación en un iPhone físico.
+2. **Backend implementado; conexión a Railway pendiente del despliegue autorizado** (`servidor/`, Node + TypeScript + Postgres): API con token, versiones, eliminaciones e idempotencia; `belleza/sincronizacion.js` conserva caché, cola y conflictos en `localStorage`. Consulta `docs/DESPLIEGUE.md`.
 3. **WhatsApp automático** con la Cloud API oficial de Meta: plantillas de confirmación, recordatorio 24 h y gracias; webhook para las respuestas "1" (confirmar) y "2" (cambiar); tarea programada cada 5 minutos. Nunca uses librerías no oficiales de WhatsApp Web.
 4. **Calendario**: enlace `.ics` privado en `/calendario/<token>.ics` para suscribirse desde Apple y Google Calendar.
 5. **Facebook**: se mantiene el flujo de un grupo por vez (copiar texto + abrir el grupo). Facebook no permite publicar en grupos por API.
 
 Variables de entorno del servidor: `DATABASE_URL`, `APP_TOKEN`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN`.
+
+Para las tareas 1 y 2 solo se requieren `DATABASE_URL` y `APP_TOKEN`; `PORT` lo proporciona Railway. Los secretos de WhatsApp corresponden a la tarea 3, aún pendiente.
+
+Verificación del backend: `npm ci --prefix ritmo/servidor` y `npm test --prefix ritmo/servidor`. Pruebas de navegador: `npm run test:navegador --prefix ritmo/servidor` (Chromium de Playwright o `BROWSER_CHANNEL=msedge`). Las pruebas usan PostgreSQL local en WebAssembly, sin servicios externos. No activar despliegues ni recursos facturables sin autorización de Antonio.
 
 ## Reglas
 - No cambies el diseño de las pantallas existentes sin pedirlo; compáralas con `imagenes/`.
