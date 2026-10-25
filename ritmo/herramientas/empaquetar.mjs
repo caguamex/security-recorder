@@ -20,3 +20,10 @@ ${html}
 mkdirSync(join(raiz, 'dist'), { recursive: true });
 writeFileSync(join(raiz, 'dist', 'ritmo.html'), pagina);
 console.log('Listo: ritmo/dist/ritmo.html (' + Math.round(pagina.length / 1024) + ' KB)');
+
+// Ritmo Belleza
+let bel = readFileSync(join(raiz, 'belleza', 'index.html'), 'utf8');
+bel = bel.replace('<script src="core.js"></script>', () => `<script>\n${readFileSync(join(proto, 'core.js'), 'utf8')}</script>`)
+  .replace('<script src="belleza.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'belleza.js'), 'utf8')}</script>`);
+writeFileSync(join(raiz, 'dist', 'belleza.html'), pagina.replace(html, () => bel));
+console.log('Listo: ritmo/dist/belleza.html');
