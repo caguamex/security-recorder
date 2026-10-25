@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ritmo Belleza: referencia</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:wght@400;600;700&display=swap">
+<style>
+:root { --paper:#F7F5F6; --sheet:#fff; --sunk:#EFEAEE; --rule:#E6E0E5; --ink:#1A1420; --ink2:#5A5162; --ink3:#8C8394; --pen:#1F3FD1; --mark:#FFE15A; --rose:#C2185B;
+  --u:#D63384; --c:#7448D6; --p:#0A8790; --ce:#D9700F; --f:#1B9454; }
+* { box-sizing: border-box; margin: 0; }
+body { width: 2400px; height: 1760px; background: #1F3FD1; font-family: "Atkinson Hyperlegible Next", sans-serif; color: var(--ink); display: flex; flex-direction: column; align-items: center; padding-top: 70px; }
+h1 { color: #fff; font: 900 92px/1 Archivo, sans-serif; font-stretch: 80%; }
+h1 em { font-style: normal; background: linear-gradient(transparent 60%, var(--mark) 60%, var(--mark) 90%, transparent 90%); }
+.sub { color: #DCE3FF; font-size: 34px; margin: 18px 0 50px; }
+.row { display: flex; gap: 70px; align-items: flex-start; }
+.col { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.cap { color: #fff; font: 800 34px Archivo, sans-serif; font-stretch: 85%; }
+.cap small { display: block; font: 400 24px "Atkinson Hyperlegible Next"; color: #DCE3FF; text-align: center; margin-top: 4px; }
+.phone { width: 620px; height: 1290px; border-radius: 80px; background: #0B0F16; padding: 22px; box-shadow: 0 30px 90px rgba(0,0,0,.35); }
+.scr { position: relative; width: 100%; height: 100%; border-radius: 60px; background: var(--paper); overflow: hidden; padding: 70px 30px 0; }
+.island { position: absolute; top: 18px; left: 50%; width: 150px; height: 42px; margin-left: -75px; border-radius: 30px; background: #0B0F16; }
+.top { display: flex; align-items: center; gap: 14px; }
+.top b { flex: 1; font: 800 40px Archivo, sans-serif; font-stretch: 84%; }
+.ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: var(--ink2); font-size: 26px; }
+.tabs { display: flex; gap: 6px; background: var(--sunk); border-radius: 14px; padding: 4px; margin: 18px 0 16px; }
+.tabs span { flex: 1; text-align: center; padding: 10px 0; border-radius: 10px; font-weight: 700; font-size: 20px; color: var(--ink2); }
+.tabs .on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.hoy { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; }
+.num { position: relative; font: 800 84px/.86 Archivo; font-stretch: 74%; padding: 0 6px; z-index: 0; }
+.num::before { content: ""; position: absolute; z-index: -1; left: -2px; right: -2px; bottom: 4px; height: 42%; background: var(--mark); transform: skewX(-10deg) rotate(-2deg); border-radius: 3px; }
+.hoy .d { font: 800 30px Archivo; font-stretch: 88%; }
+.tag { display: inline-block; margin: 8px 6px 0 0; padding: 4px 12px; border-radius: 999px; background: var(--sunk); font-size: 18px; font-weight: 700; color: var(--ink2); }
+.tag b { color: var(--ink); }
+.cita { display: grid; grid-template-columns: 92px 5px 1fr; gap: 14px; align-items: center; padding: 14px 4px; border-bottom: 1px solid var(--rule); }
+.cita .h { text-align: right; font: 700 20px/1.2 Archivo; font-stretch: 92%; }
+.cita .h small { display: block; color: var(--ink3); font-weight: 500; font-size: 16px; }
+.cita .bar { align-self: stretch; border-radius: 4px; }
+.cita .t { font-weight: 700; font-size: 22px; }
+.cita .m { color: var(--ink2); font-size: 17px; margin-top: 2px; }
+.cita .who { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 17px; color: var(--ink2); }
+.av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px; }
+.pill { margin-left: auto; padding: 2px 10px; border-radius: 999px; font-size: 14px; font-weight: 700; }
+.ok { background: #E3F4EA; color: #1B7A47; } .pend { background: #FFF4D6; color: #8A6300; }
+.libre { margin: 10px 0; padding: 12px 16px; border: 2px dashed var(--rule); border-radius: 16px; color: var(--ink3); font-size: 18px; }
+.quick { position: absolute; left: 24px; right: 24px; bottom: 28px; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 20px; border-radius: 22px; background: #fff; border: 2px solid var(--pen); box-shadow: 0 10px 28px rgba(0,0,0,.12); font-size: 19px; color: var(--ink2); }
+.quick > span:first-child { flex: 1; }
+.plus { width: 54px; height: 54px; border-radius: 16px; background: var(--pen); color: #fff; display: grid; place-items: center; font-size: 34px; }
+/* Servicios con swipe */
+.chips { display: flex; gap: 10px; margin: 18px -30px 18px 0; overflow: hidden; }
+.chip { flex: none; padding: 10px 20px; border-radius: 999px; border: 2px solid var(--rule); background: #fff; font-weight: 700; font-size: 20px; }
+.chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.track { display: flex; gap: 18px; margin-right: -30px; }
+.card { flex: none; width: 430px; border-radius: 28px; background: #fff; box-shadow: 0 10px 30px rgba(26,20,32,.10); overflow: hidden; }
+.card.peek { width: 430px; opacity: .55; transform: scale(.94); }
+.foto { height: 300px; display: grid; place-items: center; position: relative; }
+.foto .cat { position: absolute; left: 16px; top: 16px; background: rgba(255,255,255,.92); padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: 17px; }
+.card .body { padding: 20px 22px 22px; }
+.card h3 { font: 800 30px Archivo; font-stretch: 86%; }
+.card p { color: var(--ink2); font-size: 18px; margin-top: 6px; line-height: 1.35; }
+.meta { display: flex; gap: 10px; margin-top: 14px; }
+.meta span { padding: 6px 12px; border-radius: 12px; background: var(--sunk); font-weight: 700; font-size: 18px; }
+.price { font: 800 34px Archivo; color: var(--rose); margin-left: auto; }
+.btn { margin-top: 18px; height: 60px; border-radius: 16px; background: var(--pen); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 21px; }
+.dots { display: flex; justify-content: center; gap: 8px; margin: 22px 0; }
+.dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--rule); }
+.dots i.on { width: 28px; border-radius: 6px; background: var(--ink); }
+.hint { text-align: center; color: var(--ink3); font-size: 18px; }
+.lista { margin-top: 16px; }
+.srv { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid var(--rule); }
+.srv .sq { width: 54px; height: 54px; border-radius: 14px; }
+.srv b { display: block; font-size: 20px; } .srv small { color: var(--ink3); font-size: 16px; }
+.srv .pr { margin-left: auto; font: 800 22px Archivo; }
+/* Menú lateral */
+.dim { position: absolute; inset: 0; background: rgba(26,20,32,.45); }
+.drawer { position: absolute; top: 0; bottom: 0; left: 0; width: 82%; background: #fff; padding: 80px 30px 30px; box-shadow: 20px 0 50px rgba(0,0,0,.2); }
+.biz { display: flex; align-items: center; gap: 16px; padding-bottom: 22px; border-bottom: 1px solid var(--rule); }
+.logo { width: 74px; height: 74px; border-radius: 22px; background: linear-gradient(135deg,#F48FB1,#C2185B); color: #fff; display: grid; place-items: center; font: 900 32px Archivo; }
+.biz b { display: block; font: 800 28px Archivo; font-stretch: 86%; } .biz small { color: var(--ink3); font-size: 17px; }
+.mi { display: flex; align-items: center; gap: 16px; padding: 16px 12px; border-radius: 16px; font-size: 22px; font-weight: 700; color: var(--ink2); }
+.mi .e { width: 44px; height: 44px; border-radius: 12px; background: var(--sunk); display: grid; place-items: center; font-size: 22px; }
+.mi.on { background: #E3E9FF; color: var(--pen); }
+.mi .n { margin-left: auto; background: var(--rose); color: #fff; font-size: 15px; padding: 2px 10px; border-radius: 999px; }
+.grab { position: absolute; right: -16px; top: 50%; width: 8px; height: 90px; margin-top: -45px; border-radius: 6px; background: #fff; opacity: .8; }
+.swipe { position: absolute; right: 8px; bottom: 120px; width: 90px; font-size: 17px !important; color: #fff; font-size: 20px; font-weight: 700; text-align: right; }
+.arrow { font-size: 44px; display: block; }
+.note { color: #DCE3FF; font-size: 24px; margin-top: 30px; }
+</style>
+</head>
+<body>
+<h1>Ritmo <em>Belleza</em></h1>
+<p class="sub">Tu agenda de citas, tus servicios y tus clientas en un solo lugar</p>
+<div class="row">
+  <!-- 1. Citas -->
+  <div class="col">
+    <div class="phone"><div class="scr"><div class="island"></div>
+      <div class="top"><span class="ic">☰</span><b>Citas</b><span class="ic">⌕</span></div>
+      <div class="tabs"><span class="on">Día</span><span>Semana</span><span>Mes</span></div>
+      <div class="hoy"><span class="num">27</span><div><div class="d">Martes</div>
+        <span class="tag"><b>6</b> citas</span><span class="tag"><b>$3,450</b> estimado</span></div></div>
+      <div class="cita"><div class="h">10:00<small>11:30</small></div><span class="bar" style="background:var(--u)"></span>
+        <div><div class="t">Uñas acrílicas</div><div class="m">1 h 30 min · $650</div><div class="who"><span class="av" style="background:#D63384">MR</span>Mariana R.<span class="pill ok">Confirmada</span></div></div></div>
+      <div class="cita"><div class="h">12:00<small>13:00</small></div><span class="bar" style="background:var(--p)"></span>
+        <div><div class="t">Lifting de pestañas</div><div class="m">1 h · $550</div><div class="who"><span class="av" style="background:#0A8790">SL</span>Sofía L.<span class="pill ok">Confirmada</span></div></div></div>
+      <div class="libre">13:00 – 14:00 · Hueco libre · toca para agendar</div>
+      <div class="cita"><div class="h">14:00<small>16:30</small></div><span class="bar" style="background:var(--c)"></span>
+        <div><div class="t">Balayage + corte</div><div class="m">2 h 30 min · $1,800</div><div class="who"><span class="av" style="background:#7448D6">AG</span>Andrea G.<span class="pill pend">Por confirmar</span></div></div></div>
+      <div class="cita"><div class="h">17:00<small>17:30</small></div><span class="bar" style="background:var(--ce)"></span>
+        <div><div class="t">Diseño de cejas</div><div class="m">30 min · $250</div><div class="who"><span class="av" style="background:#D9700F">PV</span>Paola V.<span class="pill ok">Confirmada</span></div></div></div>
+      <div class="quick"><span>Mariana uñas viernes 4pm</span><span class="plus">+</span></div>
+    </div></div>
+    <div class="cap">1 · Citas del día<small>Cada cita con servicio, clienta, precio y estado</small></div>
+  </div>
+
+  <!-- 2. Servicios con swipe -->
+  <div class="col">
+    <div class="phone"><div class="scr"><div class="island"></div>
+      <div class="top"><span class="ic">☰</span><b>Servicios</b><span class="ic" style="color:var(--pen);font-size:34px">＋</span></div>
+      <div class="chips"><span class="chip on">Uñas</span><span class="chip">Cabello</span><span class="chip">Pestañas</span><span class="chip">Cejas</span><span class="chip">Facial</span></div>
+      <div class="track">
+        <div class="card"><div class="foto" style="background:linear-gradient(135deg,#FCE4EC,#F8BBD0)"><span class="cat">Uñas</span><svg width="150" height="150" viewBox="0 0 100 100"><path d="M35 85 Q30 40 50 18 Q70 40 65 85 Z" fill="#D63384"/><path d="M42 40 Q50 25 58 40" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="body"><h3>Uñas acrílicas</h3><p>Aplicación completa con forma y diseño a elegir.</p>
+            <div class="meta"><span>1 h 30 min</span><span class="price">$650</span></div><div class="btn">Agendar este servicio</div></div></div>
+        <div class="card peek"><div class="foto" style="background:linear-gradient(135deg,#F3E5F5,#E1BEE7)"><span class="cat">Uñas</span></div>
+          <div class="body"><h3>Gelish en manos</h3><p>Esmaltado semipermanente.</p></div></div>
+      </div>
+      <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
+      <p class="hint">← Desliza para ver más servicios →</p>
+      <div class="lista">
+        <div class="srv"><span class="sq" style="background:#F8BBD0"></span><div><b>Gelish en manos</b><small>45 min</small></div><span class="pr">$300</span></div>
+        <div class="srv"><span class="sq" style="background:#E1BEE7"></span><div><b>Pedicure spa</b><small>1 h</small></div><span class="pr">$400</span></div>
+        <div class="srv"><span class="sq" style="background:#FFCDD2"></span><div><b>Retiro de acrílico</b><small>30 min</small></div><span class="pr">$150</span></div>
+      </div>
+    </div></div>
+    <div class="cap">2 · Menú de servicios<small>Tarjetas que se deslizan, por categoría</small></div>
+  </div>
+
+  <!-- 3. Menú lateral -->
+  <div class="col">
+    <div class="phone"><div class="scr"><div class="island"></div>
+      <div class="top"><span class="ic">☰</span><b>Citas</b></div>
+      <div class="dim"></div>
+      <div class="drawer"><span class="grab"></span>
+        <div class="biz"><span class="logo">B</span><div><b>Beauty Room</b><small>Abierto · 10:00 a 20:00</small></div></div>
+        <div style="margin-top:18px">
+          <div class="mi on"><span class="e">📅</span>Citas<span class="n">6 hoy</span></div>
+          <div class="mi"><span class="e">💅</span>Servicios</div>
+          <div class="mi"><span class="e">👩</span>Clientas</div>
+          <div class="mi"><span class="e">💰</span>Ingresos</div>
+          <div class="mi"><span class="e">🔗</span>Link para reservar</div>
+          <div class="mi"><span class="e">📣</span>Promociones</div>
+          <div class="mi"><span class="e">⚙️</span>Ajustes del negocio</div>
+        </div>
+      </div>
+      <div class="swipe"><span class="arrow">⟵</span>Desliza<br>para cerrar</div>
+    </div></div>
+    <div class="cap">3 · Menú con swipe<small>Se abre deslizando desde la orilla izquierda</small></div>
+  </div>
+</div>
+<p class="note">Imagen de referencia · los nombres, precios y fotos son ejemplos</p>
+</body>
+</html>
