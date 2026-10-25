@@ -1,0 +1,14 @@
+{
+  "name": "ritmo-belleza-servidor",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsc && node ../herramientas/empaquetar.mjs",
+    "start": "node build/index.js",
+    "test": "npm run build && node --test pruebas/*.test.mjs ../pruebas/*.test.js",
+    "test:navegador": "npm run build && node pruebas/navegador.mjs"
+  },
+  "dependencies": { "pg": "^8.16.3" },
+  "devDependencies": { "@types/node": "^22.0.0", "@types/pg": "^8.15.0", "typescript": "^5.9.3", "@electric-sql/pglite": "^0.3.14", "playwright": "^1.58.0" }
+}
