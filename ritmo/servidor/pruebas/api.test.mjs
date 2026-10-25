@@ -58,6 +58,9 @@ test('valida fechas, tipos, precios y enlaces antes de escribir', async () => {
   assert.equal((await api('/api/objetos/__settings', change({ APP_TOKEN: 'prohibido' }, 1))).status, 400);
   const large = await api('/api/objetos/x', change({ id: 'x', kind: 'clienta', nombre: 'x'.repeat(70000) }));
   assert.equal(large.status, 413);
+  for (const [id, url] of [['grupo-vacio', ''], ['grupo-corto', 'https://fb.com/groups/prueba/']]) {
+    assert.equal((await api('/api/objetos/' + id, change({ id, kind: 'grupo', nombre: 'Grupo', url }))).status, 200);
+  }
 });
 test('publica solo los recursos de la PWA y bloquea rutas privadas', async () => {
   for (const path of ['/', '/manifest.webmanifest', '/sw.js', '/fuentes/fuente-0.ttf']) assert.equal((await fetch(env.base + path)).status, 200);

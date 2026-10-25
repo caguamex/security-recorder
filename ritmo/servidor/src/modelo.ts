@@ -50,7 +50,7 @@ export function validarCambio(body: unknown, id: string): Cambio {
     if (it.kind === 'grupo') {
       let url: URL | undefined;
       try { url = new URL(String(it.url)); } catch { /* se valida abajo */ }
-      valido(url?.protocol === 'https:' && /(^|\.)facebook\.com$/.test(url.hostname), 'Usa un enlace HTTPS de Facebook.');
+      valido(it.url === '' || (url?.protocol === 'https:' && /(^|\.)(facebook\.com|fb\.com)$/.test(url.hostname)), 'Usa un enlace HTTPS de Facebook.');
     }
   }
   return { id, baseVersion: b.baseVersion as number, mutationId: b.mutationId as string, data: data as Registro['data'] };
