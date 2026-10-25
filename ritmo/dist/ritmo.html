@@ -1,0 +1,2762 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Ritmo Agenda</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Tu agenda en español: escribe como hablas y Ritmo lo acomoda.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap">
+<style>
+/* Hoja de agenda: papel frío con reglas finas, tinta azul de pluma para las acciones y marcatextos amarillo para "hoy".
+   Las categorías son las únicas tintas de color; todo lo demás es papel y grafito. */
+:root {
+  --paper: #F6F7F9;
+  --sheet: #FFFFFF;
+  --sunk: #ECEFF3;
+  --rule: #E1E5EB;
+  --rule-2: #CAD1DB;
+  --ink: #131A25;
+  --ink-2: #485263;
+  --ink-3: #737E90;
+  --pen: #1F3FD1;
+  --pen-ink: #FFFFFF;
+  --pen-soft: #E3E9FF;
+  --mark: #FFE15A;
+  --mark-ink: #131A25;
+  --now: #E5484D;
+  --danger: #C42B2B;
+  --scrim: rgba(14, 19, 26, .38);
+  --knob: #FFFFFF;
+  --toast-bg: #131A25;
+  --toast-fg: #F6F7F9;
+  --toast-act: #FFE15A;
+  --shadow: 0 1px 2px rgba(19, 26, 37, .06), 0 10px 28px rgba(19, 26, 37, .10);
+  --shadow-s: 0 1px 2px rgba(19, 26, 37, .12);
+  --c-trabajo: #0A8790;
+  --c-personal: #7448D6;
+  --c-salud: #1B9454;
+  --c-familia: #D9700F;
+  --c-estudio: #CF367C;
+  --c-otro: #657185;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-ui: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --hour: 52px;
+  --top-h: 120px;
+  --quick-h: 76px;
+  --side-w: 296px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0D1219; --sheet: #151B24; --sunk: #1C2430; --rule: #232C39; --rule-2: #354152;
+    --ink: #E9EEF5; --ink-2: #AAB4C3; --ink-3: #7B8698;
+    --pen: #8FA3FF; --pen-ink: #0B1020; --pen-soft: #1D2647;
+    --mark: #E8CE48; --mark-ink: #131A25; --now: #FF6B6E; --danger: #FF7B72;
+    --scrim: rgba(0, 0, 0, .58); --knob: #E9EEF5;
+    --toast-bg: #E9EEF5; --toast-fg: #0D1219; --toast-act: #1F3FD1;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .38); --shadow-s: 0 1px 2px rgba(0, 0, 0, .5);
+    --c-trabajo: #35C0C7; --c-personal: #A98BFA; --c-salud: #4CCB8B; --c-familia: #F4A04B; --c-estudio: #F06BAA; --c-otro: #98A3B5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0D1219; --sheet: #151B24; --sunk: #1C2430; --rule: #232C39; --rule-2: #354152;
+  --ink: #E9EEF5; --ink-2: #AAB4C3; --ink-3: #7B8698;
+  --pen: #8FA3FF; --pen-ink: #0B1020; --pen-soft: #1D2647;
+  --mark: #E8CE48; --mark-ink: #131A25; --now: #FF6B6E; --danger: #FF7B72;
+  --scrim: rgba(0, 0, 0, .58); --knob: #E9EEF5;
+  --toast-bg: #E9EEF5; --toast-fg: #0D1219; --toast-act: #1F3FD1;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .38); --shadow-s: 0 1px 2px rgba(0, 0, 0, .5);
+  --c-trabajo: #35C0C7; --c-personal: #A98BFA; --c-salud: #4CCB8B; --c-familia: #F4A04B; --c-estudio: #F06BAA; --c-otro: #98A3B5;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 15px/1.45 var(--f-ui); -webkit-font-smoothing: antialiased; }
+body.locked { overflow: hidden; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--paper); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2.5px solid var(--pen); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+svg { flex: none; }
+
+/* ---------- Estructura ---------- */
+.app { display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.main { min-width: 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(var(--quick-h) + env(safe-area-inset-bottom, 0px) + 28px); }
+.wrap { max-width: 980px; margin-inline: auto; }
+@media (min-width: 1100px) {
+  .app { grid-template-columns: var(--side-w) minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 26px; position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto; padding-block: calc(22px + env(safe-area-inset-top, 0px)) 24px; padding-left: max(22px, env(safe-area-inset-left, 0px)); padding-right: 22px; background: var(--sheet); border-right: 1px solid var(--rule); }
+  .main { padding-left: 36px; padding-right: max(36px, env(safe-area-inset-right, 0px)); }
+}
+
+/* ---------- Encabezado ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--paper); padding-top: 12px; }
+.wrap.top { max-width: 980px; }
+.bar { display: flex; align-items: center; gap: 6px; min-height: 44px; }
+.period { flex: 1; min-width: 0; margin: 0; font: 800 25px/1.1 var(--f-display); font-stretch: 84%; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-wrap: balance; }
+.period small { font-weight: 600; color: var(--ink-3); font-size: .78em; }
+.pill-btn { height: 34px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--rule-2); background: var(--sheet); font: 700 14px var(--f-ui); color: var(--ink); }
+.pill-btn:hover { border-color: var(--ink-3); }
+.icon-btn { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; border: 0; background: transparent; color: var(--ink-2); }
+.icon-btn:hover { background: var(--sunk); color: var(--ink); }
+.icon-btn.sm { width: 32px; height: 32px; border-radius: 10px; }
+.icon-btn.accent { color: var(--pen); }
+.row2 { display: flex; align-items: center; gap: 8px; padding: 8px 0 10px; }
+.tabs { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 3px; gap: 2px; background: var(--sunk); border-radius: 12px; max-width: 420px; }
+.tabs button { border: 0; background: transparent; height: 34px; border-radius: 9px; font: 700 14px var(--f-ui); color: var(--ink-2); }
+.tabs button[aria-selected="true"] { background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-s); }
+.navs { display: flex; gap: 2px; margin-left: auto; }
+.strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; padding: 0 0 10px; }
+.sd { display: grid; justify-items: center; gap: 3px; padding: 4px 0 6px; border: 0; border-radius: 12px; background: transparent; color: var(--ink-3); font: 700 11px/1 var(--f-ui); letter-spacing: .06em; text-transform: uppercase; }
+.sd b { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; font: 800 18px/1 var(--f-display); font-stretch: 88%; letter-spacing: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+.sd.today b { color: var(--pen); }
+.sd[aria-current="date"] b { background: var(--ink); color: var(--paper); }
+.dots { display: flex; gap: 3px; height: 6px; justify-content: center; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+.top-line { height: 1px; background: var(--rule); }
+
+/* ---------- Agenda ---------- */
+.today-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 16px; padding: 14px 0 6px; }
+.big-num { position: relative; z-index: 0; padding: 0 6px; font: 800 72px/.86 var(--f-display); font-stretch: 74%; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.big-num::before { content: ""; position: absolute; z-index: -1; left: -2px; right: -2px; bottom: 4px; height: 42%; background: var(--mark); border-radius: 3px; transform: skewX(-10deg) rotate(-2deg); }
+.dow { font: 800 24px/1.05 var(--f-display); font-stretch: 88%; text-transform: capitalize; }
+.ym { color: var(--ink-2); font-size: 15px; text-transform: capitalize; }
+.sum { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--sunk); color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.tag b { color: var(--ink); font-family: var(--f-display); font-variant-numeric: tabular-nums; }
+.next-up { grid-column: 1 / -1; display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 12px 14px 12px 12px; border-radius: 16px; border: 1px solid var(--rule); background: var(--sheet); color: inherit; text-align: left; box-shadow: var(--shadow-s); }
+.next-up .bar { align-self: stretch; border-radius: 4px; background: var(--c); }
+.next-up .k { font: 700 12px var(--f-ui); color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+.next-up .t { font-weight: 700; font-size: 17px; line-height: 1.25; overflow-wrap: anywhere; }
+.next-up .m { color: var(--ink-2); font-size: 13px; }
+.next-up .eta { font: 800 15px var(--f-display); font-stretch: 90%; color: var(--pen); white-space: nowrap; }
+.next-up.live .eta { color: var(--now); }
+.note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 12px 0 0; padding: 12px 14px; border-radius: 14px; background: var(--pen-soft); color: var(--ink); font-size: 14px; }
+.note p { margin: 0; flex: 1 1 220px; }
+.note.sm { margin: 0 0 6px; font-size: 13px; padding: 10px 12px; }
+.month-label { padding: 26px 0 4px; font: 800 13px/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.day { padding-top: 4px; }
+.day-h { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--top-h)); z-index: 5; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0 4px; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.day-h .rel { font: 800 18px/1.15 var(--f-display); font-stretch: 90%; }
+.day-h .abs { color: var(--ink-3); font-size: 13px; }
+.day-h.is-today .rel { color: var(--pen); }
+.day-h .icon-btn { margin-left: auto; }
+.rows { display: grid; gap: 2px; padding: 6px 0 4px; }
+.empty-day { padding: 10px 0 8px 86px; color: var(--ink-3); font-size: 14px; }
+.row { display: grid; grid-template-columns: 74px 4px minmax(0, 1fr); align-items: center; gap: 0 12px; width: 100%; min-height: 54px; padding: 8px 10px 8px 0; border: 0; border-radius: 12px; background: transparent; color: inherit; text-align: left; }
+button.row:hover, .row.tk:hover { background: var(--sunk); }
+.row .when { display: grid; justify-items: end; text-align: right; font: 700 14px/1.15 var(--f-display); font-stretch: 92%; font-variant-numeric: tabular-nums; }
+.row .when small { font: 500 12px/1.3 var(--f-display); color: var(--ink-3); }
+.row .bar { align-self: stretch; min-height: 34px; border-radius: 4px; background: var(--c); }
+.row .what { display: grid; min-width: 0; }
+.row .t { font-weight: 700; font-size: 16px; line-height: 1.25; overflow-wrap: anywhere; }
+.row .m { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin-top: 2px; color: var(--ink-2); font-size: 13px; }
+.row .m span { display: inline-flex; align-items: center; gap: 4px; }
+.row .m .cn { color: var(--ink-3); }
+.row.past { opacity: .5; }
+.row.live .when b { color: var(--now); }
+.row.tk { padding: 0; }
+.row.tk .bar { background: transparent; }
+.row.tk .what { padding: 8px 10px 8px 0; border: 0; background: transparent; text-align: left; border-radius: 12px; }
+.row.done .t { text-decoration: line-through; text-decoration-thickness: 1.5px; color: var(--ink-3); }
+.chk { width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border-radius: 8px; border: 2px solid var(--c); background: transparent; color: var(--pen-ink); transition: background .15s, transform .15s; }
+.chk svg { opacity: 0; }
+.chk[aria-checked="true"] { background: var(--c); }
+.chk[aria-checked="true"] svg { opacity: 1; }
+.chk:active { transform: scale(.9); }
+.row.hd { cursor: default; }
+.row.hd .bar { background: repeating-linear-gradient(-45deg, var(--rule-2) 0 3px, transparent 3px 6px); }
+.flag { font: 700 11px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.flag.off { color: var(--now); }
+.overdue { margin-top: 14px; padding: 4px 12px 8px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--now) 35%, var(--rule)); background: var(--sheet); }
+.ov-h { display: flex; align-items: center; gap: 8px; padding: 8px 0 2px; font: 800 15px var(--f-display); }
+.ov-h .count { min-width: 22px; height: 22px; padding: 0 6px; display: grid; place-items: center; border-radius: 999px; background: var(--now); color: var(--pen-ink); font-size: 12px; }
+.ov-h .btn { margin-left: auto; }
+.overdue .row { grid-template-columns: 62px 4px minmax(0, 1fr); }
+.late { color: var(--now); font-weight: 600; }
+.more { display: flex; justify-content: center; padding: 22px 0 8px; }
+.link { border: 0; background: transparent; padding: 6px 4px; color: var(--pen); font: 700 14px var(--f-ui); display: inline-flex; align-items: center; gap: 6px; }
+.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { 0%, 30% { background: var(--pen-soft); } 100% { background: transparent; } }
+
+/* ---------- Línea de tiempo (día y semana) ---------- */
+.allday { display: grid; gap: 2px; padding: 4px 0 10px; border-bottom: 1px solid var(--rule); }
+.tl { display: grid; grid-template-columns: 58px minmax(0, 1fr); margin-top: 10px; }
+.tl.wk7 { grid-template-columns: 58px repeat(7, minmax(0, 1fr)); margin-top: 0; }
+.hours { position: relative; height: calc(var(--hour) * 24); }
+.hours span { position: absolute; right: 10px; transform: translateY(-50%); font: 600 12px var(--f-display); font-stretch: 92%; color: var(--ink-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.grid { position: relative; height: calc(var(--hour) * 24); border-left: 1px solid var(--rule); background-image: linear-gradient(to bottom, var(--rule) 1px, transparent 1px); background-size: 100% var(--hour); cursor: cell; }
+.grid.today { background-color: color-mix(in srgb, var(--pen) 4%, transparent); }
+.blk { position: absolute; display: block; overflow: hidden; padding: 4px 8px 4px 7px; border: 0; border-left: 3px solid var(--c); border-radius: 8px; background: var(--sunk); background: color-mix(in srgb, var(--c) 15%, var(--sheet)); color: var(--ink); text-align: left; font-size: 13px; line-height: 1.25; box-shadow: 0 0 0 1px var(--paper); }
+.blk:hover { background: color-mix(in srgb, var(--c) 24%, var(--sheet)); }
+.blk b { display: block; font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+.blk span { display: block; color: var(--ink-2); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.blk.short { display: flex; gap: 6px; align-items: baseline; padding-block: 2px; }
+.blk.short b { white-space: nowrap; }
+.blk.past { opacity: .6; }
+.nowline { position: absolute; left: -1px; right: 0; height: 2px; background: var(--now); z-index: 3; pointer-events: none; }
+.nowline::before { content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--now); }
+.wk-head { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--top-h)); z-index: 6; background: var(--paper); display: grid; grid-template-columns: 58px repeat(7, minmax(0, 1fr)); border-bottom: 1px solid var(--rule); }
+.wk-d { display: grid; justify-items: center; gap: 2px; padding: 6px 0 8px; border: 0; background: transparent; color: var(--ink-3); font: 700 12px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; }
+.wk-d b { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; font: 800 20px/1 var(--f-display); font-stretch: 88%; color: var(--ink); letter-spacing: 0; }
+.wk-d.today b { background: var(--mark); color: var(--mark-ink); }
+.wk-all { grid-column: 1 / -1; display: grid; grid-template-columns: 58px repeat(7, minmax(0, 1fr)); border-top: 1px solid var(--rule); }
+.wk-all > div { display: grid; align-content: start; gap: 3px; padding: 4px 3px; min-width: 0; border-left: 1px solid var(--rule); }
+.wk-all > .lab { border: 0; font: 600 11px var(--f-ui); color: var(--ink-3); text-align: right; padding-right: 10px; }
+.chip { display: block; width: 100%; overflow: hidden; padding: 3px 7px; border: 0; border-radius: 6px; background: var(--sunk); background: color-mix(in srgb, var(--c) 16%, var(--sheet)); color: var(--ink); font-size: 12px; font-weight: 600; text-align: left; white-space: nowrap; text-overflow: ellipsis; }
+.chip.tk::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 5px; border: 1.5px solid var(--c); border-radius: 3px; vertical-align: -1px; }
+.chip.tk.done { text-decoration: line-through; color: var(--ink-3); }
+.chip.hd { background: transparent; border: 1px dashed var(--rule-2); color: var(--ink-2); cursor: default; }
+
+/* Semana en teléfono: planeador por días */
+.plan { display: grid; gap: 8px; padding-top: 6px; }
+.pday { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 12px; padding: 10px 12px 10px 8px; border-radius: 16px; background: var(--sheet); border: 1px solid var(--rule); }
+.pd-date { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 2px 0; border: 0; background: transparent; color: var(--ink-3); font: 700 11px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; }
+.pd-date b { position: relative; z-index: 0; font: 800 28px/1 var(--f-display); font-stretch: 78%; letter-spacing: 0; color: var(--ink); font-variant-numeric: tabular-nums; padding: 0 3px; }
+.pday.today .pd-date b::before { content: ""; position: absolute; z-index: -1; left: -2px; right: -2px; bottom: 1px; height: 45%; background: var(--mark); transform: skewX(-10deg); border-radius: 2px; }
+.pday.today .pd-date b { color: var(--mark-ink); }
+.pd-items { display: grid; gap: 2px; min-width: 0; align-content: start; }
+.pi { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 4px 6px; margin-left: -6px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); text-align: left; font-size: 15px; }
+.pi:hover { background: var(--sunk); }
+.pi::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); transform: translateY(-1px); }
+.pi.tk::before { border-radius: 2px; background: transparent; border: 2px solid var(--c); width: 9px; height: 9px; }
+.pi.done span { text-decoration: line-through; color: var(--ink-3); }
+.pi time { flex: none; min-width: 58px; font: 700 13px var(--f-display); font-stretch: 92%; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pi span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pi.hd { cursor: default; color: var(--ink-2); }
+.pi.hd::before { background: transparent; border: 1.5px dashed var(--ink-3); }
+.pd-empty { padding: 4px 0; color: var(--ink-3); font-size: 14px; }
+
+/* ---------- Mes ---------- */
+.mo { padding-top: 4px; }
+.mo-head { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); padding-bottom: 6px; text-align: center; font: 700 11px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.mo-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); background: var(--rule); gap: 1px; }
+.mc { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; min-height: 60px; padding: 6px 2px; border: 0; background: var(--sheet); color: inherit; text-align: center; }
+.mc.out { background: var(--paper); }
+.mc.out .mn { color: var(--ink-3); }
+.mn { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; font: 700 15px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.mc.today .mn { background: var(--mark); color: var(--mark-ink); }
+.mc[aria-selected="true"] .mn { background: var(--ink); color: var(--paper); }
+.mc .dots { flex-wrap: wrap; height: auto; max-width: 44px; }
+.mc .chips { display: none; }
+.mc.hol .mn { text-decoration: underline; text-decoration-color: var(--now); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.mo-sel { margin-top: 8px; }
+@media (min-width: 900px) {
+  .mc { align-items: stretch; min-height: 118px; padding: 6px; text-align: left; }
+  .mc .mn { width: 28px; height: 28px; font-size: 14px; }
+  .mc .dots { display: none; }
+  .mc .chips { display: grid; gap: 3px; min-width: 0; }
+  .mc .more-n { font-size: 12px; color: var(--ink-3); font-weight: 600; padding-left: 4px; }
+}
+
+/* ---------- Panel lateral ---------- */
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand b { font: 900 30px/1 var(--f-display); font-stretch: 80%; letter-spacing: -.01em; }
+.brand b i { font-style: normal; background: linear-gradient(transparent 58%, var(--mark) 58%, var(--mark) 92%, transparent 92%); }
+.brand span { color: var(--ink-3); font-size: 13px; }
+.side h3 { margin: 0 0 8px; font: 800 12px var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.mini-h { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+.mini-h b { flex: 1; font: 800 16px var(--f-display); font-stretch: 90%; text-transform: capitalize; }
+.mini { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; }
+.mini > span { font: 700 10px var(--f-ui); color: var(--ink-3); padding: 2px 0; }
+.mini button { height: 32px; border: 0; border-radius: 50%; background: transparent; font: 600 13px var(--f-display); font-variant-numeric: tabular-nums; color: var(--ink); position: relative; }
+.mini button:hover { background: var(--sunk); }
+.mini button.out { color: var(--ink-3); }
+.mini button.has::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--ink-3); }
+.mini button.today { background: var(--mark); color: var(--mark-ink); }
+.mini button[aria-current="date"] { background: var(--ink); color: var(--paper); }
+.side-list { display: grid; gap: 2px; }
+.side-task { display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: center; gap: 10px; padding: 4px 0; }
+.side-task .t { font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.side-task small { display: block; color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.side-task .chk { width: 22px; height: 22px; border-radius: 7px; }
+.side-task .what { border: 0; background: transparent; text-align: left; padding: 0; color: inherit; }
+.catrow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 4px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-weight: 600; font-size: 14px; text-align: left; }
+.catrow:hover { background: var(--sunk); }
+.catrow .box { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 5px; border: 2px solid var(--c); color: var(--pen-ink); }
+.catrow[aria-checked="true"] .box { background: var(--c); }
+.catrow[aria-checked="false"] { color: var(--ink-3); }
+.catrow .box svg { opacity: 0; }
+.catrow[aria-checked="true"] .box svg { opacity: 1; }
+.sync { display: flex; align-items: center; gap: 8px; color: var(--ink-3); font-size: 13px; }
+.side-foot { margin-top: auto; display: grid; gap: 10px; }
+
+/* ---------- Barra para escribir ---------- */
+.quick { position: fixed; z-index: 25; left: 0; right: 0; bottom: 0; padding-top: 18px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: linear-gradient(to top, var(--paper) 62%, transparent); pointer-events: none; }
+.quick > * { pointer-events: auto; max-width: 720px; margin-inline: auto; }
+@media (min-width: 1100px) { .quick { left: var(--side-w); } }
+.qrow { display: flex; align-items: center; gap: 6px; padding: 5px 5px 5px 16px; border-radius: 18px; border: 1.5px solid var(--rule-2); background: var(--sheet); box-shadow: var(--shadow); }
+.qrow:focus-within { border-color: var(--pen); box-shadow: 0 0 0 4px var(--pen-soft), var(--shadow); }
+.qrow input { flex: 1; min-width: 0; height: 46px; border: 0; outline: 0; background: transparent; font-size: 16px; }
+.qrow input::placeholder { color: var(--ink-3); }
+.qadd { width: 46px; height: 46px; display: grid; place-items: center; border: 0; border-radius: 14px; background: var(--pen); color: var(--pen-ink); }
+.qadd:active { transform: scale(.96); }
+.qprev { margin-bottom: 8px; padding: 12px 14px; border-radius: 18px; border: 1px solid var(--rule); background: var(--sheet); box-shadow: var(--shadow); animation: rise .16s ease-out; }
+.qp-item + .qp-item { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
+.qp-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.qp-type { flex: none; font: 700 11px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--c); }
+.qp-title { font-weight: 700; font-size: 16px; overflow-wrap: anywhere; }
+.qp-title.empty { color: var(--ink-3); font-weight: 600; }
+.qp-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.qc { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--sunk); font-size: 13px; font-weight: 600; color: var(--ink); }
+.qc.cat { background: var(--sunk); background: color-mix(in srgb, var(--c) 16%, var(--sheet)); }
+.qc.cat::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.qc.ok { color: var(--pen); }
+.qp-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 10px; color: var(--ink-3); font-size: 13px; }
+.qp-foot kbd { font: 700 12px var(--f-ui); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--rule-2); color: var(--ink-2); }
+.qp-foot .link { padding: 4px 0; font-size: 13px; }
+.qp-msg { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-size: 14px; }
+.qp-msg.err { color: var(--danger); margin-top: 8px; }
+.thinking::after { content: ""; display: inline-block; width: 1.2em; text-align: left; animation: dots 1.2s steps(4) infinite; }
+@keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+
+/* ---------- Hojas (editor, ajustes, búsqueda) ---------- */
+.sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; background: var(--scrim); animation: fade .15s ease-out; }
+.sheet-card { width: 100%; max-width: 580px; max-height: calc(100% - env(safe-area-inset-top, 0px) - 18px); overflow: auto; overscroll-behavior: contain; padding-top: 8px; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); border-radius: 24px 24px 0 0; background: var(--sheet); box-shadow: var(--shadow); animation: up .22s cubic-bezier(.2, .8, .2, 1); }
+@media (min-width: 700px) {
+  .sheet { align-items: center; padding: 24px; }
+  .sheet-card { border-radius: 24px; max-height: min(88vh, 860px); padding: 12px 26px 24px; }
+  .grab { display: none; }
+}
+@keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+@keyframes rise { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: 0; } }
+.grab { width: 40px; height: 5px; margin: 2px auto 10px; border-radius: 999px; background: var(--rule-2); }
+.sh-head { display: flex; align-items: center; gap: 10px; padding: 4px 0 8px; }
+.sh-head h2 { flex: 1; margin: 0; font: 800 22px/1.15 var(--f-display); font-stretch: 88%; }
+.muted { color: var(--ink-2); font-size: 14px; margin: 0 0 12px; }
+.ed { display: grid; gap: 16px; }
+.ed-top { display: flex; align-items: center; gap: 10px; }
+.ed-top .seg { margin-right: auto; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 12px; background: var(--sunk); }
+.seg button { height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; font: 700 14px var(--f-ui); color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-s); }
+.title-in { width: 100%; padding: 4px 0 8px; border: 0; border-bottom: 2px solid var(--rule); background: transparent; font: 700 24px/1.2 var(--f-ui); color: var(--ink); border-radius: 0; }
+.title-in:focus { outline: none; border-bottom-color: var(--pen); }
+.err { margin: -8px 0 0; color: var(--danger); font-size: 13px; font-weight: 600; }
+.ed-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ed-grid .wide { grid-column: 1 / -1; }
+.f { display: grid; gap: 6px; min-width: 0; align-content: start; }
+.f > label, .lbl { font: 700 13px/1.2 var(--f-ui); color: var(--ink-2); }
+.in { width: 100%; min-width: 0; height: 46px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--rule-2); background: var(--paper); color: var(--ink); font-size: 16px; }
+.in:focus { outline: none; border-color: var(--pen); box-shadow: 0 0 0 3px var(--pen-soft); }
+select.in { appearance: none; -webkit-appearance: none; padding-right: 36px; background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+textarea.in { height: auto; min-height: 84px; padding: 10px 12px; resize: vertical; line-height: 1.4; }
+.hint { color: var(--ink-3); font-size: 12px; }
+.switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 46px; }
+.switch-row .lbl { font-size: 15px; color: var(--ink); font-weight: 600; }
+.switch-row small { display: block; color: var(--ink-3); font-weight: 400; font-size: 13px; }
+.sw { position: relative; flex: none; width: 48px; height: 28px; padding: 0; border: 0; border-radius: 999px; background: var(--rule-2); transition: background .18s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--knob); box-shadow: var(--shadow-s); transition: transform .18s; }
+.sw[aria-checked="true"] { background: var(--pen); }
+.sw[aria-checked="true"]::after { transform: translateX(20px); }
+.wdays { display: flex; flex-wrap: wrap; gap: 6px; }
+.wdays button { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--rule-2); background: var(--sheet); font: 700 14px var(--f-ui); color: var(--ink-2); }
+.wdays button[aria-pressed="true"] { background: var(--pen); border-color: var(--pen); color: var(--pen-ink); }
+.cats { display: flex; flex-wrap: wrap; gap: 8px; }
+.cat { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px 0 12px; border-radius: 999px; border: 1.5px solid var(--rule-2); background: var(--sheet); font: 700 14px var(--f-ui); color: var(--ink); }
+.cat::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.cat[aria-checked="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 15%, var(--sheet)); }
+.ed-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 4px; }
+.ed-actions .spacer { flex: 1; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: 13px; border: 1.5px solid var(--rule-2); background: var(--sheet); color: var(--ink); font: 700 15px var(--f-ui); white-space: nowrap; }
+.btn:hover { border-color: var(--ink-3); }
+.btn.primary { background: var(--pen); border-color: var(--pen); color: var(--pen-ink); min-width: 120px; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--pen); }
+.btn.ghost:hover { background: var(--sunk); }
+.btn.danger { color: var(--danger); }
+.btn.solid-danger { background: var(--danger); border-color: var(--danger); color: var(--pen-ink); }
+.btn.sm { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 10px; }
+.confirm { display: grid; gap: 10px; padding: 14px; border-radius: 14px; background: var(--sunk); }
+.confirm p { margin: 0; font-weight: 600; }
+.confirm .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.scope { display: grid; gap: 6px; }
+
+/* Ajustes y listas */
+.group { display: grid; gap: 4px; padding: 14px 0; border-top: 1px solid var(--rule); }
+.group:first-of-type { border-top: 0; }
+.group h3 { margin: 0 0 6px; font: 800 12px var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.actions-list { display: grid; gap: 8px; }
+.act { display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; padding: 12px; border-radius: 14px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); text-align: left; }
+.act:hover { border-color: var(--rule-2); background: var(--sunk); }
+.act b { display: block; font-size: 15px; }
+.act small { display: block; color: var(--ink-3); font-size: 13px; }
+.act svg { color: var(--pen); }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; color: var(--ink-2); }
+.keys kbd { justify-self: start; font: 700 12px var(--f-ui); padding: 2px 8px; border-radius: 6px; border: 1px solid var(--rule-2); color: var(--ink); }
+.results { display: grid; gap: 2px; margin-top: 10px; }
+.res { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 10px 8px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); text-align: left; }
+.res:hover { background: var(--sunk); }
+.res i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.res b { display: block; font-weight: 700; overflow-wrap: anywhere; }
+.res small { color: var(--ink-3); font-size: 13px; }
+.res time { color: var(--ink-2); font: 700 13px var(--f-display); white-space: nowrap; }
+.sugg { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.chipbtn { height: 34px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--rule-2); background: var(--sheet); color: var(--ink); font: 600 13px var(--f-ui); }
+.chipbtn:hover { border-color: var(--pen); color: var(--pen); }
+.ask { display: grid; gap: 8px; }
+.ask-row { display: flex; justify-content: flex-end; gap: 8px; }
+.ask-out { margin-top: 14px; }
+.answer { margin: 0 0 12px; padding: 14px 16px; border-radius: 16px; background: var(--paper); border: 1px solid var(--rule); white-space: pre-wrap; line-height: 1.5; }
+.props { display: grid; gap: 8px; }
+.prop { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 10px 10px 12px; border-radius: 14px; border: 1px solid var(--rule); }
+.prop .bar { align-self: stretch; border-radius: 4px; background: var(--c); }
+.prop b { display: block; overflow-wrap: anywhere; }
+.prop small { color: var(--ink-2); font-size: 13px; }
+
+/* Aviso inferior */
+.toast { position: fixed; z-index: 50; left: 50%; bottom: calc(var(--quick-h) + env(safe-area-inset-bottom, 0px) + 14px); transform: translateX(-50%); display: flex; align-items: center; gap: 14px; width: max-content; max-width: calc(100% - 32px); padding: 10px 10px 10px 16px; border-radius: 14px; background: var(--toast-bg); color: var(--toast-fg); box-shadow: var(--shadow); font-size: 14px; font-weight: 600; animation: rise .18s ease-out; }
+.toast span { min-width: 0; overflow-wrap: anywhere; }
+.toast button { flex: none; height: 32px; padding: 0 10px; border: 0; border-radius: 9px; background: transparent; color: var(--toast-act); font: 800 14px var(--f-ui); }
+@media (min-width: 1100px) { .toast { left: calc(50% + var(--side-w) / 2); } }
+.loading { padding: 48px 0; text-align: center; color: var(--ink-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+
+<div class="app" id="app">
+  <aside class="side" id="side" aria-label="Panel lateral"></aside>
+  <main class="main">
+    <header class="top wrap" id="top">
+      <div class="bar">
+        <h1 class="period" id="period">Agenda</h1>
+        <button type="button" class="pill-btn" id="todayBtn">Hoy</button>
+        <button type="button" class="icon-btn" id="searchBtn" aria-label="Buscar"></button>
+        <button type="button" class="icon-btn accent" id="askBtn" aria-label="Pregúntale a tu agenda" hidden></button>
+        <button type="button" class="icon-btn" id="menuBtn" aria-label="Ajustes"></button>
+      </div>
+      <div class="row2">
+        <div class="tabs" role="tablist" aria-label="Vista">
+          <button type="button" role="tab" id="tab-agenda" data-view="agenda">Agenda</button>
+          <button type="button" role="tab" id="tab-dia" data-view="dia">Día</button>
+          <button type="button" role="tab" id="tab-semana" data-view="semana">Semana</button>
+          <button type="button" role="tab" id="tab-mes" data-view="mes">Mes</button>
+        </div>
+        <div class="navs" id="navs">
+          <button type="button" class="icon-btn" id="prevBtn" aria-label="Anterior"></button>
+          <button type="button" class="icon-btn" id="nextBtn" aria-label="Siguiente"></button>
+        </div>
+      </div>
+      <div class="strip" id="strip" hidden></div>
+      <div class="top-line"></div>
+    </header>
+    <section class="wrap" id="view" role="tabpanel" aria-labelledby="tab-agenda"></section>
+  </main>
+</div>
+
+<form class="quick" id="quick" autocomplete="off">
+  <div class="qprev" id="qprev" hidden></div>
+  <div class="qrow">
+    <label class="sr" for="qinput">Escribe lo que quieres agendar</label>
+    <input id="qinput" type="text" placeholder="Escribe: Dentista mañana 5pm" enterkeyhint="done" spellcheck="false">
+    <button type="button" class="icon-btn accent" id="qai" aria-label="Interpretar con Claude" hidden></button>
+    <button type="submit" class="qadd" id="qadd" aria-label="Agregar"></button>
+  </div>
+</form>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true" aria-label="Detalles"></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<input type="file" id="importFile" accept=".ics,.json,.zip,text/calendar,application/json,application/zip" hidden>
+
+<script>
+/* Ritmo — núcleo sin dependencias: fechas, repeticiones, festivos, exportar e importar.
+   Las fechas son claves locales 'AAAA-MM-DD' y las horas 'HH:MM' (hora local, como en una agenda de papel). */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.RitmoCore = api;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ---------- Fechas ----------
+  const pad = n => String(n).padStart(2, '0');
+  const key = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`; // m: 1-12
+  const parts = k => [+k.slice(0, 4), +k.slice(5, 7), +k.slice(8, 10)];
+  const isKey = k => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k) && validDate(...parts(k));
+  const isTime = t => typeof t === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
+  function validDate(y, m, d) { return m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(y, m); }
+  function toKey(date) { return key(date.getFullYear(), date.getMonth() + 1, date.getDate()); }
+  function fromKey(k) { const [y, m, d] = parts(k); return new Date(y, m - 1, d); }
+  function utc(k) { const [y, m, d] = parts(k); return Date.UTC(y, m - 1, d); }
+  function addDays(k, n) {
+    const [y, m, d] = parts(k);
+    const t = new Date(Date.UTC(y, m - 1, d + n));
+    return key(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate());
+  }
+  const diffDays = (a, b) => Math.round((utc(b) - utc(a)) / 864e5);
+  const weekday = k => new Date(utc(k)).getUTCDay(); // 0 = domingo
+  const startOfWeek = (k, ws) => addDays(k, -((weekday(k) - ws + 7) % 7));
+  const daysInMonth = (y, m) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+  function addMonths(k, n) {
+    let [y, m, d] = parts(k);
+    m += n;
+    y += Math.floor((m - 1) / 12);
+    m = ((m - 1) % 12 + 12) % 12 + 1;
+    return key(y, m, Math.min(d, daysInMonth(y, m)));
+  }
+  const monthStart = k => k.slice(0, 8) + '01';
+  const monthEnd = k => { const [y, m] = parts(k); return key(y, m, daysInMonth(y, m)); };
+  const toMin = t => (t ? +t.slice(0, 2) * 60 + +t.slice(3, 5) : null);
+  const fromMin = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+  function nthWeekday(y, m, wd, n) { // n = 1..5, o -1 para el último
+    if (n === -1) { const last = key(y, m, daysInMonth(y, m)); return addDays(last, -((weekday(last) - wd + 7) % 7)); }
+    const first = key(y, m, 1);
+    const k = addDays(first, (wd - weekday(first) + 7) % 7 + (n - 1) * 7);
+    return k.slice(0, 7) === first.slice(0, 7) ? k : null;
+  }
+
+  // ---------- Textos en español ----------
+  const DOW = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const DOW_S = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  const DOW_1 = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+  const MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const MES_S = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const ORD = { 1: 'primer', 2: 'segundo', 3: 'tercer', 4: 'cuarto', 5: 'quinto', '-1': 'último' };
+  const cap = s => (s ? s[0].toUpperCase() + s.slice(1) : s);
+
+  const CATEGORIES = [
+    { id: 'trabajo', name: 'Trabajo' },
+    { id: 'personal', name: 'Personal' },
+    { id: 'salud', name: 'Salud' },
+    { id: 'familia', name: 'Familia' },
+    { id: 'estudio', name: 'Estudio' },
+    { id: 'otro', name: 'Otro' },
+  ];
+  const CAT_IDS = CATEGORIES.map(c => c.id);
+  const catName = id => (CATEGORIES.find(c => c.id === id) || CATEGORIES[5]).name;
+
+  function fmtLong(k) { const [, m, d] = parts(k); return `${DOW[weekday(k)]} ${d} de ${MES[m - 1]}`; }
+  function fmtShort(k) { const [, m, d] = parts(k); return `${DOW_S[weekday(k)]} ${d} ${MES_S[m - 1]}`; }
+  function fmtDayMonth(k) { const [, m, d] = parts(k); return `${d} ${MES_S[m - 1]}`; }
+  function relDay(k, today) {
+    const n = diffDays(today, k);
+    if (n === 0) return 'Hoy';
+    if (n === 1) return 'Mañana';
+    if (n === -1) return 'Ayer';
+    if (n === 2) return 'Pasado mañana';
+    return null;
+  }
+  function fmtTime(t, h12) {
+    if (!t) return '';
+    if (!h12) return t;
+    const h = +t.slice(0, 2), mm = t.slice(3, 5);
+    return `${h % 12 || 12}:${mm} ${h < 12 ? 'a.m.' : 'p.m.'}`;
+  }
+  function fmtHour(h, h12) { // etiqueta de la rejilla horaria
+    if (!h12) return pad(h) + ':00';
+    if (h === 0) return '12 a.m.';
+    if (h === 12) return '12 p.m.';
+    return `${h % 12} ${h < 12 ? 'a.m.' : 'p.m.'}`;
+  }
+  function fmtRange(start, end, h12) {
+    if (!start) return '';
+    return end ? `${fmtTime(start, h12)} – ${fmtTime(end, h12)}` : fmtTime(start, h12);
+  }
+  function fmtDuration(min) {
+    if (min < 60) return `${min} min`;
+    const h = Math.floor(min / 60), m = min % 60;
+    return m ? `${h} h ${m} min` : `${h} h`;
+  }
+
+  function describeRepeat(r, date) {
+    if (!r) return 'No se repite';
+    const n = r.interval > 1 ? r.interval : 1;
+    let s;
+    switch (r.freq) {
+      case 'daily': s = n > 1 ? `Cada ${n} días` : 'Cada día'; break;
+      case 'weekly': {
+        const days = (r.days && r.days.length ? r.days : [weekday(date)]).slice().sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7));
+        if (n === 1 && days.join() === '1,2,3,4,5') { s = 'Entre semana (lun a vie)'; break; }
+        if (n === 1 && days.join() === '6,0') { s = 'Fines de semana'; break; }
+        const list = days.length === 1 ? `el ${DOW[days[0]]}` : days.map(d => DOW_S[d]).join(', ');
+        s = n > 1 ? `Cada ${n} semanas: ${list}` : `Cada semana: ${list}`;
+        break;
+      }
+      case 'monthly':
+        if (r.monthDays && r.monthDays.join() === '15,-1') { s = 'Cada quincena (15 y fin de mes)'; break; }
+        if (r.nth) { s = `${n > 1 ? `Cada ${n} meses` : 'Cada mes'} el ${ORD[r.nth]} ${DOW[r.wd]}`; break; }
+        {
+          const days = r.monthDays && r.monthDays.length ? r.monthDays : [parts(date)[2]];
+          const list = days.map(d => (d === -1 ? 'último día' : `día ${d}`)).join(' y ');
+          s = `${n > 1 ? `Cada ${n} meses` : 'Cada mes'} el ${list}`;
+        }
+        break;
+      case 'yearly': { const [, m, d] = parts(date); s = `Cada año el ${d} de ${MES[m - 1]}`; break; }
+      default: s = 'Se repite';
+    }
+    if (r.until) s += `, hasta el ${fmtDayMonth(r.until)}`;
+    return s;
+  }
+
+  // ---------- Repeticiones ----------
+  // Inicios de ocurrencia de un elemento entre a y b (claves, inclusive).
+  function occurrenceStarts(it, a, b, ignoreEx) {
+    const out = [];
+    const first = it.date;
+    const r = it.repeat;
+    if (!r) { if (first >= a && first <= b) out.push(first); return out; }
+    const until = r.until && r.until < b ? r.until : b;
+    const from = first > a ? first : a;
+    if (from > until) return out;
+    const n = Math.max(1, (r.interval | 0) || 1);
+    const ex = !ignoreEx && it.exdates && it.exdates.length ? new Set(it.exdates) : null;
+    const push = k => { if (!ex || !ex.has(k)) out.push(k); };
+    switch (r.freq) {
+      case 'daily': {
+        const off = Math.ceil(diffDays(first, from) / n) * n;
+        for (let k = addDays(first, off); k <= until; k = addDays(k, n)) push(k);
+        break;
+      }
+      case 'weekly': {
+        const days = r.days && r.days.length ? r.days : [weekday(first)];
+        const anchor = startOfWeek(first, 0);
+        for (let k = from; k <= until; k = addDays(k, 1)) {
+          if (!days.includes(weekday(k))) continue;
+          if (n > 1 && Math.floor(diffDays(anchor, k) / 7) % n) continue;
+          push(k);
+        }
+        break;
+      }
+      case 'monthly': {
+        const [fy, fm, fd] = parts(first);
+        let [y, m] = parts(from);
+        while (key(y, m, 1) <= until) {
+          if (((y - fy) * 12 + (m - fm)) % n === 0) {
+            const dim = daysInMonth(y, m);
+            let ks;
+            if (r.nth) ks = [nthWeekday(y, m, r.wd, r.nth)].filter(Boolean);
+            else ks = (r.monthDays && r.monthDays.length ? r.monthDays : [fd])
+              .map(md => (md < 0 ? dim + 1 + md : md)).filter(d => d >= 1 && d <= dim).map(d => key(y, m, d));
+            for (const k of [...new Set(ks)].sort()) if (k >= from && k <= until) push(k);
+          }
+          if (++m > 12) { m = 1; y++; }
+        }
+        break;
+      }
+      case 'yearly': {
+        const [fy, fm, fd] = parts(first);
+        for (let y = parts(from)[0]; y <= parts(until)[0]; y++) {
+          if ((y - fy) % n || fd > daysInMonth(y, fm)) continue;
+          const k = key(y, fm, fd);
+          if (k >= from && k <= until) push(k);
+        }
+        break;
+      }
+    }
+    return out;
+  }
+
+  // Apariciones por día: un evento de varios días aparece en cada día que abarca.
+  function occurrences(it, a, b) {
+    const span = it.type !== 'task' && it.allDay && it.days > 1 ? it.days : 1;
+    const out = [];
+    for (const s of occurrenceStarts(it, span > 1 ? addDays(a, -(span - 1)) : a, b)) {
+      for (let i = 0; i < span; i++) {
+        const d = i ? addDays(s, i) : s;
+        if (d >= a && d <= b) out.push({ item: it, date: d, occ: s, idx: i, span });
+      }
+    }
+    return out;
+  }
+
+  const isDone = (it, occ) => (it.repeat ? (it.doneDates || []).includes(occ) : !!it.done);
+
+  // Columnas para eventos que se enciman en una línea de tiempo. evs: [{s, e}] en minutos.
+  function layoutColumns(evs) {
+    evs.sort((x, y) => x.s - y.s || (y.e - y.s) - (x.e - x.s));
+    let cluster = [], colsEnd = [], clusterEnd = -1;
+    const flush = () => { cluster.forEach(o => { o.cols = colsEnd.length; }); cluster = []; colsEnd = []; clusterEnd = -1; };
+    for (const ev of evs) {
+      if (cluster.length && ev.s >= clusterEnd) flush();
+      let c = colsEnd.findIndex(end => end <= ev.s);
+      if (c === -1) { c = colsEnd.length; colsEnd.push(ev.e); } else colsEnd[c] = ev.e;
+      ev.col = c;
+      cluster.push(ev);
+      clusterEnd = Math.max(clusterEnd, ev.e);
+    }
+    flush();
+    return evs;
+  }
+
+  // ---------- Días festivos de México ----------
+  function easter(y) { // algoritmo gregoriano anónimo
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+    return key(y, month, day);
+  }
+  // official = descanso obligatorio (art. 74 de la Ley Federal del Trabajo); el resto son fechas que se celebran.
+  function holidaysMX(y) {
+    const e = easter(y);
+    const H = (date, title, official) => ({ date, title, official });
+    return [
+      H(key(y, 1, 1), 'Año Nuevo', true),
+      H(nthWeekday(y, 2, 1, 1), 'Día de la Constitución', true),
+      H(nthWeekday(y, 3, 1, 3), 'Natalicio de Benito Juárez', true),
+      H(addDays(e, -3), 'Jueves Santo', false),
+      H(addDays(e, -2), 'Viernes Santo', false),
+      H(key(y, 4, 30), 'Día del Niño', false),
+      H(key(y, 5, 1), 'Día del Trabajo', true),
+      H(key(y, 5, 10), 'Día de las Madres', false),
+      H(nthWeekday(y, 6, 0, 3), 'Día del Padre', false),
+      H(key(y, 9, 16), 'Día de la Independencia', true),
+      (y - 2024) % 6 === 0 ? H(key(y, 10, 1), 'Transmisión del Poder Ejecutivo', true) : null,
+      H(key(y, 11, 2), 'Día de Muertos', false),
+      H(nthWeekday(y, 11, 1, 3), 'Revolución Mexicana', true),
+      H(key(y, 12, 12), 'Día de la Virgen de Guadalupe', false),
+      H(key(y, 12, 24), 'Nochebuena', false),
+      H(key(y, 12, 25), 'Navidad', true),
+    ].filter(Boolean);
+  }
+  function holidaysBetween(a, b) {
+    const out = [];
+    for (let y = parts(a)[0]; y <= parts(b)[0]; y++) for (const h of holidaysMX(y)) if (h.date >= a && h.date <= b) out.push(h);
+    return out;
+  }
+
+  // ---------- Validación (datos importados o propuestos por Claude) ----------
+  function sanitizeRepeat(r) {
+    if (!r || typeof r !== 'object' || !['daily', 'weekly', 'monthly', 'yearly'].includes(r.freq)) return null;
+    const out = { freq: r.freq, interval: Math.min(99, Math.max(1, parseInt(r.interval, 10) || 1)) };
+    const ints = (arr, lo, hi) => (Array.isArray(arr) ? [...new Set(arr.map(Number).filter(n => Number.isInteger(n) && n >= lo && n <= hi))] : []);
+    if (r.freq === 'weekly') { const d = ints(r.days, 0, 6); if (d.length) out.days = d; }
+    if (r.freq === 'monthly') {
+      const nth = Number(r.nth), wd = Number(r.wd);
+      if ((nth === -1 || (nth >= 1 && nth <= 5)) && wd >= 0 && wd <= 6 && Number.isInteger(wd)) { out.nth = nth; out.wd = wd; }
+      else { const md = ints(r.monthDays, -1, 31).filter(n => n !== 0); if (md.length) out.monthDays = md; }
+    }
+    if (isKey(r.until)) out.until = r.until;
+    return out;
+  }
+  function sanitizeItem(raw, today) {
+    if (!raw || typeof raw !== 'object') return null;
+    const title = String(raw.title || '').trim().slice(0, 200);
+    if (!title) return null;
+    const type = raw.type === 'task' ? 'task' : 'event';
+    const date = isKey(raw.date) ? raw.date : today;
+    const start = type === 'event' && isTime(raw.start) ? raw.start : null;
+    let end = start && isTime(raw.end) ? raw.end : null;
+    if (start && !end) end = fromMin(toMin(start) + 60);
+    const allDay = type === 'event' && !start;
+    const days = allDay ? Math.min(366, Math.max(1, parseInt(raw.days, 10) || 1)) : 1;
+    return {
+      type, title, date, allDay, start, end, days,
+      repeat: sanitizeRepeat(raw.repeat),
+      category: CAT_IDS.includes(raw.category) ? raw.category : 'personal',
+      location: String(raw.location || '').trim().slice(0, 200),
+      notes: String(raw.notes || '').trim().slice(0, 4000),
+      exdates: Array.isArray(raw.exdates) ? raw.exdates.filter(isKey) : [],
+      doneDates: Array.isArray(raw.doneDates) ? raw.doneDates.filter(isKey) : [],
+      done: !!raw.done,
+    };
+  }
+
+  // ---------- Exportar ----------
+  const DAYCODES = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+  const icsEsc = s => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  function fold(line) { // líneas de máximo 75 bytes (RFC 5545)
+    const enc = new TextEncoder();
+    let out = '', cur = '', bytes = 0;
+    for (const ch of line) {
+      const b = enc.encode(ch).length;
+      if (bytes + b > 75) { out += cur + '\r\n '; cur = ''; bytes = 1; }
+      cur += ch; bytes += b;
+    }
+    return out + cur;
+  }
+  function toICS(items, opts) {
+    const o = opts || {};
+    const stamp = (o.now || new Date()).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const d8 = k => k.replace(/-/g, '');
+    const dt = (k, t) => d8(k) + 'T' + t.replace(':', '') + '00';
+    const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Ritmo//Agenda//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Ritmo'];
+    if (o.tz) L.push('X-WR-TIMEZONE:' + o.tz);
+    for (const it of items) {
+      const task = it.type === 'task';
+      const dateOnly = task || it.allDay || !it.start;
+      L.push(task ? 'BEGIN:VTODO' : 'BEGIN:VEVENT', 'UID:' + it.id + '@ritmo', 'DTSTAMP:' + stamp, 'SUMMARY:' + icsEsc(it.title));
+      if (task) {
+        L.push('DTSTART;VALUE=DATE:' + d8(it.date), 'DUE;VALUE=DATE:' + d8(it.date), 'STATUS:' + (it.done ? 'COMPLETED' : 'NEEDS-ACTION'));
+      } else if (dateOnly) {
+        L.push('DTSTART;VALUE=DATE:' + d8(it.date), 'DTEND;VALUE=DATE:' + d8(addDays(it.date, Math.max(1, it.days || 1))));
+      } else {
+        const end = it.end || fromMin(toMin(it.start) + 60);
+        L.push('DTSTART:' + dt(it.date, it.start), 'DTEND:' + dt(toMin(end) <= toMin(it.start) ? addDays(it.date, 1) : it.date, end));
+      }
+      if (it.repeat) {
+        const r = it.repeat, p = ['FREQ=' + r.freq.toUpperCase()];
+        if (r.interval > 1) p.push('INTERVAL=' + r.interval);
+        if (r.freq === 'weekly' && r.days && r.days.length) p.push('BYDAY=' + r.days.map(d => DAYCODES[d]).join(','));
+        if (r.freq === 'monthly' && r.nth) p.push('BYDAY=' + r.nth + DAYCODES[r.wd]);
+        else if (r.freq === 'monthly' && r.monthDays && r.monthDays.length) p.push('BYMONTHDAY=' + r.monthDays.join(','));
+        if (r.until) p.push('UNTIL=' + (dateOnly ? d8(r.until) : d8(r.until) + 'T235959'));
+        L.push('RRULE:' + p.join(';'));
+        if (it.exdates && it.exdates.length) {
+          L.push(dateOnly ? 'EXDATE;VALUE=DATE:' + it.exdates.map(d8).join(',') : 'EXDATE:' + it.exdates.map(k => dt(k, it.start)).join(','));
+        }
+      }
+      if (it.location) L.push('LOCATION:' + icsEsc(it.location));
+      if (it.notes) L.push('DESCRIPTION:' + icsEsc(it.notes));
+      if (it.category) L.push('CATEGORIES:' + icsEsc(catName(it.category)));
+      L.push(task ? 'END:VTODO' : 'END:VEVENT');
+    }
+    L.push('END:VCALENDAR');
+    return L.map(fold).join('\r\n') + '\r\n';
+  }
+
+  // CSV con las columnas que acepta Google Calendar (las repeticiones se expanden en fechas sueltas).
+  const csvCell = v => (/[",\r\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : String(v));
+  function toGoogleCSV(items, a, b) {
+    const us = k => { const [y, m, d] = parts(k); return `${pad(m)}/${pad(d)}/${y}`; };
+    const t12 = t => { const h = +t.slice(0, 2); return `${h % 12 || 12}:${t.slice(3, 5)} ${h < 12 ? 'AM' : 'PM'}`; };
+    const rows = [['Subject', 'Start Date', 'Start Time', 'End Date', 'End Time', 'All Day Event', 'Description', 'Location', 'Private']];
+    for (const it of items) {
+      for (const o of occurrences(it, a, b)) {
+        if (o.idx > 0) continue;
+        const task = it.type === 'task';
+        const allDay = task || it.allDay || !it.start;
+        const end = it.end || (it.start ? fromMin(toMin(it.start) + 60) : null);
+        const endK = allDay ? addDays(o.occ, Math.max(1, it.days || 1) - 1) : (toMin(end) <= toMin(it.start) ? addDays(o.occ, 1) : o.occ);
+        rows.push([(task ? 'Pendiente: ' : '') + it.title, us(o.occ), allDay ? '' : t12(it.start), us(endK), allDay ? '' : t12(end),
+          allDay ? 'True' : 'False', it.notes || '', it.location || '', 'True']);
+      }
+    }
+    return rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  }
+
+  // ---------- ZIP (escribir sin compresión; leer con o sin compresión) ----------
+  const CRC_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+    return t;
+  })();
+  function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zip(files, date) {
+    const enc = new TextEncoder(), t = date || new Date();
+    const dosTime = (t.getHours() << 11) | (t.getMinutes() << 5) | (t.getSeconds() >> 1);
+    const dosDate = ((t.getFullYear() - 1980) << 9) | ((t.getMonth() + 1) << 5) | t.getDate();
+    const chunks = [], central = [];
+    let offset = 0;
+    for (const f of files) {
+      const name = enc.encode(f.name), data = typeof f.data === 'string' ? enc.encode(f.data) : f.data, crc = crc32(data);
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+      lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true);
+      lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, name.length, true);
+      chunks.push(new Uint8Array(lh.buffer), name, data);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true);
+      ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true);
+      ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, name.length, true);
+      ch.setUint32(42, offset, true);
+      central.push(new Uint8Array(ch.buffer), name);
+      offset += 30 + name.length + data.length;
+    }
+    const cdSize = central.reduce((s, c) => s + c.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+    const all = [...chunks, ...central, new Uint8Array(end.buffer)];
+    const out = new Uint8Array(all.reduce((s, c) => s + c.length, 0));
+    let p = 0;
+    for (const c of all) { out.set(c, p); p += c.length; }
+    return out;
+  }
+  async function unzip(buf) {
+    const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    let eocd = -1;
+    for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    if (eocd < 0) throw new Error('El archivo no es un .zip válido.');
+    const count = dv.getUint16(eocd + 10, true);
+    let p = dv.getUint32(eocd + 16, true);
+    const out = [];
+    for (let i = 0; i < count && dv.getUint32(p, true) === 0x02014b50; i++) {
+      const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+      const nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+      const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen));
+      const start = lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true);
+      const data = u8.subarray(start, start + csize);
+      let bytes = null;
+      if (method === 0) bytes = data;
+      else if (method === 8 && typeof DecompressionStream === 'function') {
+        bytes = new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+      }
+      out.push({ name, bytes });
+      p += 46 + nlen + elen + clen;
+    }
+    return out;
+  }
+
+  // ---------- Importar .ics ----------
+  function zonedToDate(y, mo, d, h, mi, s, tz) {
+    const target = Date.UTC(y, mo - 1, d, h, mi, s);
+    try {
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      let guess = target;
+      for (let i = 0; i < 2; i++) {
+        const p = {};
+        for (const x of fmt.formatToParts(new Date(guess))) p[x.type] = x.value;
+        guess += target - Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+      }
+      return new Date(guess);
+    } catch (e) { return new Date(y, mo - 1, d, h, mi, s); } // zona desconocida: hora local
+  }
+  function icsValueToLocal(value, params) {
+    const m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/.exec(value.trim());
+    if (!m) return null;
+    const [, y, mo, d, h, mi, s, z] = m;
+    if (h === undefined || params.VALUE === 'DATE') return { date: `${y}-${mo}-${d}`, time: null };
+    let dt;
+    if (z) dt = new Date(Date.UTC(+y, +mo - 1, +d, +h, +mi, +(s || 0)));
+    else if (params.TZID) dt = zonedToDate(+y, +mo, +d, +h, +mi, +(s || 0), params.TZID.replace(/^"|"$/g, ''));
+    else return { date: `${y}-${mo}-${d}`, time: `${h}:${mi}` };
+    return { date: toKey(dt), time: pad(dt.getHours()) + ':' + pad(dt.getMinutes()) };
+  }
+  const icsUnesc = s => s.replace(/\\n/gi, '\n').replace(/\\([,;\\])/g, '$1');
+  function parseDuration(v) {
+    const m = /^([+-])?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/.exec(v || '');
+    if (!m) return null;
+    return ((+m[2] || 0) * 7 * 1440 + (+m[3] || 0) * 1440 + (+m[4] || 0) * 60 + (+m[5] || 0)) * (m[1] === '-' ? -1 : 1);
+  }
+  function parseICS(text) {
+    const lines = String(text).replace(/\r\n?/g, '\n').replace(/\n[ \t]/g, '').split('\n');
+    const out = [];
+    let cur = null, nested = 0;
+    for (const line of lines) {
+      if (/^BEGIN:(VEVENT|VTODO)$/i.test(line)) { cur = { kind: line.slice(6).toUpperCase(), p: {}, ex: [] }; nested = 0; continue; }
+      if (!cur) continue;
+      if (/^BEGIN:/i.test(line)) { nested++; continue; }
+      if (/^END:(VEVENT|VTODO)$/i.test(line)) { const it = icsToItem(cur); if (it) out.push(it); cur = null; continue; }
+      if (/^END:/i.test(line)) { nested = Math.max(0, nested - 1); continue; }
+      if (nested) continue;
+      const m = /^([A-Za-z0-9-]+)((?:;[^:]*)*):(.*)$/.exec(line);
+      if (!m) continue;
+      const name = m[1].toUpperCase(), params = {};
+      for (const kv of m[2].split(';').slice(1)) { const i = kv.indexOf('='); if (i > 0) params[kv.slice(0, i).toUpperCase()] = kv.slice(i + 1); }
+      if (name === 'EXDATE') { for (const v of m[3].split(',')) { const x = icsValueToLocal(v, params); if (x) cur.ex.push(x.date); } }
+      else cur.p[name] = { value: m[3], params };
+    }
+    return out;
+  }
+  function icsToItem(c) {
+    const P = c.p, task = c.kind === 'VTODO';
+    const title = P.SUMMARY ? icsUnesc(P.SUMMARY.value).trim() : '';
+    const startP = P.DTSTART || P.DUE;
+    if (!title || !startP) return null;
+    const s = icsValueToLocal(startP.value, startP.params);
+    if (!s) return null;
+    const it = { type: task ? 'task' : 'event', title, date: s.date, allDay: !task && !s.time, start: task ? null : s.time, end: null, days: 1 };
+    if (!task) {
+      let e = P.DTEND ? icsValueToLocal(P.DTEND.value, P.DTEND.params) : null;
+      if (!e && P.DURATION) {
+        const dur = parseDuration(P.DURATION.value);
+        if (dur != null) {
+          if (s.time) { const tot = toMin(s.time) + dur; e = { date: addDays(s.date, Math.floor(tot / 1440)), time: fromMin(tot) }; }
+          else e = { date: addDays(s.date, Math.max(1, Math.round(dur / 1440))), time: null };
+        }
+      }
+      if (s.time) {
+        if (e && e.time) {
+          const spanDays = diffDays(s.date, e.date);
+          if (spanDays >= 2) { it.allDay = true; it.start = null; it.days = spanDays + 1; }
+          else it.end = e.time;
+        }
+        if (it.start && !it.end) it.end = fromMin(toMin(it.start) + 60);
+      } else if (e) it.days = Math.max(1, diffDays(s.date, e.date));
+    } else it.done = P.STATUS ? /COMPLETED/i.test(P.STATUS.value) : false;
+    if (P.LOCATION) it.location = icsUnesc(P.LOCATION.value).trim();
+    if (P.DESCRIPTION) it.notes = icsUnesc(P.DESCRIPTION.value).trim();
+    if (P.CATEGORIES) {
+      const cat = P.CATEGORIES.value.toLowerCase();
+      const hit = CATEGORIES.find(x => cat.includes(x.id) || cat.includes(x.name.toLowerCase()));
+      if (hit) it.category = hit.id;
+    }
+    if (P.RRULE) {
+      const R = {};
+      for (const kv of P.RRULE.value.split(';')) { const i = kv.indexOf('='); if (i > 0) R[kv.slice(0, i).toUpperCase()] = kv.slice(i + 1); }
+      const freq = { DAILY: 'daily', WEEKLY: 'weekly', MONTHLY: 'monthly', YEARLY: 'yearly' }[R.FREQ];
+      if (freq) {
+        const rep = { freq, interval: parseInt(R.INTERVAL, 10) || 1 };
+        const byday = R.BYDAY ? R.BYDAY.split(',') : [];
+        if (freq === 'weekly' && byday.length) rep.days = byday.map(x => DAYCODES.indexOf(x.slice(-2))).filter(n => n >= 0);
+        if (freq === 'monthly') {
+          const nthM = byday.length === 1 && /^([+-]?\d)(SU|MO|TU|WE|TH|FR|SA)$/.exec(byday[0]);
+          if (nthM) { rep.nth = +nthM[1] < 0 ? -1 : +nthM[1]; rep.wd = DAYCODES.indexOf(nthM[2]); }
+          else if (R.BYMONTHDAY) rep.monthDays = R.BYMONTHDAY.split(',').map(Number).filter(n => n && n >= -1 && n <= 31);
+        }
+        if (R.UNTIL) { const u = icsValueToLocal(R.UNTIL, {}); if (u) rep.until = u.date; }
+        it.repeat = rep;
+        it.exdates = c.ex;
+        if (R.COUNT && !rep.until) {
+          const n = parseInt(R.COUNT, 10);
+          const starts = occurrenceStarts({ date: it.date, repeat: rep }, it.date, addDays(it.date, 3660), true);
+          if (n > 0 && starts.length >= n) rep.until = starts[n - 1];
+        }
+      }
+    }
+    return it;
+  }
+
+  return {
+    pad, key, parts, isKey, isTime, toKey, fromKey, addDays, diffDays, weekday, startOfWeek, daysInMonth, addMonths,
+    monthStart, monthEnd, toMin, fromMin, nthWeekday,
+    DOW, DOW_S, DOW_1, MES, MES_S, ORD, cap, CATEGORIES, CAT_IDS, catName,
+    fmtLong, fmtShort, fmtDayMonth, relDay, fmtTime, fmtHour, fmtRange, fmtDuration, describeRepeat,
+    occurrenceStarts, occurrences, isDone, layoutColumns,
+    easter, holidaysMX, holidaysBetween,
+    sanitizeItem, sanitizeRepeat,
+    toICS, toGoogleCSV, zip, unzip, crc32, parseICS,
+  };
+});
+</script>
+<script>
+/* Ritmo — intérprete de frases en español: "Dentista mañana 5pm" → evento listo para guardar.
+   Funciona sin conexión. Cada regla marca el tramo de texto que entendió; lo que sobra es el título. */
+(function (root, factory) {
+  const core = root && root.RitmoCore ? root.RitmoCore : (typeof require === 'function' ? require('./core.js') : null);
+  const api = factory(core);
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.RitmoParser = api;
+})(typeof self !== 'undefined' ? self : this, function (C) {
+  'use strict';
+
+  // Minúsculas y sin acentos, conservando la posición de cada carácter.
+  function norm(s) {
+    let out = '';
+    for (let i = 0; i < s.length; i++) {
+      const d = s[i].toLowerCase().normalize('NFD');
+      out += d.length ? d[0] : s[i];
+    }
+    return out;
+  }
+
+  const WD = { domingo: 0, lunes: 1, martes: 2, miercoles: 3, jueves: 4, viernes: 5, sabado: 6 };
+  const WD_RE = '(?:lunes|martes|miercoles|jueves|viernes|sabados?|domingos?)';
+  const wdOf = w => WD[w.startsWith('sabado') ? 'sabado' : w.startsWith('domingo') ? 'domingo' : w];
+  const MONTHS = {
+    enero: 1, ene: 1, febrero: 2, feb: 2, marzo: 3, mar: 3, abril: 4, abr: 4, mayo: 5, may: 5, junio: 6, jun: 6,
+    julio: 7, jul: 7, agosto: 8, ago: 8, septiembre: 9, setiembre: 9, sept: 9, sep: 9, octubre: 10, oct: 10,
+    noviembre: 11, nov: 11, diciembre: 12, dic: 12,
+  };
+  const MON_RE = '(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|ene|feb|mar|abr|may|jun|jul|ago|sept|sep|oct|nov|dic)\\.?';
+  const monthNum = s => MONTHS[s.replace('.', '')];
+  const NUMW = { un: 1, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12, quince: 15, veinte: 20, treinta: 30 };
+  const NUM_RE = '(?:\\d{1,3}|un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|quince|veinte|treinta)';
+  const num = s => (/^\d+$/.test(s) ? +s : NUMW[s]);
+  const NTH = { primer: 1, primero: 1, '1er': 1, '1o': 1, segundo: 2, '2o': 2, tercer: 3, tercero: 3, '3er': 3, '3o': 3, cuarto: 4, '4o': 4, quinto: 5, ultimo: -1 };
+
+  // Hora: 5 | 5:30 | 17h30 | 5 y media | 5pm | 10 hrs | 8 de la noche. Seis grupos por hora.
+  const T = '(\\d{1,2})(?:[:.](\\d{2})|h(\\d{2}))?(?:\\s+(y media|y cuarto|menos cuarto))?\\s*(a\\.?\\s?m\\.?|p\\.?\\s?m\\.?|hrs?\\.?|horas|h)?(?![a-z])(?:\\s*(de la manana|de la tarde|de la noche|de la madrugada|del dia|del mediodia))?';
+  const U = '(?<u>hasta (?:el |la )?)?'; // "hasta el 15 de diciembre" → fin de la repetición
+
+  function tok(m, i) {
+    let h = +m[i], mi = +(m[i + 1] || m[i + 2] || 0);
+    if (h > 24 || mi > 59) return null;
+    const frac = m[i + 3], ap = (m[i + 4] || '').replace(/[\s.]/g, ''), mod = m[i + 5];
+    if (frac === 'y media') mi += 30;
+    else if (frac === 'y cuarto') mi += 15;
+    else if (frac === 'menos cuarto') { mi += 45; h -= 1; if (h < 0) h = 23; }
+    let period = null;
+    if (ap === 'am') period = 'am';
+    else if (ap === 'pm') period = 'pm';
+    else if (ap) period = '24';
+    if (mod) {
+      if (/manana|madrugada/.test(mod)) period = 'am';
+      else if (/tarde/.test(mod)) period = h === 12 ? '24' : 'pm';
+      else if (/noche/.test(mod)) period = h === 12 ? 'am' : h >= 6 ? 'pm' : 'am';
+      else period = h === 12 || h <= 7 ? 'pm' : 'am';
+    }
+    return { h, mi, period, hasMin: !!(m[i + 1] || m[i + 2] || frac), explicit: !!period || h >= 13 || h === 0 };
+  }
+  function resolveHour(t, pref) {
+    let h = t.h;
+    if (t.period === 'am') { if (h === 12) h = 0; }
+    else if (t.period === 'pm') { if (h < 12) h += 12; }
+    else if (!(t.period === '24' || h >= 13 || h === 0 || h === 12)) {
+      if (pref === 'pm') h += 12;
+      else if (pref !== 'am' && h <= 7) h += 12;
+    }
+    if (h === 24) h = 0;
+    return h * 60 + t.mi;
+  }
+  function resolveRange(t1, t2, pref) {
+    let s, e;
+    if (!t1.explicit && t2.explicit) {
+      e = resolveHour(t2, pref);
+      s = (t1.h % 12 === 0 && t1.h === 12 ? 12 : t1.h) * 60 + t1.mi;
+      if (t1.h !== 12 && s + 720 < e) s += 720;
+    } else {
+      s = resolveHour(t1, pref);
+      if (t2.explicit) e = resolveHour(t2, pref);
+      else {
+        const e1 = (t2.h % 12) * 60 + t2.mi, e2 = e1 + 720;
+        e = e1 > s ? e1 : e2 > s ? e2 : e1;
+      }
+    }
+    return [s, e];
+  }
+
+  const validDate = (y, m, d) => m >= 1 && m <= 12 && d >= 1 && d <= C.daysInMonth(y, m);
+  function mkDate(d, m, y, today) {
+    if (!m || m < 1 || m > 12 || !d || d < 1 || d > 31) return null;
+    if (y) return validDate(y, m, d) ? C.key(y, m, d) : null;
+    let yy = C.parts(today)[0];
+    const next = from => { for (let i = 0; i < 8; i++) if (validDate(from + i, m, d)) return from + i; return null; };
+    yy = next(yy);
+    if (yy == null) return null;
+    let k = C.key(yy, m, d);
+    if (C.diffDays(k, today) > 30) { const y2 = next(yy + 1); if (y2 != null) k = C.key(y2, m, d); }
+    return k;
+  }
+
+  // Palabras que sugieren categoría. Las de familia pesan más: si alguien de la familia aparece, es de familia.
+  const CAT_KW = {
+    salud: ['dentista', 'doctor', 'doctora', 'medico', 'medica', 'cita medica', 'hospital', 'clinica', 'consulta', 'terapia', 'psicolog', 'psiquiatra', 'nutriolog', 'analisis', 'laboratorio', 'gym', 'gimnasio', 'yoga', 'pilates', 'correr', 'entrenamiento', 'entrenar', 'crossfit', 'natacion', 'vacuna', 'farmacia', 'oculista', 'oftalmolog', 'dermatolog', 'ginecolog', 'pediatra', 'fisio', 'medicina', 'spinning', 'ortodonc'],
+    trabajo: ['junta', 'reunion', 'cliente', 'oficina', 'entrega', 'proyecto', 'presentacion', 'llamada con', 'zoom', 'meet', 'deadline', 'jefe', 'equipo', 'chamba', 'factura', 'facturar', 'nomina', 'cotizacion', 'propuesta', 'sprint', 'demo', 'reporte', 'informe', 'entrevista', 'webinar', 'conferencia', 'capacitacion', 'proveedor', 'ventas', 'cierre', 'auditoria', 'contrato', 'home office', 'presupuesto'],
+    familia: ['mama', 'papa', 'mami', 'papi', 'abuel', 'hijo', 'hija', 'ninos', 'nino', 'nina', 'tia', 'tio', 'primo', 'prima', 'familia', 'suegr', 'esposa', 'esposo', 'bebe', 'kinder', 'junta de padres', 'reunion de padres', 'festival escolar', 'sobrin', 'herman'],
+    estudio: ['clase', 'examen', 'tarea', 'estudiar', 'curso', 'universidad', 'escuela', 'maestria', 'diplomado', 'ingles', 'frances', 'tesis', 'leer', 'biblioteca', 'taller', 'certificacion', 'colegiatura', 'inscripcion', 'seminario', 'profesor', 'maestro'],
+    personal: ['cumpleanos', 'cumple', 'comida', 'cena', 'desayuno', 'cafe', 'fiesta', 'cine', 'viaje', 'vuelo', 'boda', 'peli', 'concierto', 'partido', 'amigos', 'amiga', 'amigo', 'salir', 'pagar', 'banco', 'super', 'mandado', 'renta', 'luz', 'agua', 'gas', 'internet', 'tarjeta', 'comprar', 'regalo', 'corte de pelo', 'peluqueria', 'barberia', 'mascota', 'veterinari', 'perro', 'gato', 'coche', 'carro', 'verificacion', 'tenencia', 'licencia', 'pasaporte', 'tramite', 'misa', 'futbol'],
+  };
+  const KW_RE = {};
+  for (const [cat, list] of Object.entries(CAT_KW)) KW_RE[cat] = list.map(k => ({ re: new RegExp('\\b' + k.replace(/ /g, '\\s+')), w: cat === 'familia' ? 12 : k.length }));
+  function inferCategory(text) {
+    const n = norm(text);
+    let best = null, score = 0;
+    for (const [cat, list] of Object.entries(KW_RE)) {
+      let s = 0;
+      for (const { re, w } of list) if (re.test(n)) s = Math.max(s, w);
+      if (s > score) { score = s; best = cat; }
+    }
+    return best;
+  }
+
+  const TASK_START = /^(?:pagar|pago|comprar|llamar|enviar|mandar|revisar|recoger|renovar|hacer|terminar|entregar|sacar|agendar|reservar|contestar|responder|escribir|imprimir|lavar|limpiar|arreglar|cancelar|depositar|transferir|preparar|estudiar|leer|ir|llevar|traer|devolver|checar|confirmar|actualizar|subir|descargar|instalar|tramitar|solicitar|investigar|buscar|organizar|ordenar|tirar|regar|cocinar|planchar|cobrar|facturar|avisar|recordar|tarea)\b/;
+  const ALLDAY_KW = /\b(?:cumpleanos|cumple|aniversario|vacaciones|viaje|boda|feriado|puente|graduacion|mudanza|congreso)\b/;
+  const CAT_TAGS = { trabajo: 'trabajo', chamba: 'trabajo', oficina: 'trabajo', work: 'trabajo', personal: 'personal', casa: 'personal', salud: 'salud', familia: 'familia', estudio: 'estudio', estudios: 'estudio', escuela: 'estudio', clase: 'estudio', otro: 'otro' };
+  const PLACES = { linea: 'En línea', zoom: 'Zoom', meet: 'Google Meet', 'google meet': 'Google Meet', teams: 'Teams' };
+  const PART = { manana: '09:00', tarde: '16:00', noche: '20:00' };
+
+  function parse(text, opts) {
+    const o = Object.assign({ today: C.toKey(new Date()), nowMin: null }, opts);
+    const T0 = o.today, todayWd = C.weekday(T0);
+    const n = norm(text);
+    const used = new Uint8Array(text.length);
+    const free = (a, b) => { for (let i = a; i < b; i++) if (used[i]) return false; return true; };
+    function scan(re, fn) {
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(n))) {
+        const a = m.index, b = a + m[0].length;
+        if (b === a) { re.lastIndex++; continue; }
+        if (!free(a, b) || fn(m, a, b) === false) { re.lastIndex = a + 1; continue; }
+        used.fill(1, a, b);
+      }
+    }
+    const R = { type: null, date: null, explicitDate: false, rangeEnd: null, until: null, start: null, end: null, dur: null, part: null, weekHint: null, repeat: null, category: null, location: '', allDayExplicit: false };
+    const pref = /\b(?:cena|cenar|noche|fiesta|antro|cine|concierto|comida|comer|bar|merienda|copas|chelas|teatro|obra)\b/.test(n) ? 'pm'
+      : /\b(?:desayuno|desayunar|almuerzo|madrugada|correr|amanecer)\b/.test(n) ? 'am' : null;
+    const setRep = rep => { R.repeat = Object.assign(R.repeat || {}, rep); };
+    const dateHit = (k, m) => {
+      if (m.groups && m.groups.u) { R.until = k; return; }
+      if (R.date) return false;
+      R.date = k; R.explicitDate = true;
+    };
+
+    // Prefijos y etiquetas
+    scan(/^\s*(pendiente|tarea|por hacer|todo|recordar|recordatorio|evento|cita)\s*:\s*/g, m => { R.type = /evento|cita/.test(m[1]) ? 'event' : 'task'; });
+    scan(/(^|\s)#([a-z0-9_]+)/g, m => { if (CAT_TAGS[m[2]]) R.category = CAT_TAGS[m[2]]; });
+    scan(/\btodo el dia\b/g, () => { R.allDayExplicit = true; });
+
+    // Repeticiones
+    scan(/\b(?:todos los dias habiles|cada dia habil|entre semana|de lunes a viernes|dias habiles|dias laborales)\b/g, () => setRep({ freq: 'weekly', interval: 1, days: [1, 2, 3, 4, 5] }));
+    scan(/\b(?:todos los|cada|los) fines? de semana\b/g, () => setRep({ freq: 'weekly', interval: 1, days: [6, 0] }));
+    scan(/\b(?:todos los dias|cada dia|diario|diariamente|a diario)\b/g, () => setRep({ freq: 'daily', interval: 1 }));
+    scan(new RegExp(`\\bcada (${NUM_RE}) (dias?|semanas?|mes(?:es)?|anos?)\\b`, 'g'), m => {
+      const k = num(m[1]);
+      if (!k) return false;
+      setRep({ freq: { d: 'daily', s: 'weekly', m: 'monthly', a: 'yearly' }[m[2][0]], interval: k });
+    });
+    scan(/\b(?:cada |todas las )?quincenas?\b|\bquincenal(?:mente)?\b/g, () => setRep({ freq: 'monthly', interval: 1, monthDays: [15, -1] }));
+    scan(new RegExp(`\\b(?:el |los )?(primer|primero|segundo|tercer|tercero|cuarto|quinto|ultimo|1er|1o|2o|3er|3o|4o)s? (${WD_RE}) de (?:cada|todos los) mes(?:es)?\\b`, 'g'), m => {
+      setRep({ freq: 'monthly', interval: (R.repeat && R.repeat.interval) || 1, nth: NTH[m[1]], wd: wdOf(m[2]) });
+    });
+    scan(/\b(?:el )?ultimo dia de (?:cada|todos los) mes(?:es)?\b/g, () => setRep({ freq: 'monthly', interval: 1, monthDays: [-1] }));
+    scan(/\b(?:(?:el |los )?(?:dia )?(\d{1,2}|primero)(?: y (?:el )?(\d{1,2}|ultimo))? de (?:cada|todos los) mes(?:es)?|(?:cada|todos los) mes(?:es)?(?: (?:el|los) (?:dia )?(\d{1,2}|primero)(?: y (?:el )?(\d{1,2}|ultimo))?)?|mensual(?:mente)?)\b/g, m => {
+      const md = [m[1] || m[3], m[2] || m[4]].filter(Boolean)
+        .map(x => (x === 'primero' ? 1 : x === 'ultimo' ? -1 : +x)).filter(x => x === -1 || (x >= 1 && x <= 31));
+      setRep(Object.assign({ freq: 'monthly', interval: (R.repeat && R.repeat.interval) || 1 }, md.length ? { monthDays: md } : {}));
+    });
+    scan(/\b(?:cada|todos los) anos?\b|\banual(?:mente)?\b/g, () => setRep({ freq: 'yearly', interval: 1 }));
+    scan(/\b(?:cada|todas las) semanas?\b|\bsemanal(?:mente)?\b/g, () => setRep({ freq: 'weekly', interval: 1 }));
+    const daysIn = s => [...new Set([...s.matchAll(new RegExp(WD_RE, 'g'))].map(x => wdOf(x[0])))];
+    scan(new RegExp(`\\b(?:todos los|cada|los)\\s+(${WD_RE}(?:\\s*(?:,|y|e)\\s*(?:los\\s+)?${WD_RE})*)\\b`, 'g'), m => {
+      setRep({ freq: 'weekly', interval: (R.repeat && R.repeat.freq === 'weekly' && R.repeat.interval) || 1, days: daysIn(m[1]) });
+    });
+    scan(new RegExp(`\\b(${WD_RE}(?:\\s*,\\s*${WD_RE})*\\s*,?\\s*(?:y|e)\\s+${WD_RE})\\b`, 'g'), m => {
+      setRep({ freq: 'weekly', interval: (R.repeat && R.repeat.freq === 'weekly' && R.repeat.interval) || 1, days: daysIn(m[1]) });
+    });
+
+    // Rangos de varios días: "del 20 al 27 de diciembre", "del lunes al viernes"
+    scan(new RegExp(`\\bdel? (\\d{1,2})(?: de (${MON_RE}))? al? (\\d{1,2}) de (${MON_RE})(?:,? (?:de |del )?(\\d{4}))?\\b`, 'g'), m => {
+      const y = m[5] ? +m[5] : null, m2 = monthNum(m[4]), m1 = m[2] ? monthNum(m[2]) : m2;
+      const a = mkDate(+m[1], m1, y, T0);
+      if (!a) return false;
+      let b = validDate(C.parts(a)[0], m2, +m[3]) ? C.key(C.parts(a)[0], m2, +m[3]) : null;
+      if (b && b < a && validDate(C.parts(a)[0] + 1, m2, +m[3])) b = C.key(C.parts(a)[0] + 1, m2, +m[3]);
+      if (!b || b < a) return false;
+      R.date = a; R.rangeEnd = b; R.explicitDate = true;
+    });
+    scan(new RegExp(`\\bdel (${WD_RE}) al (${WD_RE})\\b`, 'g'), m => {
+      const a = C.addDays(T0, (wdOf(m[1]) - todayWd + 7) % 7);
+      let b = a;
+      while (C.weekday(b) !== wdOf(m[2])) b = C.addDays(b, 1);
+      R.date = a; R.rangeEnd = b; R.explicitDate = true;
+    });
+
+    // Duración
+    scan(/\b(?:por|durante) (?:una )?hora y media\b/g, () => { R.dur = 90; });
+    scan(/\b(?:por|durante|dura)\s+(una|un|media|\d+(?:[.,]\d+)?)\s*(horas?|hrs?|h|minutos?|mins?)\b(?:\s+y\s+media)?/g, m => {
+      const q = m[1] === 'una' || m[1] === 'un' ? 1 : m[1] === 'media' ? 0.5 : parseFloat(m[1].replace(',', '.'));
+      if (!q) return false;
+      R.dur = Math.round(/^h/.test(m[2]) ? q * 60 : q) + (/y\s+media$/.test(m[0]) ? 30 : 0);
+    });
+    scan(/\(\s*(\d+(?:[.,]\d+)?)\s*(h|hrs?|horas?|min|mins|minutos)\s*\)/g, m => {
+      const q = parseFloat(m[1].replace(',', '.'));
+      R.dur = Math.round(/^h/.test(m[2]) ? q * 60 : q);
+    });
+    scan(/\b(\d{1,2})\s*h\s*(\d{1,2})\s*m(?:in)?\b/g, m => { R.dur = +m[1] * 60 + +m[2]; });
+
+    // Horas: rangos y luego horas sueltas
+    scan(new RegExp(`\\b(?:de|desde)\\s+(?:las?\\s+)?${T}\\s*(?:a|-|–|hasta)\\s*(?:las?\\s+)?${T}`, 'g'), m => {
+      const t1 = tok(m, 1), t2 = tok(m, 7);
+      if (!t1 || !t2) return false;
+      [R.start, R.end] = resolveRange(t1, t2, pref);
+    });
+    scan(new RegExp(`\\b(?:a\\s+las?\\s+)?${T}\\s*(-|–|a)\\s*(?:las?\\s+)?${T}`, 'g'), m => {
+      const t1 = tok(m, 1), t2 = tok(m, 8);
+      if (!t1 || !t2 || R.start != null) return false;
+      if (m[7] === 'a' ? !(t1.hasMin || t1.period) : !(t1.hasMin || t1.period || t2.hasMin || t2.period)) return false;
+      [R.start, R.end] = resolveRange(t1, t2, pref);
+    });
+    scan(new RegExp(`\\b(?:a\\s+las?|alas|desde\\s+las?|tipo|como\\s+a\\s+las?)\\s+${T}`, 'g'), m => {
+      const t = tok(m, 1);
+      if (!t || R.start != null) return false;
+      R.start = resolveHour(t, pref);
+    });
+    scan(new RegExp(`\\b${T}`, 'g'), m => {
+      const t = tok(m, 1);
+      if (!t || R.start != null || !(t.hasMin || t.period)) return false;
+      R.start = resolveHour(t, pref);
+    });
+    scan(/\b(?:al |a )?mediodia\b/g, () => { if (R.start != null) return false; R.start = 720; });
+    scan(/\ba (?:la )?medianoche\b/g, () => { if (R.start != null) return false; R.start = 0; });
+
+    // Partes del día ("en la mañana"), antes de leer "mañana" como fecha
+    scan(/\b(?:hoy|esta) (?:en |por |a )?la (manana|tarde|noche)\b|\besta (manana|tarde|noche)\b/g, m => {
+      R.part = m[1] || m[2];
+      if (!R.date) { R.date = T0; R.explicitDate = true; }
+    });
+    scan(/\b(?:en|por|de) la (manana|tarde|noche)\b/g, m => { R.part = m[1]; });
+
+    // Fechas completas
+    scan(new RegExp(`\\b${U}(?:el\\s+)?(?:dia\\s+)?(\\d{1,2}|primero|1ro|1o)\\s+(?:de\\s+)?(${MON_RE})(?:,?\\s+(?:de|del)?\\s*(\\d{4}))?\\b`, 'g'), m => {
+      const d = /^(?:primero|1ro|1o)$/.test(m[2]) ? 1 : +m[2];
+      const k = mkDate(d, monthNum(m[3]), m[4] ? +m[4] : null, T0);
+      return k ? dateHit(k, m) : false;
+    });
+    scan(new RegExp(`\\b${U}(${MON_RE})\\s+(\\d{1,2})(?:,?\\s+(\\d{4}))?\\b(?!\\s*[:.]\\d)`, 'g'), m => {
+      const k = mkDate(+m[3], monthNum(m[2]), m[4] ? +m[4] : null, T0);
+      return k ? dateHit(k, m) : false;
+    });
+    scan(new RegExp(`\\b${U}(\\d{4})-(\\d{2})-(\\d{2})\\b`, 'g'), m => {
+      const k = mkDate(+m[4], +m[3], +m[2], T0);
+      return k ? dateHit(k, m) : false;
+    });
+    scan(new RegExp(`\\b${U}(?:el\\s+)?(\\d{1,2})[/-](\\d{1,2})(?:[/-](\\d{2,4}))?\\b`, 'g'), m => {
+      if (m[0].includes('-') && !m[4]) return false;
+      let y = m[4] ? +m[4] : null;
+      if (y && y < 100) y += 2000;
+      const k = mkDate(+m[2], +m[3], y, T0);
+      return k ? dateHit(k, m) : false;
+    });
+    scan(new RegExp(`\\b${U}(?:el\\s+)?(?:dia\\s+)?(\\d{1,2}|primero)\\s+(?:de|del)\\s+(este|el proximo|el siguiente|proximo|siguiente) mes\\b`, 'g'), m => {
+      const d = m[2] === 'primero' ? 1 : +m[2];
+      const base = /prox|sig/.test(m[3]) ? C.addMonths(C.monthStart(T0), 1) : C.monthStart(T0);
+      const [y, mo] = C.parts(base);
+      return validDate(y, mo, d) ? dateHit(C.key(y, mo, d), m) : false;
+    });
+
+    // Fechas relativas
+    scan(new RegExp(`\\b${U}(pasado manana|manana|hoy|ayer|antier|anteayer)\\b`, 'g'), m => {
+      const off = { 'pasado manana': 2, manana: 1, hoy: 0, ayer: -1, antier: -2, anteayer: -2 }[m[2]];
+      return dateHit(C.addDays(T0, off), m);
+    });
+    scan(new RegExp(`\\b${U}(?:en|dentro de) (${NUM_RE}) (dias?|semanas?|mes(?:es)?|anos?)\\b`, 'g'), m => {
+      const k = num(m[2]);
+      if (k == null) return false;
+      const u = m[3][0];
+      return dateHit(u === 'd' ? C.addDays(T0, k) : u === 's' ? C.addDays(T0, 7 * k) : C.addMonths(T0, u === 'm' ? k : 12 * k), m);
+    });
+    const nextWeekText = /\b(?:proxima|siguiente|otra) semana\b|\bsemana que (?:viene|entra)\b/.test(n);
+    scan(new RegExp(`\\b${U}(?:(el|este|esta|para el|el proximo|el siguiente|proximo|siguiente|el otro)\\s+)?(${WD_RE})(?:\\s+(que viene|que entra|de la (?:proxima|siguiente|otra) semana|de esta semana|de la semana que (?:viene|entra)))?\\b`, 'g'), m => {
+      const pre = m[2] || '', w = wdOf(m[3]), suf = m[4] || '';
+      let d;
+      if (/proxima|siguiente|otra|viene|entra/.test(suf) || (nextWeekText && !/esta semana/.test(suf))) d = C.addDays(C.startOfWeek(T0, 1), 7 + (w + 6) % 7);
+      else if (/esta semana/.test(suf)) d = C.addDays(C.startOfWeek(T0, 1), (w + 6) % 7);
+      else {
+        let delta = (w - todayWd + 7) % 7;
+        if (delta === 0 && /proximo|siguiente|otro/.test(pre)) delta = 7;
+        d = C.addDays(T0, delta);
+      }
+      if (m.groups && m.groups.u) { R.until = d; return; }
+      if (!R.date) { R.date = d; R.explicitDate = true; }
+      // Con fecha completa ya entendida ("sábado 14 de noviembre"), el día de la semana solo acompaña.
+    });
+    scan(/\b(?:la )?(?:proxima|siguiente|otra) semana\b|\bla semana que (?:viene|entra)\b/g, () => { R.weekHint = 'next'; });
+    scan(/\b(?:este |el |para el )?fin de semana\b/g, () => {
+      if (R.date) return false;
+      R.date = C.addDays(T0, todayWd === 0 ? 0 : 6 - todayWd); R.explicitDate = true;
+    });
+    scan(/\b(?:a |para |el )?fin de mes\b/g, () => {
+      if (R.date) return false;
+      R.date = C.monthEnd(T0); R.explicitDate = true;
+    });
+    scan(new RegExp(`\\b(?:(?<u>hasta (?:el )?)|(?:para el|el dia|el|dia)\\s+)(\\d{1,2}|primero)\\b(?!\\s*(?:[:./]\\d|de\\s+${MON_RE}))`, 'g'), m => {
+      const d = m[2] === 'primero' ? 1 : +m[2];
+      if (d < 1 || d > 31) return false;
+      let [y, mo] = C.parts(T0);
+      let k = validDate(y, mo, d) ? C.key(y, mo, d) : null;
+      if (!k || k < T0) {
+        for (let i = 0; i < 12; i++) { if (++mo > 12) { mo = 1; y++; } if (validDate(y, mo, d)) break; }
+        k = C.key(y, mo, d);
+      }
+      return dateHit(k, m);
+    });
+
+    // Lugar: "@ Lugar", "en Lugar Con Mayúsculas", "en la oficina"
+    const at = n.indexOf('@');
+    if (at >= 0 && !used[at]) {
+      let j = at + 1;
+      while (j < text.length && !used[j] && text[j] !== '#') j++;
+      const loc = text.slice(at + 1, j).trim().replace(/[,;.]+$/, '');
+      if (loc) { R.location = loc; used.fill(1, at, j); }
+    }
+    if (!R.location) {
+      const LOC = /(^|\s)(en\s+([A-ZÁÉÍÓÚÑ0-9][\w'’.&\-ÁÉÍÓÚÑáéíóúñü]*(?:\s+(?:de|del|la|las|los|el|y|[A-ZÁÉÍÓÚÑ0-9][\w'’.&\-ÁÉÍÓÚÑáéíóúñü]*))*))/g;
+      const tail = /(?:\s+(?:de|del|la|las|los|el|y)|[.,;]+)$/;
+      let m;
+      while ((m = LOC.exec(text))) {
+        let span = m[2], place = m[3];
+        while (tail.test(place)) { const cut = place.length - place.replace(tail, '').length; place = place.slice(0, -cut); span = span.slice(0, -cut); }
+        const first = norm(place.split(/\s+/)[0] || '');
+        if (!place || MONTHS[first.replace('.', '')] || WD[first] != null || /^(?:hoy|manana)$/.test(first) || /^\d/.test(first)) continue;
+        const a = m.index + m[1].length, b = a + span.length;
+        if (!free(a, b)) continue;
+        R.location = place;
+        used.fill(1, a, b);
+        break;
+      }
+    }
+    if (!R.location) {
+      scan(/(^|\s)en (casa(?: de (?:mi |la |el |los |las )?[a-z]+)?|la oficina|el trabajo|la escuela|la uni(?:versidad)?|el gym|el gimnasio|el parque|el centro|el hospital|la clinica|el super(?:mercado)?|el banco|linea|zoom|google meet|meet|teams)\b/g, (m, a, b) => {
+        const raw = text.slice(a + m[1].length + 3, b);
+        R.location = PLACES[m[2]] || C.cap(raw.replace(/^(?:la|el) /i, ''));
+      });
+    }
+
+    // Título: lo que no se entendió como fecha, hora, lugar o repetición
+    let title = '';
+    for (let i = 0; i < text.length; i++) title += used[i] ? ' ' : text[i];
+    title = title.replace(/\s+/g, ' ').trim();
+    const LEAD = /^(?:el|la|los|las|a|al|de|del|para|en|y|e|que|,|-|–|:|;|\.|@)\s+/i;
+    const TRAIL = /\s+(?:el|la|los|las|a|al|de|del|para|en|y|e|que|con|desde|hasta|para el)$/i;
+    for (let k = 0; k < 8; k++) {
+      const before = title;
+      title = title.replace(LEAD, '').replace(TRAIL, '').replace(/^[\s,.;:–@-]+|[\s,;:–@-]+$/g, '').trim();
+      if (title === before) break;
+    }
+    title = title.replace(/\s+([,.;:])/g, '$1').replace(/([,;])(?=[,;])/g, '');
+    title = C.cap(title);
+    const tn = norm(title);
+
+    // Tipo: con hora es evento; sin hora, un verbo de acción lo vuelve pendiente
+    let type = R.type;
+    if (!type) {
+      if (R.start != null || R.part) type = 'event';
+      else if (R.allDayExplicit || R.rangeEnd || ALLDAY_KW.test(tn)) type = 'event';
+      else if (TASK_START.test(tn)) type = 'task';
+      else if (R.explicitDate || R.repeat) type = 'event';
+      else type = 'task';
+    }
+
+    // Horas finales
+    let start = R.start, end = R.end;
+    if (start == null && R.part && type === 'event') start = C.toMin(PART[R.part]);
+    if (type === 'task') { start = null; end = null; }
+    if (start != null && end == null) end = start + (R.dur || 60);
+    const allDay = type === 'event' && start == null;
+
+    // Fecha y repetición
+    let date = R.date, days = 1, repeat = R.repeat;
+    if (R.weekHint && !date) date = C.addDays(C.startOfWeek(T0, 1), 7);
+    const rangeEnd = R.rangeEnd || (!repeat && R.until && R.until > (date || T0) ? R.until : null);
+    if (rangeEnd) {
+      if (!date) date = T0;
+      if (start != null && !repeat) repeat = { freq: 'daily', interval: 1, until: rangeEnd };
+      else if (type === 'event' && start == null) days = C.diffDays(date, rangeEnd) + 1;
+    }
+    if (repeat && R.until) repeat.until = R.until;
+    if (repeat) {
+      repeat = C.sanitizeRepeat(repeat);
+      const first = C.occurrenceStarts({ date: date || T0, repeat }, date || T0, C.addDays(date || T0, 800))[0];
+      if (first) date = first;
+    }
+    if (!date) {
+      date = T0;
+      if (start != null && o.nowMin != null && start < o.nowMin) date = C.addDays(T0, 1);
+    }
+
+    const category = R.category || inferCategory(title + ' ' + R.location) || 'personal';
+    return {
+      type, title, date, allDay, days,
+      start: start == null ? null : C.fromMin(start),
+      end: end == null ? null : C.fromMin(end),
+      repeat: repeat || null,
+      category, location: R.location,
+      understood: { date: R.explicitDate, time: R.start != null || !!R.part, repeat: !!repeat, location: !!R.location },
+    };
+  }
+
+  return { parse, inferCategory, norm };
+});
+</script>
+<script>
+/* Ritmo — interfaz. Sin dependencias.
+   Guarda en tu cuenta (capacidad db de Claude) cuando está disponible y, si no, en este dispositivo. */
+(() => {
+  'use strict';
+  const C = window.RitmoCore, P = window.RitmoParser;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const newId = () => 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const todayKey = () => C.toKey(new Date());
+  const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+  const wide = () => matchMedia('(min-width: 900px)').matches;
+  const hasSide = () => matchMedia('(min-width: 1100px)').matches;
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })();
+
+  const svg = (p, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const I = {
+    search: svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+    spark: svg('<path d="M12 3.5l1.9 4.7 4.6 1.8-4.6 1.9L12 16.5l-1.9-4.6-4.6-1.9 4.6-1.8z"/><path d="M18.5 15.5l.8 1.9 1.7.7-1.7.7-.8 1.9-.8-1.9-1.7-.7 1.7-.7z"/>'),
+    sliders: svg('<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/>'),
+    left: svg('<path d="m15 18-6-6 6-6"/>'),
+    right: svg('<path d="m9 18 6-6-6-6"/>'),
+    plus: svg('<path d="M12 5v14M5 12h14"/>', 22),
+    plusS: svg('<path d="M12 5v14M5 12h14"/>', 18),
+    check: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 16),
+    repeat: svg('<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>', 13),
+    pin: svg('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>', 13),
+    close: svg('<path d="M6 6l12 12M18 6 6 18"/>'),
+    trash: svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', 18),
+    copy: svg('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>', 18),
+    clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 14),
+    cal: svg('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>', 14),
+    down: svg('<path d="M12 4v12M6 10l6 6 6-6M4 20h16"/>'),
+    up: svg('<path d="M12 20V8M6 14l6-6 6 6M4 4h16"/>'),
+    cloud: svg('<path d="M7 18a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 10a4 4 0 0 1-1 7.9z"/>', 15),
+    device: svg('<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>', 15),
+    keys: svg('<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 15h10"/>'),
+  };
+
+  // ---------- Ajustes y estado de la vista ----------
+  const H12 = (() => { try { return new Intl.DateTimeFormat('es-MX', { hour: 'numeric' }).resolvedOptions().hourCycle !== 'h23'; } catch (e) { return true; } })();
+  const DEFAULTS = { weekStart: 0, h12: H12, holidays: true, hiddenCats: [], examplesOff: false };
+  const VIEWS = ['agenda', 'dia', 'semana', 'mes'];
+  const S = {
+    view: 'agenda', cursor: todayKey(), selected: todayKey(), miniMonth: null,
+    agendaFrom: null, agendaDays: 45, examples: null, flash: new Set(), scrollTo: true,
+    sample: null, downloads: null, sheetOpen: false, lastToday: todayKey(),
+  };
+  const ls = {
+    get(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* almacenamiento bloqueado: seguimos en memoria */ } },
+  };
+
+  // ---------- Almacén: cuenta (db) o este dispositivo ----------
+  const Store = (() => {
+    const K = { items: 'ritmo.v1.items', settings: 'ritmo.v1.settings', mode: 'ritmo.v1.mode', cache: 'ritmo.v1.cloudcache' };
+    const listeners = new Set();
+    let mode = 'local', ready = false, items = new Map(), settings = Object.assign({}, DEFAULTS);
+    let base = null, coll = null, unsub = null;
+    const pending = new Map(), inflight = new Set(), queue = [];
+    let active = 0, saveTimer = null;
+    const emit = () => listeners.forEach(f => f());
+
+    function load() {
+      settings = Object.assign({}, DEFAULTS, ls.get(K.settings, {}));
+      const wasCloud = ls.get(K.mode, 'local') === 'cloud' && window.claude && typeof window.claude.use === 'function';
+      const arr = ls.get(wasCloud ? K.cache : K.items, []);
+      items = new Map((Array.isArray(arr) ? arr : []).filter(x => x && x.id).map(x => [x.id, x]));
+      ready = !wasCloud || items.size > 0;
+    }
+    function persist() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => ls.set(mode === 'cloud' ? K.cache : K.items, [...items.values()]), 120);
+    }
+    function refFor(id) { return id === '__settings' ? base : coll.doc(id); }
+    function schedule(id) {
+      if (!queue.includes(id) && !inflight.has(id)) queue.push(id);
+      pump();
+    }
+    function pump() {
+      while (active < 4 && queue.length) {
+        const id = queue.shift();
+        active++; inflight.add(id);
+        flush(id).finally(() => { active--; inflight.delete(id); if (pending.has(id) && mode === 'cloud') schedule(id); pump(); });
+      }
+    }
+    async function flush(id, retried) {
+      const d = pending.get(id);
+      try {
+        if (d === null) await refFor(id).delete(); else await refFor(id).set(id === '__settings' ? { settings: d } : d);
+        if (pending.get(id) === d) pending.delete(id);
+      } catch (e) {
+        if (e && e.code === 'unavailable' && !retried) { await new Promise(r => setTimeout(r, 400 + Math.random() * 800)); return flush(id, true); }
+        pending.delete(id);
+        fallBackToLocal(e);
+      }
+    }
+    function write(id, data) {
+      if (mode !== 'cloud') { persist(); return; }
+      pending.set(id, data);
+      persist();
+      schedule(id);
+    }
+    function fallBackToLocal(e) {
+      if (mode !== 'cloud') return;
+      mode = 'local';
+      if (unsub) { unsub(); unsub = null; }
+      ls.set(K.mode, 'local');
+      ls.set(K.items, [...items.values()]);
+      emit();
+      const quota = e && e.code === 'quota_exceeded';
+      toast(quota ? 'Tu cuenta llegó al límite de espacio. Ritmo guardará en este dispositivo.' : 'No se pudo guardar en tu cuenta. Ritmo guardará en este dispositivo.');
+    }
+    async function connect() {
+      const CL = window.claude;
+      if (!CL || typeof CL.use !== 'function') { if (!ready) { ready = true; emit(); } return; }
+      let db = null, user = null;
+      try { [db, user] = await Promise.all([CL.use('db'), CL.use('user')]); } catch (e) { /* sin capacidades */ }
+      const uid = user ? await user.id() : null;
+      if (!db || !uid) {
+        if (mode !== 'local' || !ready) {
+          mode = 'local';
+          items = new Map(ls.get(K.items, []).map(x => [x.id, x]));
+          ready = true; emit();
+        }
+        return;
+      }
+      base = db.doc('data/users/' + uid + '/ritmo');
+      coll = base.collection('items');
+      base.get().then(s => {
+        const remote = s.exists && s.data() && s.data().settings;
+        if (remote) { settings = Object.assign({}, DEFAULTS, remote); ls.set(K.settings, settings); emit(); }
+      }).catch(() => {});
+      let first = true;
+      unsub = coll.onSnapshot(snap => {
+        const next = new Map();
+        for (const d of snap.docs) next.set(d.id, d.data());
+        for (const [id, p] of pending) { if (id === '__settings') continue; if (p === null) next.delete(id); else next.set(id, p); }
+        if (first) {
+          first = false;
+          const deviceOnly = ls.get(K.mode, 'local') !== 'cloud' ? ls.get(K.items, []) : [];
+          mode = 'cloud';
+          ls.set(K.mode, 'cloud');
+          if (snap.empty && deviceOnly.length) {
+            for (const it of deviceOnly) { next.set(it.id, it); pending.set(it.id, it); schedule(it.id); }
+            setTimeout(() => toast('Lo que tenías en este dispositivo ya está en tu cuenta.'), 600);
+          }
+        }
+        items = next; ready = true; persist(); emit();
+      }, err => { if (err && err.code !== 'revoked') fallBackToLocal(err); });
+    }
+    return {
+      get items() { return items; }, get settings() { return settings; }, get mode() { return mode; }, get ready() { return ready; },
+      onChange: f => listeners.add(f),
+      init() { load(); emit(); connect(); },
+      put(it) { it.updatedAt = new Date().toISOString(); items.set(it.id, it); write(it.id, it); emit(); },
+      putMany(list) { const now = new Date().toISOString(); for (const it of list) { it.updatedAt = now; items.set(it.id, it); write(it.id, it); } emit(); },
+      remove(id) { items.delete(id); write(id, null); emit(); },
+      setSettings(patch) {
+        settings = Object.assign({}, settings, patch);
+        ls.set(K.settings, settings);
+        if (mode === 'cloud') { pending.set('__settings', settings); schedule('__settings'); }
+        emit();
+      },
+    };
+  })();
+
+  // ---------- Ejemplos: se muestran mientras la agenda está vacía; nunca se guardan ----------
+  function buildExamples(t) {
+    const d = n => C.addDays(t, n);
+    const wd = C.weekday(t);
+    const E = (o, i) => Object.assign({ id: 'ex' + i, example: true, type: 'event', allDay: false, start: null, end: null, days: 1, repeat: null, category: 'personal', location: '', notes: '', exdates: [], doneDates: [], done: false }, o);
+    return [
+      { title: 'Llamada con cliente: Grupo Norte', date: t, start: '11:30', end: '12:15', category: 'trabajo', location: 'Zoom' },
+      { title: 'Comida con Mariana', date: t, start: '14:00', end: '15:30', location: 'El Cardenal' },
+      { title: 'Dentista', date: t, start: '17:00', end: '18:00', category: 'salud', location: 'Consultorio Dra. Ruiz' },
+      { type: 'task', title: 'Enviar cotización a Grupo Norte', date: t, category: 'trabajo' },
+      { type: 'task', title: 'Comprar regalo para Luis', date: t, done: true },
+      { type: 'task', title: 'Llevar el coche al servicio', date: d(-2) },
+      { title: 'Gym', date: d(1), start: '07:00', end: '08:00', category: 'salud', repeat: { freq: 'weekly', interval: 1, days: [1, 3, 5] }, location: 'Smart Fit' },
+      { title: 'Junta semanal', date: d(1), start: '09:30', end: '10:30', category: 'trabajo', repeat: { freq: 'weekly', interval: 1, days: [(wd + 1) % 7] }, location: 'Sala 3' },
+      { title: 'Clase de inglés', date: d(2), start: '19:00', end: '20:30', category: 'estudio', repeat: { freq: 'weekly', interval: 1, days: [2, 4] } },
+      { title: 'Cena de cumpleaños de Luis', date: d(3), start: '20:30', end: '23:00', location: 'La Docena' },
+      { title: 'Fútbol de Diego', date: d(5), start: '10:00', end: '11:30', category: 'familia', location: 'Deportivo Las Águilas' },
+      { type: 'task', title: 'Pagar tarjeta', date: t, repeat: { freq: 'monthly', interval: 1, monthDays: [15, -1] } },
+      { title: 'Viaje a Guadalajara', date: d(9), allDay: true, days: 3 },
+      { title: 'Examen de certificación', date: d(13), allDay: true, category: 'estudio' },
+    ].map(E);
+  }
+  function syncExamples() {
+    const show = Store.ready && Store.items.size === 0 && !Store.settings.examplesOff;
+    if (show && !S.examples) S.examples = buildExamples(todayKey());
+    if (!show) S.examples = null;
+  }
+  const allItems = () => (S.examples ? S.examples : [...Store.items.values()]);
+  const getItem = id => Store.items.get(id) || (S.examples || []).find(x => x.id === id) || null;
+  const visible = it => !(Store.settings.hiddenCats || []).includes(it.category);
+  const endMin = it => { const s = C.toMin(it.start); let e = it.end ? C.toMin(it.end) : s + 60; if (e <= s) e += 1440; return e; };
+  const isTimed = it => it.type === 'event' && !it.allDay && !!it.start;
+
+  function gather(a, b) {
+    const out = [];
+    for (const it of allItems()) if (visible(it)) for (const o of C.occurrences(it, a, b)) out.push(o);
+    if (Store.settings.holidays) for (const h of C.holidaysBetween(a, b)) out.push({ holiday: h, date: h.date });
+    return out;
+  }
+  function rank(o) {
+    if (o.holiday) return 0;
+    const it = o.item;
+    if (it.type === 'task') return C.isDone(it, o.occ) ? 4 : 3;
+    return isTimed(it) ? 2 : 1;
+  }
+  function sortOcc(a, b) {
+    const ra = rank(a), rb = rank(b);
+    if (ra !== rb) return ra - rb;
+    if (ra === 2) return C.toMin(a.item.start) - C.toMin(b.item.start) || endMin(a.item) - endMin(b.item);
+    return 0;
+  }
+  function byDay(list) {
+    const m = new Map();
+    for (const o of list) { if (!m.has(o.date)) m.set(o.date, []); m.get(o.date).push(o); }
+    for (const arr of m.values()) arr.sort(sortOcc);
+    return m;
+  }
+  const h12 = () => Store.settings.h12;
+  const dateLabel = (k, t = todayKey()) => C.relDay(k, t) || C.cap(C.fmtShort(k)) + (k.slice(0, 4) !== t.slice(0, 4) ? ' ' + k.slice(0, 4) : '');
+  const whenLabel = it => dateLabel(it.date) + (isTimed(it) ? ', ' + C.fmtTime(it.start, h12()) : '');
+
+  // ---------- Pintar ----------
+  const view = $('#view');
+  function render() {
+    syncExamples();
+    renderTop();
+    renderView();
+    renderSide();
+    if (S.flash.size) setTimeout(() => S.flash.clear(), 1700);
+  }
+  function renderTop() {
+    const t = todayKey(), c = S.cursor, [cy, cm] = C.parts(c);
+    const yr = k => (k.slice(0, 4) !== t.slice(0, 4) ? ' ' + k.slice(0, 4) : '');
+    let title = 'Agenda';
+    if (S.view === 'dia') {
+      const rel = C.relDay(c, t);
+      title = (rel ? rel + ', ' : C.cap(C.DOW_S[C.weekday(c)]) + ' ') + C.fmtDayMonth(c) + yr(c);
+    } else if (S.view === 'semana') {
+      const a = C.startOfWeek(c, Store.settings.weekStart), b = C.addDays(a, 6);
+      title = a.slice(0, 7) === b.slice(0, 7) ? `${+a.slice(8)} – ${C.fmtDayMonth(b)}${yr(b)}` : `${C.fmtDayMonth(a)} – ${C.fmtDayMonth(b)}${yr(b)}`;
+    } else if (S.view === 'mes') {
+      title = `${C.cap(C.MES[cm - 1])} <small>${cy}</small>`;
+    }
+    $('#period').innerHTML = title;
+    for (const b of $$('.tabs button')) b.setAttribute('aria-selected', String(b.dataset.view === S.view));
+    view.setAttribute('aria-labelledby', 'tab-' + S.view);
+    $('#navs').hidden = S.view === 'agenda';
+    const strip = $('#strip');
+    strip.hidden = S.view !== 'dia';
+    if (!strip.hidden) {
+      const ws = C.startOfWeek(c, Store.settings.weekStart);
+      const days = Array.from({ length: 7 }, (_, i) => C.addDays(ws, i));
+      const by = byDay(gather(days[0], days[6]));
+      strip.innerHTML = days.map(d => {
+        const cats = [...new Set((by.get(d) || []).filter(o => o.item).map(o => o.item.category))].slice(0, 3);
+        return `<button type="button" class="sd ${d === t ? 'today' : ''}" data-pick="${d}" ${d === c ? 'aria-current="date"' : ''} aria-label="${esc(C.fmtLong(d))}">
+          ${C.DOW_S[C.weekday(d)].slice(0, 2)}<b>${+d.slice(8)}</b><span class="dots">${cats.map(k => `<i style="--c: var(--c-${k})"></i>`).join('')}</span></button>`;
+      }).join('');
+    }
+  }
+  function renderView() {
+    if (!Store.ready) { view.innerHTML = '<p class="loading thinking">Cargando tu agenda</p>'; return; }
+    const fn = { agenda: renderAgenda, dia: renderDay, semana: renderWeek, mes: renderMonth }[S.view];
+    view.innerHTML = fn();
+    for (const el of $$('[data-flash]', view)) el.classList.add('flash');
+    if (S.scrollTo) { S.scrollTo = false; requestAnimationFrame(scrollInitial); }
+  }
+  function scrollInitial() {
+    const target = $('.flash', view);
+    if (target) { target.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    if (S.view === 'dia' || (S.view === 'semana' && wide())) {
+      const grid = $('.grid', view);
+      if (!grid) return;
+      const hour = grid.getBoundingClientRect().height / 24;
+      const t = todayKey();
+      const showsToday = S.view === 'dia' ? S.cursor === t : !!$('.grid.today', view);
+      const h = showsToday ? Math.max(0, Math.min(nowMin() / 60 - 1.5, 15)) : 7;
+      const top = grid.getBoundingClientRect().top + scrollY - (topH() + 8) + hour * h;
+      scrollTo({ top: Math.max(0, top) });
+    } else scrollTo({ top: 0 });
+  }
+  const topH = () => $('#top').getBoundingClientRect().height + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('padding-top')) || 0);
+
+  // Fila de la lista (agenda, día, mes)
+  function metaHTML(it, o, t) {
+    const parts = [];
+    if (o.overdue) parts.push(`<span class="late">Era para ${esc(dateLabel(it.date, t).toLowerCase())}</span>`);
+    if (it.type === 'event' && isTimed(it)) parts.push(`<span>${C.fmtDuration(endMin(it) - C.toMin(it.start))}</span>`);
+    if (o.span > 1) parts.push(`<span>Día ${o.idx + 1} de ${o.span}</span>`);
+    if (it.location) parts.push(`<span>${I.pin}${esc(it.location)}</span>`);
+    if (it.repeat) parts.push(`<span>${I.repeat}${esc(C.describeRepeat(it.repeat, it.date))}</span>`);
+    parts.push(`<span class="cn">${it.type === 'task' ? 'Pendiente · ' : ''}${C.catName(it.category)}</span>`);
+    return parts.join('');
+  }
+  function rowHTML(o, t = todayKey()) {
+    if (o.holiday) {
+      const h = o.holiday;
+      return `<div class="row hd"><span class="when"><span class="flag ${h.official ? 'off' : ''}">${h.official ? 'Festivo' : 'Fecha'}</span></span><span class="bar"></span>
+        <span class="what"><span class="t">${esc(h.title)}</span><span class="m">${h.official ? 'Día de descanso obligatorio' : 'Celebración'}</span></span></div>`;
+    }
+    const it = o.item, st = `style="--c: var(--c-${esc(it.category)})"`;
+    const data = `data-open="${esc(it.id)}" data-occ="${o.occ}"`;
+    const fl = S.flash.has(it.id) ? ' data-flash' : '';
+    if (it.type === 'task') {
+      const done = C.isDone(it, o.occ);
+      return `<div class="row tk ${done ? 'done' : ''}" ${st}${fl}>
+        <span class="when"><button type="button" class="chk" role="checkbox" aria-checked="${done}" aria-label="${done ? 'Marcar como pendiente' : 'Marcar como hecho'}: ${esc(it.title)}" data-toggle="${esc(it.id)}" data-occ="${o.occ}">${I.check}</button></span>
+        <span class="bar"></span>
+        <button type="button" class="what" ${data}><span class="t">${esc(it.title)}</span><span class="m">${metaHTML(it, o, t)}</span></button></div>`;
+    }
+    let when, cls = '';
+    if (isTimed(it)) {
+      when = `<span class="when"><b>${C.fmtTime(it.start, h12())}</b><small>${C.fmtTime(it.end || C.fromMin(C.toMin(it.start) + 60), h12())}</small></span>`;
+      if (o.date === t) {
+        const nm = nowMin(), s = C.toMin(it.start), e = endMin(it);
+        if (e <= nm) cls = 'past'; else if (s <= nm) cls = 'live';
+      } else if (o.date < t) cls = 'past';
+    } else when = `<span class="when"><b>Todo</b><small>el día</small></span>`;
+    return `<button type="button" class="row ev ${cls}" ${st} ${data}${fl}>${when}<span class="bar"></span>
+      <span class="what"><span class="t">${esc(it.title)}</span><span class="m">${metaHTML(it, o, t)}</span></span></button>`;
+  }
+  function dayGroup(d, list, t) {
+    const rel = C.relDay(d, t), n = C.diffDays(t, d);
+    const label = rel || (n > 0 && n < 7 ? C.cap(C.DOW[C.weekday(d)]) : C.cap(C.fmtShort(d)));
+    const abs = rel || (n > 0 && n < 7) ? C.fmtShort(d) : '';
+    const empty = d === t ? 'Nada en la agenda. Escribe abajo para agregar algo.' : 'Libre';
+    return `<section class="day" aria-label="${esc(C.fmtLong(d))}">
+      <div class="day-h ${d === t ? 'is-today' : ''}"><span class="rel">${esc(label)}</span><span class="abs">${esc(abs)}</span>
+        <button type="button" class="icon-btn sm" data-new="${d}" aria-label="Agregar el ${esc(C.fmtLong(d))}">${I.plusS}</button></div>
+      <div class="rows">${list.length ? list.map(o => rowHTML(o, t)).join('') : `<div class="empty-day">${empty}</div>`}</div></section>`;
+  }
+
+  // Agenda
+  function todayCard(t, list) {
+    const [y, m, d] = C.parts(t);
+    const evs = list.filter(o => o.item && o.item.type === 'event');
+    const pend = list.filter(o => o.item && o.item.type === 'task' && !C.isDone(o.item, o.occ)).length;
+    const nm = nowMin();
+    let next = null, live = false;
+    for (const o of evs) {
+      if (!isTimed(o.item)) continue;
+      const s = C.toMin(o.item.start), e = endMin(o.item);
+      if (s <= nm && nm < e) { next = o; live = true; break; }
+      if (s > nm && (!next || s < C.toMin(next.item.start))) next = o;
+    }
+    if (!next) {
+      const ahead = gather(C.addDays(t, 1), C.addDays(t, 7)).filter(o => o.item && isTimed(o.item)).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : C.toMin(a.item.start) - C.toMin(b.item.start)));
+      next = ahead[0] || null;
+    }
+    let nextHTML = '';
+    if (next) {
+      const it = next.item, s = C.toMin(it.start);
+      let k, eta;
+      if (live) { k = 'Ahora'; eta = `termina ${C.fmtTime(C.fromMin(endMin(it)), h12())}`; }
+      else if (next.date === t) { k = 'Lo siguiente'; eta = s - nm <= 180 ? 'en ' + C.fmtDuration(s - nm) : C.fmtTime(it.start, h12()); }
+      else { k = 'Lo siguiente'; eta = `${dateLabel(next.date, t)}, ${C.fmtTime(it.start, h12())}`; }
+      nextHTML = `<button type="button" class="next-up ${live ? 'live' : ''}" style="--c: var(--c-${esc(it.category)})" data-open="${esc(it.id)}" data-occ="${next.occ}">
+        <span class="bar"></span><span><span class="k">${k}</span><span class="t" style="display:block">${esc(it.title)}</span>${it.location ? `<span class="m">${esc(it.location)}</span>` : ''}</span><span class="eta">${esc(eta)}</span></button>`;
+    }
+    return `<section class="today-card" aria-label="Resumen de hoy">
+      <div class="big-num" aria-hidden="true">${d}</div>
+      <div><div class="dow">${C.DOW[C.weekday(t)]}</div><div class="ym">${C.MES[m - 1]} ${y}</div>
+        <div class="sum"><span class="tag"><b>${evs.length}</b>${evs.length === 1 ? 'evento' : 'eventos'}</span><span class="tag"><b>${pend}</b>${pend === 1 ? 'pendiente' : 'pendientes'}</span></div></div>
+      ${nextHTML}</section>`;
+  }
+  function overdueHTML(t) {
+    const list = allItems().filter(it => it.type === 'task' && !it.repeat && !it.done && it.date < t && visible(it)).sort((a, b) => (a.date < b.date ? -1 : 1));
+    if (!list.length) return '';
+    return `<section class="overdue" aria-label="Pendientes vencidos"><div class="ov-h"><span>Vencidos</span><span class="count">${list.length}</span>
+      <button type="button" class="btn sm ghost" data-act="overdue-today">Pasar a hoy</button></div>
+      ${list.map(it => rowHTML({ item: it, date: it.date, occ: it.date, overdue: true }, t)).join('')}</section>`;
+  }
+  function renderAgenda() {
+    const t = todayKey();
+    const from = S.agendaFrom && S.agendaFrom < t ? S.agendaFrom : t;
+    const to = C.addDays(t, S.agendaDays);
+    const by = byDay(gather(from, to));
+    let h = todayCard(t, by.get(t) || []);
+    if (S.examples) h += `<div class="note"><p>Así se ve Ritmo con una semana normal. Son ejemplos: escribe tu primer evento abajo y desaparecen.</p><button type="button" class="btn sm" data-act="examples-off">Quitar ejemplos</button></div>`;
+    h += overdueHTML(t);
+    h += `<div class="more" style="padding:14px 0 0"><button type="button" class="link" data-act="past">Ver días anteriores</button></div>`;
+    let lastMonth = t.slice(0, 7);
+    for (let d = from; d <= to; d = C.addDays(d, 1)) {
+      const list = by.get(d);
+      if (!list && d !== t && d !== C.addDays(t, 1)) continue;
+      if (d.slice(0, 7) !== lastMonth) {
+        lastMonth = d.slice(0, 7);
+        h += `<div class="month-label">${C.MES[+d.slice(5, 7) - 1]}${d.slice(0, 4) !== t.slice(0, 4) ? ' ' + d.slice(0, 4) : ''}</div>`;
+      }
+      h += dayGroup(d, list || [], t);
+    }
+    h += `<div class="more"><button type="button" class="btn" data-act="more">Ver ${S.agendaDays >= 365 ? 'más' : 'los siguientes 60 días'}</button></div>`;
+    return h;
+  }
+
+  // Línea de tiempo para día y semana
+  function blocksFor(d, list, t) {
+    const evs = list.filter(o => o.item && isTimed(o.item)).map(o => {
+      const s = C.toMin(o.item.start), real = Math.min(endMin(o.item), 1440);
+      return { o, s, e: Math.max(real, s + 30), real };
+    });
+    C.layoutColumns(evs);
+    const nm = nowMin();
+    return evs.map(({ o, s, e, real, col, cols }) => {
+      const it = o.item, short = real - s <= 45;
+      const past = d < t || (d === t && endMin(it) <= nm);
+      const style = `--c: var(--c-${esc(it.category)}); top: calc(var(--hour) * ${(s / 60).toFixed(3)}); height: calc(var(--hour) * ${((e - s) / 60).toFixed(3)} - 2px); left: calc(${(100 * col / cols).toFixed(3)}% + 2px); width: calc(${(100 / cols).toFixed(3)}% - 4px)`;
+      return `<button type="button" class="blk ${short ? 'short' : ''} ${past ? 'past' : ''}" style="${style}" data-open="${esc(it.id)}" data-occ="${o.occ}"${S.flash.has(it.id) ? ' data-flash' : ''}>
+        <b>${esc(it.title)}</b><span>${C.fmtRange(it.start, it.end, h12())}${!short && it.location ? ' · ' + esc(it.location) : ''}</span></button>`;
+    }).join('');
+  }
+  function hoursHTML() {
+    let h = '<div class="hours" aria-hidden="true">';
+    for (let i = 1; i < 24; i++) h += `<span style="top: calc(var(--hour) * ${i})">${C.fmtHour(i, h12())}</span>`;
+    return h + '</div>';
+  }
+  const nowLine = () => `<div class="nowline" style="top: calc(var(--hour) * ${(nowMin() / 60).toFixed(3)})"></div>`;
+  function renderDay() {
+    const d = S.cursor, t = todayKey();
+    const list = (byDay(gather(d, d)).get(d) || []);
+    const top = list.filter(o => !o.item || !isTimed(o.item));
+    let h = '';
+    if (S.examples) h += `<div class="note"><p>Son ejemplos. Escribe tu primer evento abajo y desaparecen.</p><button type="button" class="btn sm" data-act="examples-off">Quitar ejemplos</button></div>`;
+    if (top.length) h += `<div class="allday">${top.map(o => rowHTML(o, t)).join('')}</div>`;
+    h += `<div class="tl">${hoursHTML()}<div class="grid ${d === t ? 'today' : ''}" data-grid="${d}" aria-label="Horario del ${esc(C.fmtLong(d))}">${blocksFor(d, list, t)}${d === t ? nowLine() : ''}</div></div>`;
+    return h;
+  }
+  function chipHTML(o) {
+    if (o.holiday) return `<span class="chip hd" title="${esc(o.holiday.title)}">${esc(o.holiday.title)}</span>`;
+    const it = o.item, done = it.type === 'task' && C.isDone(it, o.occ);
+    return `<button type="button" class="chip ${it.type === 'task' ? 'tk' : ''} ${done ? 'done' : ''}" style="--c: var(--c-${esc(it.category)})" data-open="${esc(it.id)}" data-occ="${o.occ}">${isTimed(it) ? C.fmtTime(it.start, h12()).replace(/:00/, '') + ' ' : ''}${esc(it.title)}</button>`;
+  }
+  function renderWeek() {
+    const t = todayKey(), ws = C.startOfWeek(S.cursor, Store.settings.weekStart);
+    const days = Array.from({ length: 7 }, (_, i) => C.addDays(ws, i));
+    const by = byDay(gather(days[0], days[6]));
+    if (!wide()) {
+      return `<div class="plan">${days.map(d => {
+        const list = by.get(d) || [];
+        const items = list.map(o => {
+          if (o.holiday) return `<div class="pi hd"><time>Festivo</time><span>${esc(o.holiday.title)}</span></div>`;
+          const it = o.item, done = it.type === 'task' && C.isDone(it, o.occ);
+          const tm = isTimed(it) ? C.fmtTime(it.start, h12()) : it.type === 'task' ? 'Pend.' : 'Todo el día';
+          return `<button type="button" class="pi ${it.type === 'task' ? 'tk' : ''} ${done ? 'done' : ''}" style="--c: var(--c-${esc(it.category)})" data-open="${esc(it.id)}" data-occ="${o.occ}"${S.flash.has(it.id) ? ' data-flash' : ''}><time>${tm}</time><span>${esc(it.title)}</span></button>`;
+        }).join('');
+        return `<div class="pday ${d === t ? 'today' : ''}"><button type="button" class="pd-date" data-day="${d}" aria-label="Ver ${esc(C.fmtLong(d))}">${C.DOW_S[C.weekday(d)]}<b>${+d.slice(8)}</b></button>
+          <div class="pd-items">${items || `<button type="button" class="pd-empty link" data-new="${d}" style="color:var(--ink-3);font-weight:500">Libre · agregar</button>`}</div></div>`;
+      }).join('')}</div>`;
+    }
+    const tops = days.map(d => (by.get(d) || []).filter(o => !o.item || !isTimed(o.item)));
+    const anyTop = tops.some(x => x.length);
+    let h = `<div class="wk-head"><div></div>${days.map(d => `<button type="button" class="wk-d ${d === t ? 'today' : ''}" data-day="${d}" aria-label="Ver ${esc(C.fmtLong(d))}">${C.DOW_S[C.weekday(d)]}<b>${+d.slice(8)}</b></button>`).join('')}
+      ${anyTop ? `<div class="wk-all"><div class="lab">Todo el día</div>${tops.map(list => `<div>${list.map(chipHTML).join('')}</div>`).join('')}</div>` : ''}</div>`;
+    h += `<div class="tl wk7">${hoursHTML()}${days.map(d => `<div class="grid ${d === t ? 'today' : ''}" data-grid="${d}">${blocksFor(d, by.get(d) || [], t)}${d === t ? nowLine() : ''}</div>`).join('')}</div>`;
+    return h;
+  }
+  function renderMonth() {
+    const t = todayKey(), ws = Store.settings.weekStart;
+    const m0 = C.monthStart(S.cursor), mEnd = C.monthEnd(S.cursor);
+    const g0 = C.startOfWeek(m0, ws);
+    const weeks = Math.ceil((C.diffDays(g0, mEnd) + 1) / 7);
+    const g1 = C.addDays(g0, weeks * 7 - 1);
+    const by = byDay(gather(g0, g1));
+    if (S.selected < m0 || S.selected > mEnd) S.selected = t >= m0 && t <= mEnd ? t : m0;
+    let h = `<div class="mo"><div class="mo-head">${Array.from({ length: 7 }, (_, i) => `<span>${C.DOW_S[(ws + i) % 7]}</span>`).join('')}</div><div class="mo-grid" role="grid">`;
+    for (let i = 0; i < weeks * 7; i++) {
+      const d = C.addDays(g0, i), list = by.get(d) || [];
+      const items = list.filter(o => o.item);
+      const cats = [...new Set(items.map(o => o.item.category))].slice(0, 4);
+      const hol = list.some(o => o.holiday && o.holiday.official);
+      const shown = list.slice(0, 3);
+      const label = `${C.fmtLong(d)}${items.length ? `, ${items.length} ${items.length === 1 ? 'elemento' : 'elementos'}` : ''}`;
+      h += `<button type="button" class="mc ${d < m0 || d > mEnd ? 'out' : ''} ${d === t ? 'today' : ''} ${hol ? 'hol' : ''}" data-sel="${d}" aria-selected="${d === S.selected}" aria-label="${esc(label)}">
+        <span class="mn">${+d.slice(8)}</span><span class="dots">${cats.map(k => `<i style="--c: var(--c-${k})"></i>`).join('')}</span>
+        <span class="chips">${shown.map(o => o.holiday ? `<span class="chip hd">${esc(o.holiday.title)}</span>` : `<span class="chip ${o.item.type === 'task' ? 'tk' : ''}" style="--c: var(--c-${esc(o.item.category)})">${isTimed(o.item) ? C.fmtTime(o.item.start, h12()).replace(/:00/, '') + ' ' : ''}${esc(o.item.title)}</span>`).join('')}${list.length > 3 ? `<span class="more-n">+${list.length - 3} más</span>` : ''}</span></button>`;
+    }
+    h += `</div><div class="mo-sel">${dayGroup(S.selected, by.get(S.selected) || [], t)}</div></div>`;
+    return h;
+  }
+
+  // Panel lateral (pantallas anchas)
+  function renderSide() {
+    const side = $('#side');
+    if (!hasSide()) { side.innerHTML = ''; return; }
+    const t = todayKey(), mm = S.miniMonth || C.monthStart(S.cursor), ws = Store.settings.weekStart;
+    const g0 = C.startOfWeek(mm, ws), mEnd = C.monthEnd(mm);
+    const weeks = Math.ceil((C.diffDays(g0, mEnd) + 1) / 7);
+    const busy = new Set(gather(g0, C.addDays(g0, weeks * 7 - 1)).filter(o => o.item).map(o => o.date));
+    let mini = Array.from({ length: 7 }, (_, i) => `<span>${C.DOW_1[(ws + i) % 7]}</span>`).join('');
+    for (let i = 0; i < weeks * 7; i++) {
+      const d = C.addDays(g0, i);
+      mini += `<button type="button" class="${d.slice(0, 7) !== mm.slice(0, 7) ? 'out' : ''} ${d === t ? 'today' : ''} ${busy.has(d) ? 'has' : ''}" data-pick="${d}" ${d === S.cursor && S.view !== 'agenda' ? 'aria-current="date"' : ''} aria-label="${esc(C.fmtLong(d))}">${+d.slice(8)}</button>`;
+    }
+    const tasks = allItems().filter(it => it.type === 'task' && visible(it)).flatMap(it => {
+      if (!it.repeat) return it.done ? [] : [{ item: it, occ: it.date }];
+      const o = C.occurrenceStarts(it, t, C.addDays(t, 31)).find(k => !C.isDone(it, k));
+      return o ? [{ item: it, occ: o }] : [];
+    }).sort((a, b) => (a.occ < b.occ ? -1 : 1)).slice(0, 7);
+    const hidden = Store.settings.hiddenCats || [];
+    side.innerHTML = `<div class="brand"><b>R<i>itmo</i></b><span>tu agenda</span></div>
+      <section aria-label="Calendario del mes"><div class="mini-h"><b>${C.MES[+mm.slice(5, 7) - 1]} ${mm.slice(0, 4)}</b>
+        <button type="button" class="icon-btn sm" data-mini="-1" aria-label="Mes anterior">${I.left}</button><button type="button" class="icon-btn sm" data-mini="1" aria-label="Mes siguiente">${I.right}</button></div>
+        <div class="mini">${mini}</div></section>
+      <section><h3>Pendientes</h3><div class="side-list">${tasks.length ? tasks.map(({ item: it, occ }) => `<div class="side-task" style="--c: var(--c-${esc(it.category)})">
+        <button type="button" class="chk" role="checkbox" aria-checked="false" aria-label="Marcar como hecho: ${esc(it.title)}" data-toggle="${esc(it.id)}" data-occ="${occ}">${I.check}</button>
+        <button type="button" class="what" data-open="${esc(it.id)}" data-occ="${occ}"><span class="t">${esc(it.title)}</span><small class="${occ < t ? 'late' : ''}">${esc(dateLabel(occ, t))}</small></button></div>`).join('') : '<p class="muted" style="margin:0">Nada pendiente. Buen trabajo.</p>'}</div></section>
+      <section><h3>Categorías</h3>${C.CATEGORIES.map(c => `<button type="button" class="catrow" role="checkbox" aria-checked="${!hidden.includes(c.id)}" data-cat="${c.id}" style="--c: var(--c-${c.id})"><span class="box">${I.check}</span>${c.name}</button>`).join('')}</section>
+      <div class="side-foot">${syncHTML()}</div>`;
+  }
+  function syncHTML() {
+    if (!Store.ready) return `<span class="sync">${I.cloud}Conectando…</span>`;
+    return Store.mode === 'cloud'
+      ? `<span class="sync">${I.cloud}Guardado en tu cuenta. Lo ves en todos tus dispositivos.</span>`
+      : `<span class="sync">${I.device}Guardado en este dispositivo.</span>`;
+  }
+
+  // ---------- Hojas ----------
+  const sheet = $('#sheet'), card = $('#sheetCard');
+  let lastFocus = null;
+  function openSheet(html, label, onMount) {
+    lastFocus = document.activeElement;
+    $('#toast').hidden = true;
+    card.innerHTML = html;
+    card.setAttribute('aria-label', label);
+    sheet.hidden = false;
+    S.sheetOpen = true;
+    document.body.classList.add('locked');
+    card.scrollTop = 0;
+    if (onMount) onMount(card);
+  }
+  function closeSheet() {
+    if (!S.sheetOpen) return;
+    sheet.hidden = true;
+    card.innerHTML = '';
+    S.sheetOpen = false;
+    document.body.classList.remove('locked');
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+  }
+  sheet.addEventListener('mousedown', e => { if (e.target === sheet) closeSheet(); });
+  card.addEventListener('click', e => { if (e.target.closest('[data-act="close"]')) closeSheet(); });
+
+  // Editor
+  function blank(date) {
+    return { type: 'event', title: '', date: date || todayKey(), allDay: false, start: '09:00', end: '10:00', days: 1, repeat: null, category: 'personal', location: '', notes: '', exdates: [], doneDates: [], done: false };
+  }
+  function repeatKey(r) {
+    if (!r) return 'none';
+    const one = (r.interval || 1) === 1;
+    if (r.freq === 'daily') return one ? 'daily' : 'custom';
+    if (r.freq === 'weekly') {
+      if (one && (r.days || []).slice().sort().join() === '1,2,3,4,5') return 'weekdays';
+      return one ? 'weekly' : r.interval === 2 ? 'biweekly' : 'custom';
+    }
+    if (r.freq === 'monthly') {
+      if (!one) return 'custom';
+      if (r.nth) return 'monthly-nth';
+      if (r.monthDays && r.monthDays.join() === '15,-1') return 'quincena';
+      return !r.monthDays || r.monthDays.length === 1 ? 'monthly' : 'custom';
+    }
+    if (r.freq === 'yearly') return one ? 'yearly' : 'custom';
+    return 'custom';
+  }
+  const nthOf = date => { const n = Math.ceil(+date.slice(8) / 7); return n === 5 ? -1 : n; };
+  function repeatOptions(date, r) {
+    const wd = C.weekday(date), [, m, d] = C.parts(date), nth = nthOf(date);
+    const cur = repeatKey(r);
+    const opts = [
+      ['none', 'No se repite'], ['daily', 'Cada día'], ['weekdays', 'Entre semana (lun a vie)'],
+      ['weekly', `Cada semana`], ['biweekly', `Cada 2 semanas`],
+      ['monthly', `Cada mes el día ${d}`], ['monthly-nth', `Cada mes el ${C.ORD[nth]} ${C.DOW[wd]}`],
+      ['quincena', 'Cada quincena (15 y fin de mes)'], ['yearly', `Cada año el ${d} de ${C.MES[m - 1]}`],
+    ];
+    if (cur === 'custom') opts.push(['custom', C.describeRepeat(r, date)]);
+    return opts.map(([v, l]) => `<option value="${v}" ${v === cur ? 'selected' : ''}>${esc(l)}</option>`).join('');
+  }
+  function buildRepeat(key, date, days, until, orig) {
+    const wd = C.weekday(date);
+    let r = null;
+    switch (key) {
+      case 'daily': r = { freq: 'daily', interval: 1 }; break;
+      case 'weekdays': r = { freq: 'weekly', interval: 1, days: [1, 2, 3, 4, 5] }; break;
+      case 'weekly': r = { freq: 'weekly', interval: 1, days: days.length ? days : [wd] }; break;
+      case 'biweekly': r = { freq: 'weekly', interval: 2, days: days.length ? days : [wd] }; break;
+      case 'monthly': r = { freq: 'monthly', interval: 1, monthDays: [+date.slice(8)] }; break;
+      case 'monthly-nth': r = { freq: 'monthly', interval: 1, nth: nthOf(date), wd }; break;
+      case 'quincena': r = { freq: 'monthly', interval: 1, monthDays: [15, -1] }; break;
+      case 'yearly': r = { freq: 'yearly', interval: 1 }; break;
+      case 'custom': r = orig ? clone(orig) : null; break;
+    }
+    if (r) { if (until && until >= date) r.until = until; else delete r.until; }
+    return r;
+  }
+
+  function openEditor({ id, occ, draft }) {
+    const orig = id ? getItem(id) : null;
+    const isNew = !orig, isEx = !!(orig && orig.example);
+    const it = orig ? clone(orig) : Object.assign(blank(), draft || {});
+    const recurring = !!(orig && orig.repeat);
+    const occDate = recurring && occ ? occ : it.date;
+    const wdays = it.repeat && it.repeat.freq === 'weekly' && it.repeat.days ? it.repeat.days.slice() : [C.weekday(occDate)];
+    const t = it.type;
+    const html = `<div class="grab"></div>
+      <form class="ed" id="ed" novalidate data-type="${t}" data-allday="${it.allDay ? 1 : 0}">
+        <div class="ed-top">
+          <div class="seg" role="group" aria-label="Tipo"><button type="button" data-type="event" aria-pressed="${t === 'event'}">Evento</button><button type="button" data-type="task" aria-pressed="${t === 'task'}">Pendiente</button></div>
+          <button type="button" class="icon-btn" data-act="close" aria-label="Cerrar">${I.close}</button>
+        </div>
+        ${isEx ? '<p class="note sm">Es un ejemplo. Si lo guardas, se vuelve tuyo y los ejemplos desaparecen.</p>' : ''}
+        <div class="f"><label class="sr" for="ed-title">Título</label>
+          <input id="ed-title" class="title-in" value="${esc(it.title)}" placeholder="${t === 'task' ? '¿Qué tienes que hacer?' : '¿Qué vas a hacer?'}" autocomplete="off" maxlength="200"></div>
+        <p class="err" id="ed-err" hidden>Escribe un título.</p>
+        <div class="ed-grid">
+          <div class="f"><label for="ed-date">${t === 'task' ? 'Para el día' : 'Fecha'}</label><input id="ed-date" type="date" class="in" value="${occDate}" required></div>
+          <div class="f ev-only"><span class="lbl" id="lbl-allday">Todo el día</span><div class="switch-row" style="min-height:46px"><span class="hint">Sin hora</span><button type="button" class="sw" role="switch" id="ed-allday" aria-checked="${!!it.allDay}" aria-labelledby="lbl-allday"></button></div></div>
+          <div class="f ev-only time-only"><label for="ed-start">Empieza</label><input id="ed-start" type="time" class="in" step="300" value="${it.start || '09:00'}"></div>
+          <div class="f ev-only time-only"><label for="ed-end">Termina</label><input id="ed-end" type="time" class="in" step="300" value="${it.end || (it.start ? C.fromMin(C.toMin(it.start) + 60) : '10:00')}"></div>
+          <div class="f ev-only days-only"><label for="ed-days">Cuántos días</label><input id="ed-days" type="number" inputmode="numeric" min="1" max="366" class="in" value="${it.days || 1}"></div>
+        </div>
+        <div class="f"><label for="ed-repeat">Repetir</label><select id="ed-repeat" class="in">${repeatOptions(occDate, it.repeat)}</select></div>
+        <div class="f wk-only"><span class="lbl">Qué días</span><div class="wdays" role="group" aria-label="Días de la semana">${[1, 2, 3, 4, 5, 6, 0].map(d => `<button type="button" data-wd="${d}" aria-pressed="${wdays.includes(d)}" aria-label="${C.DOW[d]}">${C.DOW_1[d]}</button>`).join('')}</div></div>
+        <div class="f rep-only"><label for="ed-until">Deja de repetirse el</label><input id="ed-until" type="date" class="in" value="${(it.repeat && it.repeat.until) || ''}"><span class="hint">Déjalo vacío para que se repita siempre.</span></div>
+        <div class="f"><span class="lbl" id="lbl-cat">Categoría</span><div class="cats" role="radiogroup" aria-labelledby="lbl-cat">${C.CATEGORIES.map(c => `<button type="button" class="cat" role="radio" data-c="${c.id}" aria-checked="${it.category === c.id}" style="--c: var(--c-${c.id})">${c.name}</button>`).join('')}</div></div>
+        <div class="f"><label for="ed-loc">Lugar</label><input id="ed-loc" class="in" value="${esc(it.location)}" placeholder="Consultorio, Zoom, casa de mi mamá…" autocomplete="off"></div>
+        <div class="f"><label for="ed-notes">Notas</label><textarea id="ed-notes" class="in" rows="3" placeholder="Lo que necesites recordar">${esc(it.notes)}</textarea></div>
+        ${recurring && !isEx ? `<div class="f scope"><span class="lbl">Aplicar cambios a</span><div class="seg" role="group" aria-label="Aplicar cambios a"><button type="button" data-scope="all" aria-pressed="true">Toda la serie</button><button type="button" data-scope="one" aria-pressed="false">Solo el ${esc(C.fmtDayMonth(occDate))}</button></div></div>` : ''}
+        <div class="confirm" id="ed-confirm" hidden></div>
+        <div class="ed-actions">
+          ${orig && !isEx ? `<button type="button" class="btn ghost danger" data-act="ask-del">${I.trash}Eliminar</button><button type="button" class="btn ghost" data-act="dup">${I.copy}Duplicar</button>` : ''}
+          <span class="spacer"></span>
+          <button type="submit" class="btn primary">${isNew || isEx ? 'Agregar' : 'Guardar'}</button>
+        </div>
+      </form>`;
+    openSheet(html, isNew ? 'Nuevo elemento' : 'Editar ' + it.title, root => {
+      const f = $('#ed', root);
+      let type = t, allDay = !!it.allDay, cat = it.category, scope = 'all';
+      const days = new Set(wdays);
+      const sync = () => {
+        f.dataset.type = type;
+        const rk = $('#ed-repeat', f).value;
+        $$('.ev-only', f).forEach(el => { el.hidden = type !== 'event'; });
+        $$('.time-only', f).forEach(el => { el.hidden = type !== 'event' || allDay; });
+        $$('.days-only', f).forEach(el => { el.hidden = type !== 'event' || !allDay; });
+        $('.wk-only', f).hidden = !(rk === 'weekly' || rk === 'biweekly');
+        $('.rep-only', f).hidden = rk === 'none';
+        $('label[for="ed-date"]', f).textContent = type === 'task' ? 'Para el día' : 'Fecha';
+      };
+      sync();
+      $$('[data-type]', f).forEach(b => b.addEventListener('click', () => {
+        type = b.dataset.type;
+        $$('[data-type]', f).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        sync();
+      }));
+      $('#ed-allday', f).addEventListener('click', e => { allDay = !allDay; e.currentTarget.setAttribute('aria-checked', String(allDay)); sync(); });
+      $('#ed-repeat', f).addEventListener('change', sync);
+      $('#ed-date', f).addEventListener('change', e => {
+        const v = e.target.value;
+        if (!C.isKey(v)) return;
+        const sel = $('#ed-repeat', f), cur = sel.value;
+        sel.innerHTML = repeatOptions(v, it.repeat);
+        sel.value = [...sel.options].some(o => o.value === cur) ? cur : 'none';
+        if (days.size === 1 && !it.repeat) { days.clear(); days.add(C.weekday(v)); $$('[data-wd]', f).forEach(b => b.setAttribute('aria-pressed', String(days.has(+b.dataset.wd)))); }
+        sync();
+      });
+      let dur = isTimed(it) ? endMin(it) - C.toMin(it.start) : 60;
+      $('#ed-start', f).addEventListener('change', e => {
+        if (!C.isTime(e.target.value)) return;
+        $('#ed-end', f).value = C.fromMin(C.toMin(e.target.value) + dur);
+      });
+      $('#ed-end', f).addEventListener('change', e => {
+        const s = $('#ed-start', f).value;
+        if (C.isTime(s) && C.isTime(e.target.value)) { let d = C.toMin(e.target.value) - C.toMin(s); if (d <= 0) d += 1440; dur = d; }
+      });
+      $$('[data-wd]', f).forEach(b => b.addEventListener('click', () => {
+        const d = +b.dataset.wd;
+        if (days.has(d) && days.size > 1) days.delete(d); else days.add(d);
+        b.setAttribute('aria-pressed', String(days.has(d)));
+      }));
+      $$('.cat', f).forEach(b => b.addEventListener('click', () => { cat = b.dataset.c; $$('.cat', f).forEach(x => x.setAttribute('aria-checked', String(x === b))); }));
+      $$('[data-scope]', f).forEach(b => b.addEventListener('click', () => {
+        scope = b.dataset.scope;
+        $$('[data-scope]', f).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        $('#ed-repeat', f).disabled = scope === 'one';
+        $('#ed-until', f).disabled = scope === 'one';
+      }));
+      const read = () => {
+        const date = C.isKey($('#ed-date', f).value) ? $('#ed-date', f).value : occDate;
+        const start = $('#ed-start', f).value, end = $('#ed-end', f).value;
+        const timed = type === 'event' && !allDay && C.isTime(start);
+        return {
+          type, title: $('#ed-title', f).value.trim(), date,
+          allDay: type === 'event' && !timed,
+          start: timed ? start : null,
+          end: timed ? (C.isTime(end) && end !== start ? end : C.fromMin(C.toMin(start) + 60)) : null,
+          days: type === 'event' && !timed ? Math.min(366, Math.max(1, parseInt($('#ed-days', f).value, 10) || 1)) : 1,
+          repeatKey: $('#ed-repeat', f).value,
+          until: C.isKey($('#ed-until', f).value) ? $('#ed-until', f).value : null,
+          category: cat, location: $('#ed-loc', f).value.trim(), notes: $('#ed-notes', f).value.trim(),
+        };
+      };
+      f.addEventListener('submit', e => {
+        e.preventDefault();
+        const v = read();
+        if (!v.title) { $('#ed-err', f).hidden = false; $('#ed-title', f).focus(); return; }
+        save(orig, isEx, occDate, v, scope, [...days]);
+      });
+      f.addEventListener('click', e => {
+        const b = e.target.closest('[data-act]');
+        if (!b) return;
+        if (b.dataset.act === 'dup') {
+          const v = read();
+          const copy = Object.assign(clone(orig), { id: newId(), title: v.title || orig.title, createdAt: new Date().toISOString(), exdates: [], doneDates: [], done: false });
+          Store.put(copy);
+          closeSheet();
+          S.flash.add(copy.id);
+          render();
+          toast('Duplicado: ' + copy.title, { undo: () => Store.remove(copy.id) });
+        }
+        if (b.dataset.act === 'ask-del') askDelete(f, orig, occDate);
+      });
+      if (isNew) setTimeout(() => $('#ed-title', f).focus(), 60);
+    });
+  }
+  function askDelete(f, orig, occDate) {
+    const box = $('#ed-confirm', f);
+    box.hidden = false;
+    box.innerHTML = orig.repeat
+      ? `<p>¿Qué quieres eliminar?</p><div class="btns"><button type="button" class="btn sm" data-del="one">Solo el ${esc(C.fmtDayMonth(occDate))}</button><button type="button" class="btn sm solid-danger" data-del="all">Toda la serie</button><button type="button" class="btn sm ghost" data-del="no">Cancelar</button></div>`
+      : `<p>¿Eliminar «${esc(orig.title)}»?</p><div class="btns"><button type="button" class="btn sm solid-danger" data-del="all">Eliminar</button><button type="button" class="btn sm ghost" data-del="no">Cancelar</button></div>`;
+    box.scrollIntoView({ block: 'nearest' });
+    box.onclick = e => {
+      const b = e.target.closest('[data-del]');
+      if (!b) return;
+      const how = b.dataset.del;
+      if (how === 'no') { box.hidden = true; return; }
+      const before = clone(orig);
+      if (how === 'one') {
+        const upd = clone(orig);
+        upd.exdates = [...new Set([...(upd.exdates || []), occDate])];
+        Store.put(upd);
+        toast(`Eliminado el ${C.fmtDayMonth(occDate)}`, { undo: () => Store.put(before) });
+      } else {
+        Store.remove(orig.id);
+        toast('Eliminado: ' + orig.title, { undo: () => Store.put(before) });
+      }
+      closeSheet();
+    };
+  }
+  function save(orig, isEx, occDate, v, scope, wdays) {
+    const now = new Date().toISOString();
+    const pick = o => ({ type: o.type, title: o.title, allDay: o.allDay, start: o.start, end: o.end, days: o.days, category: o.category, location: o.location, notes: o.notes });
+    let saved;
+    if (!orig || isEx) {
+      saved = Object.assign(blank(), pick(v), { id: newId(), date: v.date, repeat: buildRepeat(v.repeatKey, v.date, wdays, v.until, orig && orig.repeat), createdAt: now });
+      if (isEx) { saved.done = !!orig.done; dropExamples(); }
+      Store.put(saved);
+      toast('Agregado: ' + saved.title + ' · ' + whenLabel(saved), { undo: () => Store.remove(saved.id) });
+    } else if (orig.repeat && scope === 'one') {
+      const before = clone(orig);
+      const series = clone(orig);
+      series.exdates = [...new Set([...(series.exdates || []), occDate])];
+      saved = Object.assign(blank(), pick(v), { id: newId(), date: v.date, repeat: null, done: C.isDone(orig, occDate), createdAt: now });
+      Store.putMany([series, saved]);
+      toast('Cambiado solo el ' + C.fmtDayMonth(occDate), { undo: () => { Store.remove(saved.id); Store.put(before); } });
+    } else {
+      const before = clone(orig);
+      saved = Object.assign(clone(orig), pick(v));
+      if (orig.repeat) {
+        const rep = buildRepeat(v.repeatKey, v.date, wdays, v.until, orig.repeat);
+        saved.date = rep ? (v.date !== occDate ? C.addDays(orig.date, C.diffDays(occDate, v.date)) : orig.date) : v.date;
+        if (rep && rep.freq === 'monthly' && rep.monthDays && rep.monthDays.length === 1 && v.repeatKey === 'monthly') rep.monthDays = [+v.date.slice(8)];
+        saved.repeat = rep;
+        if (!rep) { saved.exdates = []; saved.doneDates = []; saved.done = C.isDone(orig, occDate); }
+      } else {
+        saved.date = v.date;
+        saved.repeat = buildRepeat(v.repeatKey, v.date, wdays, v.until, null);
+      }
+      if (saved.type !== 'task') { saved.done = false; saved.doneDates = []; }
+      Store.put(saved);
+      toast('Guardado', { undo: () => Store.put(before) });
+    }
+    closeSheet();
+    S.flash.add(saved.id);
+    focusDate(saved.date);
+    render();
+  }
+  function focusDate(d) {
+    if (S.view === 'agenda') {
+      const t = todayKey();
+      if (d > C.addDays(t, S.agendaDays)) S.agendaDays = Math.min(730, C.diffDays(t, d) + 7);
+      if (d < t && (!S.agendaFrom || d < S.agendaFrom)) S.agendaFrom = d;
+    } else { S.cursor = d; S.selected = d; }
+    S.scrollTo = true;
+  }
+  function dropExamples() {
+    if (!S.examples) return;
+    S.examples = null;
+  }
+
+  // Marcar pendientes
+  function toggleTask(id, occ) {
+    const it = getItem(id);
+    if (!it) return;
+    if (it.example) {
+      if (it.repeat) { const s = new Set(it.doneDates || []); s.has(occ) ? s.delete(occ) : s.add(occ); it.doneDates = [...s]; } else it.done = !it.done;
+      render();
+      return;
+    }
+    const before = clone(it), upd = clone(it);
+    if (upd.repeat) { const s = new Set(upd.doneDates || []); s.has(occ) ? s.delete(occ) : s.add(occ); upd.doneDates = [...s]; }
+    else { upd.done = !upd.done; upd.doneAt = upd.done ? new Date().toISOString() : null; }
+    Store.put(upd);
+    if (C.isDone(upd, occ)) toast('Hecho: ' + upd.title, { undo: () => Store.put(before) });
+  }
+
+  // ---------- Captura rápida ----------
+  const qin = $('#qinput'), qprev = $('#qprev');
+  const Q = { parsed: null, ai: null, ctl: null };
+  function previewItemHTML(p) {
+    const chips = [`<span class="qc">${I.cal}${esc(dateLabel(p.date))}</span>`];
+    if (p.type === 'event') {
+      if (p.start) chips.push(`<span class="qc">${I.clock}${esc(C.fmtRange(p.start, p.end, h12()))}</span>`);
+      else chips.push(`<span class="qc">Todo el día${p.days > 1 ? ` · ${p.days} días` : ''}</span>`);
+    }
+    if (p.repeat) chips.push(`<span class="qc">${I.repeat}${esc(C.describeRepeat(p.repeat, p.date))}</span>`);
+    if (p.location) chips.push(`<span class="qc">${I.pin}${esc(p.location)}</span>`);
+    chips.push(`<span class="qc cat">${C.catName(p.category)}</span>`);
+    return `<div class="qp-item" style="--c: var(--c-${esc(p.category)})"><div class="qp-top"><span class="qp-type">${p.type === 'task' ? 'Pendiente' : 'Evento'}</span>
+      <span class="qp-title ${p.title ? '' : 'empty'}">${esc(p.title || 'Escribe un título')}</span></div><div class="qp-chips">${chips.join('')}</div></div>`;
+  }
+  function renderPreview(extra) {
+    const list = Q.ai || (Q.parsed ? [Q.parsed] : []);
+    if (!list.length) { qprev.hidden = true; return; }
+    qprev.hidden = false;
+    qprev.innerHTML = list.map(previewItemHTML).join('') + (extra || '') +
+      `<div class="qp-foot"><span><kbd>Enter</kbd> para guardar</span>${list.length === 1 ? '<button type="button" class="link" data-act="q-edit">Ajustar detalles</button>' : ''}${S.sample && !Q.ai ? `<button type="button" class="link" data-act="q-ai">${svg('<path d="M12 3.5l1.9 4.7 4.6 1.8-4.6 1.9L12 16.5l-1.9-4.6-4.6-1.9 4.6-1.8z"/>', 14)}Mejorar con Claude</button>` : ''}${Q.ai ? '<span>Interpretado por Claude</span>' : ''}</div>`;
+  }
+  function onQuickInput() {
+    if (Q.ctl) { Q.ctl.abort(); Q.ctl = null; }
+    Q.ai = null;
+    const txt = qin.value.trim();
+    Q.parsed = txt ? P.parse(txt, { today: todayKey(), nowMin: nowMin() }) : null;
+    renderPreview();
+  }
+  qin.addEventListener('input', onQuickInput);
+  qin.addEventListener('keydown', e => { if (e.key === 'Escape') { qin.value = ''; onQuickInput(); qin.blur(); } });
+  $('#quick').addEventListener('submit', e => { e.preventDefault(); addFromQuick(); });
+  qprev.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    if (!b) return;
+    if (b.dataset.act === 'q-edit') {
+      const p = (Q.ai && Q.ai[0]) || Q.parsed;
+      if (!p) return;
+      const draft = Object.assign({}, p);
+      qin.value = ''; onQuickInput();
+      openEditor({ draft });
+    }
+    if (b.dataset.act === 'q-ai') aiParse();
+    if (b.dataset.act === 'q-stop' && Q.ctl) Q.ctl.abort();
+  });
+  $('#qai').addEventListener('click', () => { if (qin.value.trim()) aiParse(); else qin.focus(); });
+  function addFromQuick() {
+    const txt = qin.value.trim();
+    if (!txt) { qin.focus(); return; }
+    const raws = Q.ai || [Q.parsed || P.parse(txt, { today: todayKey(), nowMin: nowMin() })];
+    const t = todayKey(), now = new Date().toISOString();
+    const items = raws.map(r => C.sanitizeItem(r, t)).filter(Boolean).map(it => Object.assign(it, { id: newId(), createdAt: now }));
+    if (!items.length) { renderPreview('<p class="qp-msg err">Escribe qué quieres agendar, por ejemplo: «Junta el viernes a las 10».</p>'); return; }
+    dropExamples();
+    Store.putMany(items);
+    qin.value = ''; onQuickInput();
+    items.forEach(it => S.flash.add(it.id));
+    focusDate(items[0].date);
+    render();
+    const first = items[0];
+    toast(items.length === 1 ? `Agregado: ${first.title} · ${whenLabel(first)}` : `Agregados ${items.length} elementos`,
+      { undo: () => items.forEach(it => Store.remove(it.id)), action: items.length === 1 ? { label: 'Editar', fn: () => openEditor({ id: first.id, occ: first.date }) } : null });
+  }
+
+  // ---------- Claude: interpretar frases y responder preguntas ----------
+  function contextLine() {
+    const t = todayKey(), [y] = C.parts(t);
+    return `Hoy es ${C.fmtLong(t)} de ${y} (${t}), son las ${C.fromMin(nowMin())}${TZ ? ' en la zona horaria ' + TZ : ''}.`;
+  }
+  const SCHEMA = '{"type":"event"|"task","title":string,"date":"AAAA-MM-DD","start":"HH:MM"|null,"end":"HH:MM"|null,"days":número,"repeat":null|{"freq":"daily"|"weekly"|"monthly"|"yearly","interval":número,"days":[0-6],"monthDays":[número, -1 = último día],"nth":1-5|-1,"wd":0-6,"until":"AAAA-MM-DD"},"category":"trabajo"|"personal"|"salud"|"familia"|"estudio"|"otro","location":string,"notes":string}';
+  function aiParsePrompt(txt) {
+    const t = todayKey();
+    const fri = C.addDays(t, (5 - C.weekday(t) + 7) % 7 || 7), first = C.addMonths(C.monthStart(t), 1);
+    return `Convierte el texto de una persona en elementos de su agenda. La persona vive en México y escribe en español.
+${contextLine()}
+
+Responde SOLO con un arreglo JSON. Cada elemento tiene esta forma:
+${SCHEMA}
+
+Reglas:
+- "task" es un pendiente sin hora (pagar, comprar, llamar, enviar…). "event" ocurre en una hora o en un día.
+- Días de la semana: 0 = domingo, 1 = lunes … 6 = sábado.
+- Si un evento no tiene hora, start y end son null (es de todo el día); "days" indica cuántos días dura (1 si es un solo día).
+- Si tiene hora de inicio y no de fin, dura una hora.
+- Fechas sin año: la próxima fecha futura. "a las 5" sin a.m./p.m. es 17:00 salvo que el contexto diga otra cosa.
+- El título es corto, sin fecha ni hora, con mayúscula inicial. El lugar va en "location".
+- Si el texto menciona varias cosas, devuelve un elemento por cada una.
+
+Ejemplo: «dentista el viernes 4pm y pagar renta el 1 de cada mes» →
+[{"type":"event","title":"Dentista","date":"${fri}","start":"16:00","end":"17:00","days":1,"repeat":null,"category":"salud","location":"","notes":""},{"type":"task","title":"Pagar renta","date":"${first}","start":null,"end":null,"days":1,"repeat":{"freq":"monthly","interval":1,"monthDays":[1]},"category":"personal","location":"","notes":""}]
+
+Texto: """${txt.slice(0, 2000)}"""`;
+  }
+  function aiError(e) {
+    const code = e && e.code;
+    if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(code)) {
+      S.sample = null; $('#qai').hidden = true; $('#askBtn').hidden = true;
+      return 'Claude no está disponible aquí. Ritmo sigue funcionando sin él.';
+    }
+    return ({
+      rate_limited: 'Claude está ocupado o llegaste a tu límite de uso. Intenta más tarde.',
+      session_expired: 'Tu sesión de Claude expiró. Vuelve a iniciar sesión.',
+      refused: 'Claude no pudo ayudar con eso. Prueba escribirlo de otra forma.',
+      invalid_json: 'No pude leer la respuesta. Intenta de nuevo.',
+      empty_completion: 'Claude no devolvió nada. Intenta de nuevo con menos texto.',
+      prompt_too_large: 'Es demasiado texto. Pregunta por menos días.',
+    })[code] || 'No se pudo conectar con Claude. Intenta de nuevo.';
+  }
+  async function aiParse() {
+    const txt = qin.value.trim();
+    if (!txt || !S.sample) return;
+    if (Q.ctl) Q.ctl.abort();
+    const ctl = Q.ctl = new AbortController();
+    qprev.hidden = false;
+    qprev.innerHTML = `<div class="qp-msg"><span class="thinking">Claude está leyendo tu frase</span><button type="button" class="link" data-act="q-stop">Detener</button></div>`;
+    try {
+      const res = await S.sample.json(aiParsePrompt(txt), { modelTier: 'quick', signal: ctl.signal });
+      if (Q.ctl !== ctl || qin.value.trim() !== txt) return;
+      const arr = Array.isArray(res) ? res : res && Array.isArray(res.items) ? res.items : [res];
+      const list = arr.map(r => C.sanitizeItem(r, todayKey())).filter(Boolean);
+      if (!list.length) throw { code: 'empty_completion' };
+      Q.ai = list;
+      Q.ctl = null;
+      renderPreview();
+    } catch (e) {
+      if (Q.ctl !== ctl) return;
+      Q.ctl = null;
+      if (e && e.code === 'cancelled') { renderPreview(); return; }
+      renderPreview(`<p class="qp-msg err">${esc(aiError(e))}</p>`);
+    }
+  }
+  function agendaForAI() {
+    const t = todayKey(), a = C.addDays(t, -7), b = C.addDays(t, 35);
+    const lines = gather(a, b).sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : sortOcc(x, y))).slice(0, 450).map(o => {
+      if (o.holiday) return `${o.date} | todo el día | ${o.holiday.title} | festivo`;
+      const it = o.item;
+      const hora = isTimed(it) ? `${it.start}-${it.end || ''}` : 'todo el día';
+      const tipo = it.type === 'task' ? (C.isDone(it, o.occ) ? 'pendiente hecho' : 'pendiente') : 'evento';
+      return `${o.date} | ${hora} | ${it.title} | ${C.catName(it.category)}${it.location ? ' | ' + it.location : ''} | ${tipo}${it.repeat ? ' | ' + C.describeRepeat(it.repeat, it.date) : ''}`;
+    });
+    return { a, b, text: lines.join('\n') || '(sin elementos)' };
+  }
+  function askPrompt(q) {
+    const ag = agendaForAI();
+    return `Eres el asistente de "Ritmo", la agenda personal de una persona que vive en México.
+${contextLine()}
+
+Su agenda del ${ag.a} al ${ag.b} (fecha | hora | título | categoría | lugar | tipo):
+${ag.text}
+
+Pregunta: """${q.slice(0, 1500)}"""
+
+Instrucciones:
+- Responde en español de México, claro y amable, en máximo 120 palabras. Escribe fechas como "martes 27 de octubre" y horas como "5:00 p.m.".
+- Usa solo lo que está en la agenda; si algo no aparece, dilo.
+- Si te pide agendar, planear o apartar tiempo, propón elementos concretos que no se encimen con lo que ya tiene, entre 7:00 y 22:00. La persona decide si los agrega.
+- Responde SOLO con JSON: {"respuesta": string, "propuestas": [${SCHEMA}]}. Si no hay propuestas, usa [].`;
+  }
+  function openAsk(pre) {
+    if (!S.sample) return;
+    const sugg = ['¿Qué tengo mañana?', 'Resume mi semana', 'Busca 2 horas libres esta semana para estudiar', '¿Cuándo es mi próximo pago?'];
+    openSheet(`<div class="grab"></div><div class="sh-head"><h2>Pregúntale a tu agenda</h2><button type="button" class="icon-btn" data-act="close" aria-label="Cerrar">${I.close}</button></div>
+      <p class="muted">Claude lee tus próximas semanas y responde. Si le pides planear algo, te propone eventos y tú decides cuáles agregar.</p>
+      <div class="sugg">${sugg.map(s => `<button type="button" class="chipbtn" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+      <form class="ask" id="askForm"><label class="sr" for="askIn">Tu pregunta</label><textarea id="askIn" class="in" rows="2" placeholder="Ej. ¿Tengo algo el viernes en la tarde?"></textarea>
+        <div class="ask-row"><button type="button" class="btn ghost" id="askStop" hidden>Detener</button><button type="submit" class="btn primary" id="askGo">${I.spark}Preguntar</button></div></form>
+      <div class="ask-out" id="askOut" aria-live="polite"></div>`, 'Pregúntale a tu agenda', root => {
+      const inp = $('#askIn', root), out = $('#askOut', root), stop = $('#askStop', root), go = $('#askGo', root);
+      let ctl = null, props = [];
+      const run = async q => {
+        q = q.trim();
+        if (!q) { inp.focus(); return; }
+        if (ctl) ctl.abort();
+        ctl = new AbortController();
+        const mine = ctl;
+        out.innerHTML = '<p class="answer thinking">Pensando</p>';
+        stop.hidden = false; go.disabled = true;
+        try {
+          const res = await S.sample.json(askPrompt(q), { signal: mine.signal, cache: false });
+          const answer = String((res && (res.respuesta || res.answer)) || '').trim() || 'Listo.';
+          props = (res && Array.isArray(res.propuestas) ? res.propuestas : []).map(r => C.sanitizeItem(r, todayKey())).filter(Boolean);
+          out.innerHTML = `<p class="answer">${esc(answer)}</p>${props.length ? `<div class="props">${props.map((p, i) => `<div class="prop" style="--c: var(--c-${esc(p.category)})"><span class="bar"></span>
+            <span><b>${esc(p.title)}</b><small>${esc(dateLabel(p.date))}${p.start ? ', ' + esc(C.fmtRange(p.start, p.end, h12())) : p.type === 'task' ? ' · pendiente' : ' · todo el día'}${p.location ? ' · ' + esc(p.location) : ''}</small></span>
+            <button type="button" class="btn sm" data-prop="${i}">Agregar</button></div>`).join('')}
+            ${props.length > 1 ? '<button type="button" class="btn ghost" data-prop="all">Agregar todas</button>' : ''}</div>` : ''}`;
+        } catch (e) {
+          if (e && e.code === 'cancelled') { out.innerHTML = ''; }
+          else out.innerHTML = `${e && e.text ? `<p class="answer">${esc(e.text)}</p>` : ''}<p class="qp-msg err">${esc(aiError(e))}</p>`;
+        } finally {
+          if (ctl === mine) { ctl = null; stop.hidden = true; go.disabled = false; }
+        }
+      };
+      $('#askForm', root).addEventListener('submit', e => { e.preventDefault(); run(inp.value); });
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); run(inp.value); } });
+      stop.addEventListener('click', () => ctl && ctl.abort());
+      root.addEventListener('click', e => {
+        const s = e.target.closest('[data-q]');
+        if (s) { inp.value = s.dataset.q; run(s.dataset.q); return; }
+        const p = e.target.closest('[data-prop]');
+        if (!p) return;
+        const now = new Date().toISOString();
+        const chosen = (p.dataset.prop === 'all' ? props : [props[+p.dataset.prop]]).filter(Boolean).map(x => Object.assign(clone(x), { id: newId(), createdAt: now }));
+        if (!chosen.length) return;
+        dropExamples();
+        Store.putMany(chosen);
+        chosen.forEach(x => S.flash.add(x.id));
+        if (p.dataset.prop === 'all') $$('[data-prop]', root).forEach(b => { b.disabled = true; b.textContent = 'Agregado'; });
+        else { p.disabled = true; p.textContent = 'Agregado'; }
+        toast(chosen.length === 1 ? 'Agregado: ' + chosen[0].title : `Agregados ${chosen.length} elementos`, { undo: () => chosen.forEach(x => Store.remove(x.id)) });
+      });
+      if (pre) { inp.value = pre; run(pre); } else setTimeout(() => inp.focus(), 60);
+    });
+  }
+
+  // ---------- Buscar ----------
+  function openSearch() {
+    openSheet(`<div class="grab"></div><div class="sh-head"><h2>Buscar</h2><button type="button" class="icon-btn" data-act="close" aria-label="Cerrar">${I.close}</button></div>
+      <label class="sr" for="sq">Buscar en tu agenda</label><input id="sq" class="in" type="search" placeholder="Dentista, junta, Zoom…" autocomplete="off">
+      <div class="results" id="sres"></div>`, 'Buscar', root => {
+      const inp = $('#sq', root), res = $('#sres', root);
+      const t = todayKey();
+      const nextOf = it => C.occurrenceStarts(it, t, C.addDays(t, 730))[0] || (it.repeat ? null : it.date) || it.date;
+      const draw = () => {
+        const q = P.norm(inp.value.trim());
+        if (!q) { res.innerHTML = '<p class="muted" style="margin-top:8px">Escribe para buscar por título, lugar o notas.</p>'; return; }
+        const hits = allItems().filter(it => P.norm(`${it.title} ${it.location || ''} ${it.notes || ''}`).includes(q))
+          .map(it => ({ it, k: nextOf(it) })).sort((a, b) => ((a.k >= t) !== (b.k >= t) ? (a.k >= t ? -1 : 1) : a.k < b.k ? (a.k >= t ? -1 : 1) : (a.k >= t ? 1 : -1))).slice(0, 40);
+        res.innerHTML = hits.length ? hits.map(({ it, k }) => `<button type="button" class="res" style="--c: var(--c-${esc(it.category)})" data-open="${esc(it.id)}" data-occ="${k}"><i></i>
+          <span><b>${esc(it.title)}</b><small>${it.type === 'task' ? 'Pendiente' : 'Evento'}${it.location ? ' · ' + esc(it.location) : ''}${it.repeat ? ' · ' + esc(C.describeRepeat(it.repeat, it.date)) : ''}</small></span><time>${esc(dateLabel(k, t))}</time></button>`).join('')
+          : '<p class="muted" style="margin-top:8px">No encontré nada con eso.</p>';
+      };
+      inp.addEventListener('input', draw);
+      draw();
+      setTimeout(() => inp.focus(), 60);
+    });
+  }
+
+  // ---------- Ajustes, exportar e importar ----------
+  function openSettings() {
+    const s = Store.settings;
+    const canSave = !!S.downloads || !(window.claude && typeof window.claude.use === 'function');
+    openSheet(`<div class="grab"></div><div class="sh-head"><h2>Ajustes</h2><button type="button" class="icon-btn" data-act="close" aria-label="Cerrar">${I.close}</button></div>
+      <div class="group"><h3>Preferencias</h3>
+        <div class="switch-row"><span class="lbl" id="l-ws">La semana empieza en</span><div class="seg" role="group" aria-labelledby="l-ws"><button type="button" data-set="weekStart" data-v="0" aria-pressed="${s.weekStart === 0}">Domingo</button><button type="button" data-set="weekStart" data-v="1" aria-pressed="${s.weekStart === 1}">Lunes</button></div></div>
+        <div class="switch-row"><span class="lbl" id="l-h">Formato de hora</span><div class="seg" role="group" aria-labelledby="l-h"><button type="button" data-set="h12" data-v="1" aria-pressed="${s.h12}">5:00 p.m.</button><button type="button" data-set="h12" data-v="0" aria-pressed="${!s.h12}">17:00</button></div></div>
+        <div class="switch-row"><span class="lbl" id="l-hol">Días festivos de México<small>Descansos obligatorios y fechas que se celebran</small></span><button type="button" class="sw" role="switch" data-toggle-set="holidays" aria-checked="${s.holidays}" aria-labelledby="l-hol"></button></div>
+      </div>
+      <div class="group"><h3>Categorías visibles</h3>${C.CATEGORIES.map(c => `<button type="button" class="catrow" role="checkbox" aria-checked="${!(s.hiddenCats || []).includes(c.id)}" data-cat="${c.id}" style="--c: var(--c-${c.id})"><span class="box">${I.check}</span>${c.name}</button>`).join('')}</div>
+      <div class="group"><h3>Tus datos</h3>${syncHTML()}
+        <div class="actions-list" style="margin-top:10px">
+          ${canSave ? `<button type="button" class="act" data-exp="csv">${I.down}<span><b>Exportar para Google Calendar</b><small>Archivo .csv que Google Calendar importa</small></span></button>
+          <button type="button" class="act" data-exp="ics">${I.down}<span><b>Exportar para Apple, Outlook y otros</b><small>Archivo .ics dentro de un .zip</small></span></button>
+          <button type="button" class="act" data-exp="json">${I.down}<span><b>Descargar respaldo</b><small>Todo Ritmo en un archivo .json</small></span></button>` : '<p class="muted" style="margin:0">Las descargas no están disponibles en esta vista.</p>'}
+          <button type="button" class="act" data-imp="1">${I.up}<span><b>Importar</b><small>Archivo .ics, el .zip que exporta Google Calendar o un respaldo .json</small></span></button>
+        </div>
+        <div class="confirm" id="wipe" hidden></div>
+        <button type="button" class="btn ghost danger" data-act="ask-wipe" style="justify-self:start;margin-top:6px">${I.trash}Borrar toda la agenda</button>
+      </div>
+      <div class="group"><h3>Atajos de teclado</h3><div class="keys"><kbd>N</kbd><span>Escribir algo nuevo</span><kbd>/</kbd><span>Buscar</span><kbd>T</kbd><span>Ir a hoy</span><kbd>1–4</kbd><span>Agenda, Día, Semana, Mes</span><kbd>← →</kbd><span>Anterior y siguiente</span><kbd>Esc</kbd><span>Cerrar</span></div></div>`, 'Ajustes', root => {
+      root.addEventListener('click', e => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        if (b.dataset.set) { Store.setSettings({ [b.dataset.set]: b.dataset.set === 'h12' ? b.dataset.v === '1' : +b.dataset.v }); $$(`[data-set="${b.dataset.set}"]`, root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); }
+        if (b.dataset.toggleSet) { const v = !Store.settings[b.dataset.toggleSet]; Store.setSettings({ [b.dataset.toggleSet]: v }); b.setAttribute('aria-checked', String(v)); }
+        if (b.dataset.cat) { toggleCat(b.dataset.cat); b.setAttribute('aria-checked', String(!(Store.settings.hiddenCats || []).includes(b.dataset.cat))); }
+        if (b.dataset.exp) exportAs(b.dataset.exp);
+        if (b.dataset.imp) $('#importFile').click();
+        if (b.dataset.act === 'ask-wipe') {
+          const box = $('#wipe', root);
+          box.hidden = false;
+          box.innerHTML = `<p>¿Borrar los ${Store.items.size} elementos de tu agenda? Descarga un respaldo antes si lo quieres conservar.</p><div class="btns"><button type="button" class="btn sm solid-danger" data-wipe="yes">Borrar todo</button><button type="button" class="btn sm ghost" data-wipe="no">Cancelar</button></div>`;
+        }
+        if (b.dataset.wipe === 'no') $('#wipe', root).hidden = true;
+        if (b.dataset.wipe === 'yes') {
+          const all = [...Store.items.values()];
+          all.forEach(it => Store.remove(it.id));
+          closeSheet();
+          toast(`Agenda borrada (${all.length})`, { undo: () => Store.putMany(all) });
+        }
+      });
+    });
+  }
+  function toggleCat(id) {
+    const hidden = new Set(Store.settings.hiddenCats || []);
+    hidden.has(id) ? hidden.delete(id) : hidden.add(id);
+    Store.setSettings({ hiddenCats: [...hidden] });
+  }
+  async function exportAs(kind) {
+    const items = [...Store.items.values()];
+    if (!items.length) { toast('Aún no hay nada que exportar.'); return; }
+    const t = todayKey();
+    let name, data;
+    if (kind === 'csv') { name = `ritmo-google-calendar-${t}.csv`; data = C.toGoogleCSV(items, C.addDays(t, -30), C.addDays(t, 365)); }
+    else if (kind === 'ics') { name = `ritmo-${t}.zip`; data = new Blob([C.zip([{ name: 'ritmo.ics', data: C.toICS(items, { tz: TZ }) }])]); }
+    else { name = `ritmo-respaldo-${t}.json`; data = JSON.stringify({ app: 'Ritmo', version: 1, exportedAt: new Date().toISOString(), settings: Store.settings, items }, null, 2); }
+    if (S.downloads) {
+      try { await S.downloads.save({ filename: name, data }); toast('Listo: ' + name); }
+      catch (e) { if (!e || e.code !== 'declined') toast(e && e.code === 'rate_limited' ? 'Espera un momento e inténtalo otra vez.' : 'No se pudo descargar el archivo.'); }
+      return;
+    }
+    if (!(window.claude && typeof window.claude.use === 'function')) {
+      const blob = data instanceof Blob ? data : new Blob([data], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast('Listo: ' + name);
+    }
+  }
+  $('#importFile').addEventListener('change', async e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const name = file.name.toLowerCase(), buf = await file.arrayBuffer(), dec = new TextDecoder();
+      let raws = [];
+      if (name.endsWith('.zip')) { for (const f of await C.unzip(buf)) if (f.bytes && /\.ics$/i.test(f.name)) raws.push(...C.parseICS(dec.decode(f.bytes))); }
+      else if (name.endsWith('.json')) { const j = JSON.parse(dec.decode(buf)); raws = Array.isArray(j) ? j : (j && j.items) || []; }
+      else raws = C.parseICS(dec.decode(buf));
+      const t = todayKey(), now = new Date().toISOString();
+      const sig = it => `${P.norm(it.title)}|${it.date}|${it.start || ''}|${it.type}`;
+      const seen = new Set([...Store.items.values()].map(sig));
+      const out = [];
+      let dup = 0;
+      for (const r of raws) {
+        const it = C.sanitizeItem(r, t);
+        if (!it) continue;
+        if (!r.category) it.category = P.inferCategory(it.title + ' ' + it.location) || 'personal';
+        if (seen.has(sig(it))) { dup++; continue; }
+        seen.add(sig(it));
+        it.id = r.id && /^[A-Za-z0-9_-]{1,60}$/.test(r.id) && !Store.items.has(r.id) ? r.id : newId();
+        it.createdAt = now;
+        out.push(it);
+      }
+      if (!out.length) { toast(dup ? 'Todo lo de ese archivo ya estaba en tu agenda.' : 'No encontré eventos en ese archivo.'); return; }
+      dropExamples();
+      Store.putMany(out);
+      closeSheet();
+      toast(`Importados ${out.length}${dup ? ` (${dup} ya estaban)` : ''}`, { undo: () => out.forEach(it => Store.remove(it.id)) });
+    } catch (err) {
+      toast('No pude leer ese archivo. Usa un .ics, un .zip de Google Calendar o un respaldo .json de Ritmo.');
+    }
+  });
+
+  // ---------- Aviso con deshacer ----------
+  let toastTimer = null;
+  function toast(msg, opt) {
+    const o = opt || {}, el = $('#toast');
+    el.innerHTML = `<span>${esc(msg)}</span>${o.undo ? '<button type="button" data-t="undo">Deshacer</button>' : ''}${o.action ? `<button type="button" data-t="act">${esc(o.action.label)}</button>` : ''}`;
+    el.hidden = false;
+    el.onclick = e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      el.hidden = true;
+      if (b.dataset.t === 'undo' && o.undo) o.undo();
+      if (b.dataset.t === 'act' && o.action) o.action.fn();
+    };
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, o.undo || o.action ? 6500 : 3500);
+  }
+
+  // ---------- Navegación ----------
+  function setView(v) {
+    if (!VIEWS.includes(v)) return;
+    S.view = v;
+    if (v !== 'agenda') S.miniMonth = null;
+    S.scrollTo = true;
+    ls.set('ritmo.v1.view', v);
+    render();
+  }
+  function step(n) {
+    if (S.view === 'dia') S.cursor = C.addDays(S.cursor, n);
+    else if (S.view === 'semana') S.cursor = C.addDays(S.cursor, 7 * n);
+    else if (S.view === 'mes') { S.cursor = C.addMonths(C.monthStart(S.cursor), n); S.selected = S.cursor; }
+    else return;
+    S.selected = S.view === 'mes' ? S.selected : S.cursor;
+    S.miniMonth = null;
+    S.scrollTo = true;
+    render();
+  }
+  function goToday() {
+    S.cursor = S.selected = todayKey();
+    S.miniMonth = null;
+    S.agendaFrom = null;
+    S.scrollTo = true;
+    render();
+  }
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-open],[data-toggle],[data-new],[data-day],[data-pick],[data-sel],[data-view],[data-act],[data-cat],[data-mini],.grid');
+    if (!el || (S.sheetOpen && card.contains(el) && !el.matches('[data-open]'))) return;
+    if (el.closest('#sheetCard') && !el.matches('[data-open]')) return;
+    const d = el.dataset;
+    if (d.toggle) { toggleTask(d.toggle, d.occ); return; }
+    if (d.open) { if (S.sheetOpen) closeSheet(); openEditor({ id: d.open, occ: d.occ }); return; }
+    if (d.new) { openEditor({ draft: { date: d.new } }); return; }
+    if (d.day) { S.cursor = S.selected = d.day; setView('dia'); return; }
+    if (d.pick) { S.cursor = S.selected = d.pick; S.miniMonth = null; if (S.view === 'agenda') setView('dia'); else { S.scrollTo = true; render(); } return; }
+    if (d.sel) { if (S.selected === d.sel) { S.cursor = d.sel; setView('dia'); } else { S.selected = d.sel; render(); } return; }
+    if (d.view) { setView(d.view); return; }
+    if (d.cat) { toggleCat(d.cat); return; }
+    if (d.mini) { S.miniMonth = C.addMonths(S.miniMonth || C.monthStart(S.cursor), +d.mini); renderSide(); return; }
+    if (d.act === 'more') { S.agendaDays = Math.min(730, S.agendaDays + 60); render(); return; }
+    if (d.act === 'past') { S.agendaFrom = C.addDays(S.agendaFrom && S.agendaFrom < todayKey() ? S.agendaFrom : todayKey(), -30); render(); return; }
+    if (d.act === 'examples-off') { Store.setSettings({ examplesOff: true }); toast('Listo. Escribe abajo tu primer evento.'); return; }
+    if (d.act === 'overdue-today') {
+      const t = todayKey();
+      const list = [...Store.items.values()].filter(it => it.type === 'task' && !it.repeat && !it.done && it.date < t);
+      if (!list.length) { if (S.examples) toast('Son ejemplos: agrega tus pendientes para usar esta opción.'); return; }
+      const before = list.map(clone);
+      Store.putMany(list.map(it => Object.assign(clone(it), { date: t })));
+      toast(`${list.length} ${list.length === 1 ? 'pendiente pasó' : 'pendientes pasaron'} a hoy`, { undo: () => Store.putMany(before) });
+      return;
+    }
+    if (el.classList.contains('grid') && e.target === el) {
+      const r = el.getBoundingClientRect(), min = Math.max(0, Math.min(1410, Math.floor(((e.clientY - r.top) / r.height) * 1440 / 30) * 30));
+      openEditor({ draft: { date: el.dataset.grid, start: C.fromMin(min), end: C.fromMin(min + 60) } });
+    }
+  });
+  $('#todayBtn').addEventListener('click', () => { goToday(); if (S.view === 'agenda') scrollTo({ top: 0, behavior: 'smooth' }); });
+  $('#prevBtn').addEventListener('click', () => step(-1));
+  $('#nextBtn').addEventListener('click', () => step(1));
+  $('#searchBtn').addEventListener('click', openSearch);
+  $('#askBtn').addEventListener('click', () => openAsk());
+  $('#menuBtn').addEventListener('click', openSettings);
+  $('#searchBtn').innerHTML = I.search;
+  $('#askBtn').innerHTML = I.spark;
+  $('#menuBtn').innerHTML = I.sliders;
+  $('#prevBtn').innerHTML = I.left;
+  $('#nextBtn').innerHTML = I.right;
+  $('#qadd').innerHTML = I.plus;
+  $('#qai').innerHTML = I.spark;
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && S.sheetOpen) { closeSheet(); return; }
+    if (S.sheetOpen || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+    const k = e.key;
+    if (k === 'n' || k === 'N') { e.preventDefault(); qin.focus(); }
+    else if (k === '/') { e.preventDefault(); openSearch(); }
+    else if (k === 't' || k === 'T') goToday();
+    else if (k >= '1' && k <= '4') setView(VIEWS[+k - 1]);
+    else if (k === 'ArrowLeft') step(-1);
+    else if (k === 'ArrowRight') step(1);
+  });
+  // Deslizar para cambiar de día, semana o mes
+  let sx = 0, sy = 0, st = 0;
+  const onStart = e => { const p = e.touches[0]; sx = p.clientX; sy = p.clientY; st = Date.now(); };
+  const onEnd = e => {
+    if (S.view === 'agenda') return;
+    const p = e.changedTouches[0], dx = p.clientX - sx, dy = p.clientY - sy;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - st < 700) step(dx < 0 ? 1 : -1);
+  };
+  for (const el of [view, $('#strip')]) { el.addEventListener('touchstart', onStart, { passive: true }); el.addEventListener('touchend', onEnd, { passive: true }); }
+
+  // Medidas para encabezados fijos
+  const root = document.documentElement;
+  const measure = () => {
+    root.style.setProperty('--top-h', $('#top').getBoundingClientRect().height + 'px');
+    root.style.setProperty('--quick-h', $('#quick').getBoundingClientRect().height + 'px');
+  };
+  if ('ResizeObserver' in window) { const ro = new ResizeObserver(measure); ro.observe($('#top')); ro.observe($('#quick')); }
+  let lastWide = wide(), lastSide = hasSide();
+  addEventListener('resize', () => { measure(); if (wide() !== lastWide || hasSide() !== lastSide) { lastWide = wide(); lastSide = hasSide(); render(); } });
+
+  // Reloj: refresca la línea de "ahora" y cambia de día a medianoche
+  setInterval(() => {
+    if (document.visibilityState !== 'visible' || S.sheetOpen) return;
+    const t = todayKey();
+    if (t !== S.lastToday) { if (S.cursor === S.lastToday) S.cursor = S.selected = t; S.lastToday = t; }
+    render();
+  }, 60000);
+
+  // Capacidades de Claude (si la página está dentro de Claude)
+  async function connectCaps() {
+    const CL = window.claude;
+    if (!CL || typeof CL.use !== 'function') return;
+    const [sample, downloads] = await Promise.all([CL.use('sample').catch(() => null), CL.use('downloads').catch(() => null)]);
+    S.sample = sample; S.downloads = downloads;
+    $('#qai').hidden = !sample;
+    $('#askBtn').hidden = !sample;
+    if (qin.value.trim()) renderPreview();
+  }
+
+  function start(data) {
+    const fromHash = (location.hash || '').slice(1);
+    const saved = (data && data.view) || (VIEWS.includes(fromHash) ? fromHash : ls.get('ritmo.v1.view', 'agenda'));
+    S.view = VIEWS.includes(saved) ? saved : 'agenda';
+    if (data && C.isKey(data.cursor)) { S.cursor = data.cursor; S.selected = data.selected || data.cursor; }
+    Store.onChange(render);
+    Store.init();
+    measure();
+    connectCaps();
+  }
+  const hot = window.claude && window.claude.hot;
+  if (hot && hot.snapshot) hot.snapshot(() => ({ view: S.view, cursor: S.cursor, selected: S.selected }));
+  if (hot && hot.ready) hot.ready(start); else start((hot && hot.data) || {});
+})();
+</script>
+
+</body></html>

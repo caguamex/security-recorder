@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Plantilla de imágenes de Ritmo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:wght@400;600;700&display=swap">
+<style>
+  :root { --pen: #1F3FD1; --mark: #FFE15A; --ink: #131A25; --paper: #F6F7F9; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+  body { background: var(--pen); color: #fff; font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif; }
+  /* Imagen de tienda 1290×2796 */
+  .shot { height: 100%; display: flex; flex-direction: column; align-items: center; padding: 170px 90px 0; gap: 34px; }
+  .shot h1 { margin: 0; text-align: center; font: 900 128px/1 "Archivo", sans-serif; font-stretch: 80%; letter-spacing: -.01em; text-wrap: balance; }
+  .shot h1 em { font-style: normal; background: linear-gradient(transparent 60%, var(--mark) 60%, var(--mark) 90%, transparent 90%); color: #fff; }
+  .shot p { margin: 0; text-align: center; font-size: 54px; line-height: 1.25; color: #DCE3FF; max-width: 1000px; }
+  .phone { margin-top: 70px; width: 1010px; flex: 1; border-radius: 120px 120px 0 0; background: #0B0F16; padding: 34px 34px 0; box-shadow: 0 40px 120px rgba(0,0,0,.35); overflow: hidden; position: relative; }
+  .phone img { width: 100%; display: block; border-radius: 88px 88px 0 0; }
+  .phone::before { content: ""; position: absolute; top: 58px; left: 50%; width: 230px; height: 66px; margin-left: -115px; border-radius: 40px; background: #0B0F16; z-index: 2; }
+  /* Ícono 1024 */
+  .icono { width: 100%; height: 100%; display: grid; place-items: center; background: var(--pen); }
+  /* Gráfico de Google Play 1024×500 */
+  .grafico { height: 100%; display: grid; grid-template-columns: 1fr 360px; align-items: center; padding: 0 0 0 70px; gap: 40px; overflow: hidden; }
+  .grafico b { display: block; font: 900 120px/1 "Archivo", sans-serif; font-stretch: 78%; }
+  .grafico b i { font-style: normal; background: linear-gradient(transparent 58%, var(--mark) 58%, var(--mark) 90%, transparent 90%); }
+  .grafico span { display: block; margin-top: 18px; font-size: 36px; line-height: 1.2; color: #DCE3FF; }
+  .grafico .mini { align-self: end; height: 460px; border-radius: 48px 48px 0 0; background: #0B0F16; padding: 14px 14px 0; overflow: hidden; }
+  .grafico .mini img { width: 100%; display: block; border-radius: 36px 36px 0 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.getElementById('root');
+  const marca = `<svg viewBox="0 0 1024 1024" width="%W" height="%W" aria-label="Ritmo">
+    <rect x="200" y="236" width="624" height="588" rx="120" fill="#FFFFFF"/>
+    <rect x="352" y="168" width="64" height="150" rx="32" fill="#0B1B7A"/>
+    <rect x="608" y="168" width="64" height="150" rx="32" fill="#0B1B7A"/>
+    <rect x="268" y="560" width="488" height="128" rx="26" fill="#FFE15A" transform="rotate(-4 512 624)"/>
+    <polyline points="280,560 392,560 446,420 534,690 598,520 640,560 744,560" fill="none" stroke="#1F3FD1" stroke-width="54" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+  const modo = q.get('modo');
+  if (modo === 'icono') {
+    document.body.style.background = 'var(--pen)';
+    root.className = 'icono';
+    root.style.height = '100vh';
+    root.innerHTML = marca.replace(/%W/g, '1024');
+  } else if (modo === 'grafico') {
+    root.className = 'grafico';
+    root.style.height = '100vh';
+    root.innerHTML = `<div><div style="display:flex;align-items:center;gap:26px">${marca.replace(/%W/g, '130')}<b>R<i>itmo</i></b></div><span>Tu agenda en español.<br>Escribe como hablas.</span></div><div class="mini"><img src="${q.get('img')}" alt=""></div>`;
+  } else {
+    root.className = 'shot';
+    root.style.height = '100vh';
+    const t = q.get('t') || '';
+    const palabras = t.split(' ');
+    const ult = palabras.pop();
+    root.innerHTML = `<h1>${palabras.join(' ')} <em>${ult}</em></h1><p>${q.get('s') || ''}</p><div class="phone"><img src="${q.get('img')}" alt=""></div>`;
+  }
+</script>
+</body>
+</html>
