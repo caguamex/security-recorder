@@ -1,1 +1,7 @@
 ritmo-kit.zip
+node_modules/
+.env
+.env.*
+!.env.example
+ritmo/servidor/build/
+.taste-skill/

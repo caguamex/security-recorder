@@ -1,6 +1,7 @@
 // Junta index.html + core.js + parser.js + app.js en un solo archivo que abre con doble clic.
 // Uso: node ritmo/herramientas/empaquetar.mjs   →   ritmo/dist/ritmo.html
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,3 +28,35 @@ bel = bel.replace('<script src="core.js"></script>', () => `<script>\n${readFile
   .replace('<script src="belleza.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'belleza.js'), 'utf8')}</script>`);
 writeFileSync(join(raiz, 'dist', 'belleza.html'), pagina.replace(html, () => bel));
 console.log('Listo: ritmo/dist/belleza.html');
+
+// Publicación PWA: documento completo, recursos locales y caché versionada por contenido.
+const fuente = join(raiz, 'belleza'), pwa = join(raiz, 'dist', 'pwa');
+mkdirSync(pwa, { recursive: true });
+for (const recurso of ['belleza.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes']) {
+  cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
+}
+cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));
+let cuerpo = readFileSync(join(fuente, 'index.html'), 'utf8')
+  .replace(/<link[^>]+https:\/\/fonts\.[^>]+>\s*/g, '');
+const metadatos = `<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#F2F2F7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ritmo Belleza">
+<link rel="apple-touch-icon" href="./iconos/icono-180.png">
+<link rel="icon" href="./iconos/icono-192.png">
+<link rel="stylesheet" href="./fuentes/fuentes.css">`;
+const documento = pagina.replace('<head>', '<head>' + metadatos).replace(html, () => cuerpo + '\n<script src="pwa.js"></script>');
+writeFileSync(join(pwa, 'index.html'), documento);
+function archivos(dir, prefijo = './') {
+  return readdirSync(dir, { withFileTypes: true }).flatMap(e => e.isDirectory()
+    ? archivos(join(dir, e.name), prefijo + e.name + '/') : e.name === 'sw.js' ? [] : [prefijo + e.name]);
+}
+const recursos = archivos(pwa).sort();
+const hash = createHash('sha256');
+for (const recurso of recursos) hash.update(recurso).update(readFileSync(join(pwa, recurso)));
+const worker = readFileSync(join(fuente, 'sw.js'), 'utf8');
+hash.update(worker);
+writeFileSync(join(pwa, 'sw.js'), worker.replace('__VERSION__', hash.digest('hex').slice(0, 16))
+  .replace('__ASSETS__', JSON.stringify(['./', ...recursos])));
+console.log('Listo: ritmo/dist/pwa/');
