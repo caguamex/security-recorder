@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ritmo Belleza: 5 diseños</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wdth,wght@62..125,500..900&family=Nunito:wght@500;700;800;900&display=swap">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { width: 3000px; height: 1880px; font-family: var(--ui); background: var(--stage); color: var(--ink); display: flex; flex-direction: column; align-items: center; padding-top: 60px; }
+/* ---------- Temas ---------- */
+body.t1 { --stage:#E9ECF2; --stageInk:#111; --bg:#F2F2F7; --card:#FFFFFF; --ink:#000; --ink2:#3C3C43B3; --ink3:#3C3C4399; --sep:#C6C6C8; --acc:#007AFF; --accInk:#fff; --soft:#E5F0FF; --ui:"Inter",system-ui,sans-serif; --disp:"Inter",sans-serif; --dispW:800; --today:#FF3B30; --glass:rgba(249,249,249,.94); --r:12px; }
+body.t2 { --stage:#F3E3E1; --stageInk:#4A2C2A; --bg:#FBF5F3; --card:#FFFFFF; --ink:#3B2422; --ink2:#7A5A57; --ink3:#A88986; --sep:#EBD9D5; --acc:#C0707A; --accInk:#fff; --soft:#F6E1E2; --ui:"Inter",sans-serif; --disp:"DM Serif Display",serif; --dispW:400; --today:#C0707A; --glass:rgba(251,245,243,.94); --r:18px; }
+body.t3 { --stage:#0B0B0C; --stageInk:#E8D6A8; --bg:#000; --card:#1C1C1E; --ink:#F5F5F7; --ink2:#EBEBF599; --ink3:#EBEBF566; --sep:#38383A; --acc:#D4AF6A; --accInk:#1A1408; --soft:#2A2418; --ui:"Inter",sans-serif; --disp:"Cormorant Garamond",serif; --dispW:700; --today:#D4AF6A; --glass:rgba(22,22,24,.92); --r:14px; }
+body.t4 { --stage:#1F3FD1; --stageInk:#fff; --bg:#F6F7F9; --card:#FFFFFF; --ink:#131A25; --ink2:#485263; --ink3:#737E90; --sep:#E1E5EB; --acc:#1F3FD1; --accInk:#fff; --soft:#E3E9FF; --ui:"Inter",sans-serif; --disp:"Archivo",sans-serif; --dispW:850; --today:#131A25; --glass:rgba(246,247,249,.94); --r:16px; --mark:#FFE15A; }
+body.t5 { --stage:linear-gradient(135deg,#E9D8FF,#FFD9EC 50%,#D6ECFF); --stageInk:#2B1E4A; --bg:linear-gradient(180deg,#EFE4FF,#FFE6F2 55%,#E4F1FF); --card:rgba(255,255,255,.62); --ink:#2B1E4A; --ink2:#5E5180; --ink3:#8C82A8; --sep:rgba(120,100,170,.18); --acc:#8B5CF6; --accInk:#fff; --soft:rgba(139,92,246,.14); --ui:"Nunito",sans-serif; --disp:"Nunito",sans-serif; --dispW:900; --today:#EC4899; --glass:rgba(255,255,255,.55); --r:22px; }
+h1 { font: var(--dispW) 84px/1 var(--disp); color: var(--stageInk); letter-spacing: -.01em; }
+.sub { color: var(--stageInk); opacity: .75; font-size: 30px; margin: 14px 0 46px; }
+.row { display: flex; gap: 60px; }
+.col { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.cap { color: var(--stageInk); font: 700 30px "Inter",sans-serif; }
+.cap small { display: block; text-align: center; font-weight: 500; font-size: 22px; opacity: .7; margin-top: 4px; }
+.phone { width: 620px; height: 1300px; border-radius: 84px; background: #0B0B0D; padding: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.28); }
+.scr { position: relative; width: 100%; height: 100%; border-radius: 66px; background: var(--bg); overflow: hidden; }
+.status { height: 108px; display: flex; align-items: flex-start; justify-content: space-between; padding: 34px 54px 0; font: 700 26px "Inter"; color: var(--ink); }
+.island { position: absolute; top: 20px; left: 50%; width: 176px; height: 52px; margin-left: -88px; border-radius: 30px; background: #000; }
+.status i { font-style: normal; letter-spacing: 2px; }
+.pad { padding: 0 30px; }
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 0 30px; color: var(--acc); font: 500 24px var(--ui); height: 50px; }
+.big { font: var(--dispW) 58px/1.05 var(--disp); letter-spacing: -.01em; padding: 4px 30px 14px; }
+body.t4 .big .hl { background: linear-gradient(transparent 58%, var(--mark) 58%, var(--mark) 92%, transparent 92%); }
+/* Calendario */
+.week { display: grid; grid-template-columns: repeat(7,1fr); text-align: center; padding: 0 22px 10px; }
+.week span { font: 600 17px var(--ui); color: var(--ink3); text-transform: uppercase; }
+.week b { display: grid; place-items: center; width: 56px; height: 56px; margin: 8px auto 4px; border-radius: 50%; font: 600 26px var(--ui); color: var(--ink); }
+.week b.sel { background: var(--today); color: #fff; }
+body.t3 .week b.sel, body.t4 .week b.sel { color: var(--accInk); }
+body.t4 .week b.sel { background: var(--mark); color: #131A25; }
+.week .dots { display: flex; justify-content: center; gap: 4px; height: 8px; }
+.week .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink3); }
+.daylab { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 30px 8px; border-top: 1px solid var(--sep); }
+.daylab b { font: 700 26px var(--ui); } .daylab span { color: var(--ink3); font-size: 20px; }
+.tl { position: relative; margin: 0 22px; }
+.hr { display: flex; gap: 14px; height: 98px; border-top: 1px solid var(--sep); }
+.hr span { width: 64px; text-align: right; font: 500 17px var(--ui); color: var(--ink3); transform: translateY(-11px); background: var(--bg0, transparent); }
+.ev { position: absolute; left: 82px; right: 6px; border-radius: 12px; padding: 10px 14px; overflow: hidden; border-left: 5px solid var(--c); background: color-mix(in srgb, var(--c) 16%, var(--card)); }
+body.t3 .ev { background: color-mix(in srgb, var(--c) 22%, #1C1C1E); }
+body.t5 .ev { background: rgba(255,255,255,.7); backdrop-filter: blur(10px); }
+.ev b { display: block; font: 700 21px var(--ui); color: var(--ink); }
+.ev span { font-size: 17px; color: var(--ink2); }
+.ev .who { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 17px; color: var(--ink2); }
+.ev .wa { margin-left: auto; font-size: 15px; font-weight: 700; color: #1F9D55; }
+.now { position: absolute; left: 70px; right: 0; height: 2px; background: #FF3B30; }
+.now::before { content: ""; position: absolute; left: -6px; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: #FF3B30; }
+.fab { position: absolute; right: 34px; bottom: 150px; width: 104px; height: 104px; border-radius: 50%; background: var(--acc); color: var(--accInk); display: grid; place-items: center; font: 300 66px/1 "Inter"; box-shadow: 0 12px 30px color-mix(in srgb, var(--acc) 45%, transparent); }
+body.t5 .fab { background: linear-gradient(135deg,#8B5CF6,#EC4899); color: #fff; }
+.tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 128px; padding: 14px 20px 0; display: grid; grid-template-columns: repeat(5,1fr); background: var(--glass); backdrop-filter: blur(20px); border-top: 1px solid var(--sep); }
+body.t5 .tabbar { left: 24px; right: 24px; bottom: 24px; height: 100px; border-radius: 34px; border: 1px solid rgba(255,255,255,.7); padding-top: 12px; box-shadow: 0 10px 30px rgba(80,50,140,.15); }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font: 600 14px var(--ui); color: var(--ink3); }
+.tab svg { width: 34px; height: 34px; }
+.tab.on { color: var(--acc); }
+.home { position: absolute; bottom: 10px; left: 50%; width: 200px; height: 7px; margin-left: -100px; border-radius: 4px; background: var(--ink); opacity: .85; }
+/* Hoja nueva cita */
+.dim { position: absolute; inset: 0; background: rgba(0,0,0,.35); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 96px; border-radius: 30px 30px 0 0; background: var(--bg); padding-top: 14px; }
+body.t5 .sheet { background: linear-gradient(180deg,#F6F0FF,#FFF0F7); }
+.grab { width: 70px; height: 7px; border-radius: 4px; background: var(--sep); margin: 0 auto 10px; }
+.sh-nav { display: flex; justify-content: space-between; align-items: center; padding: 6px 30px 16px; font-size: 24px; color: var(--acc); }
+.sh-nav b { color: var(--ink); font-weight: 700; }
+.group { margin: 0 26px 22px; border-radius: var(--r); background: var(--card); overflow: hidden; }
+body.t5 .group { border: 1px solid rgba(255,255,255,.8); backdrop-filter: blur(10px); }
+.gh { margin: 0 44px 8px; font: 500 17px var(--ui); color: var(--ink3); text-transform: uppercase; letter-spacing: .02em; }
+.cell { display: flex; align-items: center; gap: 16px; min-height: 76px; padding: 0 22px; border-bottom: 1px solid var(--sep); font-size: 22px; }
+.cell:last-child { border-bottom: 0; }
+.cell .l { flex: 1; } .cell .v { color: var(--ink3); }
+.cell .chev { color: var(--ink3); font-size: 26px; }
+.ico { width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center; color: #fff; font: 700 20px "Inter"; flex: none; }
+.sw { width: 72px; height: 44px; border-radius: 22px; background: #34C759; position: relative; flex: none; }
+.sw::after { content: ""; position: absolute; right: 3px; top: 3px; width: 38px; height: 38px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); }
+.sw.off { background: #E9E9EB; } .sw.off::after { right: auto; left: 3px; }
+body.t3 .sw.off { background: #39393D; }
+.svcs { display: flex; gap: 12px; padding: 0 26px 22px; overflow: hidden; }
+.svc { flex: none; padding: 14px 18px; border-radius: 16px; background: var(--card); border: 2px solid transparent; font-size: 19px; }
+.svc b { display: block; font-size: 20px; } .svc span { color: var(--ink3); font-size: 17px; }
+.svc.on { border-color: var(--acc); background: var(--soft); }
+.slots { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; padding: 0 26px 22px; }
+.slot { text-align: center; padding: 14px 0; border-radius: 12px; background: var(--card); font: 600 19px var(--ui); }
+.slot.on { background: var(--acc); color: var(--accInk); }
+.slot.no { opacity: .35; text-decoration: line-through; }
+.cta { margin: 0 26px; height: 78px; border-radius: 18px; background: var(--acc); color: var(--accInk); display: grid; place-items: center; font: 700 24px var(--ui); }
+body.t5 .cta { background: linear-gradient(135deg,#8B5CF6,#EC4899); color: #fff; }
+.mini { margin: 12px 26px 0; text-align: center; color: var(--ink3); font-size: 17px; }
+/* Servicios y promociones */
+.seg { display: flex; margin: 0 30px 20px; padding: 4px; border-radius: 12px; background: rgba(118,118,128,.14); }
+.seg span { flex: 1; text-align: center; padding: 10px 0; border-radius: 9px; font: 600 20px var(--ui); color: var(--ink); }
+.seg .on { background: var(--card); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+body.t3 .seg .on { background: #636366; }
+.promos { display: flex; gap: 16px; padding: 0 30px; margin-bottom: 14px; }
+.promo { flex: none; width: 470px; height: 270px; border-radius: 26px; padding: 26px; color: #fff; position: relative; overflow: hidden; }
+.promo.peek { width: 120px; }
+.promo small { font: 700 16px var(--ui); letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+.promo h3 { font: var(--dispW) 44px/1.05 var(--disp); margin: 10px 0 8px; }
+.promo p { font-size: 18px; opacity: .92; }
+.promo .badge { position: absolute; right: 22px; bottom: 22px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.95); color: #222; font: 700 17px var(--ui); }
+.pdots { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; }
+.pdots i { width: 9px; height: 9px; border-radius: 50%; background: var(--sep); } .pdots i.on { background: var(--ink); width: 24px; border-radius: 5px; }
+.srv { display: flex; align-items: center; gap: 16px; padding: 14px 22px; border-bottom: 1px solid var(--sep); }
+.srv:last-child { border-bottom: 0; }
+.srv .ph { width: 64px; height: 64px; border-radius: 14px; flex: none; }
+.srv .l { flex: 1; } .srv b { display: block; font-size: 21px; } .srv span { color: var(--ink3); font-size: 17px; }
+.srv .p { font: 700 22px var(--ui); }
+/* Conexiones */
+.bubble { margin: 0 26px 22px; padding: 16px 18px; border-radius: 18px 18px 18px 6px; background: #DCF8C6; color: #111; font-size: 18px; line-height: 1.4; max-width: 470px; }
+body.t3 .bubble { background: #005C4B; color: #E9EDEF; }
+.bubble small { display: block; text-align: right; color: #667781; font-size: 14px; margin-top: 4px; }
+body.t3 .bubble small { color: #8696A0; }
+.fbrow { display: flex; align-items: center; gap: 14px; min-height: 80px; padding: 0 22px; border-bottom: 1px solid var(--sep); font-size: 20px; }
+.fbrow:last-child { border-bottom: 0; }
+.fbrow .l { flex: 1; } .fbrow small { display: block; color: var(--ink3); font-size: 16px; }
+.pub { padding: 10px 18px; border-radius: 999px; background: #1877F2; color: #fff; font: 700 17px var(--ui); }
+.done { color: #34C759; font: 700 18px var(--ui); }
+.note { margin-top: 34px; color: var(--stageInk); opacity: .7; font-size: 22px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const T = +new URLSearchParams(location.search).get('t') || 1;
+document.body.className = 't' + T;
+const NOMBRES = { 1: 'Clásico iOS', 2: 'Rosa champaña', 3: 'Negro y dorado', 4: 'Ritmo', 5: 'Cristal pastel' };
+const SUBS = { 1: 'Igual que las apps de Apple: blanco, azul del sistema y listas agrupadas', 2: 'Cálido y femenino, con tipografía de revista', 3: 'Lujo nocturno: modo oscuro con detalles dorados', 4: 'La identidad de Ritmo: tinta azul y marcatextos', 5: 'Degradados suaves y efecto cristal, estilo iOS más reciente' };
+const C = { u: '#E0457B', c: '#8B5CF6', p: '#0EA5A4', ce: '#F08A24', f: '#22A45D' };
+const ic = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const TABS = [['Agenda', ic('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>')], ['Clientas', ic('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>')], ['Servicios', ic('<path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2l.9-5.5-4-3.9 5.5-.8z"/>')], ['Promos', ic('<path d="M3 11l15-6v14L3 13z"/><path d="M7 13v5"/>')], ['Más', ic('<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>')]];
+const tabbar = on => `<div class="tabbar">${TABS.map(([n, s], i) => `<div class="tab ${i === on ? 'on' : ''}">${s}${n}</div>`).join('')}</div><div class="home"></div>`;
+const status = `<div class="island"></div><div class="status"><span>9:41</span><i>▂▄▆ ◔</i></div>`;
+const title = t => T === 4 ? `<span class="hl">${t}</span>` : t;
+const av = (t, c) => `<span class="ico" style="width:30px;height:30px;border-radius:50%;font-size:13px;background:${c}">${t}</span>`;
+
+const s1 = `<div class="scr">${status}
+  <div class="nav"><span>‹ Octubre</span><span>⌕</span></div>
+  <div class="big">${title('Martes 27')}</div>
+  <div class="week">${['D','L','M','M','J','V','S'].map((d,i)=>`<div><span>${d}</span><b class="${i===2?'sel':''}">${25+i>31?25+i-31:25+i}</b><div class="dots">${i%3!==0?'<i></i>'.repeat(i%2+1):''}</div></div>`).join('')}</div>
+  <div class="daylab"><b>6 citas · $3,450</b><span>2 huecos libres</span></div>
+  <div class="tl">
+    ${['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'].map(h=>`<div class="hr"><span>${h}</span></div>`).join('')}
+    <div class="ev" style="--c:${C.u};top:4px;height:142px"><b>Uñas acrílicas</b><span>10:00 – 11:30 · $650</span><div class="who">${av('MR',C.u)}Mariana R.<span class="wa">✓ WhatsApp enviado</span></div></div>
+    <div class="ev" style="--c:${C.p};top:200px;height:92px"><b>Lifting de pestañas</b><div class="who">${av('SL',C.p)}Sofía L. · $550</div></div>
+    <div class="now" style="top:330px"></div>
+    <div class="ev" style="--c:${C.c};top:396px;height:240px"><b>Balayage + corte</b><span>14:00 – 16:30 · $1,800</span><div class="who">${av('AG',C.c)}Andrea G.<span class="wa" style="color:#C58A00">Por confirmar</span></div></div>
+    <div class="ev" style="--c:${C.ce};top:690px;height:44px;padding-top:6px"><b style="font-size:18px">17:00 Diseño de cejas · Paola V.</b></div>
+  </div>
+  <div class="fab">+</div>${tabbar(0)}</div>`;
+
+const s2 = `<div class="scr">${status}<div class="dim"></div><div class="sheet"><div class="grab"></div>
+  <div class="sh-nav"><span>Cancelar</span><b>Nueva cita</b><span style="font-weight:700">Guardar</span></div>
+  <div class="gh">Clienta</div>
+  <div class="group"><div class="cell">${av('MR',C.u)}<span class="l">Mariana Ruiz</span><span class="v">55 1234 5678</span></div></div>
+  <div class="gh">Servicio</div>
+  <div class="svcs"><div class="svc on"><b>Uñas acrílicas</b><span>1 h 30 · $650</span></div><div class="svc"><b>Gelish</b><span>45 min · $300</span></div><div class="svc"><b>Pedicure</b><span>1 h · $400</span></div></div>
+  <div class="gh">Viernes 30 de octubre · horarios libres</div>
+  <div class="slots">${['10:00','11:00','12:30','13:00','15:00','16:00','17:30','18:00'].map((h,i)=>`<div class="slot ${i===5?'on':''} ${i===2?'no':''}">${h}</div>`).join('')}</div>
+  <div class="gh">Al guardar</div>
+  <div class="group">
+    <div class="cell"><span class="ico" style="background:#25D366">W</span><span class="l">Confirmación por WhatsApp</span><span class="sw"></span></div>
+    <div class="cell"><span class="ico" style="background:#25D366">⏰</span><span class="l">Recordatorio 24 h antes</span><span class="sw"></span></div>
+    <div class="cell"><span class="ico" style="background:#FF3B30"></span><span class="l">Agregar a Apple y Google Calendar</span><span class="sw"></span></div>
+  </div>
+  <div class="cta">Agendar cita · $650</div>
+  <p class="mini">Se envía desde tu número de WhatsApp Business</p>
+</div></div>`;
+
+const s3 = `<div class="scr">${status}
+  <div class="nav"><span></span><span style="font-size:34px">+</span></div>
+  <div class="big">${title('Servicios')}</div>
+  <div class="seg"><span>Servicios</span><span class="on">Promociones</span></div>
+  <div class="promos">
+    <div class="promo" style="background:linear-gradient(135deg,#E0457B,#F59AB8)"><small>Solo noviembre</small><h3>2x1 en gelish</h3><p>Trae a tu amiga y paguen una.</p><span class="badge">Publicar ›</span></div>
+    <div class="promo peek" style="background:linear-gradient(135deg,#8B5CF6,#C4B5FD)"></div>
+  </div>
+  <div class="pdots"><i class="on"></i><i></i><i></i></div>
+  <div class="gh">Servicios · desliza para editar</div>
+  <div class="group">
+    <div class="srv"><span class="ph" style="background:linear-gradient(135deg,#FBD3E0,#F59AB8)"></span><div class="l"><b>Uñas acrílicas</b><span>Uñas · 1 h 30 min</span></div><span class="p">$650</span></div>
+    <div class="srv"><span class="ph" style="background:linear-gradient(135deg,#E9DDFE,#C4B5FD)"></span><div class="l"><b>Balayage</b><span>Cabello · 2 h 30 min</span></div><span class="p">$1,500</span></div>
+    <div class="srv"><span class="ph" style="background:linear-gradient(135deg,#CCF2EF,#7DD3CF)"></span><div class="l"><b>Lifting de pestañas</b><span>Pestañas · 1 h</span></div><span class="p">$550</span></div>
+    <div class="srv"><span class="ph" style="background:linear-gradient(135deg,#FFE3C7,#F8B26A)"></span><div class="l"><b>Diseño de cejas</b><span>Cejas · 30 min</span></div><span class="p">$250</span></div>
+  </div>${tabbar(3)}</div>`;
+
+const s4 = `<div class="scr">${status}
+  <div class="big" style="padding-top:20px">${title('Conexiones')}</div>
+  <div class="gh">Calendarios</div>
+  <div class="group">
+    <div class="cell"><span class="ico" style="background:#FF3B30">31</span><span class="l">Apple Calendar</span><span class="v">Conectado</span><span class="sw"></span></div>
+    <div class="cell"><span class="ico" style="background:#4285F4">G</span><span class="l">Google Calendar</span><span class="v">Conectado</span><span class="sw"></span></div>
+  </div>
+  <div class="gh">WhatsApp automático</div>
+  <div class="group">
+    <div class="cell"><span class="ico" style="background:#25D366">✓</span><span class="l">Confirmar al agendar</span><span class="sw"></span></div>
+    <div class="cell"><span class="ico" style="background:#25D366">⏰</span><span class="l">Recordar 24 h antes</span><span class="sw"></span></div>
+    <div class="cell"><span class="ico" style="background:#25D366">♡</span><span class="l">Gracias + pedir reseña</span><span class="sw off"></span></div>
+  </div>
+  <div class="bubble">Hola Mariana 💅 Te esperamos mañana a las 10:00 para tus uñas acrílicas. Responde 1 para confirmar o 2 para cambiar.<small>9:00 ✓✓</small></div>
+  <div class="gh">Publicar promo en grupos de Facebook · 1 por 1</div>
+  <div class="group">
+    <div class="fbrow"><span class="l">Ventas Coyoacán<small>Publicado hace 2 min</small></span><span class="done">✓ Listo</span></div>
+    <div class="fbrow"><span class="l">Mamás de Tlalpan<small>12.4 mil miembros</small></span><span class="pub">Publicar</span></div>
+    <div class="fbrow"><span class="l">Emprendedoras CDMX<small>8.1 mil miembros</small></span><span class="pub">Publicar</span></div>
+  </div>${tabbar(4)}</div>`;
+
+document.getElementById('root').outerHTML = `<h1>${NOMBRES[T]}</h1><p class="sub">Diseño ${T} de 5 · ${SUBS[T]}</p>
+<div class="row">${[[s1,'Agenda + botón para citas','Calendario de la semana y del día'],[s2,'Nueva cita','Servicio, horario libre y WhatsApp'],[s3,'Servicios y promociones','Promos con swipe y lista de servicios'],[s4,'Conexiones','Calendarios, WhatsApp y Facebook']].map(([s,t,d])=>`<div class="col"><div class="phone">${s}</div><div class="cap">${t}<small>${d}</small></div></div>`).join('')}</div>
+<p class="note">Imagen de referencia · nombres, precios, grupos y mensajes son ejemplos</p>`;
+</script>
+</body>
+</html>
