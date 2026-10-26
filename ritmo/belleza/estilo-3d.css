@@ -1,0 +1,15 @@
+/* Propuesta: mismo diseño con un poco de volumen y un color por pestaña. */
+.tabbar { --t1: #007AFF; --t2: #FF2D78; --t3: #AF52DE; --t4: #FF9500; --t5: #30B0C7; padding-top: 8px; box-shadow: 0 -6px 24px rgba(0, 0, 0, .08); }
+.tab { gap: 3px; color: var(--ink2); }
+.tab svg { width: 46px; height: 34px; padding: 5px 11px; border-radius: 13px; color: var(--tc); background: color-mix(in srgb, var(--tc) 14%, transparent); transition: transform .15s; }
+.tab:nth-child(1) { --tc: var(--t1); } .tab:nth-child(2) { --tc: var(--t2); } .tab:nth-child(3) { --tc: var(--t3); } .tab:nth-child(4) { --tc: var(--t4); } .tab:nth-child(5) { --tc: var(--t5); }
+.tab[aria-selected="true"] { color: var(--tc); }
+.tab[aria-selected="true"] svg { color: #fff; background: linear-gradient(160deg, color-mix(in srgb, var(--tc) 70%, #fff), var(--tc) 55%, color-mix(in srgb, var(--tc) 80%, #000)); box-shadow: 0 6px 14px color-mix(in srgb, var(--tc) 45%, transparent), inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -2px 0 rgba(0, 0, 0, .12); transform: translateY(-2px); }
+/* Volumen en tarjetas y botones */
+.ev { box-shadow: 0 1px 1px rgba(0, 0, 0, .04), 0 6px 16px color-mix(in srgb, var(--c) 22%, transparent), inset 0 1px 0 rgba(255, 255, 255, .7); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 10%, var(--card)), color-mix(in srgb, var(--c) 20%, var(--card))); }
+.wd[aria-current="date"] b { background: linear-gradient(160deg, color-mix(in srgb, var(--today) 70%, #fff), var(--today) 60%, color-mix(in srgb, var(--today) 80%, #000)); box-shadow: 0 6px 14px color-mix(in srgb, var(--today) 45%, transparent), inset 0 1px 0 rgba(255, 255, 255, .5); }
+.fab { background: radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--fab) 55%, #fff), var(--fab) 55%, color-mix(in srgb, var(--fab) 75%, #000)); box-shadow: 0 12px 26px color-mix(in srgb, var(--fab) 50%, transparent), inset 0 2px 0 rgba(255, 255, 255, .45), inset 0 -3px 0 rgba(0, 0, 0, .15); }
+.group, .banner { box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 8px 22px rgba(0, 0, 0, .06); }
+.promo { box-shadow: 0 14px 28px color-mix(in srgb, var(--c) 35%, transparent), inset 0 1px 0 rgba(255, 255, 255, .4); }
+.sq, .ico, .av { box-shadow: 0 3px 8px rgba(0, 0, 0, .15), inset 0 1px 0 rgba(255, 255, 255, .45); }
+.cta { box-shadow: 0 10px 22px color-mix(in srgb, var(--acc) 40%, transparent), inset 0 1px 0 rgba(255, 255, 255, .4); }
