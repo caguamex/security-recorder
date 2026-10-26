@@ -9,6 +9,9 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
   - Código de 6 dígitos por correo (OTP de Supabase, no enlace mágico: funciona aunque el correo se abra en otro dispositivo). Vence en 10 minutos; máximo 5 intentos.
   - El correo integrado de Supabase solo envía unos pocos mensajes por hora. Conecta SMTP propio con plan gratis (Resend: 100 al día, o Brevo: 300 al día), con remitente verificado y SPF/DKIM. Antonio crea la cuenta; la llave va en secretos, nunca en Git.
   - **Pospuestos**: Continuar con Google (gratis, se agrega cuando Antonio lo pida) y Continuar con Apple (requiere Apple Developer, 99 USD al año). Deja el código preparado para activarlos después, pero no muestres los botones.
+- **Registro solo por invitación.** Desactiva el registro abierto de Supabase (`shouldCreateUser: false` en el OTP y «Allow new users to sign up» apagado). Una cuenta nueva solo se crea desde `/unirse/<código>` con una invitación válida, del lado del servidor. Así nadie puede crearse una cuenta por su cuenta.
+- **Flujo de registro** (prototipo): invitación → su correo → código de 6 dígitos → «Tu perfil» (nombre editable, prellenado por la invitación; interruptor «Recibir mis citas por correo») → «Unirme al equipo» → Agenda.
+- **Resumen diario por correo** (opcional por persona, encendido por defecto): a las 8:00 de Ciudad de México, sus citas del día, sin teléfonos. Usa el mismo SMTP gratuito.
 - **Admin: verificación en dos pasos obligatoria** con app autenticadora (MFA TOTP de Supabase, nivel `aal2`), más 10 códigos de respaldo. Sin `aal2`, la API rechaza cualquier acción de Admin.
 - Sesión: token de acceso corto (1 h) con renovación. Especialistas y Recepción se cierran solas tras 30 días sin abrir la app.
 - No se guarda ninguna contraseña ni token en `localStorage` fuera de lo que maneja el SDK de Supabase.

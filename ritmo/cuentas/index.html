@@ -254,8 +254,23 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       <h1 style="font-size:26px">AB' Beauty Room</h1>
       <p style="margin:6px 0 0"><span class="pill especialista">Especialista</span></p>
       <p class="foot" style="text-align:center">Uñas: Gelish en manos y Pedicure spa · Sábados de 10:00 a 18:00</p></div>
-    <p class="fine" style="margin-bottom:6px">Entra para aceptar. La invitación es para Brenda Castillo, se usa una sola vez y vence en 48 horas.</p>
-    <button type="button" class="btn fill" data-act="aceptar">Recibir un código por correo</button></div>`;
+    <p class="fine" style="margin-bottom:6px">La invitación es para Brenda Castillo, se usa una sola vez y vence en 48 horas.</p>
+    <label for="correo" class="gh" style="margin:6px 4px 0">Tu correo</label>
+    <input class="in" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" value="${esc(S.correo)}">
+    <button type="button" class="btn fill" data-act="enviar-codigo">Enviarme un código</button>
+    <p class="fine">Sin contraseñas. Cada vez que entres te mandamos un código nuevo.</p></div>`;
+  const perfil = () => `<div class="auth" style="padding-top:28px">
+    <h1 style="text-align:left">Tu perfil</h1>
+    <p class="sub" style="text-align:left;margin-bottom:8px">Así te verá el equipo de AB' Beauty Room en la agenda.</p>
+    <div style="display:flex;gap:14px;align-items:center;margin:6px 0 4px"><span class="av" id="pfAv" style="--c:#F59E0B;width:64px;height:64px;font-size:22px">BC</span>
+      <div style="min-width:0"><b id="pfNom">Brenda Castillo</b><br><span class="pill especialista">Especialista</span></div></div>
+    <label for="pfNombre" class="gh" style="margin:14px 4px 0">Nombre</label>
+    <input class="in" id="pfNombre" value="Brenda Castillo" autocomplete="name">
+    <label class="gh" style="margin:14px 4px 0">Correo</label>
+    <div class="in" style="display:flex;align-items:center;color:var(--ink3)">${esc(S.correo)}</div>
+    <div class="group" style="margin-top:14px"><div class="cell"><span class="l">Recibir mis citas por correo<small>Un resumen cada mañana con tus citas del día</small></span><button type="button" class="sw" role="switch" aria-label="Recibir mis citas por correo" aria-checked="true" data-act="sw"></button></div></div>
+    <button type="button" class="btn fill" data-act="aceptar" style="margin-top:10px">Unirme al equipo</button>
+    <p class="fine">Al unirte aceptas que Admin vea tus citas e ingresos del salón. Puedes salir del equipo cuando quieras.</p></div>`;
 
   /* ---------- Agenda ---------- */
   const visibles = () => CITAS.filter(c => (puede.verTodas() || c.st === yo().id) && (S.filtro === 'todas' || c.st === S.filtro)).sort((a, b) => a.h.localeCompare(b.h));
@@ -378,7 +393,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     $('#tabbar').hidden = !app;
     if (app) $('#tabbar').innerHTML = TABS.map(t => t ? `<button type="button" class="tab" role="tab" data-tab="${t[0]}" aria-selected="${S.tab === t[0]}"><span class="e">${t[1]}</span>${t[2]}</button>` : `<button type="button" class="fab" data-act="nueva" aria-label="Nueva cita">${PLUS}</button>`).join('');
     let h;
-    if (!app) h = { entrar, codigo, dospasos, unirse }[S.pant]();
+    if (!app) h = { entrar, codigo, dospasos, unirse, perfil }[S.pant]();
     else if (S.tab === 'ajustes' && S.sub === 'equipo') h = equipo();
     else if (S.tab === 'ajustes' && S.sub && S.sub.startsWith('miembro:')) h = verMiembro(S.sub.slice(8));
     else if (S.tab === 'ajustes' && S.sub === 'seguridad') h = seguridad();
@@ -393,16 +408,18 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     const m = /^d(\d)$/.exec(e.target.id || ''); if (!m) return;
     e.target.value = e.target.value.replace(/\D/g, '').slice(-1);
     if (e.target.value && +m[1] < 5) $('#d' + (+m[1] + 1)).focus();
-    if ([0, 1, 2, 3, 4, 5].every(i => $('#d' + i).value)) setTimeout(() => S.pant === 'codigo' && S.rol === 'admin' ? ir({ pant: 'dospasos' }) : dentro(), 180);
+    if ([0, 1, 2, 3, 4, 5].every(i => $('#d' + i).value)) setTimeout(() => S.pant === 'codigo' && S.invita ? ir({ pant: 'perfil' }) : S.pant === 'codigo' && S.rol === 'admin' ? ir({ pant: 'dospasos' }) : dentro(), 180);
   });
+  document.addEventListener('input', e => { if (e.target.id !== 'pfNombre') return; const v = e.target.value.trim();
+    $('#pfNom').textContent = v || ' '; $('#pfAv').textContent = v.split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0].toUpperCase()).join('') || '?'; });
   document.addEventListener('keydown', e => { const m = /^d(\d)$/.exec(e.target.id || ''); if (m && e.key === 'Backspace' && !e.target.value && +m[1] > 0) $('#d' + (+m[1] - 1)).focus(); });
 
   document.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) { if (e.target.id === 'sheet') cerrar(); return; }
     const d = b.dataset;
     if (d.rol) { S.rol = d.rol; if (S.pant === 'app') { S.sub = null; S.filtro = 'todas'; render(); toast('Ahora ves la app como ' + ROL[d.rol] + ' (' + yo().n.split(' ')[0] + ')'); } else render(); return; }
-    if (d.demo === 'salir') { cerrar(); ir({ pant: 'entrar' }); return; }
-    if (d.demo === 'invitacion') { cerrar(); ir({ pant: 'unirse' }); return; }
+    if (d.demo === 'salir') { cerrar(); ir({ pant: 'entrar', invita: false, correo: '' }); return; }
+    if (d.demo === 'invitacion') { cerrar(); ir({ pant: 'unirse', invita: true, correo: '' }); return; }
     if (d.tab) { ir({ tab: d.tab, sub: null }); return; }
     if (d.sub !== undefined) { ir({ sub: d.sub || null }); return; }
     if (d.filtro) { S.filtro = d.filtro; render(); return; }
@@ -417,9 +434,10 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     switch (d.act) {
       case 'proveedor': S.correo = S.rol === 'admin' ? 'antonio@correo.com' : ''; if (S.rol === 'admin') ir({ pant: 'dospasos' }); else dentro(); break;
       case 'enviar-codigo': { const v = $('#correo').value.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('Escribe un correo válido, por ejemplo tu@correo.com'); $('#correo').focus(); break; } S.correo = v; ir({ pant: 'codigo' }); break; }
-      case 'atras-entrar': ir({ pant: 'entrar' }); break;
+      case 'atras-entrar': ir({ pant: S.invita ? 'unirse' : 'entrar' }); break;
       case 'reenviar': toast('Simulado: te mandamos un código nuevo'); break;
-      case 'aceptar': { const br = miembro('brenda'); br.estado = 'activa'; br.disp = 'iPhone 12 · Safari'; COMO.especialista = 'brenda'; S.rol = 'especialista'; dentro(); toast('Bienvenida a AB\' Beauty Room, Brenda'); break; }
+      case 'aceptar': { const br = miembro('brenda'); br.estado = 'activa'; br.disp = 'iPhone 12 · Safari'; br.n = $('#pfNombre').value.trim() || br.n; COMO.especialista = 'brenda'; S.rol = 'especialista'; S.invita = false; dentro(); toast('Bienvenida a AB\' Beauty Room, Brenda'); break; }
+      case 'sw': b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true')); break;
       case 'cerrar': cerrar(); break;
       case 'nueva': N.h = null; N.st = S.rol === 'especialista' ? yo().id : null; if (S.rol === 'especialista' && !yo().serv.includes(N.s)) N.s = yo().serv[0]; nueva(); break;
       case 'guardar': { if (!N.h) { toast('Elige un horario'); break; } const q = yo(); CITAS.push({ id: Date.now(), h: N.h, s: N.s, cl: N.cl, st: N.st, ok: false, hist: [[q.n.split(' ')[0], ROL[q.rol], 'la creó', 'Hoy · ahora']] });
