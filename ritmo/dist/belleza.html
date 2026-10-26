@@ -774,9 +774,14 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
       if (!response.ok) throw Object.assign(new Error(body.error || 'No se pudo sincronizar.'), { status: response.status, current: body.current });
       return body;
     }
-    function recibir(records) {
+    function recibir(response) {
       recargar(); const next = clone(state);
-      next.records = records;
+      if (response.full === false) {
+        const map = new Map(next.records.map(r => [r.id, r]));
+        for (const record of response.records) map.set(record.id, record);
+        next.records = [...map.values()];
+      } else next.records = response.records;
+      next.cursor = response.cursor;
       guardar(next);
     }
     async function sync() {
@@ -784,7 +789,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
       const before = JSON.stringify(state), beforeStatus = status;
       busy = true;
       try {
-        recibir((await request('/api/estado')).records);
+        recibir(await request('/api/estado' + (Number.isInteger(state.cursor) ? '?since=' + state.cursor : '')));
         // Capturar una tanda. Lo que cambie durante el envío conserva su propia operación.
         const batch = clone(state.pending.filter(op => !state.conflicts.some(c => c.id === op.id)));
         for (const op of batch) {
@@ -806,7 +811,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
             guardar(next);
           }
         }
-        recibir((await request('/api/estado')).records);
+        recibir(await request('/api/estado' + (Number.isInteger(state.cursor) ? '?since=' + state.cursor : '')));
         status = state.conflicts.length ? 'Hay cambios por revisar' : state.pending.length ? 'Cambios pendientes de enviar' : 'Sincronizado con tu servidor';
       } catch (e) {
         status = e.status === 401 ? 'Revisa tu token de acceso' : e.status && e.status < 500 ? e.message : 'Sin conexión con el servidor; cambios guardados aquí';
@@ -822,7 +827,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
         const proposed = value.trim();
         if (!proposed) throw new Error('Escribe el token de acceso.');
         const body = await request('/api/estado', {}, proposed);
-        storage.setItem(TOKEN, proposed); token = proposed; recibir(body.records); await sync();
+        storage.setItem(TOKEN, proposed); token = proposed; recibir(body); await sync();
       },
       desconectar() { storage.removeItem(TOKEN); token = ''; status = 'Guardado en este dispositivo'; emit(); },
       resolver(id, conservarLocal) {
@@ -835,6 +840,8 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
         guardar(next); emit(); void sync();
       },
       actualizar() { recargar(); token = storage.getItem(TOKEN) || ''; emit(); }, sync,
+      conexiones() { return request('/api/conexiones'); },
+      renovarCalendario() { return request('/api/calendario/renovar', { method: 'POST', body: '{}' }); },
     };
   }
   const api = { crear };
@@ -1112,7 +1119,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
       const sent = c.enviados && c.enviados.confirmacion;
       return `<button type="button" class="ev ${dur <= 45 ? 'short' : ''} ${c.estado === 'cancelada' ? 'cancel' : ''}" data-cita="${esc(c.id)}" style="--c:${color};top:${top}px;height:${h}px;left:calc(60px + (100% - 60px) * ${col / cols} + 2px);width:calc((100% - 60px) / ${cols} - 4px)">
         <b>${dur <= 45 ? esc(c.start) + ' ' : ''}${esc(sv.nombre)}${dur <= 45 ? ' · ' + esc(k.nombre.split(' ')[0]) : ''}</b><span class="t">${esc(c.start)} – ${C.fromMin(endOf(c))} · ${money(sv.precio)}</span>
-        <span class="who"><span class="av" style="--c:${color}">${esc(initials(k.nombre))}</span><span class="n">${esc(k.nombre)}</span><span class="st ${c.estado}">${sent && c.estado === 'confirmada' ? '✓ WhatsApp' : esc(estadoTxt(c.estado))}</span></span></button>`;
+        <span class="who"><span class="av" style="--c:${color}">${esc(initials(k.nombre))}</span><span class="n">${esc(k.nombre)}</span><span class="st ${c.estado}">${c.solicitaCambio ? 'Cambiar cita' : sent && c.estado === 'confirmada' ? '✓ WhatsApp' : esc(estadoTxt(c.estado))}</span></span></button>`;
     }).join('');
     let hours = '';
     for (let h = open; h < close; h++) hours += `<div class="hr" style="--h:${H}px"><span>${C.pad(h)}:00</span><i data-newat="${C.pad(h)}:00" aria-hidden="true"></i></div>`;
@@ -1189,8 +1196,9 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
       <div class="group">
         <div class="cell"><span class="ico" style="background:#4285F4">G</span><span class="l">Google Calendar<small>Cada cita tiene su botón «Agregar a Google Calendar»</small></span></div>
         <button type="button" class="cell" data-act="exportar-ics"><span class="ico" style="background:#FF3B30">31</span><span class="l">Apple Calendar<small>Descarga tus citas en un archivo de calendario</small></span><span class="chev">${I.chev}</span></button>
+        ${Store.sync ? `<button type="button" class="cell" data-act="suscripcion"><span class="l">Suscribir Apple o Google Calendar<small>Enlace privado que refleja los cambios de tu agenda</small></span><span class="chev">${I.chev}</span></button>` : ''}
       </div>
-      <p class="foot">Con tu servidor de Railway, las citas aparecerán solas en ambos calendarios.</p>
+      <p class="foot">La suscripción requiere conectar tu servidor. Cada calendario decide cuándo actualizar las citas.</p>
       <p class="gh">WhatsApp</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#25D366">✓</span><span class="l">Confirmar al agendar</span>${sw('waConfirm', s.waConfirm, 'Confirmar al agendar')}</div>
@@ -1198,9 +1206,10 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
         <div class="cell"><span class="ico" style="background:#25D366">♡</span><span class="l">Gracias y pedir reseña</span>${sw('waGracias', s.waGracias, 'Gracias y pedir reseña')}</div>
         <button type="button" class="cell" data-act="recordatorios"><span class="l">Recordatorios de mañana</span><span class="v">${recordar.length}</span><span class="chev">${I.chev}</span></button>
         <button type="button" class="cell" data-act="mensajes"><span class="l">Editar mensajes</span><span class="chev">${I.chev}</span></button>
+        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Automatización de WhatsApp<small>Estado del número oficial y de los envíos</small></span><span class="chev">${I.chev}</span></button>` : ''}
       </div>
       <div class="bubble">${esc(fill(s.tplRecordar, recordar[0] || { date: man, start: '10:00', servicio: (list('servicio')[0] || {}).id, clienta: (list('clienta')[0] || {}).id }))}</div>
-      <p class="foot">Por ahora se envían desde tu WhatsApp con un toque. Al conectar Railway con la API de WhatsApp Business se enviarán solos.</p>
+      <p class="foot">El envío manual sigue disponible. La automatización requiere el número oficial, consentimiento de la clienta y una ventana gratuita de conversación abierta.</p>
       <p class="gh">Grupos de Facebook</p>
       <div class="group">${grupos.map(g => `<button type="button" class="cell" data-grupo="${esc(g.id)}"><span class="ico" style="background:#1877F2">f</span><span class="l">${esc(g.nombre)}</span><span class="chev">${I.chev}</span></button>`).join('')}
         <button type="button" class="cell" data-act="nuevo-grupo" style="color:var(--acc)"><span class="l">Agregar grupo</span></button></div>
@@ -1218,6 +1227,53 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
   }
 
   // ---------- Hojas ----------
+  async function sheetConexion(tipo) {
+    const sync = Store.sync;
+    if (!sync?.connected) { toast('Primero conecta tu servidor en Sincronización.'); return; }
+    const titulo = tipo === 'calendario' ? 'Suscribir calendario' : 'WhatsApp automático';
+    const done = root => root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
+    openSheet(navSheet(titulo, 'Listo') + '<p class="foot">Consultando tu servidor…</p>', titulo, done);
+    const panel = card;
+    try {
+      const data = await sync.conexiones();
+      if (card !== panel || !S.sheetOpen) return;
+      const mostrar = value => {
+        if (tipo === 'calendario') {
+          openSheet(`${navSheet(titulo, 'Listo')}<p class="foot">Este enlace es privado. Quien lo tenga podrá consultar las citas.</p>
+            <div class="group" style="margin-top:14px"><label class="cell"><textarea class="in" readonly aria-label="Enlace privado del calendario">${esc(value.calendarioUrl)}</textarea></label></div>
+            <button class="cta" type="button" id="calendar-copy">Copiar enlace</button>
+            <a class="cell" href="${esc(value.calendarioUrl.replace(/^https?:/, 'webcal:'))}">Abrir suscripción en Apple Calendar</a>
+            <p class="foot">En Google Calendar, desde su sitio web: Otros calendarios → Desde URL. Pega el enlace copiado. Es una suscripción de lectura; Google puede tardar en actualizarla.</p>
+            <button class="cell danger" type="button" id="calendar-rotate">Renovar enlace privado</button>
+            <p class="foot" id="calendar-status">Renovar invalida las suscripciones anteriores.</p>`, titulo, root => {
+              done(root);
+              root.addEventListener('click', async e => {
+                const b = e.target.closest('button'); if (!b) return;
+                if (b.id === 'calendar-copy') {
+                  try { await navigator.clipboard.writeText(value.calendarioUrl); $('#calendar-status', root).textContent = 'Enlace copiado.'; }
+                  catch { $('#calendar-status', root).textContent = 'Selecciona el enlace y cópialo manualmente.'; }
+                }
+                if (b.id === 'calendar-rotate') {
+                  if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para invalidar el enlace anterior'; return; }
+                  b.disabled = true;
+                  try { mostrar(await sync.renovarCalendario()); }
+                  catch { $('#calendar-status', root).textContent = 'No se pudo renovar. Revisa tu conexión.'; b.disabled = false; }
+                }
+              });
+            });
+        } else {
+          const wa = value.whatsapp;
+          const estados = { pendiente: 'Pendientes', requiere_ventana: 'Requieren mensaje previo de la clienta', procesando: 'Procesando', aceptado: 'Aceptados por Meta', entregado: 'Entregados', leido: 'Leídos', fallido: 'Rechazados', incierto: 'Por revisar antes de reenviar' };
+          openSheet(`${navSheet(titulo, 'Listo')}<p class="gh">${wa.configurado ? 'Número oficial conectado' : 'Conexión pendiente'}</p>
+            <p class="foot">${esc(wa.explicacion)}</p><div class="group" style="margin-top:14px">${Object.entries(wa.conteos || {}).map(([key, count]) => `<div class="cell"><span class="l">${esc(estados[key] || key)}</span><span class="v">${esc(count)}</span></div>`).join('') || '<div class="cell">Todavía no hay envíos automáticos.</div>'}</div>
+            <p class="foot">Modo sin cargos de Meta: solo mensajes de servicio dentro de las 24 horas desde el último mensaje recibido. No se envían plantillas de pago. Autoriza cada clienta desde su ficha.</p>`, titulo, done);
+        }
+      };
+      mostrar(data);
+    } catch {
+      if (card === panel && S.sheetOpen) openSheet(navSheet(titulo, 'Listo') + '<p class="foot">No se pudo consultar el servidor. Revisa tu conexión e intenta de nuevo.</p>', titulo, done);
+    }
+  }
   function sheetServidor() {
     const sync = Store.sync;
     const resumen = data => {
@@ -1333,6 +1389,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
           if (!st.servicio) { toast('Elige un servicio.'); return; }
           if (!st.start) { toast('Elige un horario.'); return; }
           const cita = Object.assign(edit ? clone(edit) : { id: newId(), kind: 'cita', estado: 'pendiente', enviados: {} }, { clienta: cliId, servicio: st.servicio, date: st.date, start: st.start, notas: $('#c-notas', root).value.trim() });
+          if (edit && (edit.date !== cita.date || edit.start !== cita.start)) delete cita.solicitaCambio;
           delete cita.example;
           const wa = !edit && $('#c-wa', root) && $('#c-wa', root).getAttribute('aria-checked') === 'true';
           if (!save(cita)) return;
@@ -1389,19 +1446,21 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
     openSheet(`${navSheet(k ? 'Clienta' : 'Nueva clienta', 'Guardar')}
       <div class="group" style="margin-top:6px"><label class="cell"><span class="l">Nombre</span><input class="in" id="k-nombre" value="${esc(k ? k.nombre : '')}" placeholder="Nombre y apellido" autocomplete="off"></label>
         <label class="cell"><span class="l">WhatsApp</span><input class="in" id="k-tel" type="tel" inputmode="tel" value="${esc(k ? k.telefono : '')}" placeholder="55 1234 5678"></label>
-        <label class="cell"><span class="sr">Notas</span><textarea class="in" id="k-notas" placeholder="Notas: tono favorito, alergias…">${esc(k ? k.notas : '')}</textarea></label></div>
+        <label class="cell"><span class="sr">Notas</span><textarea class="in" id="k-notas" placeholder="Notas: tono favorito, alergias…">${esc(k ? k.notas : '')}</textarea></label>
+        <div class="cell"><span class="l">Autoriza WhatsApp automático<small>La clienta aceptó recibir avisos de sus citas</small></span><button class="sw" type="button" role="switch" id="k-consent" aria-label="Autoriza WhatsApp automático" aria-checked="${k?.whatsappOptIn === true}"></button></div></div>
       ${k && k.telefono ? `<div style="padding:14px 16px 0;display:flex;gap:8px;flex-wrap:wrap"><a class="btn wa" href="${esc(waLink(k.telefono, `Hola ${k.nombre.split(' ')[0]} 💅`))}" target="_blank" rel="noopener">Escribir por WhatsApp</a><button type="button" class="btn fill" data-agendar-cli="${esc(k.id)}">Agendar cita</button></div>` : ''}
       ${citas.length ? `<p class="gh">Visitas</p><div class="group">${citas.slice(0, 20).map(c => `<button type="button" class="cell" data-cita="${esc(c.id)}"><span class="l">${esc(svcOf(c).nombre)}<small>${esc(C.fmtShort(c.date))}, ${c.start} · ${esc(estadoTxt(c.estado))}</small></span><span class="p">${money(svcOf(c).precio)}</span></button>`).join('')}</div>` : ''}
       ${k ? '<div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar clienta</button></div>' : ''}`, 'Clienta', root => {
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
+        if (b.id === 'k-consent') b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true'));
         if (b.hasAttribute('data-close')) closeSheet();
         if (b.dataset.agendarCli) { closeSheet(); sheetCita({ clienta: b.dataset.agendarCli }); }
         if (b.hasAttribute('data-done')) {
           const nombre = $('#k-nombre', root).value.trim();
           if (!nombre) { toast('Escribe el nombre.'); return; }
-          const it = Object.assign(k ? clone(k) : { id: newId(), kind: 'clienta' }, { nombre, telefono: $('#k-tel', root).value.trim(), notas: $('#k-notas', root).value.trim() });
+          const it = Object.assign(k ? clone(k) : { id: newId(), kind: 'clienta' }, { nombre, telefono: $('#k-tel', root).value.trim(), notas: $('#k-notas', root).value.trim(), whatsappOptIn: $('#k-consent', root).getAttribute('aria-checked') === 'true' });
           delete it.example; if (!save(it)) return; closeSheet(); toast('Clienta guardada');
         }
         if (b.hasAttribute('data-del')) {
@@ -1622,6 +1681,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
       mes: sheetMes, hoy: () => { S.day = today(); lastScrollDay = null; render(); },
       'nueva-clienta': () => sheetClienta(null), 'nuevo-servicio': () => sheetServicio(null), 'nueva-promo': () => sheetPromo(null), 'nuevo-grupo': () => sheetGrupo(null),
       'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes, servidor: sheetServidor,
+      suscripcion: () => sheetConexion('calendario'), 'estado-whatsapp': () => sheetConexion('whatsapp'),
       'sin-ejemplos': () => { if (Store.setSettings({ examplesOff: true }) === false) return; toast('Listo. Empieza agregando tus servicios.'); },
       'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); for (const x of ex) if (Store.remove(x.id) === false) return; toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
     })[d.act]?.();

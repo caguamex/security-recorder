@@ -60,6 +60,14 @@ try {
   await a.getByRole('tab', { name: 'Clientas', exact: true }).click();
   assert.equal(await a.getByRole('button', { name: /Clienta de prueba sin conexión/ }).count(), 1);
   await a.context().setOffline(false); await sincronizar(a);
+  await a.getByRole('tab', { name: 'Más', exact: true }).click();
+  await a.getByRole('button', { name: /Suscribir Apple o Google Calendar/ }).click();
+  await a.getByLabel('Enlace privado del calendario').waitFor();
+  assert.match(await a.getByLabel('Enlace privado del calendario').inputValue(), /\/calendario\/[a-f0-9]{64}\.ics$/);
+  await a.getByRole('button', { name: 'Listo', exact: true }).click();
+  await a.getByRole('button', { name: /Automatización de WhatsApp/ }).click();
+  await a.getByText('Conexión pendiente', { exact: true }).waitFor();
+  await a.getByRole('button', { name: 'Listo', exact: true }).click();
   await conexiones(a); await a.screenshot({ path: screenshots + 'pwa-sincronizacion.png', animations: 'disabled' });
   await a.getByRole('button', { name: 'Cancelar', exact: true }).click();
   assert.equal(await a.locator('#sheet').isHidden(), true);

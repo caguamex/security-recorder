@@ -1,5 +1,5 @@
 export type Objeto = Record<string, unknown> & { id: string; kind: string };
-export type Registro = { id: string; version: number; data: Objeto | Record<string, unknown> | null };
+export type Registro = { id: string; version: number; data: Objeto | Record<string, unknown> | null; revision?: number };
 export type Cambio = { id: string; baseVersion: number; mutationId: string; data: Registro['data'] };
 export class ErrorAPI extends Error {
   constructor(public status: number, message: string, public current?: Registro) { super(message); }
@@ -37,6 +37,7 @@ export function validarCambio(body: unknown, id: string): Cambio {
     valido(it.id === id && ['servicio', 'clienta', 'cita', 'promo', 'grupo'].includes(it.kind), 'Tipo o identificador inválido.');
     for (const value of Object.values(it)) if (typeof value === 'string') valido(texto(value, 10000), 'Texto demasiado largo.');
     if (['servicio', 'clienta', 'grupo'].includes(it.kind)) valido(texto(it.nombre, 200) && !!String(it.nombre).trim(), 'Falta el nombre.');
+    if (it.kind === 'clienta' && it.whatsappOptIn !== undefined) valido(typeof it.whatsappOptIn === 'boolean', 'Consentimiento inválido.');
     if (it.kind === 'servicio') {
       valido(typeof it.precio === 'number' && Number.isFinite(it.precio) && it.precio >= 0 && it.precio <= 1000000, 'Precio inválido.');
       valido(Number.isInteger(it.duracion) && Number(it.duracion) > 0 && Number(it.duracion) <= 1440, 'Duración inválida.');

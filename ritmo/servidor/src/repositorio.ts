@@ -7,20 +7,34 @@ export interface ClienteSQL {
 export interface ConexionSQL { connect(): Promise<ClienteSQL>; }
 export interface Repositorio {
   estado(): Promise<Registro[]>;
+  snapshot(since?: number): Promise<{ records: Registro[]; cursor: number; full: boolean }>;
   cambiar(cambio: Cambio): Promise<Registro>;
   salud(): Promise<void>;
 }
 export const ESQUEMA = `
-CREATE TABLE IF NOT EXISTS belleza_estado (id integer PRIMARY KEY CHECK (id = 1));
+CREATE TABLE IF NOT EXISTS belleza_estado (id integer PRIMARY KEY CHECK (id = 1), revision integer NOT NULL DEFAULT 0);
+ALTER TABLE belleza_estado ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 0;
 INSERT INTO belleza_estado (id) VALUES (1) ON CONFLICT DO NOTHING;
 CREATE TABLE IF NOT EXISTS belleza_objetos (
   id text PRIMARY KEY, version integer NOT NULL CHECK (version > 0), data jsonb,
   actualizado_en timestamptz NOT NULL DEFAULT now()
 );
+ALTER TABLE belleza_objetos ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS belleza_objetos_revision ON belleza_objetos (revision);
 CREATE TABLE IF NOT EXISTS belleza_mutaciones (
   id text PRIMARY KEY, huella text NOT NULL, resultado jsonb NOT NULL,
   creado_en timestamptz NOT NULL DEFAULT now()
-);`;
+);
+CREATE TABLE IF NOT EXISTS belleza_integraciones (id text PRIMARY KEY, data jsonb NOT NULL);
+CREATE TABLE IF NOT EXISTS belleza_whatsapp_contactos (telefono text PRIMARY KEY, ultimo_mensaje timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS belleza_whatsapp_entradas (id text PRIMARY KEY, recibido_en timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS belleza_whatsapp_cola (
+  id text PRIMARY KEY, cita_id text NOT NULL, tipo text NOT NULL, telefono text NOT NULL,
+  estado text NOT NULL DEFAULT 'pendiente', mensaje_id text, creado_en timestamptz NOT NULL DEFAULT now(),
+  actualizado_en timestamptz NOT NULL DEFAULT now(), motivo text
+);
+CREATE INDEX IF NOT EXISTS belleza_whatsapp_mensaje ON belleza_whatsapp_cola (mensaje_id);
+`;
 export class PostgresRepositorio implements Repositorio {
   constructor(private pool: ConexionSQL) {}
   async iniciar() {
@@ -37,6 +51,19 @@ export class PostgresRepositorio implements Repositorio {
     try { return (await c.query('SELECT id, version, data FROM belleza_objetos ORDER BY id')).rows; }
     finally { c.release(); }
   }
+  async snapshot(since?: number) {
+    const c = await this.pool.connect();
+    try {
+      const result = (await c.query(`SELECT e.revision AS cursor,
+        ($1::integer IS NULL OR $1 > e.revision) AS full,
+        COALESCE(jsonb_agg(jsonb_build_object('id', o.id, 'version', o.version, 'data', o.data, 'revision', o.revision))
+          FILTER (WHERE o.id IS NOT NULL), '[]'::jsonb) AS records
+        FROM belleza_estado e LEFT JOIN belleza_objetos o ON
+          ($1::integer IS NULL OR $1 > e.revision OR o.revision > $1)
+        WHERE e.id = 1 GROUP BY e.revision`, [since ?? null])).rows[0];
+      return result as { records: Registro[]; cursor: number; full: boolean };
+    } finally { c.release(); }
+  }
   async cambiar(cambio: Cambio): Promise<Registro> {
     const c = await this.pool.connect();
     try {
@@ -51,10 +78,11 @@ export class PostgresRepositorio implements Repositorio {
       }
       const actual = (await c.query('SELECT id, version, data FROM belleza_objetos WHERE id = $1', [cambio.id])).rows[0] || { id: cambio.id, version: 0, data: null };
       if (actual.version !== cambio.baseVersion) throw new ErrorAPI(409, 'Hay cambios de otro dispositivo. Elige qué versión conservar.', actual);
-      const resultado = { id: cambio.id, version: actual.version + 1, data: cambio.data };
-      await c.query(`INSERT INTO belleza_objetos (id, version, data) VALUES ($1, $2, $3::jsonb)
-        ON CONFLICT (id) DO UPDATE SET version = EXCLUDED.version, data = EXCLUDED.data, actualizado_en = now()`,
-      [resultado.id, resultado.version, JSON.stringify(resultado.data)]);
+      const revision = (await c.query('UPDATE belleza_estado SET revision = revision + 1 WHERE id = 1 RETURNING revision')).rows[0].revision;
+      const resultado = { id: cambio.id, version: actual.version + 1, data: cambio.data, revision };
+      await c.query(`INSERT INTO belleza_objetos (id, version, data, revision) VALUES ($1, $2, $3::jsonb, $4)
+        ON CONFLICT (id) DO UPDATE SET version = EXCLUDED.version, data = EXCLUDED.data, revision = EXCLUDED.revision, actualizado_en = now()`,
+      [resultado.id, resultado.version, JSON.stringify(resultado.data), revision]);
       await c.query('INSERT INTO belleza_mutaciones (id, huella, resultado) VALUES ($1, $2, $3::jsonb)', [cambio.mutationId, huella, JSON.stringify(resultado)]);
       await c.query('COMMIT'); return resultado;
     } catch (e) { await c.query('ROLLBACK'); throw e; } finally { c.release(); }

@@ -38,9 +38,14 @@
       if (!response.ok) throw Object.assign(new Error(body.error || 'No se pudo sincronizar.'), { status: response.status, current: body.current });
       return body;
     }
-    function recibir(records) {
+    function recibir(response) {
       recargar(); const next = clone(state);
-      next.records = records;
+      if (response.full === false) {
+        const map = new Map(next.records.map(r => [r.id, r]));
+        for (const record of response.records) map.set(record.id, record);
+        next.records = [...map.values()];
+      } else next.records = response.records;
+      next.cursor = response.cursor;
       guardar(next);
     }
     async function sync() {
@@ -48,7 +53,7 @@
       const before = JSON.stringify(state), beforeStatus = status;
       busy = true;
       try {
-        recibir((await request('/api/estado')).records);
+        recibir(await request('/api/estado' + (Number.isInteger(state.cursor) ? '?since=' + state.cursor : '')));
         // Capturar una tanda. Lo que cambie durante el envío conserva su propia operación.
         const batch = clone(state.pending.filter(op => !state.conflicts.some(c => c.id === op.id)));
         for (const op of batch) {
@@ -70,7 +75,7 @@
             guardar(next);
           }
         }
-        recibir((await request('/api/estado')).records);
+        recibir(await request('/api/estado' + (Number.isInteger(state.cursor) ? '?since=' + state.cursor : '')));
         status = state.conflicts.length ? 'Hay cambios por revisar' : state.pending.length ? 'Cambios pendientes de enviar' : 'Sincronizado con tu servidor';
       } catch (e) {
         status = e.status === 401 ? 'Revisa tu token de acceso' : e.status && e.status < 500 ? e.message : 'Sin conexión con el servidor; cambios guardados aquí';
@@ -86,7 +91,7 @@
         const proposed = value.trim();
         if (!proposed) throw new Error('Escribe el token de acceso.');
         const body = await request('/api/estado', {}, proposed);
-        storage.setItem(TOKEN, proposed); token = proposed; recibir(body.records); await sync();
+        storage.setItem(TOKEN, proposed); token = proposed; recibir(body); await sync();
       },
       desconectar() { storage.removeItem(TOKEN); token = ''; status = 'Guardado en este dispositivo'; emit(); },
       resolver(id, conservarLocal) {
@@ -99,6 +104,8 @@
         guardar(next); emit(); void sync();
       },
       actualizar() { recargar(); token = storage.getItem(TOKEN) || ''; emit(); }, sync,
+      conexiones() { return request('/api/conexiones'); },
+      renovarCalendario() { return request('/api/calendario/renovar', { method: 'POST', body: '{}' }); },
     };
   }
   const api = { crear };
