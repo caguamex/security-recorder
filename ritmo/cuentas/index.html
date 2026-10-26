@@ -1,0 +1,449 @@
+<title>Ritmo Belleza Equipo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Prototipo de cuentas y equipo con el diseño aprobado: barra minimal, + negro al centro, emojis y relieve.
+   Una columna tipo iPhone (máx. 430 px) con una franja de demostración arriba para cambiar de rol. */
+:root {
+  --stage: #E9ECF2; --bg: #F2F2F7; --card: #FFFFFF; --card2: #FFFFFF; --ink: #0B0B0F; --ink2: #3C3C43; --ink3: #8A8A8E; --sep: #E3E5EA;
+  --acc: #007AFF; --soft: #E5F0FF; --fill: rgba(118, 118, 128, .12); --segOn: #FFFFFF; --bar: #FFFFFF; --mas: #111111; --masInk: #FFFFFF;
+  --ok: #1E9E4A; --warn: #B7791F; --bad: #E5383B; --demo: #1B1B20; --demoInk: #F5F5F7; --scrim: rgba(0, 0, 0, .32);
+  --lift: 0 3px 0 rgba(30, 40, 80, .05), 0 12px 28px rgba(30, 40, 80, .10), inset 0 1px 0 #fff;
+  --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --emo: "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --stage: #000000; --bg: #050506; --card: #141418; --card2: #202027; --ink: #F5F5F7; --ink2: #B9B9C2; --ink3: #7E7E89; --sep: #26262D;
+  --acc: #0A84FF; --soft: #14243D; --fill: rgba(255, 255, 255, .1); --segOn: #3A3A40; --bar: #0B0B0E; --mas: #F5F5F7; --masInk: #000000;
+  --ok: #34C759; --warn: #E8B54A; --bad: #FF6B5E; --demo: #1C1C22; --demoInk: #F5F5F7; --scrim: rgba(0, 0, 0, .6);
+  --lift: 0 3px 0 rgba(0, 0, 0, .5), 0 12px 26px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .08); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --stage: #000000; --bg: #050506; --card: #141418; --card2: #202027; --ink: #F5F5F7; --ink2: #B9B9C2; --ink3: #7E7E89; --sep: #26262D;
+  --acc: #0A84FF; --soft: #14243D; --fill: rgba(255, 255, 255, .1); --segOn: #3A3A40; --bar: #0B0B0E; --mas: #F5F5F7; --masInk: #000000;
+  --ok: #34C759; --warn: #E8B54A; --bad: #FF6B5E; --demo: #1C1C22; --demoInk: #F5F5F7; --scrim: rgba(0, 0, 0, .6);
+  --lift: 0 3px 0 rgba(0, 0, 0, .5), 0 12px 26px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .08); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--stage); color: var(--ink); font: 400 16px/1.35 var(--ui); -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2.5px solid var(--acc); outline-offset: 2px; }
+.e { font-family: var(--emo); font-style: normal; }
+
+.phone { position: relative; max-width: 430px; min-height: 100vh; margin: 0 auto; background: var(--bg); }
+.demo { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+  padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--demo); color: var(--demoInk); font-size: 12px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: var(--demo); }
+.demo b { font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 10.5px; opacity: .7; }
+.demo button { padding: 4px 10px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: none; color: inherit; font-size: 12px; font-weight: 600; }
+.demo button[aria-pressed="true"] { background: #F5F5F7; color: #0B0B0F; border-color: #F5F5F7; }
+.demo .sp { flex: 1; }
+
+.pad { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+.nav { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding-top: 6px; color: var(--acc); }
+.nav button { border: 0; background: none; color: var(--acc); font-size: 17px; padding: 6px 0; display: flex; align-items: center; gap: 2px; }
+h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02em; text-wrap: balance; }
+.sub { margin: -6px 0 14px; color: var(--ink3); font-size: 15px; }
+.gh { margin: 22px 4px 7px; color: var(--ink3); font-size: 12.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.foot { margin: 7px 4px 0; color: var(--ink3); font-size: 13px; }
+.group { border-radius: 18px; background: var(--card); box-shadow: var(--lift); overflow: hidden; }
+.cell { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; padding: 10px 16px; border: 0; background: none; text-align: left; }
+.cell + .cell { border-top: 1px solid var(--sep); }
+.cell .l { flex: 1; min-width: 0; }
+.cell .l small { display: block; color: var(--ink3); font-size: 13px; }
+.cell .r { color: var(--ink3); font-size: 15px; }
+.chev { color: var(--ink3); font-size: 20px; line-height: 1; }
+.av { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--c, #8E8E93); color: #fff; font-size: 12.5px; font-weight: 800;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .15), inset 0 1px 0 rgba(255, 255, 255, .4); }
+.av.s { width: 22px; height: 22px; font-size: 9.5px; }
+.pill { display: inline-block; padding: 3px 9px; border-radius: 999px; background: var(--fill); color: var(--ink2); font-size: 12px; font-weight: 700; }
+.pill.admin { background: var(--ink); color: var(--bg); } .pill.recepcion { background: #E5F0FF; color: #0059C7; } .pill.especialista { background: #FCE4EC; color: #B4235A; }
+.pill.pend { background: #FFF4D6; color: #8A5A00; }
+.lock { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--fill); color: var(--ink2); font-size: 14px; }
+
+.seg { display: flex; padding: 2px; border-radius: 10px; background: var(--fill); }
+.seg button { flex: 1; min-height: 32px; border: 0; border-radius: 8px; background: none; font-size: 14px; font-weight: 600; }
+.seg button[aria-selected="true"] { background: var(--segOn); box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 50px; padding: 0 18px; border: 0; border-radius: 14px; font-size: 17px; font-weight: 700; }
+.btn.fill { background: var(--acc); color: #fff; box-shadow: 0 4px 0 color-mix(in srgb, var(--acc) 60%, #000), 0 12px 24px color-mix(in srgb, var(--acc) 35%, transparent), inset 0 1px 0 rgba(255, 255, 255, .45); }
+.btn.dark { background: #000; color: #fff; box-shadow: 0 4px 0 #333, 0 10px 20px rgba(0, 0, 0, .2); }
+.btn.line { background: var(--card); border: 1.5px solid var(--sep); box-shadow: 0 3px 0 var(--sep); }
+.btn.soft { background: var(--fill); color: var(--acc); }
+.btn.bad { background: none; color: var(--bad); }
+.in { width: 100%; min-height: 50px; padding: 0 16px; border: 1.5px solid var(--sep); border-radius: 14px; background: var(--card); font-size: 17px; }
+
+/* Entrar */
+.auth { display: flex; flex-direction: column; gap: 12px; padding-block: 48px 40px; }
+.logo { width: 84px; height: 84px; margin: 0 auto 6px; border-radius: 24px; display: grid; place-items: center; font-size: 44px;
+  background: linear-gradient(160deg, var(--card2), var(--card)); box-shadow: 0 5px 0 var(--sep), 0 18px 34px rgba(30, 40, 80, .18), inset 0 1px 0 rgba(255, 255, 255, .5); }
+.auth h1 { text-align: center; margin: 0; }
+.auth .sub { text-align: center; margin: 0 0 18px; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--ink3); font-size: 13px; margin: 6px 0; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--sep); }
+.fine { color: var(--ink3); font-size: 13px; text-align: center; margin: 6px 8px 0; }
+.code { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 8px 0 4px; }
+.code input { width: 100%; height: 58px; padding: 0; border: 1.5px solid var(--sep); border-radius: 14px; background: var(--card); text-align: center; font-size: 24px; font-weight: 800;
+  box-shadow: 0 3px 0 var(--sep); font-variant-numeric: tabular-nums; }
+.code input:focus { border-color: var(--acc); outline: none; box-shadow: 0 3px 0 color-mix(in srgb, var(--acc) 50%, transparent); }
+.invite { padding: 18px; border-radius: 20px; background: var(--card); box-shadow: var(--lift); text-align: center; }
+.invite .av { width: 58px; height: 58px; margin: 0 auto 10px; font-size: 20px; }
+
+/* Agenda */
+.chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px 12px; padding: 4px 16px 8px; scrollbar-width: none; }
+.chip { flex: none; display: flex; align-items: center; gap: 7px; padding: 5px 12px 5px 5px; border: 0; border-radius: 999px; background: var(--card); box-shadow: 0 2px 0 var(--sep), 0 4px 10px rgba(30, 40, 80, .06); font-size: 14px; font-weight: 600; }
+.chip.all { padding-left: 12px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); box-shadow: 0 3px 0 rgba(0, 0, 0, .35); }
+.sum { display: flex; justify-content: space-between; align-items: baseline; margin: 14px 2px 8px; }
+.sum b { font-size: 17px; } .sum span { color: var(--ink3); font-size: 14px; }
+.ev { display: flex; gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-left: 5px solid var(--c); border-radius: 14px; text-align: left; margin-bottom: 10px;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--c) 6%, var(--card)), color-mix(in srgb, var(--c) 16%, var(--card)));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 28%, transparent), 0 10px 22px color-mix(in srgb, var(--c) 18%, transparent); }
+.ev .h { flex: none; width: 46px; font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; }
+.ev .h small { display: block; color: var(--ink3); font-weight: 500; font-size: 12px; }
+.ev .b { flex: 1; min-width: 0; }
+.ev .t { font-weight: 700; } .ev .m { color: var(--ink2); font-size: 14px; }
+.ev .w { display: flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--ink2); font-size: 13px; }
+.ev .st { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--ok); } .ev .st.p { color: var(--warn); }
+.ev.busy { --c: #9A9AA3; opacity: .75; }
+.cols { position: relative; display: grid; gap: 6px; margin: 0 -4px; overflow-x: auto; }
+.col { position: relative; min-width: 0; }
+.col .hd { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-bottom: 8px; font-size: 12.5px; font-weight: 700; }
+.col .track { position: relative; height: calc(var(--hrs) * 56px); border-radius: 12px; background: var(--card); box-shadow: inset 0 0 0 1px var(--sep); }
+.col .blk { position: absolute; left: 4px; right: 4px; padding: 5px 7px; overflow: hidden; border: 0; border-left: 4px solid var(--c); border-radius: 9px; text-align: left; font-size: 12px; line-height: 1.2;
+  background: color-mix(in srgb, var(--c) 18%, var(--card)); box-shadow: 0 3px 0 color-mix(in srgb, var(--c) 30%, transparent); }
+.col .blk b { display: block; font-size: 12.5px; }
+.grid-h { position: absolute; left: 0; right: 0; height: 1px; background: var(--sep); }
+
+/* Barra minimal */
+.tabbar { position: fixed; z-index: 20; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100%, 430px); display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
+  padding: 10px max(6px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); background: var(--bar); border-top: 1px solid var(--sep); }
+.tab { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: none; color: var(--ink3); font-size: 11px; font-weight: 600; }
+.tab .e { font-size: 25px; line-height: 1; }
+.tab[aria-selected="true"] { color: var(--ink); font-weight: 800; }
+.tab[aria-selected="true"]::before { content: ""; position: absolute; top: -11px; width: 36px; height: 3px; border-radius: 2px; background: var(--ink); }
+.fab { justify-self: center; width: 50px; height: 50px; display: grid; place-items: center; border: 0; border-radius: 16px; background: var(--mas); color: var(--masInk); box-shadow: 0 6px 14px rgba(0, 0, 0, .18); }
+
+/* Hojas */
+.sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; background: var(--scrim); }
+.sheet-card { width: min(100%, 430px); max-height: 88vh; overflow-y: auto; padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  border-radius: 20px 20px 0 0; background: var(--bg); animation: up .22s ease-out; }
+@keyframes up { from { transform: translateY(40px); opacity: .6; } }
+@media (prefers-reduced-motion: reduce) { .sheet-card { animation: none; } }
+.sheet-card .nav { position: sticky; top: -8px; z-index: 1; background: var(--bg); }
+.sheet-card .nav b { color: var(--ink); font-size: 17px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { padding: 8px 13px; border: 1.5px solid var(--sep); border-radius: 12px; background: var(--card); font-size: 14px; font-weight: 600; }
+.opt[aria-pressed="true"] { border-color: var(--acc); background: var(--soft); color: var(--acc); }
+.opt:disabled { opacity: .4; cursor: not-allowed; }
+.hist { margin: 0; padding: 0; list-style: none; }
+.hist li { position: relative; padding: 0 0 14px 22px; font-size: 14px; color: var(--ink2); }
+.hist li::before { content: ""; position: absolute; left: 4px; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--acc); }
+.hist li::after { content: ""; position: absolute; left: 7.5px; top: 16px; bottom: 0; width: 1px; background: var(--sep); }
+.hist li:last-child::after { display: none; }
+.hist b { color: var(--ink); }
+.hist small { display: block; color: var(--ink3); font-size: 12.5px; }
+.linkbox { display: flex; gap: 8px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--card); box-shadow: var(--lift); font-size: 14px; font-weight: 600; word-break: break-all; }
+.linkbox button { flex: none; border: 0; border-radius: 10px; padding: 7px 12px; background: var(--soft); color: var(--acc); font-weight: 700; font-size: 13px; }
+.sw { position: relative; flex: none; width: 51px; height: 31px; border: 0; border-radius: 999px; background: var(--fill); transition: background .2s; }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, .2); transition: transform .2s; }
+.sw[aria-checked="true"] { background: var(--ok); } .sw[aria-checked="true"]::after { transform: translateX(20px); }
+.confirm { margin-top: 12px; padding: 14px; border-radius: 16px; background: color-mix(in srgb, var(--bad) 10%, var(--card)); }
+.confirm p { margin: 0 0 10px; font-size: 14px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+  padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
+</style>
+
+<div class="phone">
+  <div class="demo" role="group" aria-label="Demostración">
+    <b>Demostración</b><span>Entrar como:</span>
+    <button type="button" data-rol="admin">Admin</button><button type="button" data-rol="recepcion">Recepción</button><button type="button" data-rol="especialista">Especialista</button>
+    <span class="sp"></span><button type="button" data-demo="invitacion">Ver invitación</button><button type="button" data-demo="salir">Salir</button>
+  </div>
+  <main id="screen" class="pad" aria-live="polite"></main>
+</div>
+<nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones" hidden></nav>
+<div class="sheet" id="sheet" hidden><div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const PLUS = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+  const APPLE = '<svg width="18" height="20" viewBox="0 0 17 20" fill="currentColor" aria-hidden="true"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9C3.6 4.8 1.9 5.8 1 7.4c-1.9 3.2-.5 8 1.3 10.6.9 1.3 1.9 2.7 3.3 2.6 1.3-.1 1.8-.9 3.4-.9s2 .9 3.4.8c1.4 0 2.3-1.3 3.2-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.9-1.1-2.9-4.3zM11.6 3c.7-.9 1.2-2.1 1.1-3.3-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.2 1.2.1 2.3-.6 3-1.5z"/></svg>';
+  const GOOGLE = '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+
+  // Datos de ejemplo de AB' Beauty Room (martes 27 de octubre).
+  const SERV = [
+    { id: 'acr', n: 'Uñas acrílicas', min: 90, p: 650, c: '#E0457B' }, { id: 'gel', n: 'Gelish en manos', min: 45, p: 300, c: '#F06A9B' },
+    { id: 'ped', n: 'Pedicure spa', min: 60, p: 400, c: '#C2457E' }, { id: 'lif', n: 'Lifting de pestañas', min: 60, p: 550, c: '#14A3A0' },
+    { id: 'cej', n: 'Diseño de cejas', min: 45, p: 250, c: '#2BB3C0' }, { id: 'bal', n: 'Balayage', min: 150, p: 1500, c: '#8B5CF6' },
+  ];
+  const EQUIPO = [
+    { id: 'antonio', n: 'Antonio', ini: 'AN', rol: 'admin', c: '#4B4B55', serv: [], estado: 'activa', disp: 'iPhone 15 · Safari' },
+    { id: 'lupita', n: 'Lupita Hernández', ini: 'LH', rol: 'recepcion', c: '#3B82F6', serv: [], estado: 'activa', disp: 'iPad · Safari' },
+    { id: 'karla', n: 'Karla Méndez', ini: 'KM', rol: 'especialista', c: '#E0457B', serv: ['acr', 'gel', 'ped'], estado: 'activa', disp: 'iPhone 13 · Safari', verTodas: false, horario: 'Lun a sáb · 10:00 a 19:00' },
+    { id: 'renata', n: 'Renata Soto', ini: 'RS', rol: 'especialista', c: '#14A3A0', serv: ['lif', 'cej'], estado: 'activa', disp: 'Android · Chrome', verTodas: false, horario: 'Mar a sáb · 11:00 a 19:00' },
+    { id: 'ximena', n: 'Ximena Lara', ini: 'XL', rol: 'especialista', c: '#8B5CF6', serv: ['bal'], estado: 'activa', disp: 'iPhone 14 · Safari', verTodas: false, horario: 'Lun a vie · 12:00 a 19:00' },
+    { id: 'brenda', n: 'Brenda Castillo', ini: 'BC', rol: 'especialista', c: '#F59E0B', serv: ['gel', 'ped'], estado: 'pendiente', verTodas: false, horario: 'Sáb · 10:00 a 18:00' },
+  ];
+  const CLIENTAS = { mr: ['Mariana Ruiz', '55 1234 5678'], sl: ['Sofía López', '55 8765 4321'], fc: ['Fernanda Cruz', '55 2222 3333'], ag: ['Andrea García', '55 4444 5555'], pv: ['Paola Vega', '55 6666 7777'], dt: ['Daniela Torres', '55 9090 1212'] };
+  let CITAS = [
+    { id: 1, h: '10:00', s: 'acr', cl: 'mr', st: 'karla', ok: true, hist: [['Lupita', 'Recepción', 'la creó', 'Ayer · 18:04']] },
+    { id: 2, h: '10:30', s: 'lif', cl: 'sl', st: 'renata', ok: true, hist: [['Renata', 'Especialista', 'la creó', 'Sáb 24 · 13:20']] },
+    { id: 3, h: '12:00', s: 'gel', cl: 'fc', st: 'karla', ok: false, hist: [['Antonio', 'Admin', 'la creó a las 11:00', 'Vie 23 · 09:41'], ['Lupita', 'Recepción', 'la movió a las 12:00', 'Hoy · 09:12']] },
+    { id: 4, h: '13:00', s: 'bal', cl: 'ag', st: 'ximena', ok: true, hist: [['Lupita', 'Recepción', 'la creó', 'Jue 22 · 17:30']] },
+    { id: 5, h: '16:00', s: 'cej', cl: 'pv', st: 'renata', ok: true, hist: [['Antonio', 'Admin', 'la creó', 'Lun 26 · 20:15']] },
+    { id: 6, h: '17:00', s: 'ped', cl: 'dt', st: 'karla', ok: false, hist: [['Karla', 'Especialista', 'la creó', 'Hoy · 08:50']] },
+  ];
+  const HIST = [
+    ['Lupita', 'movió la cita de Fernanda Cruz a las 12:00', 'Hoy · 09:12'], ['Karla', 'agendó Pedicure spa para Daniela Torres', 'Hoy · 08:50'],
+    ['Antonio', 'cambió el precio de Balayage a $1,500', 'Ayer · 21:03'], ['Lupita', 'agendó Uñas acrílicas para Mariana Ruiz', 'Ayer · 18:04'],
+    ['Antonio', 'invitó a Brenda Castillo como Especialista', 'Ayer · 12:30'], ['Renata', 'entró desde un dispositivo nuevo (Android)', 'Dom 25 · 10:02'],
+  ];
+  const ROL = { admin: 'Admin', recepcion: 'Recepción', especialista: 'Especialista' };
+  const COMO = { admin: 'antonio', recepcion: 'lupita', especialista: 'karla' };
+
+  const S = { pant: 'entrar', rol: 'admin', tab: 'agenda', sub: null, vista: 'lista', filtro: 'todas', correo: '' };
+  const yo = () => EQUIPO.find(m => m.id === COMO[S.rol]);
+  const serv = id => SERV.find(s => s.id === id);
+  const miembro = id => EQUIPO.find(m => m.id === id);
+  const money = n => '$' + n.toLocaleString('es-MX');
+  const fin = (h, min) => { const t = +h.slice(0, 2) * 60 + +h.slice(3) + min; return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
+  const av = (m, cls = '') => `<span class="av ${cls}" style="--c:${m.c}">${m.ini}</span>`;
+  const tel = t => S.rol === 'especialista' ? t.slice(0, 2) + ' •••• ' + t.slice(-4) : t;
+  // Lo que cada rol puede hacer; la base de datos aplica las mismas reglas.
+  const puede = {
+    verTodas: () => S.rol !== 'especialista' || yo().verTodas,
+    verCita: c => S.rol !== 'especialista' || c.st === yo().id,
+    editarCita: c => S.rol !== 'especialista' || c.st === yo().id,
+    precios: () => S.rol === 'admin', equipo: () => S.rol === 'admin', ingresos: () => S.rol !== 'recepcion',
+  };
+
+  let toastT;
+  const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); };
+  const sheet = h => { $('#sheetCard').innerHTML = h; $('#sheet').hidden = false; };
+  const cerrar = () => { $('#sheet').hidden = true; };
+
+  /* ---------- Entrar ---------- */
+  const entrar = () => `<div class="auth">
+    <div class="logo"><span class="e">💅🏻</span></div>
+    <h1>Ritmo Belleza</h1><p class="sub">AB' Beauty Room</p>
+    <button type="button" class="btn dark" data-act="proveedor" data-p="Apple">${APPLE}Continuar con Apple</button>
+    <button type="button" class="btn line" data-act="proveedor" data-p="Google">${GOOGLE}Continuar con Google</button>
+    <div class="or">o con tu correo</div>
+    <label class="sr" for="correo" style="position:absolute;left:-9999px">Correo</label>
+    <input class="in" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" value="${esc(S.correo)}">
+    <button type="button" class="btn fill" data-act="enviar-codigo">Enviarme un código</button>
+    <p class="fine">Sin contraseñas. Te mandamos un código de 6 dígitos que vence en 10 minutos.</p></div>`;
+  const codigo = () => `<div class="nav"><button type="button" data-act="atras-entrar">‹ Atrás</button></div>
+    <div class="auth" style="padding-top:20px"><h1 style="text-align:left">Revisa tu correo</h1>
+    <p class="sub" style="text-align:left;margin-bottom:8px">Escribe el código que enviamos a <b style="color:var(--ink)">${esc(S.correo || 'antonio@correo.com')}</b>.</p>
+    <div class="code">${[0, 1, 2, 3, 4, 5].map(i => `<input id="d${i}" inputmode="numeric" maxlength="1" aria-label="Dígito ${i + 1}">`).join('')}</div>
+    <p class="fine" style="text-align:left;margin:0">En la demostración cualquier código funciona. Después de 5 intentos fallidos hay que pedir uno nuevo.</p>
+    <button type="button" class="btn soft" data-act="reenviar">Enviar otro código</button></div>`;
+  const dospasos = () => `<div class="auth" style="padding-top:28px">
+    <div class="logo"><span class="e">🔐</span></div>
+    <h1>Verificación en dos pasos</h1>
+    <p class="sub">Como eres Admin, confirma con el código de 6 dígitos de tu app autenticadora (Google Authenticator, Microsoft Authenticator o 1Password).</p>
+    <div class="code">${[0, 1, 2, 3, 4, 5].map(i => `<input id="d${i}" inputmode="numeric" maxlength="1" aria-label="Dígito ${i + 1}">`).join('')}</div>
+    <p class="fine">Si pierdes el teléfono, entras con uno de tus 10 códigos de respaldo.</p></div>`;
+  const unirse = () => `<div class="auth" style="padding-top:28px">
+    <div class="invite">${av(miembro('antonio'))}
+      <p style="margin:0 0 4px;color:var(--ink3);font-size:14px">Antonio te invitó a</p>
+      <h1 style="font-size:26px">AB' Beauty Room</h1>
+      <p style="margin:6px 0 0"><span class="pill especialista">Especialista</span></p>
+      <p class="foot" style="text-align:center">Uñas: Gelish en manos y Pedicure spa · Sábados de 10:00 a 18:00</p></div>
+    <p class="fine" style="margin-bottom:6px">Entra para aceptar. La invitación es para Brenda Castillo, se usa una sola vez y vence en 48 horas.</p>
+    <button type="button" class="btn dark" data-act="aceptar">${APPLE}Continuar con Apple</button>
+    <button type="button" class="btn line" data-act="aceptar">${GOOGLE}Continuar con Google</button>
+    <button type="button" class="btn soft" data-act="aceptar">Recibir un código por correo</button></div>`;
+
+  /* ---------- Agenda ---------- */
+  const visibles = () => CITAS.filter(c => (puede.verTodas() || c.st === yo().id) && (S.filtro === 'todas' || c.st === S.filtro)).sort((a, b) => a.h.localeCompare(b.h));
+  const especialistas = () => EQUIPO.filter(m => m.rol === 'especialista' && m.estado === 'activa');
+  const agenda = () => {
+    const ver = puede.verTodas();
+    const list = visibles();
+    const total = list.reduce((t, c) => t + serv(c.s).p, 0);
+    const chips = ver ? `<div class="chips" role="group" aria-label="Filtrar por especialista">
+      <button type="button" class="chip all" data-filtro="todas" aria-pressed="${S.filtro === 'todas'}">Todas</button>
+      ${especialistas().map(m => `<button type="button" class="chip" data-filtro="${m.id}" aria-pressed="${S.filtro === m.id}">${av(m, 's')}${esc(m.n.split(' ')[0])}</button>`).join('')}</div>` : '';
+    const seg = ver ? `<div class="seg" role="tablist" aria-label="Vista" style="margin-bottom:4px"><button type="button" role="tab" data-vista="lista" aria-selected="${S.vista === 'lista'}">Lista</button><button type="button" role="tab" data-vista="columnas" aria-selected="${S.vista === 'columnas'}">Por especialista</button></div>` : '';
+    const sum = `<div class="sum"><b>${list.length} citas${puede.ingresos() ? ' · ' + money(total) : ''}</b><span>${!ver ? 'Solo tus citas' : S.filtro === 'todas' ? 'Todo el salón' : esc(miembro(S.filtro).n.split(' ')[0])}</span></div>`;
+    const cuerpo = S.vista === 'columnas' && ver ? columnas() : list.map(evRow).join('') || '<div class="lock"><span class="e">🗓️</span><span>Hoy no tienes citas. Las que te agenden aparecerán aquí; también puedes agendar con el botón +.</span></div>';
+    const nota = !ver ? `<div class="lock"><span class="e">🔒</span><span>Ves solo tus citas. Admin puede activarte «Ver la agenda de todas» en Equipo.</span></div>` : '';
+    return `<div class="nav"><button type="button">‹ Octubre</button><button type="button" style="font-weight:600">Hoy</button></div>
+      <h1>Martes 27</h1>${chips}${seg}${sum}${cuerpo}${nota}`;
+  };
+  const evRow = c => { const s = serv(c.s), m = miembro(c.st);
+    return `<button type="button" class="ev" style="--c:${s.c}" data-cita="${c.id}"><span class="h">${c.h}<small>${fin(c.h, s.min)}</small></span>
+      <span class="b"><span class="t">${esc(s.n)}</span><br><span class="m">${esc(CLIENTAS[c.cl][0])}${puede.ingresos() ? ' · ' + money(s.p) : ''}</span>
+      <span class="w">${av(m, 's')}${esc(m.n.split(' ')[0])}<span class="st ${c.ok ? '' : 'p'}">${c.ok ? 'Confirmada' : 'Por confirmar'}</span></span></span></button>`; };
+  const columnas = () => {
+    const ini = 10, fin_ = 19, px = 56, cols = especialistas().filter(m => S.filtro === 'todas' || m.id === S.filtro);
+    const lineas = Array.from({ length: fin_ - ini }, (_, i) => `<span class="grid-h" style="top:${i * px}px"></span>`).join('');
+    return `<div class="cols" style="grid-template-columns:repeat(${cols.length},minmax(0,1fr));--hrs:${fin_ - ini}">${cols.map(m => `<div class="col"><div class="hd">${av(m)}${esc(m.n.split(' ')[0])}</div>
+      <div class="track">${lineas}${CITAS.filter(c => c.st === m.id).map(c => { const s = serv(c.s), t = (+c.h.slice(0, 2) - ini) * 60 + +c.h.slice(3);
+        return `<button type="button" class="blk" style="--c:${s.c};top:${t / 60 * px + 2}px;height:${s.min / 60 * px - 4}px" data-cita="${c.id}"><b>${c.h}</b>${esc(s.n)}</button>`; }).join('')}</div></div>`).join('')}</div>
+      <p class="foot">De 10:00 a 19:00. Cada columna es una especialista; toca una cita para abrirla.</p>`;
+  };
+  const verCita = id => { const c = CITAS.find(x => x.id === id), s = serv(c.s), m = miembro(c.st), [n, t] = CLIENTAS[c.cl];
+    sheet(`<div class="nav"><button type="button" data-act="cerrar">Cerrar</button><b>Cita</b><span style="width:52px"></span></div>
+      <h1 style="font-size:26px">${esc(s.n)}</h1><p class="sub">Martes 27 · ${c.h} a ${fin(c.h, s.min)}${puede.ingresos() ? ' · ' + money(s.p) : ''}</p>
+      <div class="group"><div class="cell"><span class="l">Clienta<small>${esc(n)}</small></span></div>
+        <div class="cell"><span class="l">Teléfono<small style="font-variant-numeric:tabular-nums">${tel(t)}</small></span>${S.rol === 'especialista' ? '<span class="pill">Oculto</span>' : ''}</div>
+        <div class="cell">${av(m)}<span class="l">La atiende<small>${esc(m.n)}</small></span></div></div>
+      <p class="gh">Historial</p><div class="group" style="padding:14px 16px 2px"><ul class="hist">${c.hist.map(([q, r, a, w]) => `<li><b>${q}</b> (${r}) ${a}<small>${w}</small></li>`).join('')}</ul></div>
+      <div style="display:grid;gap:10px;margin-top:16px">
+        <button type="button" class="btn fill" data-act="recordar" style="background:#25D366;box-shadow:0 4px 0 #128C4B">Enviar recordatorio por WhatsApp</button>
+        ${puede.editarCita(c) ? '<button type="button" class="btn soft" data-act="mover">Mover de horario</button>' : ''}</div>
+      ${S.rol === 'especialista' ? '<p class="foot">El recordatorio sale del WhatsApp del salón, así el número de la clienta no se muestra en tu teléfono.</p>' : ''}`); };
+
+  /* ---------- Nueva cita ---------- */
+  const N = { s: 'gel', st: null, h: null, cl: 'pv' };
+  const nueva = () => {
+    const quien = S.rol === 'especialista' ? [yo()] : especialistas().filter(m => m.serv.includes(N.s));
+    if (!quien.find(m => m.id === N.st)) N.st = quien[0] ? quien[0].id : null;
+    const ocupado = h => CITAS.some(c => c.st === N.st && c.h === h);
+    const servs = S.rol === 'especialista' ? SERV.filter(s => yo().serv.includes(s.id)) : SERV;
+    sheet(`<div class="nav"><button type="button" data-act="cerrar">Cancelar</button><b>Nueva cita</b><button type="button" data-act="guardar" style="font-weight:700">Guardar</button></div>
+      <p class="gh">Servicio</p><div class="opts">${servs.map(s => `<button type="button" class="opt" data-ns="${s.id}" aria-pressed="${N.s === s.id}">${esc(s.n)}</button>`).join('')}</div>
+      <p class="gh">La atiende</p><div class="opts">${quien.map(m => `<button type="button" class="opt" data-nst="${m.id}" aria-pressed="${N.st === m.id}" style="display:flex;align-items:center;gap:7px">${av(m, 's')}${esc(m.n.split(' ')[0])}</button>`).join('')}</div>
+      <p class="foot">${S.rol === 'especialista' ? 'Solo puedes agendarte a ti y los servicios que haces.' : 'Solo aparecen las especialistas que hacen este servicio.'}</p>
+      <p class="gh">Clienta</p><div class="opts">${Object.entries(CLIENTAS).map(([k, [n]]) => `<button type="button" class="opt" data-ncl="${k}" aria-pressed="${N.cl === k}">${esc(n)}</button>`).join('')}</div>
+      <p class="gh">Martes 27 · horarios libres</p><div class="opts">${['11:00', '12:00', '14:00', '15:30', '17:00', '18:00'].map(h => `<button type="button" class="opt" data-nh="${h}" aria-pressed="${N.h === h}" ${ocupado(h) ? 'disabled' : ''}>${h}</button>`).join('')}</div>`);
+  };
+
+  /* ---------- Clientas y servicios ---------- */
+  const clientas = () => { const mias = S.rol === 'especialista' ? new Set(CITAS.filter(c => c.st === yo().id).map(c => c.cl)) : null;
+    const lista = Object.entries(CLIENTAS).filter(([k]) => !mias || mias.has(k));
+    return `<div class="nav"><span></span></div><h1>Clientas</h1>
+      <div class="group">${lista.map(([k, [n, t]]) => `<div class="cell"><span class="av" style="--c:#C2457E">${n.split(' ').map(x => x[0]).join('')}</span><span class="l">${esc(n)}<small style="font-variant-numeric:tabular-nums">${tel(t)}</small></span></div>`).join('')}</div>
+      ${mias ? '<div class="lock"><span class="e">🔒</span><span>Ves solo a las clientas de tus citas, con el teléfono parcialmente oculto.</span></div>' : ''}`; };
+  const servicios = () => `<div class="nav"><span></span>${puede.precios() ? `<button type="button" aria-label="Nuevo servicio">${PLUS}</button>` : ''}</div><h1>Servicios</h1>
+    <div class="group">${SERV.map(s => `<div class="cell"><span class="av" style="--c:${s.c};border-radius:10px"></span><span class="l">${esc(s.n)}<small>${s.min} min · ${EQUIPO.filter(m => m.serv.includes(s.id) && m.estado === 'activa').map(m => m.n.split(' ')[0]).join(', ')}</small></span><span class="r">${money(s.p)}</span></div>`).join('')}</div>
+    ${puede.precios() ? '' : '<div class="lock"><span class="e">🔒</span><span>Solo Admin puede cambiar servicios, precios y promociones.</span></div>'}`;
+
+  /* ---------- Ajustes, equipo y seguridad ---------- */
+  const ajustes = () => { const m = yo();
+    return `<div class="nav"><span></span></div><h1>Ajustes</h1>
+      <div class="group"><div class="cell">${av(m)}<span class="l"><b>${esc(m.n)}</b><small>AB' Beauty Room</small></span><span class="pill ${m.rol}">${ROL[m.rol]}</span></div></div>
+      <p class="gh">Salón</p><div class="group">
+        ${puede.equipo() ? `<button type="button" class="cell" data-sub="equipo"><span class="e" style="font-size:22px">👩🏻‍🤝‍👩🏽</span><span class="l">Equipo<small>${EQUIPO.filter(x => x.estado === 'activa').length} personas · 1 invitación pendiente</small></span><span class="chev">›</span></button>` : ''}
+        <button type="button" class="cell" data-sub="seguridad"><span class="e" style="font-size:22px">🔐</span><span class="l">Seguridad<small>${S.rol === 'admin' ? 'Dos pasos, sesiones, historial y respaldos' : 'Tus sesiones abiertas'}</small></span><span class="chev">›</span></button>
+        <div class="cell"><span class="e" style="font-size:22px">🌙</span><span class="l">Apariencia</span><span class="r">White</span></div></div>
+      ${puede.equipo() ? '' : '<p class="foot">Equipo, conexiones y datos del negocio solo los ve Admin.</p>'}
+      <div class="group" style="margin-top:22px"><button type="button" class="cell" data-demo="salir" style="color:var(--bad);justify-content:center">Cerrar sesión</button></div>`; };
+  const equipo = () => `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button><button type="button" data-act="invitar" style="font-weight:600">Invitar</button></div>
+    <h1>Equipo</h1><p class="sub">Quién puede entrar a AB' Beauty Room y qué puede hacer.</p>
+    ${['admin', 'recepcion', 'especialista'].map(r => { const g = EQUIPO.filter(m => m.rol === r); return g.length ? `<p class="gh">${ROL[r]}</p><div class="group">${g.map(m => `<button type="button" class="cell" data-sub="miembro:${m.id}">${av(m)}<span class="l">${esc(m.n)}<small>${m.estado === 'pendiente' ? 'Invitación enviada · vence en 41 h' : m.serv.length ? m.serv.map(id => serv(id).n).join(', ') : r === 'admin' ? 'Todo el salón' : 'Agenda y clientas'}</small></span>${m.estado === 'pendiente' ? '<span class="pill pend">Pendiente</span>' : ''}<span class="chev">›</span></button>`).join('')}</div>` : ''; }).join('')}
+    <p class="gh">Qué puede hacer cada rol</p>
+    <div class="group" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="color:var(--ink3);text-align:left"><th style="padding:10px 12px"></th><th>Admin</th><th>Recep.</th><th style="padding-right:12px">Espec.</th></tr></thead>
+      <tbody>${[['Agenda de todas', '✅', '✅', 'Si lo activas'], ['Agendar y mover', '✅', '✅', 'Las suyas'], ['Teléfonos completos', '✅', '✅', '❌'], ['Ingresos', '✅', '❌', 'Los suyos'], ['Precios y promos', '✅', 'Ver', 'Ver'], ['Equipo y ajustes', '✅', '❌', '❌']]
+        .map(r => `<tr style="border-top:1px solid var(--sep)"><td style="padding:9px 12px;font-weight:600">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="padding-right:12px">${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
+  const verMiembro = id => { const m = miembro(id);
+    return `<div class="nav"><button type="button" data-sub="equipo">‹ Equipo</button></div>
+      <div style="display:flex;gap:14px;align-items:center;margin:4px 0 16px"><span class="av" style="--c:${m.c};width:60px;height:60px;font-size:20px">${m.ini}</span>
+        <div><h1 style="margin:0;font-size:26px">${esc(m.n)}</h1><span class="pill ${m.estado === 'pendiente' ? 'pend' : m.rol}">${m.estado === 'pendiente' ? 'Invitación pendiente' : ROL[m.rol]}</span></div></div>
+      ${m.rol === 'admin' ? '<div class="lock"><span class="e">👑</span><span>Eres Admin del salón. Para dejar de serlo primero nombra a otra persona como Admin.</span></div>' : `
+      <p class="gh">Rol</p><div class="seg" role="tablist">${['recepcion', 'especialista'].map(r => `<button type="button" role="tab" data-setrol="${r}" aria-selected="${m.rol === r}">${ROL[r]}</button>`).join('')}</div>
+      ${m.rol === 'especialista' ? `<p class="gh">Servicios que hace</p><div class="opts">${SERV.map(s => `<button type="button" class="opt" data-togserv="${s.id}" aria-pressed="${m.serv.includes(s.id)}">${esc(s.n)}</button>`).join('')}</div>
+      <p class="gh">Permisos</p><div class="group"><div class="cell"><span class="l">Ver la agenda de todas<small>Si está apagado solo ve sus citas</small></span><button type="button" class="sw" role="switch" aria-label="Ver la agenda de todas" aria-checked="${!!m.verTodas}" data-togver></button></div>
+        <div class="cell"><span class="l">Horario<small>${esc(m.horario)}</small></span><span class="chev">›</span></div></div>` : ''}
+      ${m.estado === 'activa' ? `<p class="gh">Sesiones abiertas</p><div class="group"><div class="cell"><span class="e" style="font-size:22px">📱</span><span class="l">${esc(m.disp)}<small>Activa hoy</small></span></div></div>` : `<p class="gh">Invitación</p><div class="linkbox"><span style="flex:1">ritmo-belleza.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div><p class="foot">Se usa una sola vez y vence en 41 horas.</p>`}
+      <div id="quitarBox" style="margin-top:22px"><button type="button" class="btn bad" data-act="quitar">${m.estado === 'pendiente' ? 'Cancelar invitación' : 'Quitar del equipo'}</button></div>`}`; };
+  const seguridad = () => S.rol !== 'admin' ? `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button></div><h1>Seguridad</h1>
+      <p class="gh">Tus sesiones</p><div class="group"><div class="cell"><span class="e" style="font-size:22px">📱</span><span class="l">${esc(yo().disp)}<small>Este dispositivo</small></span></div></div>
+      <p class="foot">Entras con Apple, Google o un código por correo; no hay contraseña que se pueda robar.</p>`
+    : `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button></div><h1>Seguridad</h1>
+      <div class="group">
+        <div class="cell"><span class="e" style="font-size:22px">🔐</span><span class="l">Verificación en dos pasos<small>App autenticadora · obligatoria para Admin</small></span><span class="pill" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">Activa</span></div>
+        <div class="cell"><span class="e" style="font-size:22px">🗄️</span><span class="l">Respaldo diario<small>Último: hoy 03:00 · se guardan 30 días</small></span></div>
+        <div class="cell"><span class="e" style="font-size:22px">⏱️</span><span class="l">Cerrar sesión por inactividad<small>Especialistas y Recepción: después de 30 días sin abrir</small></span></div></div>
+      <p class="gh">Sesiones abiertas del equipo</p><div class="group">${EQUIPO.filter(m => m.estado === 'activa').map(m => `<div class="cell">${av(m, 's')}<span class="l">${esc(m.n.split(' ')[0])}<small>${esc(m.disp)}</small></span>${m.id === 'antonio' ? '<span class="r">Tú</span>' : `<button type="button" class="opt" data-act="cerrar-sesion" data-q="${m.n.split(' ')[0]}" style="padding:5px 10px;font-size:13px">Cerrar</button>`}</div>`).join('')}</div>
+      <p class="gh">Historial de cambios</p><div class="group" style="padding:14px 16px 2px"><ul class="hist">${HIST.map(([q, a, w]) => `<li><b>${q}</b> ${a}<small>${w}</small></li>`).join('')}</ul></div>`;
+  const invitar = () => sheet(`<div class="nav"><button type="button" data-act="cerrar">Cancelar</button><b>Invitar</b><span style="width:60px"></span></div>
+    <p class="gh">Nombre</p><input class="in" id="invNombre" value="Brenda Castillo" autocomplete="off">
+    <p class="gh">Rol</p><div class="seg" role="tablist"><button type="button" role="tab" aria-selected="false" data-invrol>Recepción</button><button type="button" role="tab" aria-selected="true" data-invrol>Especialista</button></div>
+    <p class="gh">Servicios que hace</p><div class="opts">${SERV.map(s => `<button type="button" class="opt" data-invserv aria-pressed="${['gel', 'ped'].includes(s.id)}">${esc(s.n)}</button>`).join('')}</div>
+    <p class="gh">Horario</p><div class="opts">${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => `<button type="button" class="opt" data-invserv aria-pressed="${i === 5}" style="width:42px;padding:8px 0">${d}</button>`).join('')}</div>
+    <div id="invOut" style="margin-top:20px"><button type="button" class="btn fill" data-act="crear-invitacion">Crear invitación</button>
+    <p class="foot">Crea un enlace de un solo uso que vence en 48 horas. Lo mandas tú por WhatsApp.</p></div>`);
+
+  /* ---------- Pintar ---------- */
+  const TABS = [['agenda', '📅', 'Agenda'], ['clientas', '💁🏻‍♀️', 'Clientas'], null, ['servicios', '💅🏻', 'Servicios'], ['ajustes', '⚙️', 'Ajustes']];
+  const render = () => {
+    document.querySelectorAll('[data-rol]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.rol === S.rol)));
+    const app = S.pant === 'app';
+    $('#tabbar').hidden = !app;
+    if (app) $('#tabbar').innerHTML = TABS.map(t => t ? `<button type="button" class="tab" role="tab" data-tab="${t[0]}" aria-selected="${S.tab === t[0]}"><span class="e">${t[1]}</span>${t[2]}</button>` : `<button type="button" class="fab" data-act="nueva" aria-label="Nueva cita">${PLUS}</button>`).join('');
+    let h;
+    if (!app) h = { entrar, codigo, dospasos, unirse }[S.pant]();
+    else if (S.tab === 'ajustes' && S.sub === 'equipo') h = equipo();
+    else if (S.tab === 'ajustes' && S.sub && S.sub.startsWith('miembro:')) h = verMiembro(S.sub.slice(8));
+    else if (S.tab === 'ajustes' && S.sub === 'seguridad') h = seguridad();
+    else h = { agenda, clientas, servicios, ajustes }[S.tab]();
+    $('#screen').innerHTML = h;
+    const d0 = $('#d0'); if (d0) d0.focus();
+  };
+  const ir = (o) => { Object.assign(S, o); render(); scrollTo(0, 0); };
+  const dentro = () => ir({ pant: 'app', tab: 'agenda', sub: null, filtro: 'todas', vista: 'lista' });
+
+  document.addEventListener('input', e => {
+    const m = /^d(\d)$/.exec(e.target.id || ''); if (!m) return;
+    e.target.value = e.target.value.replace(/\D/g, '').slice(-1);
+    if (e.target.value && +m[1] < 5) $('#d' + (+m[1] + 1)).focus();
+    if ([0, 1, 2, 3, 4, 5].every(i => $('#d' + i).value)) setTimeout(() => S.pant === 'codigo' && S.rol === 'admin' ? ir({ pant: 'dospasos' }) : dentro(), 180);
+  });
+  document.addEventListener('keydown', e => { const m = /^d(\d)$/.exec(e.target.id || ''); if (m && e.key === 'Backspace' && !e.target.value && +m[1] > 0) $('#d' + (+m[1] - 1)).focus(); });
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) { if (e.target.id === 'sheet') cerrar(); return; }
+    const d = b.dataset;
+    if (d.rol) { S.rol = d.rol; if (S.pant === 'app') { S.sub = null; S.filtro = 'todas'; render(); toast('Ahora ves la app como ' + ROL[d.rol] + ' (' + yo().n.split(' ')[0] + ')'); } else render(); return; }
+    if (d.demo === 'salir') { cerrar(); ir({ pant: 'entrar' }); return; }
+    if (d.demo === 'invitacion') { cerrar(); ir({ pant: 'unirse' }); return; }
+    if (d.tab) { ir({ tab: d.tab, sub: null }); return; }
+    if (d.sub !== undefined) { ir({ sub: d.sub || null }); return; }
+    if (d.filtro) { S.filtro = d.filtro; render(); return; }
+    if (d.vista) { S.vista = d.vista; render(); return; }
+    if (d.cita) { verCita(+d.cita); return; }
+    if (d.ns) { N.s = d.ns; nueva(); return; } if (d.nst) { N.st = d.nst; nueva(); return; }
+    if (d.ncl) { N.cl = d.ncl; nueva(); return; } if (d.nh) { N.h = d.nh; nueva(); return; }
+    if (d.setrol) { const m = miembro(S.sub.slice(8)); m.rol = d.setrol; if (m.rol === 'recepcion') m.serv = []; render(); toast(m.n.split(' ')[0] + ' ahora es ' + ROL[m.rol]); return; }
+    if (d.togserv) { const m = miembro(S.sub.slice(8)); m.serv = m.serv.includes(d.togserv) ? m.serv.filter(x => x !== d.togserv) : [...m.serv, d.togserv]; render(); return; }
+    if (d.togver !== undefined) { const m = miembro(S.sub.slice(8)); m.verTodas = !m.verTodas; render(); toast(m.verTodas ? m.n.split(' ')[0] + ' ya puede ver la agenda de todas' : m.n.split(' ')[0] + ' solo verá sus citas'); return; }
+    if (d.invrol !== undefined || d.invserv !== undefined) { if (d.invrol !== undefined) b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', String(x === b))); else b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); return; }
+    switch (d.act) {
+      case 'proveedor': S.correo = S.rol === 'admin' ? 'antonio@correo.com' : ''; if (S.rol === 'admin') ir({ pant: 'dospasos' }); else dentro(); break;
+      case 'enviar-codigo': { const v = $('#correo').value.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('Escribe un correo válido, por ejemplo tu@correo.com'); $('#correo').focus(); break; } S.correo = v; ir({ pant: 'codigo' }); break; }
+      case 'atras-entrar': ir({ pant: 'entrar' }); break;
+      case 'reenviar': toast('Simulado: te mandamos un código nuevo'); break;
+      case 'aceptar': { const br = miembro('brenda'); br.estado = 'activa'; br.disp = 'iPhone 12 · Safari'; COMO.especialista = 'brenda'; S.rol = 'especialista'; dentro(); toast('Bienvenida a AB\' Beauty Room, Brenda'); break; }
+      case 'cerrar': cerrar(); break;
+      case 'nueva': N.h = null; N.st = S.rol === 'especialista' ? yo().id : null; if (S.rol === 'especialista' && !yo().serv.includes(N.s)) N.s = yo().serv[0]; nueva(); break;
+      case 'guardar': { if (!N.h) { toast('Elige un horario'); break; } const q = yo(); CITAS.push({ id: Date.now(), h: N.h, s: N.s, cl: N.cl, st: N.st, ok: false, hist: [[q.n.split(' ')[0], ROL[q.rol], 'la creó', 'Hoy · ahora']] });
+        HIST.unshift([q.n.split(' ')[0], 'agendó ' + serv(N.s).n + ' para ' + CLIENTAS[N.cl][0], 'Hoy · ahora']); cerrar(); ir({ tab: 'agenda', sub: null }); toast('Cita guardada para ' + miembro(N.st).n.split(' ')[0] + ' a las ' + N.h); break; }
+      case 'recordar': toast('Simulado: recordatorio enviado desde el WhatsApp del salón'); break;
+      case 'mover': toast('Al moverla queda en el historial quién y cuándo'); break;
+      case 'invitar': invitar(); break;
+      case 'crear-invitacion': $('#invOut').innerHTML = `<p class="gh" style="margin-top:0">Enlace de invitación</p><div class="linkbox"><span style="flex:1">ritmo-belleza.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div>
+        <p class="foot">Mándalo por WhatsApp a ${esc($('#invNombre').value)}. Al abrirlo entra con Apple, Google o su correo y queda en tu equipo. Prueba cómo lo ve con «Ver invitación» arriba.</p>`; break;
+      case 'copiar': { const t = 'https://ritmo-belleza.app/unirse/K7Q-29M'; try { navigator.clipboard.writeText(t).then(() => toast('Enlace copiado'), () => toast('Selecciona el enlace para copiarlo')); } catch (err) { toast('Selecciona el enlace para copiarlo'); } break; }
+      case 'quitar': { const m = miembro(S.sub.slice(8)); $('#quitarBox').innerHTML = `<div class="confirm"><p>${m.estado === 'pendiente' ? `¿Cancelar la invitación de ${esc(m.n)}? El enlace deja de funcionar.` : `¿Quitar a ${esc(m.n)}? Pierde el acceso al momento, también en su teléfono. Sus citas se quedan en la agenda.`}</p>
+          <div class="row2"><button type="button" class="btn soft" data-act="no-quitar">No</button><button type="button" class="btn fill" data-act="si-quitar" style="background:var(--bad);box-shadow:none">${m.estado === 'pendiente' ? 'Cancelar' : 'Quitar'}</button></div></div>`; break; }
+      case 'no-quitar': render(); break;
+      case 'si-quitar': { const m = miembro(S.sub.slice(8)); EQUIPO.splice(EQUIPO.indexOf(m), 1); ir({ sub: 'equipo' }); toast(m.n.split(' ')[0] + ' ya no tiene acceso; se cerró su sesión'); break; }
+      case 'cerrar-sesion': toast('Se cerró la sesión de ' + d.q + '; tendrá que volver a entrar'); b.disabled = true; break;
+    }
+  });
+  render();
+})();
+</script>
