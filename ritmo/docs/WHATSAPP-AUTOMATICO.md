@@ -1,6 +1,6 @@
 # WhatsApp automático y anticipo: especificación
 
-Estado: aprobada por Antonio el 26 de octubre de 2026, con el mensajero en Railway.
+Estado: aprobada por Antonio el 26 de octubre de 2026, con el envío en Railway cada 5 minutos y el webhook en Cloudflare.
 - Prototipo: `ritmo/cuentas/index.html`, en la cita (Anticipo, Mensajes de WhatsApp, Ver la conversación), en Ajustes → Mensajes de WhatsApp y en «Pedir cita» del perfil público.
 - Captura: `ritmo/imagenes/whatsapp-anticipo.png`.
 
@@ -12,33 +12,31 @@ Antonio aprobó usar su plan Hobby de Railway para la parte de WhatsApp.
 - Uso actual: 1.20 USD en 12 días, con un estimado de 2.25 USD de los 5 incluidos.
 - Límite de gasto: 10 USD, compartido con FiNeCi.
 
-**Arquitectura:**
-- **Cloudflare (sin cambios)**: la app, la API, la bienvenida, el perfil público y el calendario.
-- **Railway, servicio nuevo `agendappx-mensajero`** en un proyecto propio, separado de FiNeCi. **No toques FiNeCi.** Es un proceso Node/TypeScript que reutiliza `ritmo/servidor/src/whatsapp.ts` y hace dos cosas:
-  1. Revisa la cola **cada minuto** y manda los mensajes de la sección 1.
-  2. Recibe el **webhook de Meta** (`POST /webhook/whatsapp` con firma `X-Hub-Signature-256`, y `GET` de verificación). Ahí llegan respuestas, botones, estados y comprobantes.
+**Arquitectura (cada 5 minutos, como FiNeCi):**
+- **Cloudflare**: la app, la API, la bienvenida, el perfil público y el calendario. Además **sigue recibiendo el webhook de Meta** (respuestas, botones, estados y comprobantes), como ya lo hace hoy.
+- **Railway, tarea programada nueva `agendappx-mensajero`** (Cron Job de Railway, `*/5 * * * *`), en un proyecto propio, separado de FiNeCi. **No toques FiNeCi.**
+  - Es un proceso Node/TypeScript que reutiliza `ritmo/servidor/src/whatsapp.ts`: arranca, manda lo pendiente de la sección 1 y **termina**. No queda prendido entre corridas.
+  - Si una corrida sigue activa cuando toca la siguiente, Railway la omite. Aun así, la cola mantiene el bloqueo `procesando`.
 - **Supabase (sin cambios)**: el mensajero se conecta a la misma base con un rol propio `agendappx_mensajero`. Ese rol tiene permisos mínimos:
   - lee citas, clientas, servicios, ajustes y miembros;
-  - escribe solo la cola de WhatsApp, las entradas, los contactos, los campos de estado, anticipo y respuesta de la cita, y la bitácora.
+  - escribe solo la cola de WhatsApp y los campos de estado de la cita (mensaje enviado).
   - Conexión con TLS verificado, por el pooler de Supabase.
+- **Puntualidad**: un mensaje sale en la primera corrida en que ya le toca. **Nunca antes**, y a lo mucho 5 minutos después. «Una hora antes» llega entre 55 y 60 minutos antes; el de las 09:00, entre 09:00 y 09:05.
 
 **Un solo remitente:**
-- Al prender el mensajero, el cron de Cloudflare deja de enviar con la bandera `WHATSAPP_REMITENTE=railway`. En Cloudflare solo queda un resumen de estado de solo lectura.
+- Con la bandera `WHATSAPP_REMITENTE=railway`, el cron de Cloudflare deja de enviar.
 - La cola mantiene la huella idempotente y el bloqueo `procesando`, para que nunca salga un mensaje doble aunque ambos lleguen a correr.
 
-**Recursos y costo:**
-- 1 réplica, sin volumen. El tamaño por defecto basta: el uso esperado es de 0.5 a 2 USD al mes.
-- Sin dominio propio: usa el dominio `*.up.railway.app` para el webhook.
+**Recursos y costo:** una tarea programada sin volumen ni dominio. Corre unos segundos cada 5 minutos, con un uso esperado menor a 0.5 USD al mes.
 
-**Salud y avisos:**
-- `GET /salud` responde sin datos privados.
-- Si el mensajero deja de revisar la cola por más de 10 minutos, la app muestra a Admin «Los mensajes automáticos están detenidos», y Cloudflare puede volver a tomar el envío con la bandera.
+**Salud y avisos:** cada corrida guarda su hora en la base. Si pasan más de 15 minutos sin corrida, la app muestra a Admin «Los mensajes automáticos están detenidos», y Cloudflare puede volver a tomar el envío con la bandera.
 
 **Secretos (solo en Railway, nunca en Git):**
 - `DATABASE_URL` del rol `agendappx_mensajero`;
-- `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN` y `WHATSAPP_APP_SECRET`;
-- `R2_*` para los comprobantes;
+- `WHATSAPP_TOKEN` y `WHATSAPP_PHONE_ID`;
 - `TZ=America/Mexico_City`.
+
+`WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET` y `R2_*` (comprobantes) siguen en Cloudflare, junto al webhook.
 
 ## 1. Los mensajes
 
@@ -105,7 +103,7 @@ Antonio da de alta las plantillas en el Administrador de WhatsApp de Meta; Codex
    - Una cita con anticipo usa de 3 a 4 mensajes, unos 50 a 65 centavos.
    - 300 citas al mes son unos $150 a $200 MXN.
 3. Dar de alta las 6 plantillas con los textos de la sección 1.
-4. Las variables `WHATSAPP_TOKEN` (token permanente de usuario del sistema), `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN` y `WHATSAPP_APP_SECRET`, como secretos del servicio en Railway.
+4. Las variables `WHATSAPP_TOKEN` (token permanente de usuario del sistema), `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN` y `WHATSAPP_APP_SECRET`, en Railway el token y el id del número, y en Cloudflare los del webhook.
 
 ## 6. Pruebas mínimas
 
