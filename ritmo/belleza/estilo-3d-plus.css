@@ -1,0 +1,29 @@
+/* Propuesta 2: 3D más marcado (estilo "clay": canto inferior, brillo superior y sombra profunda). */
+.app { background: radial-gradient(120% 60% at 50% 0%, #FFFFFF, var(--bg) 60%); }
+.tabbar { --t1: #2F7BFF; --t2: #FF3D85; --t3: #A855F7; --t4: #FF9F0A; --t5: #22B8CF;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: calc(100% - 24px); max-width: 496px; padding: 8px 6px; border: 1px solid rgba(255, 255, 255, .9); border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .96), rgba(244, 245, 250, .94)); box-shadow: 0 2px 0 rgba(0, 0, 0, .04), 0 14px 34px rgba(30, 40, 80, .18), inset 0 1px 0 #fff; }
+.tab { gap: 4px; color: var(--ink2); font-size: 11px; }
+.tab:nth-child(1) { --tc: var(--t1); } .tab:nth-child(2) { --tc: var(--t2); } .tab:nth-child(3) { --tc: var(--t3); } .tab:nth-child(4) { --tc: var(--t4); } .tab:nth-child(5) { --tc: var(--t5); }
+.tab svg { width: 48px; height: 38px; padding: 7px 12px; border-radius: 14px; color: var(--tc);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tc) 10%, #fff), color-mix(in srgb, var(--tc) 22%, #fff));
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--tc) 30%, #fff), 0 6px 12px color-mix(in srgb, var(--tc) 18%, transparent), inset 0 1px 0 #fff; transition: transform .15s; }
+.tab[aria-selected="true"] { color: var(--tc); font-weight: 800; }
+.tab[aria-selected="true"] svg { color: #fff; transform: translateY(-4px) scale(1.06);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--tc) 55%, #fff) 0%, var(--tc) 45%, color-mix(in srgb, var(--tc) 85%, #000) 100%);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--tc) 60%, #000), 0 12px 20px color-mix(in srgb, var(--tc) 50%, transparent), inset 0 2px 0 rgba(255, 255, 255, .6), inset 0 -3px 6px rgba(0, 0, 0, .15); }
+.app { padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px)); }
+.fab { bottom: calc(112px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px;
+  background: radial-gradient(circle at 32% 25%, color-mix(in srgb, var(--fab) 40%, #fff) 0%, var(--fab) 50%, color-mix(in srgb, var(--fab) 70%, #000) 100%);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--fab) 55%, #000), 0 16px 30px color-mix(in srgb, var(--fab) 55%, transparent), inset 0 3px 2px rgba(255, 255, 255, .5); }
+.ev { border-left-width: 5px; border-radius: 12px;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--c) 6%, #fff) 0%, color-mix(in srgb, var(--c) 18%, #fff) 100%);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 28%, #fff), 0 12px 24px color-mix(in srgb, var(--c) 28%, transparent), inset 0 1px 0 #fff; }
+.wd b { box-shadow: 0 2px 0 rgba(0, 0, 0, .05); background: linear-gradient(180deg, #fff, #F1F2F7); }
+.wd[aria-current="date"] b { background: linear-gradient(170deg, color-mix(in srgb, var(--today) 55%, #fff), var(--today) 50%, color-mix(in srgb, var(--today) 80%, #000));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--today) 60%, #000), 0 10px 18px color-mix(in srgb, var(--today) 45%, transparent), inset 0 2px 0 rgba(255, 255, 255, .55); transform: translateY(-2px); }
+.group, .banner { border-radius: 18px; box-shadow: 0 3px 0 rgba(30, 40, 80, .05), 0 12px 28px rgba(30, 40, 80, .10), inset 0 1px 0 #fff; }
+.daysum { border-top: 0; }
+.promo { box-shadow: 0 6px 0 color-mix(in srgb, var(--c) 55%, #000), 0 20px 34px color-mix(in srgb, var(--c) 40%, transparent), inset 0 2px 0 rgba(255, 255, 255, .45); }
+.av, .ico, .sq { box-shadow: 0 2px 0 rgba(0, 0, 0, .15), 0 4px 10px rgba(0, 0, 0, .15), inset 0 1px 0 rgba(255, 255, 255, .5); }
+.cta, .btn.fill { box-shadow: 0 4px 0 color-mix(in srgb, var(--acc) 60%, #000), 0 12px 24px color-mix(in srgb, var(--acc) 40%, transparent), inset 0 1px 0 rgba(255, 255, 255, .45); }

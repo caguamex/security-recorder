@@ -1,0 +1,10 @@
+/* Variante del menú: emojis en lugar de íconos de línea. Se usa junto con estilo-3d-plus.css. */
+.tab svg { display: none; }
+.tab::before { display: grid; place-items: center; width: 48px; height: 38px; border-radius: 14px; font: 22px/1 "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tc) 10%, #fff), color-mix(in srgb, var(--tc) 24%, #fff));
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--tc) 32%, #fff), 0 6px 12px color-mix(in srgb, var(--tc) 18%, transparent), inset 0 1px 0 #fff; transition: transform .15s; }
+.tab:nth-child(1)::before { content: "📅"; } .tab:nth-child(2)::before { content: "💁‍♀️"; } .tab:nth-child(3)::before { content: "💅"; }
+.tab:nth-child(4)::before { content: "📣"; } .tab:nth-child(5)::before { content: "✨"; }
+.tab[aria-selected="true"]::before { transform: translateY(-4px) scale(1.1); font-size: 24px;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--tc) 55%, #fff), var(--tc) 45%, color-mix(in srgb, var(--tc) 85%, #000));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--tc) 60%, #000), 0 12px 20px color-mix(in srgb, var(--tc) 50%, transparent), inset 0 2px 0 rgba(255, 255, 255, .6); }
