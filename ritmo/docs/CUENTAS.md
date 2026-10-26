@@ -1,6 +1,6 @@
 # Cuentas y equipo: especificación
 
-Estado: propuesta; Antonio aprobó el inicio de sesión (Apple, Google y código por correo) y falta que apruebe las pantallas. Prototipo navegable: `ritmo/cuentas/index.html` (publicado como «Ritmo Belleza Equipo»).
+Estado: aprobada por Antonio el 26 de octubre de 2026 (inicio de sesión y pantallas). Prototipo navegable: `ritmo/cuentas/index.html` (publicado como «Ritmo Belleza Equipo»).
 Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día uno para poder venderla a otros salones después sin rehacer nada.
 
 ## 1. Inicio de sesión
