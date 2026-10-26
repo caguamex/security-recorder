@@ -9,12 +9,33 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
   - Código de 6 dígitos por correo (OTP de Supabase, no enlace mágico: funciona aunque el correo se abra en otro dispositivo). Vence en 10 minutos; máximo 5 intentos.
   - El correo integrado de Supabase solo envía unos pocos mensajes por hora. Conecta SMTP propio con plan gratis (Resend: 100 al día, o Brevo: 300 al día), con remitente verificado y SPF/DKIM. Antonio crea la cuenta; la llave va en secretos, nunca en Git.
   - **Pospuestos**: Continuar con Google (gratis, se agrega cuando Antonio lo pida) y Continuar con Apple (requiere Apple Developer, 99 USD al año). Deja el código preparado para activarlos después, pero no muestres los botones.
-- **Registro solo por invitación.** Desactiva el registro abierto de Supabase (`shouldCreateUser: false` en el OTP y «Allow new users to sign up» apagado). Una cuenta nueva solo se crea desde `/unirse/<código>` con una invitación válida, del lado del servidor. Así nadie puede crearse una cuenta por su cuenta.
+- **Quién puede crear cuenta**:
+  - **Dueñas de salón**: con «Registrarse» desde la bienvenida. Correo → código → «Tu salón» (nombre, su nombre, qué ofrece, link) → crea un negocio nuevo y queda como Admin, con servicios de ejemplo que puede cambiar. Antes de usar acciones de Admin configura los dos pasos.
+  - **Equipo**: solo por invitación (`/unirse/<código>`), validada en el servidor.
+  - Desactiva el registro abierto de Supabase («Allow new users to sign up» apagado y `shouldCreateUser: false`). El servidor crea el usuario solo en esos dos caminos. Límite: 3 salones nuevos por IP al día, con Cloudflare Turnstile (gratis) en «Registrarse».
 - **Flujo de registro** (prototipo): invitación → su correo → código de 6 dígitos → «Tu perfil» (nombre editable, prellenado por la invitación; interruptor «Recibir mis citas por correo») → «Unirme al equipo» → Agenda.
 - **Resumen diario por correo** (opcional por persona, encendido por defecto): a las 8:00 de Ciudad de México, sus citas del día, sin teléfonos. Usa el mismo SMTP gratuito.
 - **Admin: verificación en dos pasos obligatoria** con app autenticadora (MFA TOTP de Supabase, nivel `aal2`), más 10 códigos de respaldo. Sin `aal2`, la API rechaza cualquier acción de Admin.
 - Sesión: token de acceso corto (1 h) con renovación. Especialistas y Recepción se cierran solas tras 30 días sin abrir la app.
 - No se guarda ninguna contraseña ni token en `localStorage` fuera de lo que maneja el SDK de Supabase.
+
+## 1b. Bienvenida y perfil público del salón
+
+- **Bienvenida** (`/`, sin sesión):
+  - lo que ve alguien que entra por primera vez: título, un ejemplo de agenda, «Servicios de prueba» marcados como ejemplo, lo que incluye la app y «Mira un salón real»;
+  - barra fija abajo con **Iniciar sesión** y **Registrarse**;
+  - con sesión iniciada, `/` abre directo la Agenda.
+- **Perfil público** (`/<slug>`, por ejemplo `/ab-beauty-room`): el link que la dueña comparte. Sin cuenta se ve:
+  - portada, nombre, categorías, horario de hoy y dirección;
+  - servicios por categoría con **precio y duración** (y foto, si tiene);
+  - **horarios libres** de los próximos 7 días para el servicio elegido, calculados con el horario del salón, el de cada especialista que hace ese servicio y sus citas;
+  - **Agendar cita**: nombre y WhatsApp → crea una cita con estado `solicitada` que el salón confirma (y que dispara el WhatsApp de confirmación). No necesita cuenta.
+- **Privacidad del perfil público**:
+  - la API pública (`GET /api/publico/<slug>` y `GET /api/publico/<slug>/libres?servicio=&dia=`) solo devuelve servicios activos, datos del salón y horas libres;
+  - nunca devuelve citas, nombres de clientas ni teléfonos;
+  - el nombre de pila de la especialista se muestra solo si el salón lo permite;
+  - las solicitudes llevan Turnstile y un límite de 5 por teléfono al día.
+- **En Ajustes (Admin)**: «Tu link para clientas» con Copiar y «Ver como lo ven tus clientas». El slug se elige al crear el salón y puede cambiarse; el anterior redirige 90 días.
 
 ## 2. Roles
 
@@ -101,7 +122,8 @@ Supabase Free no ofrece respaldos descargables. Un cron diario del Worker (03:00
 
 ## 7. Pantallas (ver prototipo)
 
-1. **Entrar**: código por correo. Admin pasa por la verificación en dos pasos.
+0. **Bienvenida** y **perfil público** (sección 1b).
+1. **Entrar** / **Registrarse**: código por correo. Admin pasa por la verificación en dos pasos.
 2. **Agenda**:
    - fila de especialistas para filtrar;
    - vista «Lista» o «Por especialista» (columnas);
@@ -129,7 +151,7 @@ Supabase Free no ofrece respaldos descargables. Un cron diario del Worker (03:00
 
 ## 9. Fuera de alcance por ahora
 
-Registro público de otros salones, planes y cobro (Mercado Pago o Stripe), y un número de WhatsApp por salón. El modelo ya los permite: se agregan cuando se decida comercializar.
+Planes y cobro (Mercado Pago o Stripe) y un número de WhatsApp por salón. Los salones nuevos pueden registrarse (sección 1), pero todos usan el plan gratis y el WhatsApp sale con el botón manual hasta que conecten el suyo. El modelo ya los permite: se agregan cuando se decida comercializar.
 
 ## 10. Pruebas mínimas
 
