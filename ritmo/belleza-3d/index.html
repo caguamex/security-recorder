@@ -246,11 +246,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
   bottom: calc(env(safe-area-inset-bottom, 0px) + 20px) !important; box-shadow: 0 6px 14px rgba(0, 0, 0, .18) !important; }
 .app { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
 
-/* Interruptor White / Dark arriba al centro; Dark es el tema Black 3D y se aplica sobre cualquier tema. */
-.modo { position: fixed; z-index: 15; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); display: flex; padding: 3px; border-radius: 999px;
-  background: var(--fill); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-.modo button { padding: 4px 11px; border: 0; border-radius: 999px; background: none; color: var(--ink2); font-size: 13px; font-weight: 700; }
-.modo button[aria-pressed="true"] { background: var(--segOn); color: var(--ink); box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+/* Apariencia White / Dark en Ajustes; Dark es el tema Black 3D y se aplica sobre cualquier tema. */
 html:root[data-modo="dark"] { --stage: #050506; --bg: #050506; --card: #141418; --ink: #F5F5F7; --ink2: #B9B9C2; --ink3: #7E7E89; --sep: #26262D; --acc: #0A84FF; --accInk: #fff;
   --soft: #14243D; --today: #F5F5F7; --todayInk: #000; --glass: rgba(20, 20, 24, .92); --fill: rgba(255, 255, 255, .1); --segOn: #3A3A40; --swOff: #3A3A40;
   --scrim: rgba(0, 0, 0, .6); --bubble: #005C4B; --bubbleInk: #E9EDEF; --c2: #202027; color-scheme: dark; }
@@ -276,26 +272,36 @@ html[data-modo="dark"] .fab, html[data-modo="dark"] .fab[hidden] { background: l
 </div>
 <button type="button" class="fab" id="fab" aria-label="Nueva cita"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones"></nav>
-<div class="modo" role="group" aria-label="Modo de color"><button type="button" data-modo="white">☀️ White</button><button type="button" data-modo="dark">🌙 Dark</button></div>
 <div class="sheet" id="sheet" hidden><div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="core.js"></script>
 <script src="belleza.js"></script>
 <script>
+// Apariencia en Ajustes, arriba de «Tema». belleza.js redibuja la pantalla, así que se vuelve a insertar cuando falta.
 (() => {
   const KEY = 'belleza.v1.modo';
-  const set = m => {
-    if (m === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
-    document.querySelectorAll('.modo button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.modo === m)));
-  };
   let m = 'white';
   try { m = localStorage.getItem(KEY) || 'white'; } catch (e) {}
+  const set = v => {
+    m = v;
+    if (m === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
+    document.querySelectorAll('.modo [data-modo]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.modo === m)));
+  };
+  const insertar = () => {
+    const skins = document.querySelector('#screen .skins');
+    if (!skins || document.querySelector('#screen .modo')) return;
+    const tema = skins.previousElementSibling;
+    tema.insertAdjacentHTML('beforebegin', '<p class="gh">Apariencia</p><div class="seg modo" role="tablist" aria-label="Apariencia"><button type="button" role="tab" data-modo="white">☀️ White</button><button type="button" role="tab" data-modo="dark">🌙 Dark</button></div>');
+    set(m);
+  };
   set(m);
-  document.querySelector('.modo').addEventListener('click', e => {
-    const b = e.target.closest('[data-modo]'); if (!b) return;
+  new MutationObserver(insertar).observe(document.getElementById('screen'), { childList: true, subtree: true });
+  insertar();
+  document.getElementById('screen').addEventListener('click', e => {
+    const b = e.target.closest('.modo [data-modo]'); if (!b) return;
     set(b.dataset.modo);
-    try { localStorage.setItem(KEY, b.dataset.modo); } catch (e) {}
+    try { localStorage.setItem(KEY, m); } catch (e) {}
   });
 })();
 </script>
