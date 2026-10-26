@@ -221,6 +221,17 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .tab::before { background: none !important; box-shadow: none !important; }
 .tab::after { font-size: 26px; }
 .tab[aria-selected="true"]::after { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); }
+
+/* Botón + al centro de la barra; Promociones se abre desde Servicios; la última pestaña es Ajustes. */
+.tabbar { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.tab[data-tab="agenda"] { grid-column: 1; } .tab[data-tab="clientas"] { grid-column: 2; }
+.tab[data-tab="servicios"] { grid-column: 4; } .tab[data-tab="mas"] { grid-column: 5; }
+.tab[data-tab="promos"] { display: none; }
+.tab[data-tab="mas"]::after { content: "⚙️"; }
+.tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"] { color: var(--tc); font-weight: 800; }
+.tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::after { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); }
+.fab, .fab[hidden] { display: grid !important; z-index: 21; left: 50%; right: auto; margin-left: -33px; width: 66px; height: 66px; border: 4px solid #fff;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); }
 </style>
 
 <div class="app" id="app">
@@ -233,3 +244,5 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 
 <script src="core.js"></script>
 <script src="belleza.js"></script>
+
+

@@ -215,7 +215,7 @@
   }
   function render() {
     applySkin();
-    const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Más']];
+    const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Ajustes']];
     $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${I[k]}${n}</button>`).join('');
     $('#fab').hidden = S.tab !== 'agenda';
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
