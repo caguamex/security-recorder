@@ -65,7 +65,8 @@ try {
   assert.match(await a.getByLabel('Enlace privado del calendario').inputValue(), /\/calendario\/[a-f0-9]{64}\.ics$/);
   await a.getByRole('button', { name: 'Listo', exact: true }).click();
   await a.getByRole('button', { name: /Automatización de WhatsApp/ }).click();
-  await a.getByText('Conexión pendiente', { exact: true }).waitFor();
+  await a.getByText('Inicia sesión como Admin y completa la verificación en dos pasos para vincular el WhatsApp del salón.', { exact: true }).waitFor();
+  assert.equal(await a.getByRole('button', { name: 'Generar código', exact: true }).isDisabled(), true);
   await a.getByRole('button', { name: 'Listo', exact: true }).click();
   await conexiones(a); await a.screenshot({ path: screenshots + 'pwa-sincronizacion.png', animations: 'disabled' });
   await a.getByRole('button', { name: 'Cancelar', exact: true }).click();

@@ -1,0 +1,11 @@
+{
+  "consultado_utc": "2026-10-26T19:42:57Z",
+  "ciclo_inicio_utc": "2026-10-14T21:52:30Z",
+  "ciclo_fin_utc": "2026-11-14T21:52:30Z",
+  "consumo_actual_usd": 1.208934677656914,
+  "proyeccion_recursos_actual_usd": 2.257121505730959,
+  "limite_duro_usd": 10,
+  "aviso_usd": 5,
+  "recurso_nuevo_activado": false,
+  "fuente": "Railway CLI 5.71.0: usage --json (solo lectura)"
+}

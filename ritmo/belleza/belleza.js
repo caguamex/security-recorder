@@ -371,10 +371,10 @@
         <div class="cell"><span class="ico" style="background:#25D366">♡</span><span class="l">Gracias y pedir reseña</span>${sw('waGracias', s.waGracias, 'Gracias y pedir reseña')}</div>
         <button type="button" class="cell" data-act="recordatorios"><span class="l">Recordatorios de mañana</span><span class="v">${recordar.length}</span><span class="chev">${I.chev}</span></button>
         <button type="button" class="cell" data-act="mensajes"><span class="l">Editar mensajes</span><span class="chev">${I.chev}</span></button>
-        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Automatización de WhatsApp<small>Estado del número oficial y de los envíos</small></span><span class="chev">${I.chev}</span></button>` : ''}
+        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Automatización de WhatsApp<small>Vincular tu número por código y revisar la conexión</small></span><span class="chev">${I.chev}</span></button>` : ''}
       </div>
       <div class="bubble">${esc(fill(s.tplRecordar, recordar[0] || { date: man, start: '10:00', servicio: (list('servicio')[0] || {}).id, clienta: (list('clienta')[0] || {}).id }))}</div>
-      <p class="foot">El envío manual sigue disponible. La automatización requiere el número oficial, consentimiento de la clienta y una ventana gratuita de conversación abierta.</p>
+      <p class="foot">Vincula el WhatsApp del salón desde Automatización de WhatsApp. Los envíos automáticos requieren consentimiento y su configuración previa.</p>
       <p class="gh">Grupos de Facebook</p>
       <div class="group">${grupos.map(g => `<button type="button" class="cell" data-grupo="${esc(g.id)}"><span class="ico" style="background:#1877F2">f</span><span class="l">${esc(g.nombre)}</span><span class="chev">${I.chev}</span></button>`).join('')}
         <button type="button" class="cell" data-act="nuevo-grupo" style="color:var(--acc)"><span class="l">Agregar grupo</span></button></div>
@@ -395,6 +395,15 @@
 
   // ---------- Hojas ----------
   async function sheetConexion(tipo) {
+    if (tipo === 'whatsapp' && window.AgendappxWhatsApp) {
+      openSheet(navSheet('Vincular WhatsApp', 'Listo') + '<div id="wa-vinculacion"></div>', 'Vincular WhatsApp', root => {
+        window.AgendappxWhatsApp.montar($('#wa-vinculacion', root), {
+          obtenerSesion: () => window.AgendappxCuentas?.sesion(),
+        });
+        root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
+      });
+      return;
+    }
     const sync = Store.sync;
     if (!sync?.connected) { toast('Primero conecta tu servidor en Sincronización.'); return; }
     const titulo = tipo === 'calendario' ? 'Suscribir calendario' : 'WhatsApp automático';

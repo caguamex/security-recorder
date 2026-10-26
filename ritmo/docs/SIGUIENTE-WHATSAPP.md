@@ -4,6 +4,10 @@ Antonio lo encargó el 26 de octubre de 2026. **Comenzar la implementación cuan
 
 Fuente: rama `claude/es-posible-esto-tjimmb`, commit `513d086`, `ritmo/docs/WHATSAPP-AUTOMATICO.md`, secciones 0–6; prototipo `ritmo/cuentas/index.html` y captura `ritmo/imagenes/whatsapp-anticipo.png`. Se revisó la especificación sin fusionar sus pantallas a la rama de cuentas en curso.
 
+## Actualización: vinculación implementada en una rama dependiente de cuentas
+
+Antonio pidió empezar ahora la vinculación por código y maximizar la estabilidad. Se preparó el cambio en `codex/agendappx-whatsapp-vinculacion`, sin activarlo ni desplegarlo: ver `WHATSAPP-VINCULACION.md` para el alcance real, pendientes y pronóstico contrastado con Railway. La automatización completa de anticipos, mensajes y comprobantes sigue después de cuentas. Las estimaciones históricas inferiores se sustituyen por el cálculo completo del nuevo documento.
+
 ## Opción solicitada después: vincular como FiNeCi
 
 Antonio pidió agregar la posibilidad de vincular su WhatsApp mediante un código de ocho caracteres y que los mensajes salgan de ese número. Sigue siendo un encargo posterior a cuentas; no se activó ni se vinculó ningún número.

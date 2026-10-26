@@ -3,6 +3,7 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { ErrorAPI, validarCambio } from './modelo.js';
 import type { Repositorio } from './repositorio.js';
 import { calendario, igualSecreto, type ConfigIntegraciones } from './integraciones.js';
+import type { RutasVinculacion } from './whatsapp-evolution/http.js';
 import type { WhatsApp } from './whatsapp.js';
 // @ts-expect-error El servidor estático es un módulo JavaScript compartido con la vista previa.
 import { estatico } from '../../herramientas/estatico.mjs';
@@ -25,7 +26,7 @@ async function leerJSON(req: IncomingMessage) {
   const raw = await leerRaw(req);
   try { return JSON.parse(raw.toString('utf8')); } catch { throw new ErrorAPI(400, 'JSON inválido.'); }
 }
-type Opciones = { integraciones?: ConfigIntegraciones; whatsapp?: WhatsApp; tz?: string; publicURL?: string;
+type Opciones = { vinculacion?: RutasVinculacion; integraciones?: ConfigIntegraciones; whatsapp?: WhatsApp; tz?: string; publicURL?: string;
   migracion?: { token?: string; soloLectura?: boolean; exportar: () => Promise<unknown> } };
 export function crearServidor(repo: Repositorio, token: string, publicRoot: string, options: Opciones = {}) {
   if (token.length < 32) throw new Error('APP_TOKEN debe tener al menos 32 caracteres aleatorios.');
@@ -44,6 +45,7 @@ export function crearServidor(repo: Repositorio, token: string, publicRoot: stri
       if (options.migracion?.soloLectura && !['GET', 'HEAD'].includes(req.method || '')) {
         throw new ErrorAPI(503, 'Agenda en traslado. Tus cambios quedan guardados en este dispositivo y se enviarán al reconectar.');
       }
+      if (options.vinculacion && await options.vinculacion(req,res,url)) return;
       if (url.pathname === '/salud' && req.method === 'GET') {
         await repo.salud(); json(res, 200, { estado: 'listo' }); return;
       }
