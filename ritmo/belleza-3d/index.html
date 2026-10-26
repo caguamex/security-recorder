@@ -245,6 +245,30 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .fab, .fab[hidden] { width: 50px !important; height: 50px !important; margin-left: -25px !important; border: 0 !important; border-radius: 16px !important; background: #111 !important; color: #fff !important;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 20px) !important; box-shadow: 0 6px 14px rgba(0, 0, 0, .18) !important; }
 .app { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
+
+/* Interruptor White / Dark arriba al centro; Dark es el tema Black 3D y se aplica sobre cualquier tema. */
+.modo { position: fixed; z-index: 15; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); display: flex; padding: 3px; border-radius: 999px;
+  background: var(--fill); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.modo button { padding: 4px 11px; border: 0; border-radius: 999px; background: none; color: var(--ink2); font-size: 13px; font-weight: 700; }
+.modo button[aria-pressed="true"] { background: var(--segOn); color: var(--ink); box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+html:root[data-modo="dark"] { --stage: #050506; --bg: #050506; --card: #141418; --ink: #F5F5F7; --ink2: #B9B9C2; --ink3: #7E7E89; --sep: #26262D; --acc: #0A84FF; --accInk: #fff;
+  --soft: #14243D; --today: #F5F5F7; --todayInk: #000; --glass: rgba(20, 20, 24, .92); --fill: rgba(255, 255, 255, .1); --segOn: #3A3A40; --swOff: #3A3A40;
+  --scrim: rgba(0, 0, 0, .6); --bubble: #005C4B; --bubbleInk: #E9EDEF; --c2: #202027; color-scheme: dark; }
+html[data-modo="dark"] body { background: #050506; }
+html[data-modo="dark"] .app { background: radial-gradient(120% 50% at 50% 0%, #1C1C22, #050506 60%) !important; }
+html[data-modo="dark"] .nav { background: #050506; }
+html[data-modo="dark"] .wd b { color: #F5F5F7; background: linear-gradient(180deg, #202027, #141418); box-shadow: 0 3px 0 rgba(0, 0, 0, .6), 0 6px 12px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08); }
+html[data-modo="dark"] .wd[aria-current="date"] b { color: #000; background: linear-gradient(170deg, #fff, #F5F5F7 50%, #A9A9B0); box-shadow: 0 4px 0 #6E6E75, 0 10px 22px rgba(255, 255, 255, .25), inset 0 2px 0 #fff; }
+html[data-modo="dark"] .ev { background: linear-gradient(170deg, color-mix(in srgb, var(--c) 20%, #202027), color-mix(in srgb, var(--c) 12%, #141418));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 35%, #000), 0 12px 24px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .1); }
+html[data-modo="dark"] .group, html[data-modo="dark"] .banner { background: linear-gradient(180deg, #202027, #141418); box-shadow: 0 3px 0 rgba(0, 0, 0, .5), 0 12px 26px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .08); }
+html[data-modo="dark"] .sq { background: linear-gradient(135deg, color-mix(in srgb, var(--c) 45%, #000), var(--c)); }
+html[data-modo="dark"] .tabbar { background: #0B0B0E !important; border-top-color: #26262D !important; }
+html[data-modo="dark"] .tab { color: #8A8A94 !important; }
+html[data-modo="dark"] .tab[aria-selected="true"], html[data-modo="dark"] .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"] { color: #fff !important; }
+html[data-modo="dark"] .tab[aria-selected="true"]::before, html[data-modo="dark"] .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::before { background: #fff !important; box-shadow: 0 0 10px rgba(255, 255, 255, .6) !important; }
+html[data-modo="dark"] .fab, html[data-modo="dark"] .fab[hidden] { background: linear-gradient(170deg, #fff, #F5F5F7 55%, #B5B5BC) !important; color: #000 !important;
+  box-shadow: 0 4px 0 #6E6E75, 0 10px 24px rgba(255, 255, 255, .2), inset 0 2px 0 #fff !important; }
 </style>
 
 <div class="app" id="app">
@@ -252,10 +276,28 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 </div>
 <button type="button" class="fab" id="fab" aria-label="Nueva cita"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones"></nav>
+<div class="modo" role="group" aria-label="Modo de color"><button type="button" data-modo="white">☀️ White</button><button type="button" data-modo="dark">🌙 Dark</button></div>
 <div class="sheet" id="sheet" hidden><div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="core.js"></script>
 <script src="belleza.js"></script>
+<script>
+(() => {
+  const KEY = 'belleza.v1.modo';
+  const set = m => {
+    if (m === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
+    document.querySelectorAll('.modo button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.modo === m)));
+  };
+  let m = 'white';
+  try { m = localStorage.getItem(KEY) || 'white'; } catch (e) {}
+  set(m);
+  document.querySelector('.modo').addEventListener('click', e => {
+    const b = e.target.closest('[data-modo]'); if (!b) return;
+    set(b.dataset.modo);
+    try { localStorage.setItem(KEY, b.dataset.modo); } catch (e) {}
+  });
+})();
+</script>
 
 
