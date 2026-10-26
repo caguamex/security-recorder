@@ -232,6 +232,19 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::after { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); }
 .fab, .fab[hidden] { display: grid !important; z-index: 21; left: 50%; right: auto; margin-left: -33px; width: 66px; height: 66px; border: 4px solid #fff;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); }
+
+/* Barra minimal: blanca, plana, de lado a lado; línea arriba de la activa; + negro cuadrado al centro. */
+.tabbar { bottom: 0 !important; width: 100% !important; max-width: 520px !important; border: 0 !important; border-top: 1px solid #E3E5EA !important; border-radius: 0 !important;
+  background: #fff !important; box-shadow: none !important; padding: 10px 6px calc(8px + env(safe-area-inset-bottom, 0px)) !important; backdrop-filter: none !important; }
+.tab { color: #6B6F7A !important; font-weight: 600 !important; }
+.tab::before { background: none !important; box-shadow: none !important; }
+.tab::after { filter: none !important; font-size: 25px; }
+.tab[aria-selected="true"], .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"] { color: #111 !important; font-weight: 800 !important; }
+.tab[aria-selected="true"]::after, .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::after { transform: none !important; filter: none !important; }
+.tab[aria-selected="true"]::before, .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::before { top: -11px !important; width: 36px !important; height: 3px !important; margin-left: -18px !important; border-radius: 2px !important; background: #111 !important; transform: none !important; }
+.fab, .fab[hidden] { width: 50px !important; height: 50px !important; margin-left: -25px !important; border: 0 !important; border-radius: 16px !important; background: #111 !important; color: #fff !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px) !important; box-shadow: 0 6px 14px rgba(0, 0, 0, .18) !important; }
+.app { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
 </style>
 
 <div class="app" id="app">
