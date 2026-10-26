@@ -426,13 +426,14 @@
       if (tipo === 'calendario') {
         await sync.sync();
         if (!sync.connected) { await sheetConexion('calendario'); return; }
-        if (sync.pending.length || sync.conflicts.length) throw new Error('pendientes');
       }
       const data = await sync.conexiones();
       if (card !== panel || !S.sheetOpen) return;
       const mostrar = value => {
         if (tipo === 'calendario') {
-          openSheet(`${navSheet(titulo, 'Listo')}<p class="foot">Confirma «Suscribirse» en Apple para ver tus citas. También puedes suscribirte si la agenda está vacía.</p>
+          const pendientes = sync.pending.length;
+          const aviso = pendientes || sync.conflicts.length ? `<p class="foot" role="status">Hay cambios pendientes de sincronizar. Apple mostrará las citas ya guardadas en el servidor. Tus cambios de este dispositivo se conservan.</p><button type="button" class="cell" id="calendar-review">Revisar cambios pendientes</button>` : '';
+          openSheet(`${navSheet(titulo, 'Listo')}<p class="foot">Confirma «Suscribirse» en Apple para ver tus citas. También puedes suscribirte si la agenda está vacía.</p>${aviso}
             <a class="cta" style="text-decoration:none" href="${esc(value.calendarioUrl.replace(/^https?:/, 'webcal:'))}">Abrir Apple Calendar</a>
             <p class="foot">Los cambios se hacen en Agendappx y Apple los refresca periódicamente. La suscripción es de lectura.</p>
             <button type="button" class="cell" id="calendar-local">Agregar una copia de mis citas (.ics)</button>
@@ -446,6 +447,7 @@
               done(root);
               root.addEventListener('click', async e => {
                 const b = e.target.closest('button'); if (!b) return;
+                if (b.id === 'calendar-review') sheetServidor();
                 if (b.id === 'calendar-local') void exportarICS();
                 if (b.id === 'calendar-copy') {
                   try { await navigator.clipboard.writeText(value.calendarioUrl); $('#calendar-status', root).textContent = 'Enlace copiado.'; }
@@ -469,7 +471,20 @@
       };
       mostrar(data);
     } catch {
-      if (card === panel && S.sheetOpen) openSheet(navSheet(titulo, 'Listo') + '<p class="foot">No se pudo preparar la suscripción. Revisa tu conexión y los cambios pendientes en Sincronización.</p>', titulo, done);
+      if (card === panel && S.sheetOpen) {
+        if (tipo !== 'calendario') { openSheet(navSheet(titulo, 'Listo') + '<p class="foot">No se pudo consultar el servidor. Intenta de nuevo cuando tengas conexión.</p>', titulo, done); return; }
+        openSheet(`${navSheet(titulo, 'Listo')}<p class="foot" role="status">No se pudo consultar el calendario en este momento. Tus citas siguen guardadas en este dispositivo.</p>
+          <button type="button" class="cta" id="calendar-retry">Reintentar conexión</button>
+          <button type="button" class="cell" id="calendar-review">Revisar sincronización</button>
+          <button type="button" class="cell" id="calendar-local">Agregar una copia de mis citas (.ics)</button>`, titulo, root => {
+            done(root);
+            root.addEventListener('click', e => {
+              if (e.target.closest('#calendar-retry')) void sheetConexion('calendario');
+              if (e.target.closest('#calendar-review')) sheetServidor();
+              if (e.target.closest('#calendar-local')) void exportarICS();
+            });
+          });
+      }
     }
   }
   function sheetActivacion(invitacion = '') {

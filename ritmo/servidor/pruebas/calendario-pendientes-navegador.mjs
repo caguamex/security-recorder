@@ -1,0 +1,40 @@
+// Regresión del primer celular: ajustes locales distintos de los ya guardados en el servidor.
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+import {entorno} from './entorno.mjs';
+import {fileURLToPath} from 'node:url';
+const env=await entorno(), browser=await chromium.launch({headless:true,channel:'msedge'});
+const ctx=await browser.newContext({viewport:{width:390,height:844},locale:'es-MX'}), page=await ctx.newPage();
+const errores=[];page.on('pageerror',e=>errores.push(e.message));
+try {
+ await env.repo.cambiar({id:'__settings',baseVersion:0,mutationId:'ajustes_servidor_prueba',data:{skin:'rosa',negocio:'Salón del servidor'}});
+ await page.addInitScript(()=>{if(!localStorage.getItem('prueba.pendientes')){localStorage.setItem('prueba.pendientes','si');localStorage.setItem('belleza.v1.settings',JSON.stringify({skin:'clasico',negocio:'Salón del celular'}));}});
+ await page.goto(env.base);
+ await page.locator('#tabbar').getByRole('tab',{name:'Ajustes',exact:true}).click();
+ await page.getByRole('button',{name:/Apple Calendar/}).click();await page.getByRole('button',{name:'Activar sincronización',exact:true}).click();
+ const ticket=await(await fetch(env.base+'/api/dispositivos/enlaces',{method:'POST',headers:{Authorization:'Bearer '+env.token,'Content-Type':'application/json'},body:'{}'})).json();
+ await page.getByLabel('Enlace privado de activación',{exact:true}).fill(ticket.activacionUrl);await page.getByRole('button',{name:'Activar y abrir Apple Calendar',exact:true}).click();
+ await page.getByRole('link',{name:'Abrir Apple Calendar',exact:true}).waitFor();
+ await page.getByText('Hay cambios pendientes de sincronizar. Apple mostrará las citas ya guardadas en el servidor. Tus cambios de este dispositivo se conservan.',{exact:true}).waitFor();
+ const estado=await page.evaluate(()=>JSON.parse(localStorage.getItem('belleza.v1.sync')));
+ assert.equal(estado.conflicts.length,1);assert.equal(estado.pending.length,1);
+ assert.equal(await page.getByRole('link',{name:'Abrir Apple Calendar',exact:true}).count(),1);
+ await page.screenshot({path:fileURLToPath(new URL('../../imagenes/apple-calendario-pendientes.png',import.meta.url)),animations:'disabled'});
+ await page.getByRole('button',{name:'Revisar cambios pendientes',exact:true}).click();
+ await page.locator('#sync-status').filter({hasText:'Hay cambios por revisar'}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'Conservar este dispositivo',exact:true}).count(),1);
+ assert.equal(await page.getByRole('button',{name:'Conservar el servidor',exact:true}).count(),1);
+ await page.getByRole('button',{name:'Listo',exact:true}).click();
+ await ctx.setOffline(true);
+ await page.getByRole('button',{name:/Apple Calendar/}).click();
+ await page.getByRole('button',{name:'Reintentar conexión',exact:true}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'Agregar una copia de mis citas (.ics)',exact:true}).isVisible(),true);
+ await ctx.setOffline(false);
+ await page.getByRole('button',{name:'Reintentar conexión',exact:true}).click();
+ await page.getByRole('link',{name:'Abrir Apple Calendar',exact:true}).waitFor();
+ const final=await page.evaluate(()=>JSON.parse(localStorage.getItem('belleza.v1.sync')));
+ assert.equal(final.conflicts.length,1);assert.equal(final.pending.length,1);
+ assert.equal((await env.repo.estado()).find(r=>r.id==='__settings').data.negocio,'Salón del servidor');
+ assert.deepEqual(errores,[]);
+ console.log('Regresión corregida: Apple Calendar abre con ajustes pendientes, advierte y permite revisar; sin conexión ofrece reintentar y copia .ics. No resuelve ni borra las diferencias.');
+} finally {await ctx.close();await browser.close();await env.cerrar();}

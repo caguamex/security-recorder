@@ -51,3 +51,11 @@ Fuentes: [Suscripciones de Apple](https://support.apple.com/es-mx/guide/iphone/i
 La herramienta `nube/pruebas/calendario-produccion.mjs` pasó contra Cloudflare: API pública 401, emisión de enlaces reservada al operador, consulta de sesión pública sin datos, enlace de un solo uso, cookie Secure/HttpOnly/Strict, lectura privada, feed .ics, rechazo de reutilización y CSRF, revocación del navegador de prueba y comparación de las citas/ajustes antes y después sin cambios. Solo se creó una sesión temporal de verificación, revocada al terminar; ningún otro dispositivo fue desconectado.
 
 Una sesión nueva de Edge a 390 px confirmó una sola entrada Apple Calendar, activación sin clave técnica visible, API fuera de CacheStorage y cero errores de JavaScript. No se forzó la actualización de pestañas del usuario ni se borraron datos del celular. La confirmación nativa en el iPhone sigue pendiente. Los enlaces de activación reales se entregan privadamente y nunca se guardan aquí.
+
+## Corrección del bloqueo con diferencias pendientes
+
+Después de la primera activación del celular, Antonio mostró la hoja de error. Se confirmó de solo lectura que su sesión seguía activa y que salud/conexiones respondían 200. La regresión se reprodujo con ajustes locales y remotos distintos: la activación era correcta, pero la comprobación de cualquier pendiente ocultaba innecesariamente la suscripción.
+
+Se retira ese bloqueo. Apple Calendar permite suscribirse a las citas ya sincronizadas, con un aviso explícito si quedan cambios locales y un botón para revisar las diferencias. No se resuelven conflictos automáticamente ni se descartan operaciones locales. Si el servidor no responde, se ofrece Reintentar conexión, Revisar sincronización y una copia .ics; no queda una hoja sin salida. La sesión existente y su enlace de calendario se conservan.
+
+La prueba `pruebas/calendario-pendientes-navegador.mjs` reproduce el caso con PostgreSQL local, confirma que puede abrirse la suscripción y conserva ambas versiones; también verifica la recuperación tras un corte de red. El flujo normal de calendario sigue pasando. La captura `imagenes/apple-calendario-pendientes.png` es local y no contiene datos de producción. Este ajuste repara el mismo flujo de Apple Calendar aprobado por Antonio; no incorpora funciones de cuentas/WhatsApp ni altera datos del salón.
