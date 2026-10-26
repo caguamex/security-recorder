@@ -49,7 +49,6 @@ try {
     await a.getByRole('radio', { name: theme, exact: true }).click();
     assert.equal(await a.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   }
-  await a.getByRole('button', { name: 'Empezar vacío', exact: true }).click();
   await conectar(a);
   await a.context().setOffline(true);
   await a.getByRole('tab', { name: 'Clientas', exact: true }).click();

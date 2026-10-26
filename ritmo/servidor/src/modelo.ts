@@ -35,7 +35,15 @@ export function validarCambio(body: unknown, id: string): Cambio {
   } else if (data !== null) {
     const it = data as Objeto;
     valido(it.id === id && ['servicio', 'clienta', 'cita', 'promo', 'grupo'].includes(it.kind), 'Tipo o identificador inválido.');
-    for (const value of Object.values(it)) if (typeof value === 'string') valido(texto(value, 10000), 'Texto demasiado largo.');
+    for (const [key, value] of Object.entries(it)) if (typeof value === 'string') valido(texto(value, key === 'foto' && it.kind === 'servicio' ? 48000 : 10000), 'Texto demasiado largo.');
+    if (it.foto !== undefined) {
+      valido(it.kind === 'servicio', 'Solo los servicios admiten una foto.');
+      if (it.foto !== null) {
+        valido(typeof it.foto === 'string' && it.foto.length <= 48000 && /^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(it.foto), 'Foto inválida. Usa la opción Subir foto.');
+        const bytes = Buffer.from(String(it.foto).slice(23), 'base64');
+        valido(bytes.length >= 4 && bytes[0] === 255 && bytes[1] === 216 && bytes.at(-2) === 255 && bytes.at(-1) === 217, 'Foto JPEG inválida.');
+      }
+    }
     if (['servicio', 'clienta', 'grupo'].includes(it.kind)) valido(texto(it.nombre, 200) && !!String(it.nombre).trim(), 'Falta el nombre.');
     if (it.kind === 'clienta' && it.whatsappOptIn !== undefined) valido(typeof it.whatsappOptIn === 'boolean', 'Consentimiento inválido.');
     if (it.kind === 'servicio') {

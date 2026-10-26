@@ -34,7 +34,37 @@
     extensiones: ['./trabajos/extensiones-1.jpg', './trabajos/extensiones-2.jpg', './trabajos/extensiones-3.jpg'],
     lifting: ['./trabajos/lifting-cejas.jpg'],
   };
+  const fotoValida = foto => typeof foto === 'string' && foto.length <= 48000 && /^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(foto);
+  async function prepararFoto(archivo) {
+    if (!archivo || archivo.size > 20 * 1024 * 1024) throw new Error('Elige una foto de hasta 20 MB.');
+    if (!/^image\/(jpeg|png|webp|avif|heic|heif)$/i.test(archivo.type)) throw new Error('Elige una foto JPG, PNG o WebP.');
+    const url = URL.createObjectURL(archivo), imagen = new Image();
+    try {
+      await new Promise((resolve, reject) => {
+        imagen.onload = resolve;
+        imagen.onerror = () => reject(new Error('No se pudo abrir la foto. Intenta con una imagen JPG, PNG o WebP.'));
+        imagen.src = url;
+      });
+      if (!imagen.naturalWidth || !imagen.naturalHeight) throw new Error('La foto no tiene un tamaño válido.');
+      const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Este navegador no pudo preparar la foto.');
+      for (let lado = 800; lado >= 200; lado = Math.floor(lado * .75)) {
+        const escala = Math.min(1, lado / Math.max(imagen.naturalWidth, imagen.naturalHeight));
+        canvas.width = Math.max(1, Math.round(imagen.naturalWidth * escala));
+        canvas.height = Math.max(1, Math.round(imagen.naturalHeight * escala));
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(imagen, 0, 0, canvas.width, canvas.height);
+        for (const calidad of [.82, .68, .52, .38]) {
+          const foto = canvas.toDataURL('image/jpeg', calidad);
+          if (fotoValida(foto)) return foto;
+        }
+      }
+      throw new Error('No se pudo reducir esta foto. Prueba con otra imagen.');
+    } finally { URL.revokeObjectURL(url); }
+  }
   function fotosServicio(s) {
+    if (s.foto === null) return [];
+    if (fotoValida(s.foto)) return [s.foto];
     const nombre = String(s.nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     if (s.categoria === 'Cejas') return FOTOS_TRABAJOS.lifting;
     if (s.categoria !== 'Pestañas') return [];
@@ -44,7 +74,7 @@
   }
   function miniaturaServicio(s) {
     const foto = fotosServicio(s)[0];
-    return foto ? `<img class="sq trabajo-mini" src="${foto}" alt="" loading="lazy" decoding="async" style="--foco:${s.categoria === 'Cejas' ? '45%' : '64%'}">`
+    return foto ? `<img class="sq trabajo-mini" src="${esc(foto)}" alt="" loading="lazy" decoding="async" style="--foco:${s.categoria === 'Cejas' ? '45%' : '64%'}">`
       : `<span class="sq" style="--c:${catColor(s.categoria)}"></span>`;
   }
   const PROMO_COLORS = ['#E0457B', '#8B5CF6', '#0EA5A4', '#F08A24', '#1F3FD1'];
@@ -312,7 +342,7 @@
     const cats = ['Todas', ...CATS.map(c => c[0]).filter(c => svcs.some(s => s.categoria === c))];
     const shown = svcs.filter(s => S.cat === 'Todas' || s.categoria === S.cat);
     return head + `<div class="hscroll" role="group" aria-label="Categorías">${cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}</div>
-      <div class="cards" id="cards" style="margin-top:12px">${shown.map(s => { const fotos = fotosServicio(s); return `<div class="promo${fotos.length ? ' trabajo' : ''}" style="--c:${catColor(s.categoria)};--foco:${s.categoria === 'Cejas' ? '45%' : '64%'};min-height:200px">${fotos.length ? `<img class="trabajo-fondo" src="${fotos[0]}" alt="" decoding="async"><button type="button" class="trabajo-ver" data-fotos="${esc(s.id)}" aria-label="Ver fotos de ${esc(s.nombre)}">Ver fotos</button>` : ''}<small>${esc(s.categoria)}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion || '')}</p>
+      <div class="cards" id="cards" style="margin-top:12px">${shown.map(s => { const fotos = fotosServicio(s); return `<div class="promo${fotos.length ? ' trabajo' : ''}" style="--c:${catColor(s.categoria)};--foco:${s.categoria === 'Cejas' ? '45%' : '64%'};min-height:200px">${fotos.length ? `<img class="trabajo-fondo" src="${esc(fotos[0])}" alt="" decoding="async"><button type="button" class="trabajo-ver" data-fotos="${esc(s.id)}" aria-label="Ver fotos de ${esc(s.nombre)}">Ver fotos</button>` : ''}<small>${esc(s.categoria)}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion || '')}</p>
         <span class="badge" style="left:14px;right:auto">${s.duracion} min · ${money(s.precio)}</span><button type="button" class="badge" data-agendar="${esc(s.id)}" style="border:0">Agendar ›</button></div>`; }).join('') || '<p class="empty">Agrega tu primer servicio con el +.</p>'}</div>
       <div class="pdots" id="pdots">${shown.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>
       <p class="gh">Todos los servicios · toca para editar</p>
@@ -413,13 +443,14 @@
     const resumen = data => {
       if (data === null) return 'Registro eliminado';
       const labels = { nombre: 'Nombre', telefono: 'WhatsApp', notas: 'Notas', titulo: 'Título', texto: 'Texto', etiqueta: 'Etiqueta',
-        precio: 'Precio', duracion: 'Duración en minutos', categoria: 'Categoría', descripcion: 'Descripción', url: 'Enlace',
+        foto: 'Foto', precio: 'Precio', duracion: 'Duración en minutos', categoria: 'Categoría', descripcion: 'Descripción', url: 'Enlace',
         date: 'Fecha', start: 'Hora', estado: 'Estado', clienta: 'Clienta', servicio: 'Servicio', negocio: 'Negocio',
         abre: 'Abre', cierra: 'Cierra', skin: 'Tema', examplesOff: 'Ocultar ejemplos', waConfirm: 'Confirmar por WhatsApp',
         waRecordar: 'Recordar por WhatsApp', waGracias: 'Agradecer por WhatsApp', tplConfirm: 'Mensaje de confirmación',
         tplRecordar: 'Mensaje de recordatorio', tplGracias: 'Mensaje de agradecimiento', enviados: 'Mensajes enviados', publicado: 'Grupos publicados' };
       return Object.entries(data).filter(([key]) => labels[key]).map(([key, value]) => {
         if (['clienta', 'servicio'].includes(key)) value = byId(value)?.nombre || 'Sin registro asociado';
+        else if (key === 'foto') value = fotoValida(value) ? 'Foto personalizada' : 'Sin foto';
         else if (key === 'precio') value = money(value);
         else if (key === 'skin') value = SKINS.find(s => s[0] === value)?.[1] || value;
         else if (typeof value === 'boolean') value = value ? 'Sí' : 'No';
@@ -472,11 +503,11 @@
   function sheetFotos(id) {
     const servicio = byId(id), fotos = servicio && fotosServicio(servicio);
     if (!fotos?.length) return;
-    openSheet(`${navSheet('Fotos de trabajos', 'Listo')}<p class="foot">${esc(servicio.nombre)} · Fotografías de demostración.</p>
+    openSheet(`${navSheet('Fotos de trabajos', 'Listo')}<p class="foot">${esc(servicio.nombre)}${fotoValida(servicio.foto) ? '' : ' · Fotografías de referencia'}.</p>
       <div class="trabajo-galeria">${fotos.map((src, i) => {
         const [ancho, alto] = src === FOTOS_TRABAJOS.lifting[0] ? [720, 1280]
           : src === FOTOS_TRABAJOS.extensiones[0] ? [1280, 1113] : [1022, 1280];
-        return `<img src="${src}" width="${ancho}" height="${alto}" alt="${esc(servicio.nombre)}: referencia ${i + 1}" decoding="async">`;
+        return `<img src="${esc(src)}" ${fotoValida(servicio.foto) ? '' : `width="${ancho}" height="${alto}"`} alt="${esc(servicio.nombre)}: referencia ${i + 1}" decoding="async">`;
       }).join('')}</div>
       <img class="trabajo-marca" src="./trabajos/logo-ab-beauty.jpg" alt="AB BEAUTY ROOM">`, 'Fotos de trabajos', root => {
       root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
@@ -620,22 +651,53 @@
   }
   function sheetServicio(id) {
     const s = id ? byId(id) : null;
+    let foto = s?.foto, preparando = false;
     const durs = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240];
     openSheet(`${navSheet(s ? 'Servicio' : 'Nuevo servicio', 'Guardar')}
+      <div class="servicio-foto">
+        <img id="s-foto-preview" alt="Foto del servicio" hidden>
+        <input type="file" id="s-foto" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" aria-label="Seleccionar foto del servicio" hidden>
+        <div class="servicio-foto-acciones"><button type="button" class="btn" data-subir-foto>Subir foto</button><button type="button" class="btn danger" data-quitar-foto hidden>Quitar foto</button></div>
+        <p class="foot" id="s-foto-estado" role="status">Elige una foto para mostrarla en la tarjeta. Se guardará una copia optimizada.</p>
+      </div>
       <div class="group" style="margin-top:6px"><label class="cell"><span class="l">Nombre</span><input class="in" id="s-nombre" value="${esc(s ? s.nombre : '')}" placeholder="Ej. Uñas acrílicas" autocomplete="off"></label>
         <label class="cell"><span class="l">Categoría</span><select class="in" id="s-cat" style="max-width:160px">${CATS.map(c => `<option ${s && s.categoria === c[0] ? 'selected' : ''}>${c[0]}</option>`).join('')}</select></label>
         <label class="cell"><span class="l">Duración</span><select class="in" id="s-dur" style="max-width:160px">${durs.map(d => `<option value="${d}" ${(s ? +s.duracion : 60) === d ? 'selected' : ''}>${d < 60 ? d + ' min' : Math.floor(d / 60) + ' h' + (d % 60 ? ' ' + (d % 60) + ' min' : '')}</option>`).join('')}</select></label>
         <label class="cell"><span class="l">Precio</span><input class="in" id="s-precio" type="number" inputmode="decimal" min="0" step="10" value="${s ? +s.precio : ''}" placeholder="$0" style="max-width:140px"></label>
         <label class="cell"><span class="sr">Descripción</span><textarea class="in" id="s-desc" placeholder="Descripción para tus clientas">${esc(s ? s.descripcion : '')}</textarea></label></div>
       ${s ? '<div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar servicio</button></div>' : ''}`, 'Servicio', root => {
+      const archivo = $('#s-foto', root), preview = $('#s-foto-preview', root), subir = $('[data-subir-foto]', root), quitar = $('[data-quitar-foto]', root), guardar = $('[data-done]', root), estado = $('#s-foto-estado', root);
+      function mostrarFoto() {
+        const src = fotosServicio({ ...s, foto, nombre: $('#s-nombre', root).value, categoria: $('#s-cat', root).value })[0];
+        preview.hidden = !src;
+        if (src) preview.src = src; else preview.removeAttribute('src');
+        subir.textContent = preparando ? 'Preparando foto…' : src ? 'Cambiar foto' : 'Subir foto';
+        quitar.hidden = !src; subir.disabled = quitar.disabled = guardar.disabled = preparando;
+      }
+      mostrarFoto();
+      $('#s-cat', root).addEventListener('change', mostrarFoto);
+      archivo.addEventListener('change', async () => {
+        const elegido = archivo.files?.[0]; if (!elegido) return;
+        preparando = true; mostrarFoto(); estado.textContent = 'Preparando foto…';
+        try {
+          const lista = await prepararFoto(elegido);
+          if (!root.isConnected) return;
+          foto = lista; estado.textContent = 'Foto lista. Toca Guardar para conservarla.';
+        } catch (e) { if (root.isConnected) estado.textContent = e.message || 'No se pudo preparar la foto.'; }
+        finally { preparando = false; archivo.value = ''; if (root.isConnected) mostrarFoto(); }
+      });
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
         if (b.hasAttribute('data-close')) closeSheet();
+        if (b.hasAttribute('data-subir-foto')) archivo.click();
+        if (b.hasAttribute('data-quitar-foto') && !preparando) { foto = null; mostrarFoto(); estado.textContent = 'Foto quitada. Toca Guardar para conservar el cambio.'; }
         if (b.hasAttribute('data-done')) {
+          if (preparando) return;
           const nombre = $('#s-nombre', root).value.trim();
           if (!nombre) { toast('Escribe el nombre del servicio.'); return; }
           const it = Object.assign(s ? clone(s) : { id: newId(), kind: 'servicio' }, { nombre, categoria: $('#s-cat', root).value, duracion: +$('#s-dur', root).value, precio: Math.max(0, +$('#s-precio', root).value || 0), descripcion: $('#s-desc', root).value.trim() });
+          if (foto !== undefined) it.foto = foto;
           delete it.example; if (!save(it)) return; closeSheet(); toast('Servicio guardado');
         }
         if (b.hasAttribute('data-del')) {

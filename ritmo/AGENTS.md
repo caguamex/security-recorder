@@ -54,3 +54,7 @@ Verificación del backend: `npm ci --prefix ritmo/servidor` y `npm test --prefix
 - No cambies el diseño de las pantallas existentes sin pedirlo; compáralas con `imagenes/`.
 - Cada cambio de código: corre las pruebas, regenera `dist/` y revisa la app en un navegador con ancho de teléfono (390 px).
 - Nada de secretos en el repositorio.
+
+## Fotos por servicio — 26 de octubre de 2026
+
+Antonio autorizó agregar la opción de subir fotos. El editor permite subir, reemplazar, previsualizar y quitar una imagen por servicio, con guardado explícito y cancelación. `foto` es un campo opcional del objeto servicio: JPEG data URL optimizado (máximo 48 000 caracteres), `null` para quitar también la referencia automática, y ausente conserva las referencias anteriores. El navegador reduce a un lado mayor de hasta 800 px; la API valida tipo, tamaño y marcadores JPEG sin aumentar el límite de cuerpo de 64 KB. Se sincroniza con el protocolo existente, sin tablas, permisos, claves ni servicios nuevos. `img-src` permite blob local para decodificar el archivo temporal; nunca se cargan URLs externas de fotos. Prueba completa con dos dispositivos, sin internet y PostgreSQL local: `npm run test:fotos --prefix ritmo/servidor`. Mantener la entrega de producción sin registros de prueba.

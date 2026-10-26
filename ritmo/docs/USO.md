@@ -66,3 +66,11 @@ El respaldo completo anterior queda en la carpeta local protegida `C:/Users/dell
 ## Entrega en blanco — 26 de octubre de 2026
 
 Por instrucción de Antonio, la agenda inicia sin citas, clientas, servicios, promociones ni grupos de demostración. Capturar el primer registro no genera ejemplos adicionales. Se conservan el diseño, la sincronización y las fotografías proporcionadas para asociarlas a los servicios que se capturen. La base publicada se verificó sin registros activos de prueba; se conservan las marcas de eliminación necesarias para sincronizar.
+
+## Foto de cada servicio
+
+En Servicios toca +, o toca un servicio de la lista para editarlo. Pulsa **Subir foto** o **Cambiar foto**, elige una imagen del celular y espera la vista previa. Toca **Guardar**. Aparecerá en la tarjeta, en la lista y al abrir Ver fotos. Para retirarla usa **Quitar foto** y después Guardar; Cancelar conserva la imagen anterior.
+
+Se admite una foto por servicio. La página guarda una copia JPEG optimizada de hasta 800 píxeles en su lado mayor y 48 000 caracteres, sin modificar el archivo original. Puedes seleccionar archivos de hasta 20 MB; si el navegador no puede abrir el formato, usa JPG, PNG o WebP. Las fotografías proporcionadas anteriormente siguen disponibles como referencia automática para Cejas y servicios reconocidos de Pestañas; subir una foto propia tiene prioridad y Quitar foto permite dejar la tarjeta sin imagen.
+
+La foto se guarda con el servicio, funciona sin conexión y se sincroniza con los dispositivos conectados usando la misma clave. Utiliza la base privada existente de Ritmo, sin añadir un servicio de almacenamiento ni activar un plan de pago. Las imágenes ocupan parte del espacio de la base gratuita y del almacenamiento del dispositivo. Las pruebas de fotografías usan PostgreSQL local: `npm run test:fotos --prefix ritmo/servidor` (Edge por defecto; `BROWSER_CHANNEL` permite elegir Chromium).

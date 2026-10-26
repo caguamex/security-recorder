@@ -149,6 +149,13 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .sq.trabajo-mini { object-fit: cover; object-position: center var(--foco, 64%); background: #242424; }
 .trabajo-galeria { display: grid; gap: 16px; margin: 16px; }
 .trabajo-galeria img { display: block; width: 100%; height: auto; border-radius: 12px; }
+/* La captura de fotos se integra a la hoja existente, que conserva sus áreas seguras. */
+.servicio-foto { margin: 8px 16px 16px; }
+.servicio-foto > img { display: block; width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; background: var(--card); margin-bottom: 12px; }
+.servicio-foto-acciones { display: flex; gap: 10px; flex-wrap: wrap; }
+.servicio-foto .foot { margin: 10px 0 0; }
+.servicio-foto button { min-height: 44px; }
+.sh-nav button:disabled, .servicio-foto button:disabled { opacity: .5; }
 .trabajo-marca { display: block; width: 180px; height: auto; margin: 20px auto 0; }
 .pdots { display: flex; justify-content: center; gap: 6px; margin: 8px 0 4px; }
 .pdots i { width: 7px; height: 7px; border-radius: 50%; background: var(--sep); }
