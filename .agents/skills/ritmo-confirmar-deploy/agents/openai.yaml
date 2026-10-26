@@ -1,0 +1,6 @@
+interface:
+  display_name: "Ritmo: confirmar publicación"
+  short_description: "Pregunta antes de publicar cambios de Ritmo"
+  default_prompt: "Usa $ritmo-confirmar-deploy para preparar los cambios de Ritmo y preguntarme antes de publicarlos."
+policy:
+  allow_implicit_invocation: true

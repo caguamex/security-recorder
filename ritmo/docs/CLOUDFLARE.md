@@ -42,7 +42,9 @@ npm run build --prefix ritmo/nube
 
 El comando de compilación de nube realiza un `deploy --dry-run`: empaqueta sin publicar. `nube/empaquetar.mjs` agrega `_headers` después de generar la caché; `_headers` y `_redirects` no entran en el precache de la PWA.
 
-Para publicar con una sesión de Wrangler autorizada:
+Antes de publicar cada conjunto nuevo de cambios, completar las verificaciones y solicitar confirmación de Antonio conforme a [.agents/skills/ritmo-confirmar-deploy/SKILL.md](../../.agents/skills/ritmo-confirmar-deploy/SKILL.md). Una aprobación de implementación no autoriza por sí sola un deploy.
+
+Después de recibir autorización explícita para publicar ese conjunto, usar una sesión de Wrangler autorizada:
 
 ```powershell
 npm run deploy --prefix ritmo/nube -- --secrets-file C:/Users/dellv/.config/ritmo-belleza/cloudflare-secrets.json
@@ -52,7 +54,7 @@ El archivo privado contiene `APP_TOKEN`, nunca una clave incrustada en el fronte
 
 Las credenciales de Meta, cuando existan, se cargarán como secretos de Cloudflare: `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET` y, opcionalmente, `WHATSAPP_API_VERSION`. No se cargaron valores ficticios ni se reutilizó la conexión Evolution de FiNeCi.
 
-No hay despliegue automático conectado a Git: un push no vuelve a encender Railway ni publica Cloudflare por sí solo. Para publicar cambios se usa el comando anterior bajo la autorización vigente.
+No hay despliegue automático conectado a Git: un push no vuelve a encender Railway ni publica Cloudflare por sí solo. Para publicar cambios se usa el comando anterior después de la confirmación específica del conjunto.
 
 ## Traslado de datos y respaldo
 
