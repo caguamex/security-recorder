@@ -216,7 +216,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   <div class="demo" role="group" aria-label="Demostración">
     <b>Demostración</b><span>Entrar como:</span>
     <button type="button" data-rol="admin">Admin</button><button type="button" data-rol="recepcion">Recepción</button><button type="button" data-rol="especialista">Especialista</button>
-    <span class="sp"></span><button type="button" data-demo="salir">Inicio</button><button type="button" data-demo="salon">Link del salón</button><button type="button" data-demo="invitacion">Invitación</button>
+    <span class="sp"></span><button type="button" data-demo="salir">Inicio</button><button type="button" data-demo="salon">Link del salón</button><button type="button" data-demo="invitacion">Invitación</button><button type="button" data-demo="whatsapp">💬 WhatsApp</button>
   </div>
   <main id="screen" class="pad" aria-live="polite"></main>
 </div>
@@ -619,6 +619,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     if (d.rol) { S.rol = d.rol; if (S.pant === 'app') { S.sub = null; S.filtro = 'todas'; render(); toast('Ahora ves la app como ' + ROL[d.rol] + ' (' + yo().n.split(' ')[0] + ')'); } else render(); return; }
     if (d.demo === 'salir') { cerrar(); ir({ pant: 'inicio', invita: false, registro: false, desdeApp: false, correo: '' }); return; }
     if (d.demo === 'salon') { cerrar(); ir({ pant: 'salon', desdeApp: false }); return; }
+    if (d.demo === 'whatsapp') { cerrar(); S.rol = 'admin'; ir({ pant: 'app', tab: 'agenda', sub: null, filtro: 'todas', vista: 'lista', desdeApp: false }); verChat(6); return; }
     if (d.demo === 'invitacion') { cerrar(); ir({ pant: 'unirse', invita: true, correo: '' }); return; }
     if (d.tab) { ir({ tab: d.tab, sub: null }); return; }
     if (d.sub !== undefined) { ir({ sub: d.sub || null }); return; }
