@@ -1,3 +1,5 @@
+> Corrección preparada, aún sin publicar: Apple Calendar y activación del celular sin APP_TOKEN manual. Consulta [CALENDARIO-APPLE.md](CALENDARIO-APPLE.md). Las instrucciones de clave técnica que siguen describen la versión anterior y quedan como configuración avanzada cuando se publique la corrección.
+
 # Usar Agendappx (antes Ritmo Belleza)
 
 Dirección de la aplicación: https://ritmo-belleza.antonio-t-22.workers.dev

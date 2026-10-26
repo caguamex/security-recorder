@@ -12,7 +12,8 @@
     "test:navegador": "npm run build && node pruebas/navegador.mjs",
     "test:fotos": "npm run build && node pruebas/fotos-navegador.mjs",
     "test:actualizacion": "npm run build && node pruebas/actualizacion-navegador.mjs",
-    "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs"
+    "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs",
+    "test:calendario": "npm run build && node --test pruebas/dispositivos.test.mjs && node pruebas/calendario-navegador.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"

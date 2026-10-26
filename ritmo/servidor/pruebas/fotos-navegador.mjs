@@ -18,7 +18,7 @@ async function abrir() {
   const p = await ctx.newPage(); p.on('pageerror', e => errores.push(e.message));
   await p.goto(env.base); await p.waitForFunction(() => navigator.serviceWorker.controller);
   await tab(p, 'Ajustes').click(); await p.getByRole('button', { name: /Sincronización/ }).click();
-  await p.getByLabel('Token de acceso', { exact: true }).fill(env.token);
+  await p.getByText('Configuración avanzada', { exact: true }).click(); await p.getByLabel('Token de acceso', { exact: true }).fill(env.token);
   await p.getByRole('button', { name: 'Conectar', exact: true }).click();
   await p.waitForFunction(() => document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));
   await p.getByRole('button', { name: 'Listo', exact: true }).click();
