@@ -216,6 +216,11 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .tab[aria-selected="true"]::before {
   background: linear-gradient(170deg, color-mix(in srgb, var(--tc) 55%, #fff), var(--tc) 45%, color-mix(in srgb, var(--tc) 85%, #000));
   box-shadow: 0 4px 0 color-mix(in srgb, var(--tc) 60%, #000), 0 12px 20px color-mix(in srgb, var(--tc) 50%, transparent), inset 0 2px 0 rgba(255, 255, 255, .6); }
+
+/* Menú sin fondo de color: solo el emoji; la pestaña activa sube y lleva sombra. */
+.tab::before { background: none !important; box-shadow: none !important; }
+.tab::after { font-size: 26px; }
+.tab[aria-selected="true"]::after { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); }
 </style>
 
 <div class="app" id="app">
