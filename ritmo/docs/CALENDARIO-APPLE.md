@@ -1,6 +1,6 @@
-# Apple Calendar sin claves técnicas — corrección preparada el 26 de octubre de 2026
+# Apple Calendar sin claves técnicas — publicado el 26 de octubre de 2026
 
-Estado: rama `codex/agendappx-calendario-sin-claves`, basada en la versión publicada `codex/pwa-backend-belleza`. No incluye cuentas ni WhatsApp del PR #2/#3. No se ha publicado ni activado ningún celular de producción.
+Estado: publicado desde la rama `codex/agendappx-calendario-sin-claves`, commit de aplicación `69a6537`, PR #4. Antonio respondió «Implementa» a la pregunta de publicación y activación. Cloudflare: versión `48604e6c-0f36-4ce6-9961-a9e2740f3b6c`. No incluye cuentas ni WhatsApp de los PR #2/#3. La activación de su celular requiere que Antonio confirme en ese dispositivo.
 
 ## Uso previsto
 
@@ -34,7 +34,7 @@ La herramienta local `herramientas/activar-dispositivo.mjs` lee APP_TOKEN de un 
 node ritmo/herramientas/activar-dispositivo.mjs --secretos C:/Users/dellv/.config/ritmo-belleza/cloudflare-secrets.json --salida C:/Users/dellv/.config/ritmo-belleza/activacion-celular.json
 ```
 
-La carpeta debe conservar sus permisos privados. La primera activación es una acción consciente del propietario y puede subir su cola local; no se ha ejecutado ni migrado información en este trabajo. Los datos locales y el servidor se conservan al desconectar, y los conflictos no se resuelven silenciosamente.
+La carpeta debe conservar sus permisos privados. La primera activación del celular es una acción consciente del propietario y puede subir su cola local; no se han importado ni modificado citas o ajustes del salón durante este trabajo. Los datos locales y el servidor se conservan al desconectar, y los conflictos no se resuelven silenciosamente.
 
 ## Verificación
 
@@ -45,3 +45,9 @@ Supabase: comprobación de solo lectura confirma que el rol existente tiene los 
 Prueba específica: `npm run test:calendario --prefix ritmo/servidor`. La compilación de Cloudflare usa `--dry-run`; publicar requiere la confirmación de Antonio según la skill del repositorio.
 
 Fuentes: [Suscripciones de Apple](https://support.apple.com/es-mx/guide/iphone/iph3d1110d4/ios), [cookies y prefijo __Host-](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie).
+
+## Comprobación del destino publicado
+
+La herramienta `nube/pruebas/calendario-produccion.mjs` pasó contra Cloudflare: API pública 401, emisión de enlaces reservada al operador, consulta de sesión pública sin datos, enlace de un solo uso, cookie Secure/HttpOnly/Strict, lectura privada, feed .ics, rechazo de reutilización y CSRF, revocación del navegador de prueba y comparación de las citas/ajustes antes y después sin cambios. Solo se creó una sesión temporal de verificación, revocada al terminar; ningún otro dispositivo fue desconectado.
+
+Una sesión nueva de Edge a 390 px confirmó una sola entrada Apple Calendar, activación sin clave técnica visible, API fuera de CacheStorage y cero errores de JavaScript. No se forzó la actualización de pestañas del usuario ni se borraron datos del celular. La confirmación nativa en el iPhone sigue pendiente. Los enlaces de activación reales se entregan privadamente y nunca se guardan aquí.
