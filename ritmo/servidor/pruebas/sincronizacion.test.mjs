@@ -18,6 +18,22 @@ function dispositivo() {
   } });
   return { storage, network, create };
 }
+test('el botón manual espera una sincronización automática que sigue en curso', async () => {
+  const values = new Map([['belleza.v1.token', env.token]]);
+  const storage = { getItem: k => values.get(k) ?? null, setItem: (k, v) => values.set(k, v), removeItem: k => values.delete(k) };
+  let liberar; const pausa = new Promise(resolve => { liberar = resolve; }); let esperando = true;
+  const app = crear({ storage, uuid: randomUUID, fetcher: async (path, options) => {
+    if (esperando) { esperando = false; await pausa; }
+    return fetch(env.base + path, options);
+  } });
+  app.put({ id: 'espera_compartida', kind: 'clienta', nombre: 'Prueba de espera' });
+  const first = app.sync(), second = app.sync();
+  assert.equal(first, second);
+  let terminado = false; second.then(() => { terminado = true; });
+  await Promise.resolve(); assert.equal(terminado, false); assert.equal(app.pending.length, 1);
+  liberar(); await second;
+  assert.equal(app.pending.length, 0); assert.match(app.status, /Sincronizado/);
+});
 test('conserva cambios y eliminaciones sin conexión tras reiniciar', async () => {
   const d = dispositivo(); let app = d.create();
   d.network.offline = true;

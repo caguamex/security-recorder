@@ -54,7 +54,7 @@ const documento = pagina.replace('<head>', '<head>' + metadatos).replace(html, (
 writeFileSync(join(pwa, 'index.html'), documento);
 function archivos(dir, prefijo = './') {
   return readdirSync(dir, { withFileTypes: true }).flatMap(e => e.isDirectory()
-    ? archivos(join(dir, e.name), prefijo + e.name + '/') : e.name === 'sw.js' ? [] : [prefijo + e.name]);
+    ? archivos(join(dir, e.name), prefijo + e.name + '/') : ['sw.js', '_headers', '_redirects'].includes(e.name) ? [] : [prefijo + e.name]);
 }
 const recursos = archivos(pwa).sort();
 const hash = createHash('sha256');

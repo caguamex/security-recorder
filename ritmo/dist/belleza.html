@@ -750,7 +750,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
   function crear({ storage, fetcher, defaults = {}, onChange = () => {}, uuid = () => crypto.randomUUID() }) {
     const KEY = 'belleza.v1.sync', TOKEN = 'belleza.v1.token';
     const leer = (key, fb) => { const raw = storage.getItem(key); return raw ? JSON.parse(raw) : fb; };
-    let state = leer(KEY, null), token = storage.getItem(TOKEN) || '', busy = false, status = token ? 'Pendiente de sincronizar' : 'Guardado en este dispositivo';
+    let state = leer(KEY, null), token = storage.getItem(TOKEN) || '', active = null, status = token ? 'Pendiente de sincronizar' : 'Guardado en este dispositivo';
     if (!state) {
       const items = leer('belleza.v1.items', []), settings = leer('belleza.v1.settings', {});
       const records = items.map(data => ({ id: data.id, data, version: 0 }));
@@ -794,10 +794,15 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
       next.cursor = response.cursor;
       guardar(next);
     }
-    async function sync() {
-      if (!token || busy) return;
+    function sync() {
+      if (!token) return Promise.resolve();
+      // El botón manual espera también una sincronización automática ya en curso.
+      if (active) return active;
+      active = sincronizar().finally(() => { active = null; });
+      return active;
+    }
+    async function sincronizar() {
       const before = JSON.stringify(state), beforeStatus = status;
-      busy = true;
       try {
         recibir(await request('/api/estado' + (Number.isInteger(state.cursor) ? '?since=' + state.cursor : '')));
         // Capturar una tanda. Lo que cambie durante el envío conserva su propia operación.
@@ -825,7 +830,7 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
         status = state.conflicts.length ? 'Hay cambios por revisar' : state.pending.length ? 'Cambios pendientes de enviar' : 'Sincronizado con tu servidor';
       } catch (e) {
         status = e.status === 401 ? 'Revisa tu token de acceso' : e.status && e.status < 500 ? e.message : 'Sin conexión con el servidor; cambios guardados aquí';
-      } finally { busy = false; if (JSON.stringify(state) !== before || status !== beforeStatus) emit(); }
+      } finally { if (JSON.stringify(state) !== before || status !== beforeStatus) emit(); }
     }
     return {
       get items() { return vista().items; }, get settings() { return vista().settings; },

@@ -5,3 +5,8 @@ node_modules/
 !.env.example
 ritmo/servidor/build/
 .taste-skill/
+.wrangler/
+.dev.vars
+.dev.vars.*
+ritmo/nube/build/
+ritmo/dist/pwa/_headers

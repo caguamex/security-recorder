@@ -25,7 +25,8 @@ async function leerJSON(req: IncomingMessage) {
   const raw = await leerRaw(req);
   try { return JSON.parse(raw.toString('utf8')); } catch { throw new ErrorAPI(400, 'JSON inválido.'); }
 }
-type Opciones = { integraciones?: ConfigIntegraciones; whatsapp?: WhatsApp; tz?: string; publicURL?: string };
+type Opciones = { integraciones?: ConfigIntegraciones; whatsapp?: WhatsApp; tz?: string; publicURL?: string;
+  migracion?: { token?: string; soloLectura?: boolean; exportar: () => Promise<unknown> } };
 export function crearServidor(repo: Repositorio, token: string, publicRoot: string, options: Opciones = {}) {
   if (token.length < 32) throw new Error('APP_TOKEN debe tener al menos 32 caracteres aleatorios.');
   const digest = (s: string) => createHash('sha256').update(s).digest();
@@ -33,6 +34,16 @@ export function crearServidor(repo: Repositorio, token: string, publicRoot: stri
   const server = createServer(async (req, res) => {
     try {
       const url = new URL(req.url || '/', 'http://localhost');
+      if (url.pathname === '/operaciones/exportar') {
+        const access = req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.slice(7) : '';
+        if (!options.migracion?.token || options.migracion.token.length < 32 || !igualSecreto(access, options.migracion.token)) throw new ErrorAPI(404, 'Ruta no encontrada.');
+        if (req.method !== 'POST') throw new ErrorAPI(405, 'Método no permitido.');
+        await leerJSON(req);
+        json(res, 200, await options.migracion.exportar()); return;
+      }
+      if (options.migracion?.soloLectura && !['GET', 'HEAD'].includes(req.method || '')) {
+        throw new ErrorAPI(503, 'Agenda en traslado. Tus cambios quedan guardados en este dispositivo y se enviarán al reconectar.');
+      }
       if (url.pathname === '/salud' && req.method === 'GET') {
         await repo.salud(); json(res, 200, { estado: 'listo' }); return;
       }

@@ -1,6 +1,6 @@
 # Ritmo Belleza: publicación e instalación
 
-La PWA y el backend PostgreSQL están publicados en https://belleza-production.up.railway.app. Antonio autorizó el 25 de octubre de 2026 el despliegue dentro del límite compartido de consumo de Railway de 10 USD por ciclo, sin ampliarlo. El proyecto `ritmo-belleza` tiene dos servicios dedicados, con límites de 0.25 GB de memoria y 0.1 vCPU cada uno. No se contrataron otros planes.
+**Destino actual desde el 26 de octubre de 2026:** https://ritmo-belleza.antonio-t-22.workers.dev, con página/API en Cloudflare Workers Free y PostgreSQL en Supabase Free. Consulta [la guía vigente de Cloudflare](CLOUDFLARE.md). Antonio autorizó detener los dos despliegues anteriores de Ritmo en Railway, conservando volumen y respaldo. Ya no sirven la aplicación. Las secciones siguientes conservan la referencia del backend Node y su despliegue anterior para desarrollo y recuperación; no reactivarlo sin incorporar las escrituras actuales de Supabase.
 
 Consulta [el manual de uso](USO.md) para conectar los dispositivos, suscribir calendarios y conocer las condiciones de WhatsApp gratuito. WhatsApp oficial está implementado y probado con transporte simulado; su activación real depende de vincular el número del salón en Meta y disponer de sus credenciales. No se han enviado mensajes de Meta.
 

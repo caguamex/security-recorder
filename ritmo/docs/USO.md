@@ -1,6 +1,14 @@
 # Usar Ritmo Belleza
 
-Dirección de la aplicación: https://belleza-production.up.railway.app
+Dirección de la aplicación: https://ritmo-belleza.antonio-t-22.workers.dev
+
+La página y la API están en Cloudflare Workers Free; los datos, en un proyecto Supabase Free separado de FiNeCi. La clave de acceso de la agenda se conserva.
+
+## Cambio de dirección desde Railway
+
+Abre la nueva dirección y conecta el dispositivo en Más → Sincronización usando la misma clave privada. El navegador guarda por dirección: la sesión y la cola local de la dirección anterior no se transfieren automáticamente. Los datos que ya estaban sincronizados en el servidor sí se trasladaron. No borres los datos del sitio anterior si allí tienes cambios que nunca se enviaron; se conservan en ese dispositivo y requieren recuperarlos antes de descartarlos.
+
+Si ya tenías una suscripción en Apple o Google Calendar, agrega el enlace obtenido desde la nueva dirección. Se conservó la clave privada del calendario, pero cambió su dominio.
 
 ## Entrar e instalar en iPhone
 
@@ -35,22 +43,22 @@ Una confirmación, un recordatorio o un agradecimiento fuera de la ventana gratu
 
 La respuesta 1 confirma la cita asociada al mensaje. La respuesta 2 marca una solicitud de cambio; Antonio debe acordar el nuevo horario. Si hay varias citas y no se puede identificar una de forma inequívoca, no se modifica ninguna automáticamente.
 
-El estado distingue mensaje aceptado por Meta, entregado, leído, rechazado y resultado incierto. Un envío con respuesta incierta no se repite automáticamente para evitar duplicados. El proceso revisa la cola cada cinco minutos en el mismo servidor, sin contratar otro servicio programador.
+El estado distingue mensaje aceptado por Meta, entregado, leído, rechazado y resultado incierto. Un envío con respuesta incierta no se repite automáticamente para evitar duplicados. Un disparador programado de Cloudflare revisa la cola cada cinco minutos, sin un proceso permanentemente encendido. Mientras falte la conexión oficial de Meta, no ejecuta envíos.
 
 ## Promociones y Facebook
 
 Edita la promoción, copia el texto y abre cada grupo por separado. La publicación la realiza el usuario; la app registra los grupos atendidos. No promete publicar automáticamente en grupos mediante una API.
 
-## Presupuesto de Railway
+## Alojamiento gratuito y presupuesto existente
 
-Autorización de Antonio: usar servicios gratuitos cuando sea posible y, si hay consumo, mantenerlo en Railway dentro del límite compartido de 10 USD por ciclo. No se contrataron planes adicionales de Vercel, Supabase ni Meta.
+Cloudflare Workers Free y Supabase Free no tienen una suscripción mensual contratada para Ritmo. Hay cuotas: 100,000 solicitudes diarias de Workers, 100,000 consultas diarias de Hyperdrive y, en Supabase, 500 MB de base por proyecto y cuotas de transferencia compartidas por organización. Alcanzar una cuota puede limitar el servicio; no se habilitó una actualización automática a un plan de pago. Supabase puede pausar proyectos Free tras una semana de inactividad.
 
-El espacio de Railway ya tenía el límite de consumo de 10 USD, con aviso a los 5 USD. Se conserva ese límite y los demás servicios. Cada servicio nuevo usa como máximo 0.25 GB de memoria y 0.1 vCPU, con una sola réplica. La facturación depende del consumo real; un límite de recursos no es una reserva ni una tarifa fija. Los impuestos, si aplica el proveedor, son distintos del límite de consumo.
+Antonio autorizó detener únicamente los dos despliegues antiguos de Ritmo en Railway, conservando volumen y respaldos. Se mantiene el límite compartido existente de 10 USD por ciclo y su aviso de 5 USD; no se alteraron servicios de FiNeCi. Detener cómputo no elimina consumos anteriores ni el posible almacenamiento del volumen conservado.
 
-El límite de 10 USD es del espacio completo, incluido FiNeCi. Railway puede detener todos sus servicios al alcanzarlo. La app conserva el trabajo local durante una interrupción, pero la sincronización y el feed requieren que el servidor esté disponible.
+No se contrataron planes adicionales de Vercel, Cloudflare, Supabase ni Meta. Los costos eventuales de mensajes de Meta siguen fuera de cualquier cuota de alojamiento y bloqueados bajo la autorización vigente.
 
 ## Respaldo y acceso
 
-PostgreSQL tiene un volumen persistente separado del servicio web. No se almacena la base en el disco efímero de la app. El volumen conserva los datos entre despliegues, pero no sustituye una copia de seguridad externa. No se activó un complemento de respaldos de pago.
+Los datos actuales están en PostgreSQL de Supabase. El traslado conservó objetos, versiones, cursor de cada objeto, recibos de idempotencia, eliminaciones y clave de calendario. El esquema privado `ritmo` tiene un usuario de servidor limitado y políticas de acceso; no se publica a roles anónimos ni autenticados de Supabase.
 
-Las tablas y credenciales de Ritmo están en un proyecto independiente de FiNeCi. El proyecto se llama `ritmo-belleza` en Railway. No se aumentó el presupuesto del espacio ni se modificaron los datos de otros proyectos.
+El respaldo completo anterior queda en la carpeta local protegida `C:/Users/dellv/.config/ritmo-belleza/respaldo-railway-20261026.json`, fuera de Git. El volumen anterior de Railway también se conserva. Ninguno equivale a un sistema de respaldos periódicos del nuevo destino. No se activó un complemento de respaldos de pago.
