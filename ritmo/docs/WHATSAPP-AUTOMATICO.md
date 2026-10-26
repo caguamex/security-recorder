@@ -1,10 +1,44 @@
 # WhatsApp automático y anticipo: especificación
 
-Estado: propuesta para Agendappx, pendiente de que Antonio la apruebe.
+Estado: aprobada por Antonio el 26 de octubre de 2026, con el mensajero en Railway.
 - Prototipo: `ritmo/cuentas/index.html`, en la cita (Anticipo, Mensajes de WhatsApp, Ver la conversación), en Ajustes → Mensajes de WhatsApp y en «Pedir cita» del perfil público.
 - Captura: `ritmo/imagenes/whatsapp-anticipo.png`.
 
-Se construye sobre lo que ya existe en `ritmo/servidor/src/whatsapp.ts`: el cron de Cloudflare cada 5 minutos, la cola `belleza_whatsapp_cola` con huella idempotente, el webhook con firma, los estados de entrega y el bloqueo de reenvíos inciertos. **No usa Railway.** Con las cuentas, todas las tablas llevan `negocio_id` (ver `CUENTAS.md`).
+Se construye sobre lo que ya existe en `ritmo/servidor/src/whatsapp.ts`: la cola `belleza_whatsapp_cola` con huella idempotente, el webhook con firma, los estados de entrega y el bloqueo de reenvíos inciertos. El envío pasa del cron de Cloudflare a un mensajero en Railway (sección 0). Con las cuentas, todas las tablas llevan `negocio_id` (ver `CUENTAS.md`).
+
+## 0. Dónde corre: mensajero en Railway
+
+Antonio aprobó usar su plan Hobby de Railway para la parte de WhatsApp.
+- Uso actual: 1.20 USD en 12 días, con un estimado de 2.25 USD de los 5 incluidos.
+- Límite de gasto: 10 USD, compartido con FiNeCi.
+
+**Arquitectura:**
+- **Cloudflare (sin cambios)**: la app, la API, la bienvenida, el perfil público y el calendario.
+- **Railway, servicio nuevo `agendappx-mensajero`** en un proyecto propio, separado de FiNeCi. **No toques FiNeCi.** Es un proceso Node/TypeScript que reutiliza `ritmo/servidor/src/whatsapp.ts` y hace dos cosas:
+  1. Revisa la cola **cada minuto** y manda los mensajes de la sección 1.
+  2. Recibe el **webhook de Meta** (`POST /webhook/whatsapp` con firma `X-Hub-Signature-256`, y `GET` de verificación). Ahí llegan respuestas, botones, estados y comprobantes.
+- **Supabase (sin cambios)**: el mensajero se conecta a la misma base con un rol propio `agendappx_mensajero`. Ese rol tiene permisos mínimos:
+  - lee citas, clientas, servicios, ajustes y miembros;
+  - escribe solo la cola de WhatsApp, las entradas, los contactos, los campos de estado, anticipo y respuesta de la cita, y la bitácora.
+  - Conexión con TLS verificado, por el pooler de Supabase.
+
+**Un solo remitente:**
+- Al prender el mensajero, el cron de Cloudflare deja de enviar con la bandera `WHATSAPP_REMITENTE=railway`. En Cloudflare solo queda un resumen de estado de solo lectura.
+- La cola mantiene la huella idempotente y el bloqueo `procesando`, para que nunca salga un mensaje doble aunque ambos lleguen a correr.
+
+**Recursos y costo:**
+- 1 réplica, sin volumen. El tamaño por defecto basta: el uso esperado es de 0.5 a 2 USD al mes.
+- Sin dominio propio: usa el dominio `*.up.railway.app` para el webhook.
+
+**Salud y avisos:**
+- `GET /salud` responde sin datos privados.
+- Si el mensajero deja de revisar la cola por más de 10 minutos, la app muestra a Admin «Los mensajes automáticos están detenidos», y Cloudflare puede volver a tomar el envío con la bandera.
+
+**Secretos (solo en Railway, nunca en Git):**
+- `DATABASE_URL` del rol `agendappx_mensajero`;
+- `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN` y `WHATSAPP_APP_SECRET`;
+- `R2_*` para los comprobantes;
+- `TZ=America/Mexico_City`.
 
 ## 1. Los mensajes
 
@@ -71,7 +105,7 @@ Antonio da de alta las plantillas en el Administrador de WhatsApp de Meta; Codex
    - Una cita con anticipo usa de 3 a 4 mensajes, unos 50 a 65 centavos.
    - 300 citas al mes son unos $150 a $200 MXN.
 3. Dar de alta las 6 plantillas con los textos de la sección 1.
-4. Las variables `WHATSAPP_TOKEN` (token permanente de usuario del sistema), `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN` y `WHATSAPP_APP_SECRET`, como secretos de Cloudflare.
+4. Las variables `WHATSAPP_TOKEN` (token permanente de usuario del sistema), `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN` y `WHATSAPP_APP_SECRET`, como secretos del servicio en Railway.
 
 ## 6. Pruebas mínimas
 
@@ -81,3 +115,5 @@ Antonio da de alta las plantillas en el Administrador de WhatsApp de Meta; Codex
 - Un comprobante recibido no confirma la cita; «Marcar anticipo recibido» sí, y manda el #2 una sola vez.
 - Un webhook repetido no duplica entradas ni cambios.
 - Una Especialista no ve CLABE ni comprobantes de citas ajenas.
+- Con `WHATSAPP_REMITENTE=railway`, Cloudflare no envía nada. Con los dos corriendo a la vez no sale ningún mensaje doble.
+- El rol `agendappx_mensajero` no puede leer ni escribir tablas fuera de su lista.
