@@ -5,7 +5,7 @@ Idioma del producto, la interfaz, los comentarios y los commits: **español de M
 ## Qué es
 Dos apps web sin dependencias (HTML + JS puro):
 
-1. **Ritmo Belleza** (`belleza/`): agenda para un salón de belleza con aspecto de app de iPhone. Es el producto principal.
+1. **Agendappx** (antes Ritmo Belleza, `belleza/`): agenda para un salón de belleza con aspecto de app de iPhone. Es el producto principal.
    Pestañas: Agenda (semana + día + botón +), Clientas, Servicios, Promos y Más (conexiones, tema y negocio). Tiene 5 temas.
    Referencia visual: `imagenes/diseno-1.png` a `diseno-5.png`, `imagenes/belleza-app-pantallas.png` y `imagenes/belleza-app-temas.png`.
 2. **Ritmo** (`prototipo/`): agenda personal con captura en lenguaje natural ("Dentista mañana 5pm"). Su `core.js` (fechas, ICS y zip) lo usa también Belleza.
@@ -74,3 +74,7 @@ Prueba: `npm run test:actualizacion --prefix ritmo/servidor`, con versiones loca
 El 26 de octubre Antonio pidió aplicar el diseño de la rama `claude/es-posible-esto-tjimmb` y mostrarlo aquí antes de publicarlo. Se integra mediante merge, conservando fotos propias, sincronización, entrega vacía y aviso de actualización. Barra minimal con emojis, + central siempre visible que abre Nueva cita, Ajustes y Promociones dentro de Servicios. Servicios sigue seleccionada al abrir promociones. La apariencia White/Dark es nativa, con `modo: 'white' | 'dark'` en los ajustes sincronizados, validada por el servidor; no se usa el script de MutationObserver ni el almacenamiento independiente del prototipo. Black 3D se aplica sobre los cinco temas. Dorado conserva barra oscura y las hojas de Cristal se adaptan a Dark.
 
 Prueba `npm run test:diseno --prefix ritmo/servidor`: cinco temas por ambos modos, secciones, Nueva cita desde todas, Promociones, persistencia, segunda cuenta de navegador conectada a la misma agenda y rechazo de modo desconocido. La vista de conversación se genera con `herramientas/vista-diseno.mjs`: reutiliza la app en un contexto aislado y en memoria, sin red, claves ni escrituras a producción; sus datos de muestra no se copian al salón. Antonio confirmó «sí, hazlo» al pedir autorización para publicar este diseño. Se desplegó la versión `ecd22d8d-7140-40b8-85a7-f2263178373d`. En producción se verificaron el aviso desde la versión anterior, White/Dark, + central, preparación de foto y sincronización con dos dispositivos; los registros de prueba se retiraron. La aprobación no se extiende a futuros conjuntos de cambios.
+
+## Nombre Agendappx — preparado, pendiente de deploy
+
+Antonio eligió Agendappx como nuevo nombre público. Se sustituye Ritmo Belleza en el título de la página, `name`/`short_name` del manifest, el título de instalación de Apple y el nombre visible del calendario. Se conservan la URL del Worker, el `id`, scope y start_url de la app, los UID de las citas, los prefijos de almacenamiento y caché, las claves privadas, el nombre del negocio y los cinco temas. No renombrar infraestructura ni crear dominios por esta petición. Los íconos gráficos no cambian. Los dispositivos que ya la instalaron pueden conservar su etiqueta anterior según el navegador; no borrar datos para forzar el nombre. La skill ritmo-confirmar-deploy sigue aplicando a esta misma app con su nombre nuevo. Falta aprobación específica para publicar el cambio de nombre.

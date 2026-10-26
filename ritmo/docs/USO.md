@@ -1,4 +1,4 @@
-# Usar Ritmo Belleza
+# Usar Agendappx (antes Ritmo Belleza)
 
 Dirección de la aplicación: https://ritmo-belleza.antonio-t-22.workers.dev
 
@@ -92,3 +92,7 @@ Verificación local con dos versiones y dos pestañas: `npm run test:actualizaci
 El diseño publicado usa la barra Agenda, Clientas, +, Servicios y Ajustes. El + central abre Nueva cita desde cualquiera de esas secciones. Las promociones se abren desde Servicios → Promociones; Servicios se mantiene marcada en la barra.
 
 Ajustes → Apariencia permite elegir ☀️ White o 🌙 Dark, arriba del selector Tema. White conserva el tema elegido y Dark aplica Black 3D encima de cualquiera de los cinco temas. Ambos ajustes se guardan y se sincronizan cuando el dispositivo está conectado. Las fotos y las demás funciones de la agenda se conservan. Esta integración se publicó con la confirmación de Antonio el 26 de octubre de 2026. Los próximos cambios siguen requiriendo confirmación de deploy.
+
+## Nombre Agendappx
+
+El nombre Agendappx está preparado para la próxima publicación y requiere confirmación de deploy. Identifica la pestaña del navegador, la instalación nueva de la app y el calendario compartido. La dirección actual no cambia. En una instalación anterior, el sistema puede conservar el nombre del ícono hasta que actualice sus metadatos o se cambie la etiqueta del acceso; no borrar la app ni los datos del navegador para forzarlo.

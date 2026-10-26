@@ -1,4 +1,4 @@
-/* Ritmo Belleza — agenda de salón con aspecto de iPhone.
+/* Agendappx — agenda de salón con aspecto de iPhone.
    Guarda en tu cuenta (capacidad db de Claude) cuando está disponible y, si no, en este dispositivo. */
 (() => {
   'use strict';

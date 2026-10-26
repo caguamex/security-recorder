@@ -33,7 +33,7 @@ function fold(line: string) {
 export async function calendario(repo: Repositorio, tz: string) {
   const records = await repo.estado(); const map = new Map(records.filter(r => r.data).map(r => [r.id, r]));
   const settings = map.get('__settings')?.data || {};
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Ritmo Belleza//Agenda//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Ritmo Belleza', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H'];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Agendappx//Agenda//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Agendappx', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H'];
   for (const record of map.values()) {
     const c = record.data as Objeto;
     if (c.kind !== 'cita' || c.estado === 'cancelada' || c.example) continue;
