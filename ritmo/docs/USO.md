@@ -86,3 +86,9 @@ La app revisa actualizaciones al abrirse, al regresar al primer plano o recupera
 **Primera activación de esta mejora:** una pestaña o app instalada con el código anterior todavía no tiene el aviso. Después de publicar esta función, puede ser necesario abrir con internet, cerrar todas las pestañas de Ritmo y la app instalada, y volver a abrirla para cargar el nuevo sistema de avisos. No borrar los datos del navegador. Las versiones posteriores ya utilizan el aviso. No se verificó en un iPhone físico.
 
 Verificación local con dos versiones y dos pestañas: `npm run test:actualizacion --prefix ritmo/servidor`. No publica ni modifica los datos del salón.
+
+## Diseño 3D y Apariencia
+
+El diseño preparado para revisión usa la barra Agenda, Clientas, +, Servicios y Ajustes. El + central abre Nueva cita desde cualquiera de esas secciones. Las promociones se abren desde Servicios → Promociones; Servicios se mantiene marcada en la barra.
+
+Ajustes → Apariencia permite elegir ☀️ White o 🌙 Dark, arriba del selector Tema. White conserva el tema elegido y Dark aplica Black 3D encima de cualquiera de los cinco temas. Ambos ajustes se guardan y se sincronizan cuando el dispositivo está conectado. Las fotos y las demás funciones de la agenda se conservan. Esta integración requiere confirmación de deploy antes de aparecer en la URL pública.

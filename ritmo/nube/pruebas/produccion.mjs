@@ -54,7 +54,7 @@ try {
   await a.page.reload(); await a.page.getByRole('tab', { name: 'Clientas', exact: true }).click();
   await a.page.getByRole('button', { name: /Verificación sin conexión/ }).waitFor();
   await a.context.setOffline(false);
-  await a.page.getByRole('tab', { name: 'Más', exact: true }).click();
+  await a.page.getByRole('tab', { name: 'Ajustes', exact: true }).click();
   await a.page.getByRole('button', { name: /Sincronización/ }).click();
   await a.page.getByRole('button', { name: 'Sincronizar ahora', exact: true }).click();
   await a.page.waitForFunction(() => document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));

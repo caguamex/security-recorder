@@ -88,7 +88,7 @@
     ['cristal', 'Cristal pastel', ['#EFE4FF', '#FFE6F2', '#8B5CF6', '#EC4899']],
   ];
   const DEFAULTS = {
-    skin: 'clasico', negocio: 'Mi salón', abre: '10:00', cierra: '20:00', examplesOff: true,
+    skin: 'clasico', modo: 'white', negocio: 'Mi salón', abre: '10:00', cierra: '20:00', examplesOff: true,
     waConfirm: true, waRecordar: true, waGracias: false,
     tplConfirm: 'Hola {nombre} 💅 Tu cita de {servicio} quedó agendada para el {fecha} a las {hora}. Te esperamos en {negocio}.',
     tplRecordar: 'Hola {nombre} 💅 Te esperamos mañana a las {hora} para tu {servicio}. Responde 1 para confirmar o 2 para cambiar.',
@@ -253,13 +253,14 @@
   const screen = $('#screen');
   function applySkin() {
     const k = Store.settings.skin || 'clasico';
+    if (Store.settings.modo === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
     if (k === 'clasico') delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = k;
   }
   function render() {
     applySkin();
-    const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Más']];
-    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${I[k]}${n}</button>`).join('');
-    $('#fab').hidden = S.tab !== 'agenda';
+    const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Ajustes']];
+    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k === 'servicios' && S.tab === 'promos')}">${I[k]}${n}</button>`).join('');
+    $('#fab').hidden = false;
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
     screen.innerHTML = ({ agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas: viewMas })[S.tab]();
   }
@@ -355,7 +356,7 @@
     const s = Store.settings, man = C.addDays(today(), 1);
     const recordar = citasDe(man).filter(c => c.estado !== 'cancelada');
     const grupos = list('grupo');
-    return `<div class="nav"></div><h1 class="big"><span>Conexiones</span></h1>${banner()}
+    return `<div class="nav"></div><h1 class="big"><span>Ajustes</span></h1>${banner()}
       <p class="gh">Calendarios</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#4285F4">G</span><span class="l">Google Calendar<small>Cada cita tiene su botón «Agregar a Google Calendar»</small></span></div>
@@ -378,6 +379,8 @@
       <div class="group">${grupos.map(g => `<button type="button" class="cell" data-grupo="${esc(g.id)}"><span class="ico" style="background:#1877F2">f</span><span class="l">${esc(g.nombre)}</span><span class="chev">${I.chev}</span></button>`).join('')}
         <button type="button" class="cell" data-act="nuevo-grupo" style="color:var(--acc)"><span class="l">Agregar grupo</span></button></div>
       <p class="foot">Para publicar, abre una promoción y toca «Publicar» en cada grupo.</p>
+      <p class="gh">Apariencia</p>
+      <div class="seg modo" role="tablist" aria-label="Apariencia"><button type="button" role="tab" data-modo="white" aria-selected="${s.modo !== 'dark'}">☀️ White</button><button type="button" role="tab" data-modo="dark" aria-selected="${s.modo === 'dark'}">🌙 Dark</button></div>
       <p class="gh">Tema</p>
       <div class="skins" role="radiogroup" aria-label="Tema">${SKINS.map(([k, n, c]) => `<button type="button" class="skin" role="radio" data-skin="${k}" aria-checked="${(s.skin || 'clasico') === k}"><span class="s4">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
       <p class="gh">Tu negocio</p>
@@ -445,13 +448,14 @@
       const labels = { nombre: 'Nombre', telefono: 'WhatsApp', notas: 'Notas', titulo: 'Título', texto: 'Texto', etiqueta: 'Etiqueta',
         foto: 'Foto', precio: 'Precio', duracion: 'Duración en minutos', categoria: 'Categoría', descripcion: 'Descripción', url: 'Enlace',
         date: 'Fecha', start: 'Hora', estado: 'Estado', clienta: 'Clienta', servicio: 'Servicio', negocio: 'Negocio',
-        abre: 'Abre', cierra: 'Cierra', skin: 'Tema', examplesOff: 'Ocultar ejemplos', waConfirm: 'Confirmar por WhatsApp',
+        abre: 'Abre', cierra: 'Cierra', modo: 'Apariencia', skin: 'Tema', examplesOff: 'Ocultar ejemplos', waConfirm: 'Confirmar por WhatsApp',
         waRecordar: 'Recordar por WhatsApp', waGracias: 'Agradecer por WhatsApp', tplConfirm: 'Mensaje de confirmación',
         tplRecordar: 'Mensaje de recordatorio', tplGracias: 'Mensaje de agradecimiento', enviados: 'Mensajes enviados', publicado: 'Grupos publicados' };
       return Object.entries(data).filter(([key]) => labels[key]).map(([key, value]) => {
         if (['clienta', 'servicio'].includes(key)) value = byId(value)?.nombre || 'Sin registro asociado';
         else if (key === 'foto') value = fotoValida(value) ? 'Foto personalizada' : 'Sin foto';
         else if (key === 'precio') value = money(value);
+        else if (key === 'modo') value = value === 'dark' ? 'Dark' : 'White';
         else if (key === 'skin') value = SKINS.find(s => s[0] === value)?.[1] || value;
         else if (typeof value === 'boolean') value = value ? 'Sí' : 'No';
         else if (value && typeof value === 'object') value = Object.keys(value).map(id => byId(id)?.nombre || ({ confirmacion: 'Confirmación', recordatorio: 'Recordatorio', gracias: 'Agradecimiento' }[id] || 'Enviado')).join(', ');
@@ -872,7 +876,7 @@
       }
       return;
     }
-    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-agendar],[data-act],[data-skin],[data-setsw],[data-newat],[data-fotos]');
+    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-agendar],[data-act],[data-modo],[data-skin],[data-setsw],[data-newat],[data-fotos]');
     if (!b) return;
     const d = b.dataset;
     if (d.tab) { S.tab = d.tab; if (d.tab === 'servicios') S.seg = 'servicios'; lastScrollDay = null; scrollTo({ top: 0 }); render(); }
@@ -888,6 +892,7 @@
     else if (d.agendar) sheetCita({ servicio: d.agendar });
     else if (d.newat) sheetCita({ date: S.day, start: d.newat });
     else if (d.skin) Store.setSettings({ skin: d.skin });
+    else if (d.modo && ['white', 'dark'].includes(d.modo)) Store.setSettings({ modo: d.modo });
     else if (d.setsw) Store.setSettings({ [d.setsw]: !Store.settings[d.setsw] });
     else if (d.act) ({
       mes: sheetMes, hoy: () => { S.day = today(); lastScrollDay = null; render(); },

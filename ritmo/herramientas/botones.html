@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Opciones del botón +</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap">
+<style>
+* { box-sizing: border-box; margin: 0; }
+body { width: 1500px; padding: 50px 50px 60px; background: #E9ECF2; font-family: Inter, system-ui, sans-serif; color: #111; }
+h1 { font-size: 46px; font-weight: 800; text-align: center; }
+.sub { text-align: center; color: #5a6070; font-size: 22px; margin: 10px 0 40px; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.card { height: 330px; border-radius: 28px; background: radial-gradient(120% 80% at 50% 0%, #fff, #F2F2F7 70%); box-shadow: 0 12px 30px rgba(30, 40, 80, .1); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 26px 18px 22px; position: relative; overflow: hidden; }
+.stage { flex: 1; display: grid; place-items: center; width: 100%; }
+.n { font-size: 20px; font-weight: 800; }
+.d { font-size: 15px; color: #6a7080; text-align: center; margin-top: 4px; }
+.plus { width: 30px; height: 30px; }
+.f { display: grid; place-items: center; color: #fff; font-weight: 700; }
+/* 1 actual */
+.o1 { width: 78px; height: 78px; border-radius: 50%; background: radial-gradient(circle at 32% 25%, #7DB3FF 0%, #007AFF 50%, #00449E 100%); box-shadow: 0 5px 0 #00387F, 0 16px 30px rgba(0, 122, 255, .5), inset 0 3px 2px rgba(255, 255, 255, .5); }
+/* 2 píldora */
+.o2 { height: 64px; padding: 0 26px 0 20px; gap: 10px; display: flex; align-items: center; border-radius: 999px; font-size: 20px; background: linear-gradient(170deg, #5AA2FF, #007AFF 50%, #0057C2); box-shadow: 0 5px 0 #0047A0, 0 16px 28px rgba(0, 122, 255, .45), inset 0 2px 0 rgba(255, 255, 255, .5); }
+/* 3 belleza */
+.o3 { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(140deg, #FF7EB3, #E0457B 45%, #A855F7); box-shadow: 0 5px 0 #8A2E8F, 0 16px 30px rgba(224, 69, 123, .5), inset 0 3px 2px rgba(255, 255, 255, .5); }
+/* 4 emoji con insignia */
+.o4 { position: relative; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle at 32% 25%, #fff, #F3F4F8 60%, #DDE0E8); box-shadow: 0 5px 0 #C8CCD6, 0 16px 28px rgba(30, 40, 80, .2), inset 0 2px 0 #fff; font-size: 40px; }
+.o4 i { position: absolute; right: -4px; bottom: -2px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #007AFF; color: #fff; font: 800 22px/1 Inter; font-style: normal; border: 3px solid #fff; box-shadow: 0 3px 8px rgba(0, 122, 255, .5); }
+/* 5 cristal */
+.stage.glass { background: linear-gradient(135deg, #FFD3E6, #D9C8FF 50%, #C7E5FF); }
+.o5 { width: 80px; height: 80px; border-radius: 50%; color: #007AFF; background: rgba(255, 255, 255, .45); backdrop-filter: blur(14px); border: 1.5px solid rgba(255, 255, 255, .9); box-shadow: 0 14px 30px rgba(60, 60, 120, .25), inset 0 2px 0 rgba(255, 255, 255, .9), inset 0 -2px 6px rgba(0, 0, 0, .06); }
+/* 6 squircle iOS */
+.o6 { width: 78px; height: 78px; border-radius: 26px; background: linear-gradient(170deg, #5AA2FF, #007AFF 50%, #0057C2); box-shadow: 0 6px 0 #0047A0, 0 16px 28px rgba(0, 122, 255, .45), inset 0 2px 0 rgba(255, 255, 255, .5); }
+/* 7 negro y dorado */
+.o7 { width: 80px; height: 80px; border-radius: 50%; color: #D4AF6A; background: radial-gradient(circle at 32% 25%, #3A3A3E, #121214 70%); border: 2px solid #D4AF6A; box-shadow: 0 5px 0 #6B5730, 0 16px 28px rgba(0, 0, 0, .35), inset 0 2px 0 rgba(255, 255, 255, .15); }
+/* 8 integrado al menú */
+.bar { position: absolute; left: 16px; right: 16px; bottom: 74px; height: 70px; border-radius: 24px; background: #fff; box-shadow: 0 10px 26px rgba(30, 40, 80, .15); display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; justify-items: center; font-size: 24px; }
+.o8 { width: 70px; height: 70px; border-radius: 50%; margin-top: -40px; background: linear-gradient(170deg, #5AA2FF, #007AFF 50%, #0057C2); border: 5px solid #fff; box-shadow: 0 10px 22px rgba(0, 122, 255, .45); }
+</style>
+</head>
+<body>
+<h1>Opciones para el botón +</h1>
+<p class="sub">Todas con el estilo 3D de la app</p>
+<div class="grid" id="g"></div>
+<script>
+const plus = '<svg class="plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+const O = [
+  ['1 · Actual', 'Esfera azul con canto inferior', `<div class="f o1">${plus}</div>`],
+  ['2 · Píldora con texto', 'Dice qué hace: «Nueva cita»', `<div class="f o2">${plus}Nueva cita</div>`],
+  ['3 · Degradado belleza', 'Rosa a morado, va con el salón', `<div class="f o3">${plus}</div>`],
+  ['4 · Emoji + insignia', '💅🏻 con un + azul en la esquina', `<div class="f o4">💅🏻<i>+</i></div>`],
+  ['5 · Cristal', 'Transparente, estilo iOS más reciente', `<div class="f o5">${plus}</div>`, 'glass'],
+  ['6 · Cuadrado iOS', 'Esquinas suaves como un ícono de app', `<div class="f o6">${plus}</div>`],
+  ['7 · Negro y dorado', 'Elegante, para el tema oscuro', `<div class="f o7">${plus}</div>`],
+  ['8 · Integrado al menú', 'Al centro de la barra de abajo', `<div class="bar"><span>📅</span><span>💁🏻‍♀️</span><div class="f o8">${plus}</div><span>💅🏻</span><span>✨</span></div>`],
+];
+document.getElementById('g').innerHTML = O.map(([n, d, h, cls]) => `<div class="card"><div class="stage ${cls || ''}" style="${cls ? 'border-radius:20px' : ''}">${h}</div><div><div class="n">${n}</div><div class="d">${d}</div></div></div>`).join('');
+</script>
+</body>
+</html>

@@ -24,11 +24,12 @@ export function validarCambio(body: unknown, id: string): Cambio {
   if (id === '__settings') {
     valido(esObjeto(data), 'Los ajustes no se pueden eliminar.');
     const settings = data as Record<string, unknown>;
-    const keys = ['skin', 'negocio', 'abre', 'cierra', 'examplesOff', 'waConfirm', 'waRecordar', 'waGracias', 'tplConfirm', 'tplRecordar', 'tplGracias'];
+    const keys = ['modo', 'skin', 'negocio', 'abre', 'cierra', 'examplesOff', 'waConfirm', 'waRecordar', 'waGracias', 'tplConfirm', 'tplRecordar', 'tplGracias'];
     valido(Object.keys(settings).every(k => keys.includes(k)), 'Ajuste desconocido.');
     for (const [k, v] of Object.entries(settings)) {
       if (['examplesOff', 'waConfirm', 'waRecordar', 'waGracias'].includes(k)) valido(typeof v === 'boolean', 'Valor de ajuste inválido.');
       else if (['abre', 'cierra'].includes(k)) valido(hora(v), 'Horario inválido.');
+      else if (k === 'modo') valido(['white', 'dark'].includes(String(v)), 'Apariencia inválida.');
       else if (k === 'skin') valido(['clasico', 'rosa', 'dorado', 'ritmo', 'cristal'].includes(String(v)), 'Tema inválido.');
       else valido(texto(v, 4000), 'Texto de ajuste inválido.');
     }

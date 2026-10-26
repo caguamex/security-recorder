@@ -197,6 +197,116 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .pwa-update button:disabled { opacity: .6; }
 [hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Diseño 3D aprobado por Antonio; integración de la referencia de Claude. */
+
+/* Propuesta 2: 3D más marcado (estilo "clay": canto inferior, brillo superior y sombra profunda). */
+.app { background: radial-gradient(120% 60% at 50% 0%, var(--card), var(--bg) 60%); }
+.tabbar { --t1: #2F7BFF; --t2: #FF3D85; --t3: #A855F7; --t4: #FF9F0A; --t5: #22B8CF;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: calc(100% - 24px); max-width: 496px; padding: 8px 6px; border: 1px solid rgba(255, 255, 255, .9); border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .96), rgba(244, 245, 250, .94)); box-shadow: 0 2px 0 rgba(0, 0, 0, .04), 0 14px 34px rgba(30, 40, 80, .18), inset 0 1px 0 #fff; }
+.tab { gap: 4px; color: var(--ink2); font-size: 11px; }
+.tab:nth-child(1) { --tc: var(--t1); } .tab:nth-child(2) { --tc: var(--t2); } .tab:nth-child(3) { --tc: var(--t3); } .tab:nth-child(4) { --tc: var(--t4); } .tab:nth-child(5) { --tc: var(--t5); }
+.tab svg { width: 48px; height: 38px; padding: 7px 12px; border-radius: 14px; color: var(--tc);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tc) 10%, #fff), color-mix(in srgb, var(--tc) 22%, #fff));
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--tc) 30%, #fff), 0 6px 12px color-mix(in srgb, var(--tc) 18%, transparent), inset 0 1px 0 #fff; transition: transform .15s; }
+.tab[aria-selected="true"] { color: var(--tc); font-weight: 800; }
+.tab[aria-selected="true"] svg { color: #fff; transform: translateY(-4px) scale(1.06);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--tc) 55%, #fff) 0%, var(--tc) 45%, color-mix(in srgb, var(--tc) 85%, #000) 100%);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--tc) 60%, #000), 0 12px 20px color-mix(in srgb, var(--tc) 50%, transparent), inset 0 2px 0 rgba(255, 255, 255, .6), inset 0 -3px 6px rgba(0, 0, 0, .15); }
+.app { padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px)); }
+.fab { bottom: calc(112px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px;
+  background: radial-gradient(circle at 32% 25%, color-mix(in srgb, var(--fab) 40%, #fff) 0%, var(--fab) 50%, color-mix(in srgb, var(--fab) 70%, #000) 100%);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--fab) 55%, #000), 0 16px 30px color-mix(in srgb, var(--fab) 55%, transparent), inset 0 3px 2px rgba(255, 255, 255, .5); }
+.ev { border-left-width: 5px; border-radius: 12px;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--c) 6%, var(--card)) 0%, color-mix(in srgb, var(--c) 18%, var(--card)) 100%);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 28%, #fff), 0 12px 24px color-mix(in srgb, var(--c) 28%, transparent), inset 0 1px 0 #fff; }
+.wd b { box-shadow: 0 2px 0 rgba(0, 0, 0, .05); background: linear-gradient(180deg, var(--card), var(--bg)); }
+.wd[aria-current="date"] b { background: linear-gradient(170deg, color-mix(in srgb, var(--today) 55%, #fff), var(--today) 50%, color-mix(in srgb, var(--today) 80%, #000));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--today) 60%, #000), 0 10px 18px color-mix(in srgb, var(--today) 45%, transparent), inset 0 2px 0 rgba(255, 255, 255, .55); transform: translateY(-2px); }
+.group, .banner { border-radius: 18px; box-shadow: 0 3px 0 rgba(30, 40, 80, .05), 0 12px 28px rgba(30, 40, 80, .10), inset 0 1px 0 #fff; }
+.daysum { border-top: 0; }
+.promo { box-shadow: 0 6px 0 color-mix(in srgb, var(--c) 55%, #000), 0 20px 34px color-mix(in srgb, var(--c) 40%, transparent), inset 0 2px 0 rgba(255, 255, 255, .45); }
+.av, .ico, .sq { box-shadow: 0 2px 0 rgba(0, 0, 0, .15), 0 4px 10px rgba(0, 0, 0, .15), inset 0 1px 0 rgba(255, 255, 255, .5); }
+.cta, .btn.fill { box-shadow: 0 4px 0 color-mix(in srgb, var(--acc) 60%, #000), 0 12px 24px color-mix(in srgb, var(--acc) 40%, transparent), inset 0 1px 0 rgba(255, 255, 255, .45); }
+
+/* Variante del menú: emojis a color (personas con tono de piel claro) sobre fichas de color. Se usa junto con estilo-3d-plus.css. */
+.tab { position: relative; }
+.tab svg { visibility: hidden; }
+.tab::before, .tab::after { position: absolute; top: 4px; left: 50%; width: 48px; height: 38px; margin-left: -24px; border-radius: 14px; transition: transform .15s; }
+.tab::before { content: "";
+  background: linear-gradient(170deg, color-mix(in srgb, var(--tc) 55%, #fff), color-mix(in srgb, var(--tc) 85%, #fff));
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--tc) 60%, #fff), 0 6px 12px color-mix(in srgb, var(--tc) 22%, transparent), inset 0 1px 0 rgba(255, 255, 255, .6); }
+.tab::after { display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
+.tab:nth-child(1)::after { content: "📅"; } .tab:nth-child(2)::after { content: "💁🏻‍♀️"; } .tab:nth-child(3)::after { content: "💅🏻"; }
+.tab:nth-child(4)::after { content: "📣"; } .tab:nth-child(5)::after { content: "✨"; }
+.tab[aria-selected="true"]::before, .tab[aria-selected="true"]::after { transform: translateY(-4px) scale(1.1); }
+.tab[aria-selected="true"]::before {
+  background: linear-gradient(170deg, color-mix(in srgb, var(--tc) 55%, #fff), var(--tc) 45%, color-mix(in srgb, var(--tc) 85%, #000));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--tc) 60%, #000), 0 12px 20px color-mix(in srgb, var(--tc) 50%, transparent), inset 0 2px 0 rgba(255, 255, 255, .6); }
+
+/* Menú sin fondo de color: solo el emoji; la pestaña activa sube y lleva sombra. */
+.tab::before { background: none !important; box-shadow: none !important; }
+.tab::after { font-size: 26px; }
+.tab[aria-selected="true"]::after { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); }
+
+/* Botón + al centro de la barra; Promociones se abre desde Servicios; la última pestaña es Ajustes. */
+.tabbar { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.tab[data-tab="agenda"] { grid-column: 1; } .tab[data-tab="clientas"] { grid-column: 2; }
+.tab[data-tab="servicios"] { grid-column: 4; } .tab[data-tab="mas"] { grid-column: 5; }
+.tab[data-tab="promos"] { display: none; }
+.tab[data-tab="mas"]::after { content: "⚙️"; }
+.tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"] { color: var(--tc); font-weight: 800; }
+.tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::after { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .25)); }
+.fab, .fab[hidden] { display: grid !important; z-index: 21; left: 50%; right: auto; margin-left: -33px; width: 66px; height: 66px; border: 4px solid #fff;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); }
+
+/* Barra minimal: blanca, plana, de lado a lado; línea arriba de la activa; + negro cuadrado al centro. */
+.tabbar { bottom: 0 !important; width: 100% !important; max-width: 520px !important; border: 0 !important; border-top: 1px solid #E3E5EA !important; border-radius: 0 !important;
+  background: #fff !important; box-shadow: none !important; padding: 10px 6px calc(8px + env(safe-area-inset-bottom, 0px)) !important; backdrop-filter: none !important; }
+.tab { color: #6B6F7A !important; font-weight: 600 !important; }
+.tab::before { background: none !important; box-shadow: none !important; }
+.tab::after { filter: none !important; font-size: 25px; }
+.tab[aria-selected="true"], .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"] { color: #111 !important; font-weight: 800 !important; }
+.tab[aria-selected="true"]::after, .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::after { transform: none !important; filter: none !important; }
+.tab[aria-selected="true"]::before, .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::before { top: -11px !important; width: 36px !important; height: 3px !important; margin-left: -18px !important; border-radius: 2px !important; background: #111 !important; transform: none !important; }
+.fab, .fab[hidden] { width: 50px !important; height: 50px !important; margin-left: -25px !important; border: 0 !important; border-radius: 16px !important; background: #111 !important; color: #fff !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px) !important; box-shadow: 0 6px 14px rgba(0, 0, 0, .18) !important; }
+.app { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
+
+/* Apariencia White / Dark en Ajustes; Dark es el tema Black 3D y se aplica sobre cualquier tema. */
+html:root[data-modo="dark"] { --stage: #050506; --bg: #050506; --card: #141418; --ink: #F5F5F7; --ink2: #B9B9C2; --ink3: #7E7E89; --sep: #26262D; --acc: #0A84FF; --accInk: #fff;
+  --soft: #14243D; --today: #F5F5F7; --todayInk: #000; --glass: rgba(20, 20, 24, .92); --fill: rgba(255, 255, 255, .1); --segOn: #3A3A40; --swOff: #3A3A40;
+  --scrim: rgba(0, 0, 0, .6); --bubble: #005C4B; --bubbleInk: #E9EDEF; --c2: #202027; color-scheme: dark; }
+html[data-modo="dark"] body { background: #050506; }
+html[data-modo="dark"] .app { background: radial-gradient(120% 50% at 50% 0%, #1C1C22, #050506 60%) !important; }
+html[data-modo="dark"] .nav { background: #050506; }
+html[data-modo="dark"] .wd b { color: #F5F5F7; background: linear-gradient(180deg, #202027, #141418); box-shadow: 0 3px 0 rgba(0, 0, 0, .6), 0 6px 12px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08); }
+html[data-modo="dark"] .wd[aria-current="date"] b { color: #000; background: linear-gradient(170deg, #fff, #F5F5F7 50%, #A9A9B0); box-shadow: 0 4px 0 #6E6E75, 0 10px 22px rgba(255, 255, 255, .25), inset 0 2px 0 #fff; }
+html[data-modo="dark"] .ev { background: linear-gradient(170deg, color-mix(in srgb, var(--c) 20%, #202027), color-mix(in srgb, var(--c) 12%, #141418));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 35%, #000), 0 12px 24px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .1); }
+html[data-modo="dark"] .group, html[data-modo="dark"] .banner { background: linear-gradient(180deg, #202027, #141418); box-shadow: 0 3px 0 rgba(0, 0, 0, .5), 0 12px 26px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .08); }
+html[data-modo="dark"] .sq { background: linear-gradient(135deg, color-mix(in srgb, var(--c) 45%, #000), var(--c)); }
+html[data-modo="dark"] .tabbar { background: #0B0B0E !important; border-top-color: #26262D !important; }
+html[data-modo="dark"] .tab { color: #8A8A94 !important; }
+html[data-modo="dark"] .tab[aria-selected="true"], html[data-modo="dark"] .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"] { color: #fff !important; }
+html[data-modo="dark"] .tab[aria-selected="true"]::before, html[data-modo="dark"] .tabbar:has([data-tab="promos"][aria-selected="true"]) [data-tab="servicios"]::before { background: #fff !important; box-shadow: 0 0 10px rgba(255, 255, 255, .6) !important; }
+html[data-modo="dark"] .fab, html[data-modo="dark"] .fab[hidden] { background: linear-gradient(170deg, #fff, #F5F5F7 55%, #B5B5BC) !important; color: #000 !important;
+  box-shadow: 0 4px 0 #6E6E75, 0 10px 24px rgba(255, 255, 255, .2), inset 0 2px 0 #fff !important; }
+
+/* Conserva la legibilidad del tema Negro y dorado y las hojas en todos los modos. */
+:root[data-skin="dorado"]:not([data-modo="dark"]) .tabbar { background: #101012 !important; border-top-color: #38383A !important; }
+:root[data-skin="dorado"]:not([data-modo="dark"]) .tab { color: #A8A49A !important; }
+:root[data-skin="dorado"]:not([data-modo="dark"]) .tab[aria-selected="true"] { color: #D4AF6A !important; }
+:root[data-skin="dorado"]:not([data-modo="dark"]) .tab[aria-selected="true"]::before { background: #D4AF6A !important; }
+:root[data-skin="dorado"]:not([data-modo="dark"]) .fab { background: #D4AF6A !important; color: #1A1408 !important; }
+:root[data-skin="dorado"]:not([data-modo="dark"]) .group { box-shadow: 0 3px 0 #080808, 0 12px 28px #0006, inset 0 1px 0 #ffffff14; }
+html[data-modo="dark"] .sheet-card { background: var(--bg); }
+html[data-modo="dark"] .pwa-update { background: #141418; }
+/* Respeta también las áreas seguras laterales en la barra nueva. */
+.tabbar { padding-left: max(6px, env(safe-area-inset-left, 0px)) !important; padding-right: max(6px, env(safe-area-inset-right, 0px)) !important; }
+.modo button { min-height: 44px; }
 </style>
 
 <div class="app" id="app">
