@@ -145,6 +145,16 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .promo p { margin: 0 0 40px; font-size: 14px; opacity: .95; }
 .promo .badge { position: absolute; right: 14px; bottom: 14px; padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, .95); color: #222; font-weight: 700; font-size: 13px; }
 .promo.add { display: grid; place-items: center; background: var(--fill); color: var(--acc); font-weight: 700; width: 46%; }
+/* Las fotografías conservan el tamaño y las acciones del carrusel existente. */
+.promo.trabajo { isolation: isolate; overflow: hidden; background: #242424; padding-top: 46px; }
+.trabajo-fondo { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center var(--foco, 64%); }
+.promo.trabajo::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(0,0,0,.78), rgba(0,0,0,.3)); }
+.promo.trabajo small, .promo.trabajo p { opacity: 1; }
+.trabajo-ver { position: absolute; top: 8px; right: 10px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 999px; background: #fff; color: #222; font-size: 13px; font-weight: 600; }
+.sq.trabajo-mini { object-fit: cover; object-position: center var(--foco, 64%); background: #242424; }
+.trabajo-galeria { display: grid; gap: 16px; margin: 16px; }
+.trabajo-galeria img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.trabajo-marca { display: block; width: 180px; height: auto; margin: 20px auto 0; }
 .pdots { display: flex; justify-content: center; gap: 6px; margin: 8px 0 4px; }
 .pdots i { width: 7px; height: 7px; border-radius: 50%; background: var(--sep); }
 .pdots i.on { width: 20px; border-radius: 4px; background: var(--ink); }

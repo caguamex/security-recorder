@@ -29,6 +29,24 @@
   // ---------- Catálogos ----------
   const CATS = [['Uñas', '#E0457B'], ['Cabello', '#8B5CF6'], ['Pestañas', '#0EA5A4'], ['Cejas', '#F08A24'], ['Facial', '#22A45D'], ['Otro', '#8E8E93']];
   const catColor = c => (CATS.find(x => x[0] === c) || CATS[5])[1];
+  // Referencias visuales de demostración; no se escriben en los datos del salón.
+  const FOTOS_TRABAJOS = {
+    extensiones: ['./trabajos/extensiones-1.jpg', './trabajos/extensiones-2.jpg', './trabajos/extensiones-3.jpg'],
+    lifting: ['./trabajos/lifting-cejas.jpg'],
+  };
+  function fotosServicio(s) {
+    const nombre = String(s.nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (s.categoria === 'Cejas') return FOTOS_TRABAJOS.lifting;
+    if (s.categoria !== 'Pestañas') return [];
+    if (/lifting|laminado|rizado/.test(nombre)) return FOTOS_TRABAJOS.lifting;
+    if (/extension|volumen|clasica|hibrid|efecto/.test(nombre)) return FOTOS_TRABAJOS.extensiones;
+    return [];
+  }
+  function miniaturaServicio(s) {
+    const foto = fotosServicio(s)[0];
+    return foto ? `<img class="sq trabajo-mini" src="${foto}" alt="" loading="lazy" decoding="async" style="--foco:${s.categoria === 'Cejas' ? '45%' : '64%'}">`
+      : `<span class="sq" style="--c:${catColor(s.categoria)}"></span>`;
+  }
   const PROMO_COLORS = ['#E0457B', '#8B5CF6', '#0EA5A4', '#F08A24', '#1F3FD1'];
   const ESTADOS = [['confirmada', 'Confirmada'], ['pendiente', 'Por confirmar'], ['completada', 'Completada'], ['cancelada', 'Cancelada']];
   const estadoTxt = e => (ESTADOS.find(x => x[0] === e) || ESTADOS[1])[1];
@@ -326,11 +344,11 @@
     const cats = ['Todas', ...CATS.map(c => c[0]).filter(c => svcs.some(s => s.categoria === c))];
     const shown = svcs.filter(s => S.cat === 'Todas' || s.categoria === S.cat);
     return head + `<div class="hscroll" role="group" aria-label="Categorías">${cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}</div>
-      <div class="cards" id="cards" style="margin-top:12px">${shown.map(s => `<div class="promo" style="--c:${catColor(s.categoria)};min-height:200px"><small>${esc(s.categoria)}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion || '')}</p>
-        <span class="badge" style="left:14px;right:auto">${s.duracion} min · ${money(s.precio)}</span><button type="button" class="badge" data-agendar="${esc(s.id)}" style="border:0">Agendar ›</button></div>`).join('') || '<p class="empty">Agrega tu primer servicio con el +.</p>'}</div>
+      <div class="cards" id="cards" style="margin-top:12px">${shown.map(s => { const fotos = fotosServicio(s); return `<div class="promo${fotos.length ? ' trabajo' : ''}" style="--c:${catColor(s.categoria)};--foco:${s.categoria === 'Cejas' ? '45%' : '64%'};min-height:200px">${fotos.length ? `<img class="trabajo-fondo" src="${fotos[0]}" alt="" decoding="async"><button type="button" class="trabajo-ver" data-fotos="${esc(s.id)}" aria-label="Ver fotos de ${esc(s.nombre)}">Ver fotos</button>` : ''}<small>${esc(s.categoria)}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion || '')}</p>
+        <span class="badge" style="left:14px;right:auto">${s.duracion} min · ${money(s.precio)}</span><button type="button" class="badge" data-agendar="${esc(s.id)}" style="border:0">Agendar ›</button></div>`; }).join('') || '<p class="empty">Agrega tu primer servicio con el +.</p>'}</div>
       <div class="pdots" id="pdots">${shown.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>
       <p class="gh">Todos los servicios · toca para editar</p>
-      ${svcs.length ? `<div class="group">${svcs.slice().sort((a, b) => CATS.findIndex(c => c[0] === a.categoria) - CATS.findIndex(c => c[0] === b.categoria) || a.nombre.localeCompare(b.nombre, 'es')).map(s => `<button type="button" class="cell" data-servicio="${esc(s.id)}"><span class="sq" style="--c:${catColor(s.categoria)}"></span><span class="l">${esc(s.nombre)}<small>${esc(s.categoria)} · ${s.duracion} min</small></span><span class="p">${money(s.precio)}</span></button>`).join('')}</div>` : ''}`;
+      ${svcs.length ? `<div class="group">${svcs.slice().sort((a, b) => CATS.findIndex(c => c[0] === a.categoria) - CATS.findIndex(c => c[0] === b.categoria) || a.nombre.localeCompare(b.nombre, 'es')).map(s => `<button type="button" class="cell" data-servicio="${esc(s.id)}">${miniaturaServicio(s)}<span class="l">${esc(s.nombre)}<small>${esc(s.categoria)} · ${s.duracion} min</small></span><span class="p">${money(s.precio)}</span></button>`).join('')}</div>` : ''}`;
   }
 
   // Conexiones y ajustes
@@ -482,6 +500,20 @@
   function closeSheet() { sheet.hidden = true; card.innerHTML = ''; S.sheetOpen = false; document.body.style.overflow = ''; }
   sheet.addEventListener('mousedown', e => { if (e.target === sheet) closeSheet(); });
   const navSheet = (title, right) => `<div class="sh-nav"><button type="button" data-close>Cancelar</button><b>${esc(title)}</b>${right ? `<button type="button" class="done" data-done>${esc(right)}</button>` : '<span style="width:64px"></span>'}</div>`;
+
+  function sheetFotos(id) {
+    const servicio = byId(id), fotos = servicio && fotosServicio(servicio);
+    if (!fotos?.length) return;
+    openSheet(`${navSheet('Fotos de trabajos', 'Listo')}<p class="foot">${esc(servicio.nombre)} · Fotografías de demostración.</p>
+      <div class="trabajo-galeria">${fotos.map((src, i) => {
+        const [ancho, alto] = src === FOTOS_TRABAJOS.lifting[0] ? [720, 1280]
+          : src === FOTOS_TRABAJOS.extensiones[0] ? [1280, 1113] : [1022, 1280];
+        return `<img src="${src}" width="${ancho}" height="${alto}" alt="${esc(servicio.nombre)}: referencia ${i + 1}" decoding="async">`;
+      }).join('')}</div>
+      <img class="trabajo-marca" src="./trabajos/logo-ab-beauty.jpg" alt="AB BEAUTY ROOM">`, 'Fotos de trabajos', root => {
+      root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
+    });
+  }
 
   function sheetCita(opts) {
     const o = opts || {}, edit = o.id ? byId(o.id) : null;
@@ -809,13 +841,14 @@
       }
       return;
     }
-    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-agendar],[data-act],[data-skin],[data-setsw],[data-newat]');
+    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-agendar],[data-act],[data-skin],[data-setsw],[data-newat],[data-fotos]');
     if (!b) return;
     const d = b.dataset;
     if (d.tab) { S.tab = d.tab; if (d.tab === 'servicios') S.seg = 'servicios'; lastScrollDay = null; scrollTo({ top: 0 }); render(); }
     else if (d.day) { S.day = d.day; lastScrollDay = null; render(); }
     else if (d.cita) sheetDetalle(d.cita);
     else if (d.clienta !== undefined && d.clienta !== '') sheetClienta(d.clienta);
+    else if (d.fotos) sheetFotos(d.fotos);
     else if (d.servicio) sheetServicio(d.servicio);
     else if (d.promo) sheetPromo(d.promo);
     else if (d.grupo) sheetGrupo(d.grupo);

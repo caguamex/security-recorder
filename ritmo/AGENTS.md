@@ -49,6 +49,7 @@ Para la agenda se requieren `DATABASE_URL` y `APP_TOKEN`; se configura `PUBLIC_U
 Verificación del backend: `npm ci --prefix ritmo/servidor` y `npm test --prefix ritmo/servidor`. Pruebas de navegador: `npm run test:navegador --prefix ritmo/servidor` (Chromium de Playwright o `BROWSER_CHANNEL=msedge`). Las pruebas usan PostgreSQL local en WebAssembly, sin servicios externos. No activar despliegues ni recursos facturables sin autorización de Antonio.
 
 ## Reglas
+- Las tarjetas de servicios tienen fotografías de demostración en `belleza/trabajos/`, suministradas por Antonio. La asociación se realiza en el frontend; «Ver fotos» abre los originales. Conservar el logo original de AB BEAUTY ROOM. Ver `belleza/TRABAJOS.md` para la correspondencia.
 - No cambies el diseño de las pantallas existentes sin pedirlo; compáralas con `imagenes/`.
 - Cada cambio de código: corre las pruebas, regenera `dist/` y revisa la app en un navegador con ancho de teléfono (390 px).
 - Nada de secretos en el repositorio.

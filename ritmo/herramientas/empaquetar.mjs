@@ -27,13 +27,16 @@ let bel = readFileSync(join(raiz, 'belleza', 'index.html'), 'utf8');
 bel = bel.replace('<script src="core.js"></script>', () => `<script>\n${readFileSync(join(proto, 'core.js'), 'utf8')}</script>`)
   .replace('<script src="sincronizacion.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'sincronizacion.js'), 'utf8')}</script>`)
   .replace('<script src="belleza.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'belleza.js'), 'utf8')}</script>`);
+// El documento de un solo archivo también conserva las fotos sin conexión.
+bel = bel.replace(/\.\/trabajos\/[a-z0-9-]+\.jpg/g, recurso =>
+  'data:image/jpeg;base64,' + readFileSync(join(raiz, 'belleza', recurso)).toString('base64'));
 writeFileSync(join(raiz, 'dist', 'belleza.html'), pagina.replace(html, () => bel));
 console.log('Listo: ritmo/dist/belleza.html');
 
 // Publicación PWA: documento completo, recursos locales y caché versionada por contenido.
 const fuente = join(raiz, 'belleza'), pwa = join(raiz, 'dist', 'pwa');
 mkdirSync(pwa, { recursive: true });
-for (const recurso of ['belleza.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes']) {
+for (const recurso of ['belleza.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
   cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
 }
 cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));
