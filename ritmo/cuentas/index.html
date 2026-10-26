@@ -7,6 +7,7 @@
 /* Prototipo de cuentas y equipo con el diseño aprobado: barra minimal, + negro al centro, emojis y relieve.
    Una columna tipo iPhone (máx. 430 px) con una franja de demostración arriba para cambiar de rol. */
 :root {
+  --waBg: #EFE7DD; --waIn: #FFFFFF; --waOut: #D9FDD3; --waHd: #075E54; --waHdInk: #FFFFFF; --waDay: #E1F2FB;
   --stage: #E9ECF2; --bg: #F2F2F7; --card: #FFFFFF; --card2: #FFFFFF; --ink: #0B0B0F; --ink2: #3C3C43; --ink3: #8A8A8E; --sep: #E3E5EA;
   --acc: #007AFF; --soft: #E5F0FF; --fill: rgba(118, 118, 128, .12); --segOn: #FFFFFF; --bar: #FFFFFF; --mas: #111111; --masInk: #FFFFFF;
   --ok: #1E9E4A; --warn: #B7791F; --bad: #E5383B; --demo: #1B1B20; --demoInk: #F5F5F7; --scrim: rgba(0, 0, 0, .32);
@@ -14,11 +15,13 @@
   --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --emo: "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --waBg: #0B141A; --waIn: #202C33; --waOut: #005C4B; --waHd: #202C33; --waHdInk: #E9EDEF; --waDay: #182229;
   --stage: #000000; --bg: #050506; --card: #141418; --card2: #202027; --ink: #F5F5F7; --ink2: #B9B9C2; --ink3: #7E7E89; --sep: #26262D;
   --acc: #0A84FF; --soft: #14243D; --fill: rgba(255, 255, 255, .1); --segOn: #3A3A40; --bar: #0B0B0E; --mas: #F5F5F7; --masInk: #000000;
   --ok: #34C759; --warn: #E8B54A; --bad: #FF6B5E; --demo: #1C1C22; --demoInk: #F5F5F7; --scrim: rgba(0, 0, 0, .6);
   --lift: 0 3px 0 rgba(0, 0, 0, .5), 0 12px 26px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .08); color-scheme: dark; } }
 :root[data-theme="dark"] {
+  --waBg: #0B141A; --waIn: #202C33; --waOut: #005C4B; --waHd: #202C33; --waHdInk: #E9EDEF; --waDay: #182229;
   --stage: #000000; --bg: #050506; --card: #141418; --card2: #202027; --ink: #F5F5F7; --ink2: #B9B9C2; --ink3: #7E7E89; --sep: #26262D;
   --acc: #0A84FF; --soft: #14243D; --fill: rgba(255, 255, 255, .1); --segOn: #3A3A40; --bar: #0B0B0E; --mas: #F5F5F7; --masInk: #000000;
   --ok: #34C759; --warn: #E8B54A; --bad: #FF6B5E; --demo: #1C1C22; --demoInk: #F5F5F7; --scrim: rgba(0, 0, 0, .6);
@@ -187,6 +190,24 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
 .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .slots .opt { padding: 10px 0; text-align: center; font-variant-numeric: tabular-nums; }
 .svc-row[aria-pressed="true"] { background: var(--soft); }
+.wa { margin: 0 -16px; padding: 14px 12px 18px; background: var(--waBg); display: flex; flex-direction: column; gap: 8px; }
+.wa-hd { display: flex; align-items: center; gap: 10px; margin: 0 -16px; padding: 10px 16px; background: var(--waHd); color: var(--waHdInk); }
+.wa-hd small { display: block; opacity: .75; font-size: 12px; }
+.wa-day { align-self: center; padding: 4px 10px; border-radius: 8px; background: var(--waDay); color: var(--ink2); font-size: 12px; font-weight: 600; }
+.bub { position: relative; align-self: flex-start; max-width: 88%; padding: 8px 10px 18px; border-radius: 4px 12px 12px 12px; background: var(--waIn); color: var(--ink); font-size: 14.5px; line-height: 1.35; box-shadow: 0 1px 1px rgba(0, 0, 0, .12); white-space: pre-line; }
+.bub.me { align-self: flex-end; border-radius: 12px 4px 12px 12px; background: var(--waOut); }
+.bub time { position: absolute; right: 8px; bottom: 3px; color: var(--ink3); font-size: 11px; }
+.bub .lbl { display: block; margin-bottom: 4px; color: #128C7E; font-size: 11.5px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; white-space: normal; }
+.qr { align-self: flex-start; display: flex; gap: 6px; max-width: 88%; width: 88%; margin-top: -4px; }
+.qr span { flex: 1; padding: 8px; border-radius: 10px; background: var(--waIn); color: #027EB5; text-align: center; font-size: 14px; font-weight: 600; box-shadow: 0 1px 1px rgba(0, 0, 0, .12); }
+.tl { margin: 0; padding: 0; list-style: none; }
+.tl li { display: flex; gap: 12px; align-items: flex-start; padding: 11px 16px; }
+.tl li + li { border-top: 1px solid var(--sep); }
+.tl .e { font-size: 18px; line-height: 1.2; }
+.tl .l { flex: 1; min-width: 0; } .tl small { display: block; color: var(--ink3); font-size: 13px; }
+.st-ok { color: var(--ok); font-size: 12.5px; font-weight: 700; white-space: nowrap; } .st-wait { color: var(--warn); font-size: 12.5px; font-weight: 700; white-space: nowrap; } .st-prog { color: var(--ink3); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.check { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: 14px; color: var(--ink2); }
+.check input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--acc); }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
@@ -224,13 +245,17 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     { id: 'brenda', n: 'Brenda Castillo', ini: 'BC', rol: 'especialista', c: '#F59E0B', serv: ['gel', 'ped'], estado: 'pendiente', verTodas: false, horario: 'Sáb · 10:00 a 18:00' },
   ];
   const CLIENTAS = { mr: ['Mariana Ruiz', '55 1234 5678'], sl: ['Sofía López', '55 8765 4321'], fc: ['Fernanda Cruz', '55 2222 3333'], ag: ['Andrea García', '55 4444 5555'], pv: ['Paola Vega', '55 6666 7777'], dt: ['Daniela Torres', '55 9090 1212'] };
+  // Mensajes automáticos y anticipo (configuración de Admin).
+  const W = { agendar: true, anticipo: true, dia: true, antes: true, diaHora: '09:00', antesMin: 60, pedir: true, pct: 30, minimo: 300, plazo: 24,
+    banco: 'BBVA', clabe: '012 180 0000 0000 0000', titular: "AB' Beauty Room", usados: 214, limite: 600 };
+  const anticipoDe = s => W.pedir && s.p >= W.minimo ? Math.round(s.p * W.pct / 100 / 10) * 10 : 0;
   let CITAS = [
-    { id: 1, h: '10:00', s: 'acr', cl: 'mr', st: 'karla', ok: true, hist: [['Lupita', 'Recepción', 'la creó', 'Ayer · 18:04']] },
-    { id: 2, h: '10:30', s: 'lif', cl: 'sl', st: 'renata', ok: true, hist: [['Renata', 'Especialista', 'la creó', 'Sáb 24 · 13:20']] },
-    { id: 3, h: '12:00', s: 'gel', cl: 'fc', st: 'karla', ok: false, hist: [['Antonio', 'Admin', 'la creó a las 11:00', 'Vie 23 · 09:41'], ['Lupita', 'Recepción', 'la movió a las 12:00', 'Hoy · 09:12']] },
-    { id: 4, h: '13:00', s: 'bal', cl: 'ag', st: 'ximena', ok: true, hist: [['Lupita', 'Recepción', 'la creó', 'Jue 22 · 17:30']] },
+    { id: 1, h: '10:00', s: 'acr', cl: 'mr', st: 'karla', ok: true, pago: 'Ayer · 19:30', hist: [['Lupita', 'Recepción', 'la creó', 'Ayer · 18:04']] },
+    { id: 2, h: '10:30', s: 'lif', cl: 'sl', st: 'renata', ok: true, pago: 'Sáb 24 · 14:02', hist: [['Renata', 'Especialista', 'la creó', 'Sáb 24 · 13:20']] },
+    { id: 3, h: '12:00', s: 'gel', cl: 'fc', st: 'karla', ok: false, pago: 'Vie 23 · 10:15', hist: [['Antonio', 'Admin', 'la creó a las 11:00', 'Vie 23 · 09:41'], ['Lupita', 'Recepción', 'la movió a las 12:00', 'Hoy · 09:12']] },
+    { id: 4, h: '13:00', s: 'bal', cl: 'ag', st: 'ximena', ok: true, pago: 'Jue 22 · 18:10', hist: [['Lupita', 'Recepción', 'la creó', 'Jue 22 · 17:30']] },
     { id: 5, h: '16:00', s: 'cej', cl: 'pv', st: 'renata', ok: true, hist: [['Antonio', 'Admin', 'la creó', 'Lun 26 · 20:15']] },
-    { id: 6, h: '17:00', s: 'ped', cl: 'dt', st: 'karla', ok: false, hist: [['Karla', 'Especialista', 'la creó', 'Hoy · 08:50']] },
+    { id: 6, h: '17:00', s: 'ped', cl: 'dt', st: 'karla', ok: false, pago: null, hist: [['Karla', 'Especialista', 'la creó', 'Hoy · 08:50']] },
   ];
   const HIST = [
     ['Lupita', 'movió la cita de Fernanda Cruz a las 12:00', 'Hoy · 09:12'], ['Karla', 'agendó Pedicure spa para Daniela Torres', 'Hoy · 08:50'],
@@ -376,8 +401,10 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
         <div class="cell">${av(m)}<span class="l">Te atiende<small>${esc(m.n.split(' ')[0])}</small></span></div></div>
       <label for="pcNombre" class="gh" style="display:block">Tu nombre</label><input class="in" id="pcNombre" autocomplete="name" placeholder="Nombre y apellido">
       <label for="pcTel" class="gh" style="display:block">Tu WhatsApp</label><input class="in" id="pcTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="55 1234 5678">
+      ${anticipoDe(s) ? `<div class="lock" style="margin-top:14px"><span class="e">💸</span><span>Para apartar se pide un anticipo de <b>${money(anticipoDe(s))}</b>. Te mandamos los datos por WhatsApp; tienes ${W.plazo} horas para enviarlo.</span></div>` : ''}
+      <label class="check"><input type="checkbox" id="pcOk" checked><span>Acepto recibir por WhatsApp mensajes sobre esta cita: confirmación, anticipo y recordatorios.</span></label>
       <div id="pcOut" style="margin-top:16px"><button type="button" class="btn fill" data-act="enviar-pedido">Pedir esta cita</button>
-      <p class="foot">El salón confirma tu cita por WhatsApp. No necesitas cuenta.</p></div>`); };
+      <p class="foot">No necesitas cuenta.</p></div>`); };
 
   /* ---------- Agenda ---------- */
   const visibles = () => CITAS.filter(c => (puede.verTodas() || c.st === yo().id) && (S.filtro === 'todas' || c.st === S.filtro)).sort((a, b) => a.h.localeCompare(b.h));
@@ -408,15 +435,47 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
         return `<button type="button" class="blk" style="--c:${s.c};top:${t / 60 * px + 2}px;height:${s.min / 60 * px - 4}px" data-cita="${c.id}"><b>${c.h}</b>${esc(s.n)}</button>`; }).join('')}</div></div>`).join('')}</div>
       <p class="foot">De 10:00 a 19:00. Cada columna es una especialista; toca una cita para abrirla.</p>`;
   };
+  const AHORA = 12 * 60 + 40;
+  const DIRECCION = 'Dirección del salón';
+  // «Hoy · 08:50» → ['Hoy', '08:50']; «ahora» es la hora de la demostración.
+  const cuando = txt => { const [d, h] = txt.split(' · '); return [d, h === 'ahora' ? hhmm(AHORA) : h]; };
+  const creadaHoy = c => cuando(c.hist[0][3])[0] === 'Hoy';
+  // El aviso del día no se manda si la cita se agendó menos de 3 horas antes.
+  const omiteDia = c => creadaHoy(c) && mins(W.diaHora) - mins(cuando(c.hist[0][3])[1]) < 180;
+  const mensajes = c => { const s = serv(c.s), a = anticipoDe(s), cre = c.hist[0][3], t = mins(c.h), out = [];
+    if (W.agendar) out.push(['📩', a ? 'Cita apartada y datos del anticipo' : 'Cita agendada', 'Al agendar · ' + cre, 'ok', 'Leído']);
+    if (a && W.anticipo) out.push(c.pago ? ['💸', 'Anticipo recibido', money(a) + ' · ' + c.pago, 'ok', 'Leído'] : ['⏳', 'Esperando anticipo de ' + money(a), 'Vence hoy a las ' + hhmm(t - 120) + ' (2 h antes de la cita)', 'wait', 'Pendiente']);
+    if (W.dia) out.push(omiteDia(c) ? ['☀️', 'Hoy es tu cita', 'No se mandó: la agendaron hoy a las ' + cuando(cre)[1], 'prog', 'Omitido'] : ['☀️', 'Hoy es tu cita', 'Hoy · ' + W.diaHora, AHORA >= mins(W.diaHora) ? 'ok' : 'prog', AHORA >= mins(W.diaHora) ? 'Entregado' : 'Programado']);
+    if (W.antes) { const h = hhmm(t - W.antesMin); out.push(['⏰', W.antesMin === 60 ? 'Una hora antes' : W.antesMin + ' minutos antes', 'Hoy · ' + h, AHORA >= t - W.antesMin ? 'ok' : 'prog', AHORA >= t - W.antesMin ? 'Entregado' : 'Programado']); }
+    return out; };
+  const chat = c => { const s = serv(c.s), a = anticipoDe(s), [n] = CLIENTAS[c.cl], nom = n.split(' ')[0], m = miembro(c.st).n.split(' ')[0], fecha = 'martes 27 de octubre', resto = s.p - a, b = [];
+    const [dC, hC] = cuando(c.hist[0][3]), [dP, hP] = c.pago ? cuando(c.pago) : [];
+    if (W.agendar) b.push([dC, a ? `Hola ${nom}, apartamos tu cita de ${s.n} el ${fecha} a las ${c.h} con ${m} en AB' Beauty Room.\n\nPara confirmarla, envía tu anticipo de ${money(a)} antes de ${W.plazo} horas:\nBanco: ${W.banco}\nCLABE: ${W.clabe}\nA nombre de: ${W.titular}\n\nCuando lo envíes, manda aquí tu comprobante.` : `Hola ${nom}, tu cita de ${s.n} quedó agendada para el ${fecha} a las ${c.h} con ${m} en AB' Beauty Room. Te recordaremos el día de tu cita.`, hC, 'Al agendar']);
+    if (a && W.anticipo && c.pago) { b.push([dP, 'me:🧾 Comprobante de transferencia.jpg', hhmm(mins(hP) - 6)]); b.push([dP, `¡Gracias, ${nom}! Recibimos tu anticipo de ${money(a)}. Tu cita de ${s.n} el ${fecha} a las ${c.h} está confirmada. Restan ${money(resto)} que pagas en el salón.`, hP, 'Anticipo recibido']); }
+    if (W.dia && !omiteDia(c)) b.push(['Hoy', `Buenos días, ${nom}. Hoy es tu cita de ${s.n} a las ${c.h} con ${m}. ¿Nos confirmas?`, W.diaHora, 'Día de la cita', ['Sí, ahí estaré', 'Necesito cambiarla']]);
+    if (W.antes) b.push(['Hoy', `${nom}, te esperamos en ${W.antesMin === 60 ? 'una hora' : W.antesMin + ' minutos'}, a las ${c.h}, para tu ${s.n}.\n📍 ${DIRECCION}\nSi vas con retraso, avísanos por aquí.`, hhmm(mins(c.h) - W.antesMin), W.antesMin === 60 ? 'Una hora antes' : 'Antes de la cita']);
+    let dia = '';
+    return `<div class="wa-hd"><span class="av" style="--c:#E0457B">AB</span><span><b>AB' Beauty Room</b><small>Cuenta de empresa</small></span></div><div class="wa">${b.map(([d, txt, h, lbl, qr]) => {
+      const sep = d !== dia ? `<span class="wa-day">${d}</span>` : ''; dia = d;
+      if (txt.startsWith('me:')) return sep + `<div class="bub me">${esc(txt.slice(3))}<time>${h}</time></div>`;
+      return sep + `<div class="bub"><span class="lbl">${lbl}</span>${esc(txt)}<time>${h}</time></div>${qr ? `<div class="qr">${qr.map(x => `<span>${x}</span>`).join('')}</div>` : ''}`; }).join('')}</div>`; };
+  const verChat = id => { const c = CITAS.find(x => x.id === id);
+    sheet(`<div class="nav"><button type="button" data-cita="${c.id}">‹ Cita</button><b>Así lo ve ${esc(CLIENTAS[c.cl][0].split(' ')[0])}</b><span style="width:52px"></span></div>${chat(c)}
+      <p class="foot">Mensajes automáticos de la cita. Las respuestas de la clienta llegan a la app y al WhatsApp del salón.</p>`); };
+
   const verCita = id => { const c = CITAS.find(x => x.id === id), s = serv(c.s), m = miembro(c.st), [n, t] = CLIENTAS[c.cl];
     sheet(`<div class="nav"><button type="button" data-act="cerrar">Cerrar</button><b>Cita</b><span style="width:52px"></span></div>
       <h1 style="font-size:26px">${esc(s.n)}</h1><p class="sub">Martes 27 · ${c.h} a ${fin(c.h, s.min)}${puede.ingresos() ? ' · ' + money(s.p) : ''}</p>
       <div class="group"><div class="cell"><span class="l">Clienta<small>${esc(n)}</small></span></div>
         <div class="cell"><span class="l">Teléfono<small style="font-variant-numeric:tabular-nums">${tel(t)}</small></span>${S.rol === 'especialista' ? '<span class="pill">Oculto</span>' : ''}</div>
         <div class="cell">${av(m)}<span class="l">La atiende<small>${esc(m.n)}</small></span></div></div>
+      ${(() => { const a = anticipoDe(s); return a ? `<p class="gh">Anticipo</p><div class="group"><div class="cell"><span class="e" style="font-size:22px">${c.pago ? '💸' : '⏳'}</span><span class="l">${money(a)} de ${money(s.p)}<small>${c.pago ? 'Recibido · ' + c.pago + ' · resta ' + money(s.p - a) : 'Pendiente · la clienta ya tiene los datos para transferir'}</small></span>${c.pago ? '<span class="st-ok">Recibido</span>' : '<span class="st-wait">Pendiente</span>'}</div>
+        ${!c.pago && S.rol !== 'especialista' ? `<button type="button" class="cell" data-act="anticipo-ok" data-id="${c.id}" style="color:var(--acc);font-weight:700;justify-content:center">Marcar anticipo recibido</button>` : ''}</div>` : ''; })()}
+      <p class="gh">Mensajes de WhatsApp</p><div class="group"><ul class="tl">${mensajes(c).map(([e, t, w, k, st]) => `<li><span class="e">${e}</span><span class="l">${t}<small>${w}</small></span><span class="st-${k}">${st}</span></li>`).join('')}</ul>
+        <button type="button" class="cell" data-chat="${c.id}" style="color:var(--acc);font-weight:600;justify-content:center;border-top:1px solid var(--sep)">Ver la conversación</button></div>
       <p class="gh">Historial</p><div class="group" style="padding:14px 16px 2px"><ul class="hist">${c.hist.map(([q, r, a, w]) => `<li><b>${q}</b> (${r}) ${a}<small>${w}</small></li>`).join('')}</ul></div>
       <div style="display:grid;gap:10px;margin-top:16px">
-        <button type="button" class="btn fill" data-act="recordar" style="background:#25D366;box-shadow:0 4px 0 #128C4B">Enviar recordatorio por WhatsApp</button>
+        <button type="button" class="btn fill" data-act="recordar" style="background:#25D366;box-shadow:0 4px 0 #128C4B">Escribirle por WhatsApp</button>
         ${puede.editarCita(c) ? '<button type="button" class="btn soft" data-act="mover">Mover de horario</button>' : ''}</div>
       ${S.rol === 'especialista' ? '<p class="foot">El recordatorio sale del WhatsApp del salón, así el número de la clienta no se muestra en tu teléfono.</p>' : ''}`); };
 
@@ -453,6 +512,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       <div class="group" style="margin-top:10px"><button type="button" class="cell" data-act="ver-publico"><span class="e" style="font-size:22px">👀</span><span class="l">Ver como lo ven tus clientas<small>Servicios, precios, duración y horarios libres</small></span><span class="chev">›</span></button></div>` : ''}
       <p class="gh">Salón</p><div class="group">
         ${puede.equipo() ? `<button type="button" class="cell" data-sub="equipo"><span class="e" style="font-size:22px">👩🏻‍🤝‍👩🏽</span><span class="l">Equipo<small>${EQUIPO.filter(x => x.estado === 'activa').length} personas · 1 invitación pendiente</small></span><span class="chev">›</span></button>` : ''}
+        ${S.rol === 'admin' ? `<button type="button" class="cell" data-sub="whatsapp"><span class="e" style="font-size:22px">💬</span><span class="l">Mensajes de WhatsApp<small>Al agendar, anticipo, el día y ${W.antesMin} min antes</small></span><span class="chev">›</span></button>` : ''}
         <button type="button" class="cell" data-sub="seguridad"><span class="e" style="font-size:22px">🔐</span><span class="l">Seguridad<small>${S.rol === 'admin' ? 'Dos pasos, sesiones, historial y respaldos' : 'Tus sesiones abiertas'}</small></span><span class="chev">›</span></button>
         <div class="cell"><span class="e" style="font-size:22px">🌙</span><span class="l">Apariencia</span><span class="r">White</span></div></div>
       ${puede.equipo() ? '' : '<p class="foot">Equipo, conexiones y datos del negocio solo los ve Admin.</p>'}
@@ -494,6 +554,31 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     <div id="invOut" style="margin-top:20px"><button type="button" class="btn fill" data-act="crear-invitacion">Crear invitación</button>
     <p class="foot">Crea un enlace de un solo uso que vence en 48 horas. Lo mandas tú por WhatsApp.</p></div>`);
 
+  const sw = (k, label) => `<button type="button" class="sw" role="switch" aria-label="${label}" aria-checked="${!!W[k]}" data-w="${k}"></button>`;
+  const whatsapp = () => { const costo = Math.round(W.usados * 0.16);
+    return `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button></div><h1>Mensajes de WhatsApp</h1>
+      <p class="sub">Se mandan solos desde el número del salón. La clienta puede responder y te llega aquí.</p>
+      <div class="group"><div class="cell"><span class="e" style="font-size:22px">🟢</span><span class="l">WhatsApp Business conectado<small>Demostración · número del salón</small></span></div></div>
+      <p class="gh">Mensajes automáticos</p><div class="group">
+        <div class="cell"><span class="e" style="font-size:20px">📩</span><span class="l">Al agendar<small>Confirma la cita y, si aplica, manda los datos del anticipo</small></span>${sw('agendar', 'Al agendar')}</div>
+        <div class="cell"><span class="e" style="font-size:20px">💸</span><span class="l">Anticipo recibido<small>Cuando marcas el anticipo como recibido</small></span>${sw('anticipo', 'Anticipo recibido')}</div>
+        <div class="cell"><span class="e" style="font-size:20px">☀️</span><span class="l">El día de la cita<small>A las ${W.diaHora}, con botones «Sí, ahí estaré» y «Necesito cambiarla»</small></span>${sw('dia', 'El día de la cita')}</div>
+        <div class="cell"><span class="e" style="font-size:20px">⏰</span><span class="l">Antes de la cita<small>Con la ubicación del salón</small></span>${sw('antes', 'Antes de la cita')}</div></div>
+      <div class="seg" role="tablist" aria-label="Cuánto antes" style="margin-top:10px">${[30, 60, 120].map(v => `<button type="button" role="tab" data-antes="${v}" aria-selected="${W.antesMin === v}">${v === 120 ? '2 horas' : v === 60 ? '1 hora' : '30 min'} antes</button>`).join('')}</div>
+      <p class="foot">Si la cita es antes de las 10:00, el mensaje del día sale la noche anterior a las 19:00. Nunca se manda nada entre 21:00 y 8:00.</p>
+      <button type="button" class="btn soft" data-chat="3" style="margin-top:12px">Ver ejemplo de conversación</button>
+      <p class="gh">Anticipo</p><div class="group">
+        <div class="cell"><span class="l">Pedir anticipo para apartar<small>Solo servicios desde ${money(W.minimo)}</small></span>${sw('pedir', 'Pedir anticipo')}</div>
+        <div class="cell"><span class="l">Plazo para pagar<small>Si no llega, te avisamos para que decidas si liberas el horario</small></span><span class="r">${W.plazo} h</span></div></div>
+      <div class="seg" role="tablist" aria-label="Monto del anticipo" style="margin-top:10px">${[20, 30, 50].map(v => `<button type="button" role="tab" data-pct="${v}" aria-selected="${W.pct === v}">${v}%</button>`).join('')}</div>
+      <p class="gh">Datos para transferencia</p><div class="group">
+        <label class="cell"><span class="l">Banco</span><input class="in" id="wBanco" value="${esc(W.banco)}" style="max-width:190px;min-height:36px;border:0;text-align:right;padding:0"></label>
+        <label class="cell"><span class="l">CLABE</span><input class="in" id="wClabe" value="${esc(W.clabe)}" inputmode="numeric" style="max-width:220px;min-height:36px;border:0;text-align:right;padding:0;font-variant-numeric:tabular-nums"></label>
+        <label class="cell"><span class="l">A nombre de</span><input class="in" id="wTit" value="${esc(W.titular)}" style="max-width:190px;min-height:36px;border:0;text-align:right;padding:0"></label></div>
+      <p class="foot">La CLABE es de ejemplo. La clienta manda su comprobante por WhatsApp y aparece en la cita para que lo revises.</p>
+      <p class="gh">Uso este mes</p><div class="group"><div class="cell"><span class="l">${W.usados} mensajes<small>Aprox. ${money(costo)} MXN · Meta cobra unos 16 centavos por mensaje automático</small></span><span class="r">de ${W.limite}</span></div></div>
+      <p class="foot">Al llegar al límite se detienen los automáticos y te avisamos; puedes seguir mandando a mano gratis.</p>`; };
+
   /* ---------- Pintar ---------- */
   const TABS = [['agenda', '📅', 'Agenda'], ['clientas', '💁🏻‍♀️', 'Clientas'], null, ['servicios', '💅🏻', 'Servicios'], ['ajustes', '⚙️', 'Ajustes']];
   const render = () => {
@@ -506,6 +591,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     else if (S.tab === 'ajustes' && S.sub === 'equipo') h = equipo();
     else if (S.tab === 'ajustes' && S.sub && S.sub.startsWith('miembro:')) h = verMiembro(S.sub.slice(8));
     else if (S.tab === 'ajustes' && S.sub === 'seguridad') h = seguridad();
+    else if (S.tab === 'ajustes' && S.sub === 'whatsapp') h = whatsapp();
     else h = { agenda, clientas, servicios, ajustes }[S.tab]();
     $('#screen').innerHTML = h;
     const d0 = $('#d0'); if (d0) d0.focus();
@@ -519,6 +605,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     if (e.target.value && +m[1] < 5) $('#d' + (+m[1] + 1)).focus();
     if ([0, 1, 2, 3, 4, 5].every(i => $('#d' + i).value)) setTimeout(() => S.pant === 'codigo' && S.registro ? ir({ pant: 'crearSalon' }) : S.pant === 'codigo' && S.invita ? ir({ pant: 'perfil' }) : S.pant === 'codigo' && S.rol === 'admin' ? ir({ pant: 'dospasos' }) : dentro(), 180);
   });
+  document.addEventListener('input', e => { const k = { wBanco: 'banco', wClabe: 'clabe', wTit: 'titular' }[e.target.id]; if (k) W[k] = e.target.value; });
   document.addEventListener('input', e => { if (e.target.id !== 'csNombre') return;
     const slug = e.target.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'tu-salon';
     $('#csLink').innerHTML = 'agendappx.app/<b>' + esc(slug) + '</b>'; });
@@ -535,6 +622,10 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     if (d.demo === 'invitacion') { cerrar(); ir({ pant: 'unirse', invita: true, correo: '' }); return; }
     if (d.tab) { ir({ tab: d.tab, sub: null }); return; }
     if (d.sub !== undefined) { ir({ sub: d.sub || null }); return; }
+    if (d.chat) { verChat(+d.chat); return; }
+    if (d.w) { W[d.w] = !W[d.w]; render(); return; }
+    if (d.antes) { W.antesMin = +d.antes; render(); return; }
+    if (d.pct) { W.pct = +d.pct; render(); return; }
     if (d.cat) { S.cat = d.cat; const c = CATS.find(x => x[0] === d.cat); if (c[2] && !c[2].includes(S.svc)) S.svc = c[2][0]; render(); return; }
     if (d.svc) { S.svc = d.svc; render(); $('#horarios').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); return; }
     if (d.dia) { S.dia = +d.dia; render(); $('#horarios').scrollIntoView(); return; }
@@ -561,7 +652,9 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       case 'pedir-primera': { const hs = libres(S.svc, S.dia); if (hs.length) pedir(hs[0][0], hs[0][1]); else { $('#horarios').scrollIntoView({ behavior: 'smooth' }); toast('Elige otro día'); } break; }
       case 'wa-salon': toast('Abriría el WhatsApp del salón'); break;
       case 'enviar-pedido': { const n = $('#pcNombre').value.trim(), t = $('#pcTel').value.replace(/\D/g, ''); if (!n || t.length < 10) { toast(!n ? 'Escribe tu nombre' : 'Escribe tu WhatsApp a 10 dígitos'); break; }
-        $('#pcOut').innerHTML = `<div class="lock" style="background:color-mix(in srgb,var(--ok) 14%,var(--card))"><span class="e">✅</span><span><b>Simulado:</b> AB' Beauty Room recibió tu solicitud, ${esc(n.split(' ')[0])}. Te confirmarán por WhatsApp al ${esc(t.slice(0, 2) + ' ' + t.slice(2, 6) + ' ' + t.slice(6, 10))}.</span></div><button type="button" class="btn soft" data-act="cerrar" style="margin-top:10px">Listo</button>`; break; }
+        if (!$('#pcOk').checked) { toast('Para avisarte de tu cita necesitamos tu permiso para escribirte por WhatsApp'); break; }
+        const an = anticipoDe(serv(S.svc));
+        $('#pcOut').innerHTML = `<div class="lock" style="background:color-mix(in srgb,var(--ok) 14%,var(--card))"><span class="e">✅</span><span><b>Simulado:</b> AB' Beauty Room recibió tu solicitud, ${esc(n.split(' ')[0])}. ${an ? `Te mandamos por WhatsApp al ${esc(t.slice(0, 2) + ' ' + t.slice(2, 6) + ' ' + t.slice(6, 10))} los datos para tu anticipo de ${money(an)}. Tu cita se confirma al recibirlo.` : `Te confirmarán por WhatsApp al ${esc(t.slice(0, 2) + ' ' + t.slice(2, 6) + ' ' + t.slice(6, 10))}.`}</span></div><button type="button" class="btn soft" data-act="cerrar" style="margin-top:10px">Listo</button>`; break; }
       case 'reenviar': toast('Simulado: te mandamos un código nuevo'); break;
       case 'aceptar': { const br = miembro('brenda'); br.estado = 'activa'; br.disp = 'iPhone 12 · Safari'; br.n = $('#pfNombre').value.trim() || br.n; COMO.especialista = 'brenda'; S.rol = 'especialista'; S.invita = false; dentro(); toast('Bienvenida a AB\' Beauty Room, Brenda'); break; }
       case 'sw': b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true')); break;
@@ -569,7 +662,8 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       case 'nueva': N.h = null; N.st = S.rol === 'especialista' ? yo().id : null; if (S.rol === 'especialista' && !yo().serv.includes(N.s)) N.s = yo().serv[0]; nueva(); break;
       case 'guardar': { if (!N.h) { toast('Elige un horario'); break; } const q = yo(); CITAS.push({ id: Date.now(), h: N.h, s: N.s, cl: N.cl, st: N.st, ok: false, hist: [[q.n.split(' ')[0], ROL[q.rol], 'la creó', 'Hoy · ahora']] });
         HIST.unshift([q.n.split(' ')[0], 'agendó ' + serv(N.s).n + ' para ' + CLIENTAS[N.cl][0], 'Hoy · ahora']); cerrar(); ir({ tab: 'agenda', sub: null }); toast('Cita guardada para ' + miembro(N.st).n.split(' ')[0] + ' a las ' + N.h); break; }
-      case 'recordar': toast('Simulado: recordatorio enviado desde el WhatsApp del salón'); break;
+      case 'anticipo-ok': { const c = CITAS.find(x => x.id === +d.id), q = yo(); c.pago = 'Hoy · ahora'; c.ok = true; c.hist.push([q.n.split(' ')[0], ROL[q.rol], 'marcó el anticipo como recibido', 'Hoy · ahora']); verCita(c.id); render(); toast('Simulado: le avisamos a ' + CLIENTAS[c.cl][0].split(' ')[0] + ' por WhatsApp que su cita está confirmada'); break; }
+      case 'recordar': toast('Abriría el chat de WhatsApp del salón con la clienta'); break;
       case 'mover': toast('Al moverla queda en el historial quién y cuándo'); break;
       case 'invitar': invitar(); break;
       case 'crear-invitacion': $('#invOut').innerHTML = `<p class="gh" style="margin-top:0">Enlace de invitación</p><div class="linkbox"><span style="flex:1">agendappx.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div>
