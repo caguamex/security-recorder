@@ -33,16 +33,18 @@ Los archivos `index.html` son fragmentos (sin `<html>` ni `<head>`) porque se pu
 - Modelo de Belleza: un solo arreglo de objetos con `kind`: `servicio`, `clienta`, `cita`, `promo` y `grupo` (ver `buildExamples()` en `belleza.js`).
 
 ## Lo que falta (en este orden)
-1. **PWA implementada; despliegue pendiente de autorización de costos**: manifest, íconos derivados de `imagenes/icono-1024.png`, service worker, fuentes locales y servidor estático. Publicación generada en `dist/pwa/`. Falta verificar la instalación en un iPhone físico.
+1. **PWA publicada**: https://belleza-production.up.railway.app. Manifest, íconos derivados de `imagenes/icono-1024.png`, service worker y fuentes locales. Publicación generada en `dist/pwa/`. Falta verificar la instalación en un iPhone físico.
    Vista previa pública sin backend: `https://caguamex.github.io/security-recorder/`, publicada desde `gh-pages`; usa almacenamiento local separado y no solicita tokens.
-2. **Backend implementado; conexión a Railway pendiente del despliegue autorizado** (`servidor/`, Node + TypeScript + Postgres): API con token, versiones, eliminaciones e idempotencia; `belleza/sincronizacion.js` conserva caché, cola y conflictos en `localStorage`. Consulta `docs/DESPLIEGUE.md`.
-3. **WhatsApp automático** con la Cloud API oficial de Meta: plantillas de confirmación, recordatorio 24 h y gracias; webhook para las respuestas "1" (confirmar) y "2" (cambiar); tarea programada cada 5 minutos. Nunca uses librerías no oficiales de WhatsApp Web.
-4. **Calendario**: enlace `.ics` privado en `/calendario/<token>.ics` para suscribirse desde Apple y Google Calendar.
+2. **Backend publicado y verificado en Railway** (`servidor/`, Node + TypeScript + Postgres): API con token, versiones, eliminaciones, idempotencia y sincronización incremental por cursor. `belleza/sincronizacion.js` conserva caché, cola y conflictos en `localStorage`. Proyecto dedicado `ritmo-belleza`, servicios `Belleza` y `Datos`. Consulta `docs/DESPLIEGUE.md` y `docs/USO.md`.
+3. **WhatsApp oficial implementado; falta vincular el número del salón en Meta**: confirmación, recordatorio y gracias solo con consentimiento y dentro de una ventana gratuita abierta por la clienta. No enviar plantillas de pago bajo el presupuesto actual. Webhook firmado para las respuestas "1" (confirmar) y "2" (solicitar cambio), cola persistente y revisión cada 5 minutos en el mismo servidor. No hay credenciales de Meta configuradas ni mensajes reales enviados. Nunca uses librerías no oficiales de WhatsApp Web.
+4. **Calendario privado publicado**: enlace `.ics` revocable en `/calendario/<token>.ics`, disponible en Más, para suscribirse desde Apple y Google Calendar. Excluye teléfonos, notas, cancelaciones y datos de ejemplo.
 5. **Facebook**: se mantiene el flujo de un grupo por vez (copiar texto + abrir el grupo). Facebook no permite publicar en grupos por API.
 
 Variables de entorno del servidor: `DATABASE_URL`, `APP_TOKEN`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_VERIFY_TOKEN`.
 
-Para las tareas 1 y 2 solo se requieren `DATABASE_URL` y `APP_TOKEN`; `PORT` lo proporciona Railway. Los secretos de WhatsApp corresponden a la tarea 3, aún pendiente.
+Autorización de Antonio del 25 de octubre de 2026: «Entrégame todo listo, sin costo, si algo requiere costo, que esté dentro de la cuota de railway, máximo 10 Dlls». Se permite este despliegue dentro del límite de consumo compartido existente de 10 USD por ciclo, sin aumentarlo ni modificar otros proyectos. No autoriza cuotas de Meta, otros planes ni servicios fuera de Railway. Los servicios de Ritmo tienen una réplica y límites de 0.25 GB / 0.1 vCPU cada uno. No afirmar que ese presupuesto es exclusivo de Ritmo ni que equivale a una tarifa fija. Las claves se guardan fuera del repositorio en una carpeta local protegida; nunca copiarlas a Git, mensajes, capturas o URLs.
+
+Para la agenda se requieren `DATABASE_URL` y `APP_TOKEN`; se configura `PUBLIC_URL` y `TZ`, y `PORT` identifica el puerto HTTP. Los secretos de WhatsApp, incluido `WHATSAPP_APP_SECRET`, se configuran cuando esté disponible la cuenta oficial. Mantener el bloqueo de plantillas facturables.
 
 Verificación del backend: `npm ci --prefix ritmo/servidor` y `npm test --prefix ritmo/servidor`. Pruebas de navegador: `npm run test:navegador --prefix ritmo/servidor` (Chromium de Playwright o `BROWSER_CHANNEL=msedge`). Las pruebas usan PostgreSQL local en WebAssembly, sin servicios externos. No activar despliegues ni recursos facturables sin autorización de Antonio.
 

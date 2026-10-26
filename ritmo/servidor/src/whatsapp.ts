@@ -96,11 +96,16 @@ export class WhatsApp {
         const end = start + Number(service.duracion || 60) * 60000;
         const choices = [
           ['confirmacion', settings.waConfirm !== false && cita.estado !== 'completada' && start > this.ahora(), settings.tplConfirm],
-          ['recordatorio', settings.waRecordar !== false && cita.estado !== 'completada' && start > this.ahora() && start - this.ahora() <= DIA, settings.tplRecordar],
+          ['recordatorio', settings.waRecordar !== false && cita.estado !== 'completada' && start - this.ahora() <= DIA && start - this.ahora() >= DIA - 3600000, settings.tplRecordar],
           ['gracias', settings.waGracias === true && cita.estado === 'completada' && end <= this.ahora() && this.ahora() - end < DIA, settings.tplGracias],
         ] as const;
         for (const [tipo, due, template] of choices) {
           if (!due || enviados + todays >= 100) continue;
+          if (tipo === 'recordatorio') {
+            const reciente = (await this.query(`SELECT id FROM belleza_whatsapp_cola WHERE cita_id = $1
+              AND tipo = 'confirmacion' AND estado IN ('aceptado','entregado','leido') AND creado_en > $2`, [cita.id, new Date(this.ahora() - 3600000)])).rows;
+            if (reciente.length) continue;
+          }
           const fingerprint = `${cita.id}|${cita.date}|${cita.start}|${cita.clienta}|${cita.servicio}|${phone}|${tipo}`;
           const id = createHash('sha256').update(fingerprint).digest('hex');
           const freeWindow = this.ahora() - (windows.get(phone) || 0) < DIA - 120000;

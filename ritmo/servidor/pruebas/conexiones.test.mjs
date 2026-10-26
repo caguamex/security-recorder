@@ -44,7 +44,7 @@ test('la suscripción usa secreto independiente y se puede revocar', async () =>
   await put({ id: 'servicio', kind: 'servicio', nombre: 'Servicio, prueba', duracion: 90, precio: 300 });
   await put({ id: 'clienta', kind: 'clienta', nombre: 'Clienta de prueba', telefono: '5500000000', whatsappOptIn: true });
   await put({ id: 'cita', kind: 'cita', date: '2026-11-10', start: '14:00', clienta: 'clienta', servicio: 'servicio', estado: 'pendiente', updatedAt: new Date(now).toISOString() });
-  await put({ id: '__settings', negocio: 'Salón\nPrueba', waRecordar: false, waConfirm: true });
+  await put({ id: '__settings', negocio: 'Salón\nPrueba', waRecordar: true, waConfirm: true });
   const info = await (await request('/api/conexiones')).json();
   const response = await fetch(info.calendarioUrl); const ics = await response.text();
   assert.equal(response.status, 200); assert.match(ics, /DTSTART:20261110T200000Z/); assert.match(ics, /DTEND:20261110T213000Z/);
