@@ -10,7 +10,8 @@
     "start": "node build/index.js",
     "test": "npm run build && node --test pruebas/*.test.mjs ../pruebas/*.test.js",
     "test:navegador": "npm run build && node pruebas/navegador.mjs",
-    "test:fotos": "npm run build && node pruebas/fotos-navegador.mjs"
+    "test:fotos": "npm run build && node pruebas/fotos-navegador.mjs",
+    "test:actualizacion": "npm run build && node pruebas/actualizacion-navegador.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"

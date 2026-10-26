@@ -184,6 +184,12 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px); padding: 10px 10px 10px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0, 0, 0, .2); animation: up .2s; }
 .toast button { border: 0; background: none; color: var(--today); font-weight: 800; padding: 6px; }
 :root[data-skin="ritmo"] .toast button, :root:not([data-skin]) .toast button { color: #64A8FF; }
+/* Aviso de actualización por encima de la navegación y del área segura inferior. */
+.pwa-update { position: fixed; z-index: 60; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(420px, calc(100% - 32px)); padding: 16px; border: 1px solid var(--sep); border-radius: 16px; background: var(--card); color: var(--ink); box-shadow: 0 8px 28px rgba(0,0,0,.18); }
+.pwa-update p { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+.pwa-update-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.pwa-update button { min-height: 44px; }
+.pwa-update button:disabled { opacity: .6; }
 [hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -195,6 +201,10 @@ textarea.in { text-align: left; resize: vertical; min-height: 80px; padding: 10p
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones"></nav>
 <div class="sheet" id="sheet" hidden><div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
+<aside class="pwa-update" id="pwa-update" role="region" aria-labelledby="pwa-update-message" hidden>
+  <p id="pwa-update-message" role="status">Hay una nueva versión disponible.</p>
+  <div class="pwa-update-actions"><button type="button" class="btn" id="pwa-update-now">Actualizar ahora</button><button type="button" class="btn" id="pwa-update-later">Más tarde</button></div>
+</aside>
 
 <script src="core.js"></script>
 <script src="sincronizacion.js"></script>

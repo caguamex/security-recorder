@@ -495,8 +495,9 @@
     sheet.hidden = false; S.sheetOpen = true; document.body.style.overflow = 'hidden';
     card.scrollTop = 0;
     if (mount) mount(card);
+    document.dispatchEvent(new Event('ritmo:hoja'));
   }
-  function closeSheet() { sheet.hidden = true; card.innerHTML = ''; S.sheetOpen = false; document.body.style.overflow = ''; }
+  function closeSheet() { sheet.hidden = true; card.innerHTML = ''; S.sheetOpen = false; document.body.style.overflow = ''; document.dispatchEvent(new Event('ritmo:hoja')); }
   sheet.addEventListener('mousedown', e => { if (e.target === sheet) closeSheet(); });
   const navSheet = (title, right) => `<div class="sh-nav"><button type="button" data-close>Cancelar</button><b>${esc(title)}</b>${right ? `<button type="button" class="done" data-done>${esc(right)}</button>` : '<span style="width:64px"></span>'}</div>`;
 
