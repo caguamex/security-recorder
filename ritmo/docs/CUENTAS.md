@@ -5,10 +5,10 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
 
 ## 1. Inicio de sesión
 
-- **Sin contraseñas.** Tres formas, todas con Supabase Auth (plan gratis):
-  1. Continuar con Apple (Sign in with Apple; permite ocultar el correo).
-  2. Continuar con Google.
-  3. Código de 6 dígitos por correo (OTP de Supabase, no enlace mágico: funciona aunque el correo se abra en otro dispositivo). Vence en 10 minutos; máximo 5 intentos.
+- **Sin contraseñas. Por ahora solo código por correo**, con Supabase Auth (plan gratis):
+  - Código de 6 dígitos por correo (OTP de Supabase, no enlace mágico: funciona aunque el correo se abra en otro dispositivo). Vence en 10 minutos; máximo 5 intentos.
+  - El correo integrado de Supabase solo envía unos pocos mensajes por hora. Conecta SMTP propio con plan gratis (Resend: 100 al día, o Brevo: 300 al día), con remitente verificado y SPF/DKIM. Antonio crea la cuenta; la llave va en secretos, nunca en Git.
+  - **Pospuestos**: Continuar con Google (gratis, se agrega cuando Antonio lo pida) y Continuar con Apple (requiere Apple Developer, 99 USD al año). Deja el código preparado para activarlos después, pero no muestres los botones.
 - **Admin: verificación en dos pasos obligatoria** con app autenticadora (MFA TOTP de Supabase, nivel `aal2`), más 10 códigos de respaldo. Sin `aal2`, la API rechaza cualquier acción de Admin.
 - Sesión: token de acceso corto (1 h) con renovación. Especialistas y Recepción se cierran solas tras 30 días sin abrir la app.
 - No se guarda ninguna contraseña ni token en `localStorage` fuera de lo que maneja el SDK de Supabase.
@@ -98,7 +98,7 @@ Supabase Free no ofrece respaldos descargables. Un cron diario del Worker (03:00
 
 ## 7. Pantallas (ver prototipo)
 
-1. **Entrar**: Apple, Google y correo + código. Admin pasa por la verificación en dos pasos.
+1. **Entrar**: código por correo. Admin pasa por la verificación en dos pasos.
 2. **Agenda**:
    - fila de especialistas para filtrar;
    - vista «Lista» o «Por especialista» (columnas);
@@ -115,12 +115,12 @@ Supabase Free no ofrece respaldos descargables. Un cron diario del Worker (03:00
 5. **Ajustes → Seguridad**:
    - Admin: dos pasos, respaldo, sesiones del equipo con «Cerrar» e historial de cambios;
    - los demás: solo sus sesiones.
-6. **Invitación** (`/unirse/<código>`): muestra salón, rol y servicios, y se acepta entrando con Apple, Google o correo.
+6. **Invitación** (`/unirse/<código>`): muestra salón, rol y servicios, y se acepta con un código por correo.
 
 ## 8. Migración
 
 1. Crear el negocio «AB' Beauty Room» y asignar todos los objetos existentes a él (en una transacción, con respaldo previo).
-2. Antonio entra por primera vez con Apple, Google o correo. Un comando de un solo uso lo vincula como Admin y le pide activar los dos pasos.
+2. Antonio entra por primera vez con su correo. Un comando de un solo uso lo vincula como Admin y le pide activar los dos pasos.
 3. Las citas existentes quedan con `especialista` vacío (se muestran como «Sin asignar» hasta que se edite).
 4. Los dispositivos conectados con la clave anterior tienen que volver a entrar con su cuenta. Los datos locales sin sincronizar se suben al iniciar sesión.
 
