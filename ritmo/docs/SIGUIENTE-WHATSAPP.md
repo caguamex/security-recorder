@@ -4,6 +4,25 @@ Antonio lo encargó el 26 de octubre de 2026. **Comenzar la implementación cuan
 
 Fuente: rama `claude/es-posible-esto-tjimmb`, commit `513d086`, `ritmo/docs/WHATSAPP-AUTOMATICO.md`, secciones 0–6; prototipo `ritmo/cuentas/index.html` y captura `ritmo/imagenes/whatsapp-anticipo.png`. Se revisó la especificación sin fusionar sus pantallas a la rama de cuentas en curso.
 
+## Opción solicitada después: vincular como FiNeCi
+
+Antonio pidió agregar la posibilidad de vincular su WhatsApp mediante un código de ocho caracteres y que los mensajes salgan de ese número. Sigue siendo un encargo posterior a cuentas; no se activó ni se vinculó ningún número.
+
+Se comprobó en el código de FiNeCi (`src/lib/whatsapp.ts`, `requestWhatsAppPairingCode`, y su ruta `whatsapp-pairing`) que usa Evolution API con integración `WHATSAPP-BAILEYS`, no la API oficial de Meta. El código admite ocho letras/números. Adaptar el patrón como referencia; no modificar FiNeCi, sus instancias, credenciales, servicios ni datos.
+
+Preparar esta opción de Agendappx con:
+- Ajustes → WhatsApp → Vincular: Admin autenticado y con MFA introduce su número, recibe el código y lo acepta desde Dispositivos vinculados de WhatsApp. Mostrar el número efectivamente vinculado, su estado y Desvincular.
+- Conexión privada por salón, resuelta exclusivamente en servidor desde la membresía. Recepción/Especialistas usan el remitente del salón, sin poder elegir una instancia ajena ni acceder a las llaves. No usar nombres predeterminados de instancias ni reutilizar las de FiNeCi.
+- Autenticación del webhook de Evolution propia de este proveedor y comprobación de instancia/salón; no reutilizar como si fuera una firma de Meta. Mantener consentimiento, límites, horario silencioso, idempotencia, revisión de comprobantes y permiso antes del primer envío real.
+- Comprobar compatibilidad de botones antes de prometerla; si hacen falta respuestas de texto, presentar el ajuste de experiencia para revisión.
+- El servicio que mantiene la conexión WhatsApp Web necesita ejecutarse y conservar su sesión además del mensajero que despierta cada cinco minutos. La estimación inferior solo cubre el cron; **no representa el costo total de esta opción**. Revisar alojamiento, aislamiento y consumo antes de activar recursos, siempre dentro de los permisos concretos y el límite Railway de Antonio.
+
+Baileys es una integración no oficial de WhatsApp Web. Esta opción permite probar el flujo por código sin contratar la API oficial de Meta, pero debe informarse su dependencia de WhatsApp Web y no garantizar disponibilidad o ausencia de restricciones. Agregar la opción no implica sustituir silenciosamente todo el diseño anterior de Meta ni habilitar ambos remitentes a la vez.
+
+Fuentes primarias:
+- https://github.com/WhiskeySockets/docs/blob/main/authentication/pairing-code.mdx
+- https://github.com/WhiskeySockets/Baileys
+
 ## Instrucción vigente que prevalece sobre el documento
 
 El anticipo predeterminado será **20 %**, como escribió Antonio. La sección 3 del documento dice 30 %: usar 20 %. Aplicar a servicios desde $300, plazo de 24 horas o dos horas antes cuando sea anterior. Un comprobante no confirma el anticipo y un vencimiento no libera el horario sin decisión de Admin o Recepción.
