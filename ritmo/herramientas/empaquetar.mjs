@@ -47,6 +47,7 @@ const metadatos = `<link rel="manifest" href="./manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Agendappx">
+<meta name="application-name" content="Agendappx">
 <link rel="apple-touch-icon" href="./iconos/icono-180.png">
 <link rel="icon" href="./iconos/icono-192.png">
 <link rel="stylesheet" href="./fuentes/fuentes.css">`;

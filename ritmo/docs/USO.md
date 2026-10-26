@@ -95,4 +95,4 @@ Ajustes → Apariencia permite elegir ☀️ White o 🌙 Dark, arriba del selec
 
 ## Nombre Agendappx
 
-El nombre Agendappx está preparado para la próxima publicación y requiere confirmación de deploy. Identifica la pestaña del navegador, la instalación nueva de la app y el calendario compartido. La dirección actual no cambia. En una instalación anterior, el sistema puede conservar el nombre del ícono hasta que actualice sus metadatos o se cambie la etiqueta del acceso; no borrar la app ni los datos del navegador para forzarlo.
+El nombre Agendappx se publicó el 26 de octubre de 2026 con la confirmación de Antonio. Identifica la pestaña del navegador, la instalación nueva de la app y el calendario compartido. La dirección actual no cambia. En una instalación anterior, el sistema puede conservar el nombre del ícono hasta que actualice sus metadatos o se cambie la etiqueta del acceso; no borrar la app ni los datos del navegador para forzarlo.
