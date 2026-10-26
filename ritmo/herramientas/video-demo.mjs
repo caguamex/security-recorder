@@ -3,7 +3,7 @@
 // Requiere Playwright (Chromium) y ffmpeg. Resultado: ritmo/imagenes/demo-agendar-cita.mp4
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -17,9 +17,13 @@ const W = 390, H = 844;
 const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
 const ctx = await browser.newContext({
   viewport: { width: W, height: H }, deviceScaleFactor: 2, isMobile: true, hasTouch: false,
-  timezoneId: 'America/Mexico_City', locale: 'es-MX', recordVideo: { dir: tmp, size: { width: W * 2, height: H * 2 } },
+  timezoneId: 'America/Mexico_City', locale: 'es-MX',
 });
 const p = await ctx.newPage();
+// Captura de pantalla continua a resolución de teléfono (2x) con las marcas de tiempo de Chromium
+const cdp = await ctx.newCDPSession(p);
+const frames = [];
+cdp.on('Page.screencastFrame', f => { frames.push({ data: f.data, t: f.metadata.timestamp }); cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }).catch(() => {}); });
 await p.clock.setFixedTime(new Date('2026-10-27T09:30:00-06:00'));
 // Dedo visible y subtítulos de cada paso
 await p.addInitScript(() => {
@@ -39,6 +43,7 @@ await p.addInitScript(() => {
 });
 await p.goto(app);
 await p.evaluate(() => document.fonts.ready);
+await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: W * 2, maxHeight: H * 2, everyNthFrame: 1 });
 
 const espera = ms => p.waitForTimeout(ms);
 const paso = async t => { await p.evaluate(t => { const s = document.getElementById('paso'); s.textContent = t; s.classList.toggle('on', !!t); }, t); };
@@ -97,9 +102,19 @@ await espera(2600);
 await paso('');
 await espera(400);
 
+await cdp.send('Page.stopScreencast');
 await ctx.close();
 await browser.close();
-const webm = join(tmp, readdirSync(tmp).find(f => f.endsWith('.webm')));
-execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', webm, '-vf', 'scale=780:-2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', '-movflags', '+faststart', salida]);
+// Cada cuadro dura hasta que llega el siguiente
+const lista = ['ffconcat version 1.0'];
+frames.forEach((f, i) => {
+  const nombre = `f${String(i).padStart(5, '0')}.jpg`;
+  writeFileSync(join(tmp, nombre), Buffer.from(f.data, 'base64'));
+  const dur = i + 1 < frames.length ? Math.max(0.01, frames[i + 1].t - f.t) : 0.5;
+  lista.push(`file ${nombre}`, `duration ${dur.toFixed(3)}`);
+});
+lista.push(`file f${String(frames.length - 1).padStart(5, '0')}.jpg`);
+writeFileSync(join(tmp, 'lista.txt'), lista.join('\n'));
+execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', join(tmp, 'lista.txt'), '-vf', 'fps=30,scale=780:-2:flags=lanczos', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-movflags', '+faststart', salida]);
 rmSync(tmp, { recursive: true, force: true });
 console.log('Listo:', salida);
