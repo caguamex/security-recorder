@@ -1,3 +1,5 @@
+> Actualizado el 26 de octubre: Apple Calendar ya permite activar el celular mediante un enlace privado de un solo uso, sin introducir APP_TOKEN. Consulta [CALENDARIO-APPLE.md](CALENDARIO-APPLE.md). Las instrucciones de clave técnica que siguen son referencia histórica/configuración avanzada; el uso normal es Ajustes → Apple Calendar → Activar sincronización y después Abrir Apple Calendar → Suscribirse.
+
 # Usar Agendappx (antes Ritmo Belleza)
 
 Dirección de la aplicación: https://ritmo-belleza.antonio-t-22.workers.dev

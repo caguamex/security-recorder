@@ -85,3 +85,29 @@ test('migra los datos locales anteriores sin perder ajustes', async () => {
   await app.conectar(env.token);
   assert.equal(app.pending.length, 0); assert.equal(app.items.get('migrada').nombre, 'Anterior');
 });
+
+test('una restauración atrasada no elimina una activación nueva ni guarda claves de sesión', async () => {
+  const values = new Map(); let liberar;
+  const storage = { getItem:k=>values.get(k)??null, setItem:(k,v)=>values.set(k,v), removeItem:k=>values.delete(k) };
+  const app = crear({ storage, uuid:randomUUID, fetcher:async path=>{
+    if (path === '/api/dispositivos/sesion') return new Promise(resolve=>{ liberar=()=>resolve(new Response(JSON.stringify({conectado:false}))); });
+    if (path === '/api/dispositivos/activar') return new Response(JSON.stringify({conectado:true}));
+    return new Response(JSON.stringify({records:[],cursor:0,full:true}));
+  } });
+  const restaurando = app.restaurarSesion();
+  await app.activarDispositivo('enlace_de_prueba');
+  liberar(); await restaurando;
+  assert.equal(app.connected,true); assert.equal(storage.getItem('belleza.v1.sesion'),'si');
+  assert.equal(storage.getItem('belleza.v1.token'),null);
+  assert.equal(JSON.stringify([...values]).includes('enlace_de_prueba'),false);
+});
+test('una sesión revocada conserva la cola local y solicita reactivación', async () => {
+  const values = new Map([['belleza.v1.sesion','si']]);
+  const storage = { getItem:k=>values.get(k)??null, setItem:(k,v)=>values.set(k,v), removeItem:k=>values.delete(k) };
+  const app = crear({ storage, uuid:randomUUID, fetcher:async()=>new Response(JSON.stringify({error:'Sesión vencida'}),{status:401}) });
+  app.put({id:'cambio_sesion_revocada',kind:'clienta',nombre:'Conservar copia local'});
+  await app.sync();
+  assert.equal(app.connected,false); assert.equal(app.pending.length,1);
+  assert.equal(app.items.get('cambio_sesion_revocada').nombre,'Conservar copia local');
+  assert.match(app.status,/Activa nuevamente/);
+});

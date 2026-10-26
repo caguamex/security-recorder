@@ -5,6 +5,7 @@ import pg from 'pg';
 import { crearServidor } from '../servidor/src/http.ts';
 import { PostgresRepositorio } from '../servidor/src/repositorio.ts';
 import { ConfigIntegraciones } from '../servidor/src/integraciones.ts';
+import { Dispositivos } from '../servidor/src/dispositivos.ts';
 import { WhatsApp } from '../servidor/src/whatsapp.ts';
 
 // Cada operación abre su cliente; no se comparten sockets entre solicitudes de Workers.
@@ -31,7 +32,7 @@ const whatsapp = new WhatsApp(pool, repo, {
 });
 // El esquema se instala antes de publicar; el Worker no crea tablas al atender visitas.
 const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
-  integraciones, whatsapp, tz: env.TZ, publicURL: env.PUBLIC_URL,
+  integraciones, whatsapp, dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,
 });
 const api = httpServerHandler(servidor);
 export default {
