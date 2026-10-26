@@ -58,7 +58,7 @@
     ['cristal', 'Cristal pastel', ['#EFE4FF', '#FFE6F2', '#8B5CF6', '#EC4899']],
   ];
   const DEFAULTS = {
-    skin: 'clasico', negocio: 'Mi salón', abre: '10:00', cierra: '20:00', examplesOff: false,
+    skin: 'clasico', negocio: 'Mi salón', abre: '10:00', cierra: '20:00', examplesOff: true,
     waConfirm: true, waRecordar: true, waGracias: false,
     tplConfirm: 'Hola {nombre} 💅 Tu cita de {servicio} quedó agendada para el {fecha} a las {hora}. Te esperamos en {negocio}.',
     tplRecordar: 'Hola {nombre} 💅 Te esperamos mañana a las {hora} para tu {servicio}. Responde 1 para confirmar o 2 para cambiar.',
@@ -177,44 +177,12 @@
     };
   })();
 
-  // ---------- Ejemplos: se ven mientras no hay datos; se guardan solo si los usas ----------
-  function buildExamples() {
-    const t = today(), d = n => C.addDays(t, n);
-    const S = (id, nombre, categoria, duracion, precio, descripcion) => ({ id, kind: 'servicio', nombre, categoria, duracion, precio, descripcion, example: true });
-    const K = (id, nombre, telefono) => ({ id, kind: 'clienta', nombre, telefono, notas: '', example: true });
-    const A = (id, date, start, clienta, servicio, estado) => ({ id, kind: 'cita', date, start, clienta, servicio, estado, notas: '', enviados: {}, example: true });
-    return [
-      S('es1', 'Uñas acrílicas', 'Uñas', 90, 650, 'Aplicación completa con forma y diseño a elegir.'),
-      S('es2', 'Gelish en manos', 'Uñas', 45, 300, 'Esmaltado semipermanente con brillo hasta 3 semanas.'),
-      S('es3', 'Pedicure spa', 'Uñas', 60, 400, 'Exfoliación, hidratación y esmaltado.'),
-      S('es4', 'Balayage', 'Cabello', 150, 1500, 'Aclarado a mano alzada con matiz.'),
-      S('es5', 'Corte y peinado', 'Cabello', 60, 450, 'Lavado, corte y secado con peinado.'),
-      S('es6', 'Lifting de pestañas', 'Pestañas', 60, 550, 'Curvatura natural que dura de 6 a 8 semanas.'),
-      S('es7', 'Diseño de cejas', 'Cejas', 30, 250, 'Depilación y diseño según tu rostro.'),
-      S('es8', 'Limpieza facial', 'Facial', 60, 600, 'Limpieza profunda con extracción e hidratación.'),
-      K('ek1', 'Mariana Ruiz', '5512345601'), K('ek2', 'Sofía López', '5512345602'), K('ek3', 'Andrea García', '5512345603'),
-      K('ek4', 'Paola Vega', '5512345604'), K('ek5', 'Daniela Torres', '5512345605'), K('ek6', 'Fernanda Cruz', '5512345606'),
-      A('ec1', t, '10:00', 'ek1', 'es1', 'confirmada'), A('ec2', t, '12:00', 'ek2', 'es6', 'confirmada'),
-      A('ec3', t, '14:00', 'ek3', 'es4', 'pendiente'), A('ec4', t, '17:00', 'ek4', 'es7', 'confirmada'),
-      A('ec5', d(1), '11:00', 'ek5', 'es2', 'pendiente'), A('ec6', d(1), '16:00', 'ek6', 'es8', 'confirmada'),
-      A('ec7', d(2), '13:00', 'ek1', 'es3', 'confirmada'), A('ec8', d(-1), '12:00', 'ek2', 'es5', 'completada'),
-      { id: 'ep1', kind: 'promo', titulo: '2x1 en gelish', etiqueta: 'Solo este mes', texto: 'Trae a tu amiga y paguen una. Agenda por WhatsApp.', color: '#E0457B', publicado: {}, example: true },
-      { id: 'ep2', kind: 'promo', titulo: 'Pestañas + cejas $700', etiqueta: 'Combo', texto: 'Lifting de pestañas y diseño de cejas en una sola cita.', color: '#0EA5A4', publicado: {}, example: true },
-      { id: 'ep3', kind: 'promo', titulo: '15% en tu primer balayage', etiqueta: 'Clientas nuevas', texto: 'Menciona esta promo al agendar.', color: '#8B5CF6', publicado: {}, example: true },
-      { id: 'eg1', kind: 'grupo', nombre: 'Ventas Coyoacán', url: 'https://www.facebook.com/groups/feed/', example: true },
-      { id: 'eg2', kind: 'grupo', nombre: 'Mamás de Tlalpan', url: 'https://www.facebook.com/groups/feed/', example: true },
-      { id: 'eg3', kind: 'grupo', nombre: 'Emprendedoras CDMX', url: 'https://www.facebook.com/groups/feed/', example: true },
-    ];
-  }
-  let EX = null;
-  const exampleMode = () => Store.ready && Store.items.size === 0 && !Store.settings.examplesOff;
-  const all = () => (exampleMode() ? (EX = EX || buildExamples()) : [...Store.items.values()]);
+  // La agenda inicia vacía: los registros aparecen únicamente cuando los captura el salón.
+  const all = () => [...Store.items.values()];
   const list = kind => all().filter(x => x.kind === kind);
   const byId = id => all().find(x => x.id === id) || null;
-  // Antes del primer cambio sobre los ejemplos, se copian a tu agenda para que nada desaparezca.
-  function ensureReal() { return !exampleMode() || Store.putMany(clone(EX || buildExamples())) !== false; }
-  const save = it => ensureReal() && Store.put(it) !== false;
-  const remove = id => ensureReal() && Store.remove(id) !== false;
+  const save = it => Store.put(it) !== false;
+  const remove = id => Store.remove(id) !== false;
 
   // ---------- Utilidades de citas ----------
   const svcOf = c => byId(c.servicio) || { nombre: 'Servicio', categoria: 'Otro', duracion: 60, precio: 0 };
@@ -265,8 +233,8 @@
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
     screen.innerHTML = ({ agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas: viewMas })[S.tab]();
   }
-  const banner = () => exampleMode() ? `<div class="banner"><p>Estás viendo datos de ejemplo. Edita o agrega lo que quieras: lo que cambies se guarda como tuyo.</p><button type="button" class="btn" data-act="sin-ejemplos">Empezar vacío</button></div>`
-    : list('servicio').some(x => x.example) || list('cita').some(x => x.example) ? `<div class="banner"><p>Todavía tienes datos de ejemplo.</p><button type="button" class="btn" data-act="borrar-ejemplos">Borrar ejemplos</button></div>` : '';
+  // Permite retirar ejemplos guardados por versiones anteriores sin borrar registros propios.
+  const banner = () => all().some(x => x.example) ? `<div class="banner"><p>Todavía tienes datos de ejemplo.</p><button type="button" class="btn" data-act="borrar-ejemplos">Borrar ejemplos</button></div>` : '';
 
   // Agenda
   let lastScrollDay = null;
@@ -863,7 +831,6 @@
       'nueva-clienta': () => sheetClienta(null), 'nuevo-servicio': () => sheetServicio(null), 'nueva-promo': () => sheetPromo(null), 'nuevo-grupo': () => sheetGrupo(null),
       'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes, servidor: sheetServidor,
       suscripcion: () => sheetConexion('calendario'), 'estado-whatsapp': () => sheetConexion('whatsapp'),
-      'sin-ejemplos': () => { if (Store.setSettings({ examplesOff: true }) === false) return; toast('Listo. Empieza agregando tus servicios.'); },
       'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); for (const x of ex) if (Store.remove(x.id) === false) return; toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
     })[d.act]?.();
   });

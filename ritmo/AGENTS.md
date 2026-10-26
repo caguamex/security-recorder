@@ -30,7 +30,7 @@ Los archivos `index.html` son fragmentos (sin `<html>` ni `<head>`) porque se pu
 ## Almacenamiento
 - Fuera de Claude, los datos se guardan en `localStorage` (`belleza.v1.*` y `ritmo.v1.*`).
 - Dentro de Claude se usa `window.claude.use('db')`. Si `window.claude` no existe, se ignora; no lo quites, pero el destino nuevo es el backend propio (abajo).
-- Modelo de Belleza: un solo arreglo de objetos con `kind`: `servicio`, `clienta`, `cita`, `promo` y `grupo` (ver `buildExamples()` en `belleza.js`).
+- Modelo de Belleza: un solo arreglo de objetos con `kind`: `servicio`, `clienta`, `cita`, `promo` y `grupo` en `belleza.js`. Desde el 26 de octubre, por instrucción de Antonio, Belleza inicia vacía y no genera datos de ejemplo.
 
 ## Lo que falta (en este orden)
 1. **PWA publicada**: https://ritmo-belleza.antonio-t-22.workers.dev. Manifest, íconos derivados de `imagenes/icono-1024.png`, service worker y fuentes locales. Publicación generada en `dist/pwa/`. Falta verificar la instalación en un iPhone físico.

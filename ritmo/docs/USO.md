@@ -62,3 +62,7 @@ No se contrataron planes adicionales de Vercel, Cloudflare, Supabase ni Meta. Lo
 Los datos actuales están en PostgreSQL de Supabase. El traslado conservó objetos, versiones, cursor de cada objeto, recibos de idempotencia, eliminaciones y clave de calendario. El esquema privado `ritmo` tiene un usuario de servidor limitado y políticas de acceso; no se publica a roles anónimos ni autenticados de Supabase.
 
 El respaldo completo anterior queda en la carpeta local protegida `C:/Users/dellv/.config/ritmo-belleza/respaldo-railway-20261026.json`, fuera de Git. El volumen anterior de Railway también se conserva. Ninguno equivale a un sistema de respaldos periódicos del nuevo destino. No se activó un complemento de respaldos de pago.
+
+## Entrega en blanco — 26 de octubre de 2026
+
+Por instrucción de Antonio, la agenda inicia sin citas, clientas, servicios, promociones ni grupos de demostración. Capturar el primer registro no genera ejemplos adicionales. Se conservan el diseño, la sincronización y las fotografías proporcionadas para asociarlas a los servicios que se capturen. La base publicada se verificó sin registros activos de prueba; se conservan las marcas de eliminación necesarias para sincronizar.
