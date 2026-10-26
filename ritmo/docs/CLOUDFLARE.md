@@ -92,3 +92,9 @@ Apple/Google Calendar deben suscribirse al enlace obtenido desde la nueva direcc
 - [Supabase con Hyperdrive](https://developers.cloudflare.com/workers/databases/third-party-integrations/supabase/).
 - [Hyperdrive Free](https://developers.cloudflare.com/hyperdrive/platform/pricing/).
 - [Supabase: precios](https://supabase.com/pricing).
+
+## Publicación del aviso y prueba real — 26 de octubre de 2026
+
+Antonio confirmó publicar el aviso y probarlo con la carga de fotos. Se publicó primero la versión `4831e3b7-b9d6-4eaa-8733-af6eb0456198` para cargar el sistema de avisos en los dispositivos que aún tenían el código anterior. Después de que Antonio confirmó abrir y cerrar Ritmo en su celular, se publicó `0eb2f0ae-1f05-44c3-ae18-e1691fdae3a4`, con revisión cada minuto mientras la página está visible y la opción Subir foto disponible.
+
+Una sesión aislada en Edge permaneció abierta durante ambas publicaciones reales. Mostró el aviso de nueva versión, Actualizar ahora cambió la caché y recargó, y Servicios → Nuevo servicio mostró Subir foto. La comprobación no escribió datos en el servidor. También pasó de nuevo `test:actualizacion` con las dos versiones locales. La recepción en el celular de Antonio queda sujeta a su confirmación; no se deduce de la prueba de Edge. No se activaron planes de pago ni publicación automática desde Git.

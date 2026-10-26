@@ -81,7 +81,7 @@ Cuando se descarga una actualización completa de la aplicación, aparece **Hay 
 
 Si hay cambios en un formulario sin guardar, Actualizar ahora pide confirmación antes de descartarlos. Puedes cancelar la actualización, guardar tu formulario y después actualizar. Si se está preparando una foto, espera a que termine antes de actualizar. Los registros ya guardados, la clave y la cola de cambios pendientes de sincronizar permanecen en el dispositivo. Una pestaña que actualiza no recarga por sorpresa las demás: cada pestaña conserva su formulario y ofrece actualizar por separado.
 
-La app revisa actualizaciones al abrirse, al regresar al primer plano o recuperar internet y cada 30 minutos mientras está visible, con un límite de una revisión por minuto. La primera instalación no muestra un aviso de actualización. Una descarga incompleta no se ofrece como lista. La actualización puede aplicarse sin internet una vez que ya se descargaron todos sus recursos.
+La app revisa actualizaciones al abrirse, al regresar al primer plano o recuperar internet y cada minuto mientras está visible, con un límite de una revisión por minuto. La primera instalación no muestra un aviso de actualización. Una descarga incompleta no se ofrece como lista. La actualización puede aplicarse sin internet una vez que ya se descargaron todos sus recursos.
 
 **Primera activación de esta mejora:** una pestaña o app instalada con el código anterior todavía no tiene el aviso. Después de publicar esta función, puede ser necesario abrir con internet, cerrar todas las pestañas de Ritmo y la app instalada, y volver a abrirla para cargar el nuevo sistema de avisos. No borrar los datos del navegador. Las versiones posteriores ya utilizan el aviso. No se verificó en un iPhone físico.
 

@@ -68,7 +68,7 @@
       mostrar(); revisar();
       document.addEventListener('visibilitychange', revisar);
       window.addEventListener('online', revisar);
-      setInterval(revisar, 30 * 60 * 1000);
+      setInterval(revisar, 60 * 1000);
     } catch { console.warn('No se pudo preparar el modo sin conexión. Vuelve a abrir la app con internet.'); }
   }
   if (document.readyState === 'complete') void iniciar(); else window.addEventListener('load', iniciar, { once: true });
