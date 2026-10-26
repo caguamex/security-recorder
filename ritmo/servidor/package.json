@@ -15,13 +15,14 @@
     "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs"
   },
   "dependencies": {
+    "jose": "6.2.13",
     "pg": "^8.16.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.15.0",
-    "typescript": "^5.9.3",
-    "@electric-sql/pglite": "^0.3.14",
-    "playwright": "^1.58.0"
+    "playwright": "^1.58.0",
+    "typescript": "^5.9.3"
   }
 }
