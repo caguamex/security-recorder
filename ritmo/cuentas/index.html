@@ -1,4 +1,4 @@
-<title>Ritmo Belleza Equipo</title>
+<title>Agendappx Equipo</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -280,7 +280,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     <p class="gh" style="margin:14px 4px 0">¿Qué ofreces?</p>
     <div class="opts">${['Uñas', 'Pestañas y cejas', 'Cabello', 'Maquillaje', 'Spa', 'Barbería'].map((x, i) => `<button type="button" class="opt" data-invserv aria-pressed="${i < 2}">${x}</button>`).join('')}</div>
     <p class="gh" style="margin:14px 4px 0">Tu link para compartir</p>
-    <div class="linkbox"><span id="csLink" style="flex:1">ritmo-belleza.app/<b>tu-salon</b></span></div>
+    <div class="linkbox"><span id="csLink" style="flex:1">agendappx.app/<b>tu-salon</b></span></div>
     <button type="button" class="btn fill" data-act="crear-salon" style="margin-top:10px">Crear mi salón</button>
     <p class="fine">Empiezas con servicios de ejemplo que puedes cambiar o borrar.</p></div>`;
   const codigo = () => `<div class="nav"><button type="button" data-act="atras-entrar">‹ Atrás</button></div>
@@ -321,7 +321,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
 
   /* ---------- Bienvenida (primera visita) ---------- */
   const EJEMPLO = [['💅🏻', 'Uñas acrílicas', 90, 650, '#E0457B'], ['👁️', 'Lifting de pestañas', 60, 550, '#14A3A0'], ['💇🏻‍♀️', 'Balayage', 150, 1500, '#8B5CF6'], ['🦶🏻', 'Pedicure spa', 60, 400, '#C2457E'], ['✨', 'Diseño de cejas', 45, 250, '#2BB3C0']];
-  const inicio = () => `<div class="top"><span class="brand"><span class="logo"><span class="e">💅🏻</span></span>Ritmo Belleza</span><button type="button" class="link" data-act="ir-entrar">Iniciar sesión</button></div>
+  const inicio = () => `<div class="top"><span class="brand"><span class="logo"><span class="e">💅🏻</span></span>Agendappx</span><button type="button" class="link" data-act="ir-entrar">Iniciar sesión</button></div>
     <section class="hero"><h1>La agenda de tu salón, en tu celular</h1>
       <p>Citas, clientas, recordatorios por WhatsApp y tu equipo en un solo lugar. Tus clientas ven tus servicios y horarios libres con un link.</p></section>
     <div class="preview"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b>Así se ve tu día</b><span class="tag">Ejemplo</span></div>
@@ -336,7 +336,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       <div><span class="e">👩🏻‍🤝‍👩🏽</span><b>Equipo</b>Invita a tu equipo; cada quien ve lo suyo.</div>
       <div><span class="e">🔗</span><b>Tu link</b>Tus clientas ven servicios, precios y horarios libres.</div></div>
     <p class="gh">Mira un salón real</p>
-    <div class="group"><button type="button" class="cell" data-demo="salon"><span class="av" style="--c:#E0457B">AB</span><span class="l"><b>AB' Beauty Room</b><small>ritmo-belleza.app/ab-beauty-room</small></span><span class="chev">›</span></button></div>
+    <div class="group"><button type="button" class="cell" data-demo="salon"><span class="av" style="--c:#E0457B">AB</span><span class="l"><b>AB' Beauty Room</b><small>agendappx.app/ab-beauty-room</small></span><span class="chev">›</span></button></div>
     <div class="ctas"><button type="button" class="btn line" data-act="ir-entrar">Iniciar sesión</button><button type="button" class="btn fill" data-act="ir-registro">Registrarse</button></div>`;
 
   /* ---------- Perfil público del salón (link para compartir) ---------- */
@@ -357,7 +357,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     return out;
   };
   const salon = () => { const cat = CATS.find(c => c[0] === S.cat), lista = SERV.filter(x => !cat[2] || cat[2].includes(x.id)), s = serv(S.svc), hs = libres(S.svc, S.dia);
-    return `<div class="top on-cover" style="position:relative;z-index:1">${S.desdeApp ? '<button type="button" class="link" data-act="volver-app">‹ Ajustes</button>' : '<span class="brand" style="font-size:14px;color:var(--ink2)">Ritmo Belleza</span>'}${S.pant === 'salon' && !S.desdeApp ? '<button type="button" class="link" data-act="ir-entrar">Iniciar sesión</button>' : ''}</div>
+    return `<div class="top on-cover" style="position:relative;z-index:1">${S.desdeApp ? '<button type="button" class="link" data-act="volver-app">‹ Ajustes</button>' : '<span class="brand" style="font-size:14px;color:var(--ink2)">Agendappx</span>'}${S.pant === 'salon' && !S.desdeApp ? '<button type="button" class="link" data-act="ir-entrar">Iniciar sesión</button>' : ''}</div>
       <div class="cover" style="margin-top:-58px"></div>
       <div class="salon-hd"><span class="av" style="--c:#E0457B">AB</span><h1>AB' Beauty Room</h1>
         <div class="meta"><span>💅🏻 Uñas · Pestañas · Cejas · Cabello</span><span>🕙 Hoy abierto de 10:00 a 20:00</span><span>📍 Dirección del salón</span></div></div>
@@ -449,7 +449,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   const ajustes = () => { const m = yo();
     return `<div class="nav"><span></span></div><h1>Ajustes</h1>
       <div class="group"><div class="cell">${av(m)}<span class="l"><b>${esc(m.n)}</b><small>AB' Beauty Room</small></span><span class="pill ${m.rol}">${ROL[m.rol]}</span></div></div>
-      ${S.rol === 'admin' ? `<p class="gh">Tu link para clientas</p><div class="linkbox"><span style="flex:1">ritmo-belleza.app/ab-beauty-room</span><button type="button" data-act="copiar-publico">Copiar</button></div>
+      ${S.rol === 'admin' ? `<p class="gh">Tu link para clientas</p><div class="linkbox"><span style="flex:1">agendappx.app/ab-beauty-room</span><button type="button" data-act="copiar-publico">Copiar</button></div>
       <div class="group" style="margin-top:10px"><button type="button" class="cell" data-act="ver-publico"><span class="e" style="font-size:22px">👀</span><span class="l">Ver como lo ven tus clientas<small>Servicios, precios, duración y horarios libres</small></span><span class="chev">›</span></button></div>` : ''}
       <p class="gh">Salón</p><div class="group">
         ${puede.equipo() ? `<button type="button" class="cell" data-sub="equipo"><span class="e" style="font-size:22px">👩🏻‍🤝‍👩🏽</span><span class="l">Equipo<small>${EQUIPO.filter(x => x.estado === 'activa').length} personas · 1 invitación pendiente</small></span><span class="chev">›</span></button>` : ''}
@@ -474,7 +474,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       ${m.rol === 'especialista' ? `<p class="gh">Servicios que hace</p><div class="opts">${SERV.map(s => `<button type="button" class="opt" data-togserv="${s.id}" aria-pressed="${m.serv.includes(s.id)}">${esc(s.n)}</button>`).join('')}</div>
       <p class="gh">Permisos</p><div class="group"><div class="cell"><span class="l">Ver la agenda de todas<small>Si está apagado solo ve sus citas</small></span><button type="button" class="sw" role="switch" aria-label="Ver la agenda de todas" aria-checked="${!!m.verTodas}" data-togver></button></div>
         <div class="cell"><span class="l">Horario<small>${esc(m.horario)}</small></span><span class="chev">›</span></div></div>` : ''}
-      ${m.estado === 'activa' ? `<p class="gh">Sesiones abiertas</p><div class="group"><div class="cell"><span class="e" style="font-size:22px">📱</span><span class="l">${esc(m.disp)}<small>Activa hoy</small></span></div></div>` : `<p class="gh">Invitación</p><div class="linkbox"><span style="flex:1">ritmo-belleza.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div><p class="foot">Se usa una sola vez y vence en 41 horas.</p>`}
+      ${m.estado === 'activa' ? `<p class="gh">Sesiones abiertas</p><div class="group"><div class="cell"><span class="e" style="font-size:22px">📱</span><span class="l">${esc(m.disp)}<small>Activa hoy</small></span></div></div>` : `<p class="gh">Invitación</p><div class="linkbox"><span style="flex:1">agendappx.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div><p class="foot">Se usa una sola vez y vence en 41 horas.</p>`}
       <div id="quitarBox" style="margin-top:22px"><button type="button" class="btn bad" data-act="quitar">${m.estado === 'pendiente' ? 'Cancelar invitación' : 'Quitar del equipo'}</button></div>`}`; };
   const seguridad = () => S.rol !== 'admin' ? `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button></div><h1>Seguridad</h1>
       <p class="gh">Tus sesiones</p><div class="group"><div class="cell"><span class="e" style="font-size:22px">📱</span><span class="l">${esc(yo().disp)}<small>Este dispositivo</small></span></div></div>
@@ -521,7 +521,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   });
   document.addEventListener('input', e => { if (e.target.id !== 'csNombre') return;
     const slug = e.target.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'tu-salon';
-    $('#csLink').innerHTML = 'ritmo-belleza.app/<b>' + esc(slug) + '</b>'; });
+    $('#csLink').innerHTML = 'agendappx.app/<b>' + esc(slug) + '</b>'; });
   document.addEventListener('input', e => { if (e.target.id !== 'pfNombre') return; const v = e.target.value.trim();
     $('#pfNom').textContent = v || ' '; $('#pfAv').textContent = v.split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0].toUpperCase()).join('') || '?'; });
   document.addEventListener('keydown', e => { const m = /^d(\d)$/.exec(e.target.id || ''); if (m && e.key === 'Backspace' && !e.target.value && +m[1] > 0) $('#d' + (+m[1] - 1)).focus(); });
@@ -557,7 +557,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       case 'crear-salon': { const n = $('#csNombre').value.trim(); if (!n) { toast('Escribe el nombre de tu salón'); $('#csNombre').focus(); break; } S.rol = 'admin'; S.registro = false; dentro(); toast(n + ' está listo. Aquí ves datos de ejemplo.'); break; }
       case 'volver-app': ir({ pant: 'app', tab: 'ajustes', sub: null, desdeApp: false }); break;
       case 'ver-publico': ir({ pant: 'salon', desdeApp: true }); break;
-      case 'copiar-publico': { const t = 'https://ritmo-belleza.app/ab-beauty-room'; try { navigator.clipboard.writeText(t).then(() => toast('Link copiado. Compártelo por WhatsApp o en tu Instagram.'), () => toast('Selecciona el link para copiarlo')); } catch (err) { toast('Selecciona el link para copiarlo'); } break; }
+      case 'copiar-publico': { const t = 'https://agendappx.app/ab-beauty-room'; try { navigator.clipboard.writeText(t).then(() => toast('Link copiado. Compártelo por WhatsApp o en tu Instagram.'), () => toast('Selecciona el link para copiarlo')); } catch (err) { toast('Selecciona el link para copiarlo'); } break; }
       case 'pedir-primera': { const hs = libres(S.svc, S.dia); if (hs.length) pedir(hs[0][0], hs[0][1]); else { $('#horarios').scrollIntoView({ behavior: 'smooth' }); toast('Elige otro día'); } break; }
       case 'wa-salon': toast('Abriría el WhatsApp del salón'); break;
       case 'enviar-pedido': { const n = $('#pcNombre').value.trim(), t = $('#pcTel').value.replace(/\D/g, ''); if (!n || t.length < 10) { toast(!n ? 'Escribe tu nombre' : 'Escribe tu WhatsApp a 10 dígitos'); break; }
@@ -572,9 +572,9 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       case 'recordar': toast('Simulado: recordatorio enviado desde el WhatsApp del salón'); break;
       case 'mover': toast('Al moverla queda en el historial quién y cuándo'); break;
       case 'invitar': invitar(); break;
-      case 'crear-invitacion': $('#invOut').innerHTML = `<p class="gh" style="margin-top:0">Enlace de invitación</p><div class="linkbox"><span style="flex:1">ritmo-belleza.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div>
+      case 'crear-invitacion': $('#invOut').innerHTML = `<p class="gh" style="margin-top:0">Enlace de invitación</p><div class="linkbox"><span style="flex:1">agendappx.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div>
         <p class="foot">Mándalo por WhatsApp a ${esc($('#invNombre').value)}. Al abrirlo entra con un código que le llega a su correo y queda en tu equipo. Prueba cómo lo ve con «Ver invitación» arriba.</p>`; break;
-      case 'copiar': { const t = 'https://ritmo-belleza.app/unirse/K7Q-29M'; try { navigator.clipboard.writeText(t).then(() => toast('Enlace copiado'), () => toast('Selecciona el enlace para copiarlo')); } catch (err) { toast('Selecciona el enlace para copiarlo'); } break; }
+      case 'copiar': { const t = 'https://agendappx.app/unirse/K7Q-29M'; try { navigator.clipboard.writeText(t).then(() => toast('Enlace copiado'), () => toast('Selecciona el enlace para copiarlo')); } catch (err) { toast('Selecciona el enlace para copiarlo'); } break; }
       case 'quitar': { const m = miembro(S.sub.slice(8)); $('#quitarBox').innerHTML = `<div class="confirm"><p>${m.estado === 'pendiente' ? `¿Cancelar la invitación de ${esc(m.n)}? El enlace deja de funcionar.` : `¿Quitar a ${esc(m.n)}? Pierde el acceso al momento, también en su teléfono. Sus citas se quedan en la agenda.`}</p>
           <div class="row2"><button type="button" class="btn soft" data-act="no-quitar">No</button><button type="button" class="btn fill" data-act="si-quitar" style="background:var(--bad);box-shadow:none">${m.estado === 'pendiente' ? 'Cancelar' : 'Quitar'}</button></div></div>`; break; }
       case 'no-quitar': render(); break;

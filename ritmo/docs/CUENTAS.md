@@ -1,6 +1,6 @@
 # Cuentas y equipo: especificación
 
-Estado: aprobada por Antonio el 26 de octubre de 2026 (inicio de sesión y pantallas). Prototipo navegable: `ritmo/cuentas/index.html` (publicado como «Ritmo Belleza Equipo»).
+Estado: aprobada por Antonio el 26 de octubre de 2026 (inicio de sesión y pantallas). Prototipo navegable: `ritmo/cuentas/index.html` (publicado como «Agendappx Equipo»).
 Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día uno para poder venderla a otros salones después sin rehacer nada.
 
 ## 1. Inicio de sesión
@@ -25,7 +25,7 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
   - lo que ve alguien que entra por primera vez: título, un ejemplo de agenda, «Servicios de prueba» marcados como ejemplo, lo que incluye la app y «Mira un salón real»;
   - barra fija abajo con **Iniciar sesión** y **Registrarse**;
   - con sesión iniciada, `/` abre directo la Agenda.
-- **Perfil público** (`/<slug>`, por ejemplo `/ab-beauty-room`): el link que la dueña comparte. Sin cuenta se ve:
+- **Perfil público** (`/<slug>`, por ejemplo `/ab-beauty-room`): el link que la dueña comparte. `agendappx.app` en el prototipo es ilustrativo: no hay dominio comprado y no se renombra infraestructura; el link usa el dominio actual del Worker hasta que Antonio decida otro. Sin cuenta se ve:
   - portada, nombre, categorías, horario de hoy y dirección;
   - servicios por categoría con **precio y duración** (y foto, si tiene);
   - **horarios libres** de los próximos 7 días para el servicio elegido, calculados con el horario del salón, el de cada especialista que hace ese servicio y sus citas;
