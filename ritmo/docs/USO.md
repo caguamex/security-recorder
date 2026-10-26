@@ -89,6 +89,6 @@ Verificación local con dos versiones y dos pestañas: `npm run test:actualizaci
 
 ## Diseño 3D y Apariencia
 
-El diseño preparado para revisión usa la barra Agenda, Clientas, +, Servicios y Ajustes. El + central abre Nueva cita desde cualquiera de esas secciones. Las promociones se abren desde Servicios → Promociones; Servicios se mantiene marcada en la barra.
+El diseño publicado usa la barra Agenda, Clientas, +, Servicios y Ajustes. El + central abre Nueva cita desde cualquiera de esas secciones. Las promociones se abren desde Servicios → Promociones; Servicios se mantiene marcada en la barra.
 
-Ajustes → Apariencia permite elegir ☀️ White o 🌙 Dark, arriba del selector Tema. White conserva el tema elegido y Dark aplica Black 3D encima de cualquiera de los cinco temas. Ambos ajustes se guardan y se sincronizan cuando el dispositivo está conectado. Las fotos y las demás funciones de la agenda se conservan. Esta integración requiere confirmación de deploy antes de aparecer en la URL pública.
+Ajustes → Apariencia permite elegir ☀️ White o 🌙 Dark, arriba del selector Tema. White conserva el tema elegido y Dark aplica Black 3D encima de cualquiera de los cinco temas. Ambos ajustes se guardan y se sincronizan cuando el dispositivo está conectado. Las fotos y las demás funciones de la agenda se conservan. Esta integración se publicó con la confirmación de Antonio el 26 de octubre de 2026. Los próximos cambios siguen requiriendo confirmación de deploy.
