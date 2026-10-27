@@ -37,6 +37,32 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
   - las solicitudes llevan Turnstile y un límite de 5 por teléfono al día.
 - **En Ajustes (Admin)**: «Tu link para clientas» con Copiar y «Ver como lo ven tus clientas». El slug se elige al crear el salón y puede cambiarse; el anterior redirige 90 días.
 
+## 1c. Dos Admin en el mismo salón y avisos al momento
+
+- Antonio y la dueña del salón usan **la misma cuenta del salón**, cada quien con su correo y los dos con rol **Admin**. No comparten acceso.
+- **Todo es una sola agenda**: lo que agenda, mueve o cancela una persona le aparece **al momento** a las demás, sin recargar.
+  - Usa Supabase Realtime (cambios de `belleza_objetos` del negocio, filtrados por RLS).
+  - Si no hay conexión en tiempo real, se revisa cada 15 s. Al volver a la app, se sincroniza de inmediato.
+- **Aviso en el celular** (notificación push web de la PWA, con permiso de cada persona) cuando otra persona agenda, mueve o cancela. Ejemplo: «Dueña del salón agendó una cita · Paola Vega · Gelish en manos · hoy 15:30 con Karla».
+  - Al tocarlo se abre la cita.
+  - A Admin le llega todo. A una Especialista, solo lo de sus citas.
+  - Quien hizo el cambio no recibe su propio aviso.
+  - Llaves VAPID como secretos, nunca en Git.
+- Cada cita muestra en su historial quién la creó y quién la cambió (ya está en `bitacora`).
+
+## 1d. Horario de trabajo («Mi horario»)
+
+- **Ajustes → Mi horario**: cada persona edita el suyo. Admin también puede editar el de cualquiera desde Equipo → ficha → Horario.
+  - Por día de la semana: trabaja sí o no, y de qué hora a qué hora (pasos de 30 min, formato 24 h).
+  - Hora de comida opcional.
+  - **Días especiales**: día libre, vacaciones (uno o varios días) o «sale temprano» con hora.
+- Modelo: `miembros.horario = { "lun": ["10:00","19:00"] | null, ..., "comida": ["14:00","15:00"] | null }` y tabla `horario_especial(negocio_id, usuario_id, fecha, tipo, desde, hasta)`.
+- Efectos:
+  - **Agenda «Por especialista»**: fuera de turno y comida se ven rayados («Entra 11:00», «Comida», «Salió», «Descansa»).
+  - **Nueva cita**: Recepción y Especialista solo pueden elegir horas dentro del horario. Admin ve las de fuera con ⚠️ y puede agendarlas confirmando.
+  - **Perfil público**: las horas libres solo salen dentro del horario de quien hace el servicio, incluyendo comida y días especiales.
+  - Los mensajes automáticos no cambian.
+
 ## 2. Roles
 
 | Puede… | Admin | Recepción | Especialista |

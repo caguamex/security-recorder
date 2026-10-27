@@ -30,7 +30,7 @@
 * { box-sizing: border-box; }
 html, body { min-height: 100%; }
 body { margin: 0; background: var(--stage); color: var(--ink); font: 400 16px/1.35 var(--ui); -webkit-font-smoothing: antialiased; }
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 2.5px solid var(--acc); outline-offset: 2px; }
 .e { font-family: var(--emo); font-style: normal; }
@@ -208,6 +208,27 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
 .st-ok { color: var(--ok); font-size: 12.5px; font-weight: 700; white-space: nowrap; } .st-wait { color: var(--warn); font-size: 12.5px; font-weight: 700; white-space: nowrap; } .st-prog { color: var(--ink3); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
 .check { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: 14px; color: var(--ink2); }
 .check input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--acc); }
+.noti { position: fixed; z-index: 60; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 50%; transform: translateX(-50%); width: min(calc(100% - 20px), 410px); display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 14px; border: 0; border-radius: 20px; background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 12px 30px rgba(0, 0, 0, .25); text-align: left; animation: down .3s ease-out; }
+@keyframes down { from { transform: translate(-50%, -30px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .noti { animation: none; } }
+.noti .ic { flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--ink); font-size: 20px; }
+.noti small { display: block; color: var(--ink3); font-size: 12px; } .noti b { font-size: 14.5px; } .noti span.t { display: block; font-size: 14px; color: var(--ink2); }
+.hrow { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 10px; padding: 9px 16px; }
+.hrow + .hrow { border-top: 1px solid var(--sep); }
+.hrow b { font-size: 15px; }
+.hrow .tm { display: flex; align-items: center; gap: 6px; color: var(--ink3); font-size: 14px; min-width: 0; }
+.hrow select { width: 84px; appearance: none; -webkit-appearance: none; text-align: center; text-align-last: center; min-height: 34px; padding: 0 6px; border: 1.5px solid var(--sep); border-radius: 10px; background: var(--bg); font-size: 15px; font-variant-numeric: tabular-nums; }
+.hrow .off { color: var(--ink3); font-size: 14px; }
+.col .off { position: absolute; left: 0; right: 0; background: repeating-linear-gradient(135deg, var(--fill) 0 6px, transparent 6px 12px); border-radius: 10px; }
+.col .off span { position: absolute; left: 6px; top: 4px; font-size: 10.5px; font-weight: 700; color: var(--ink3); }
+.ck { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 8px 16px; border: 0; background: none; text-align: left; }
+.ck + .ck { border-top: 1px solid var(--sep); }
+.ck .bx { flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--sep); display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: 800; }
+.ck[aria-checked="true"] .bx { background: var(--acc); border-color: var(--acc); }
+.ck .l { flex: 1; min-width: 0; } .ck small { display: block; color: var(--ink3); font-size: 13px; }
+.bar-p { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; margin-top: 8px; } .bar-p i { display: block; height: 100%; background: var(--ok); border-radius: 4px; }
+textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: vertical; font-size: 15px; }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
@@ -216,7 +237,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   <div class="demo" role="group" aria-label="Demostración">
     <b>Demostración</b><span>Entrar como:</span>
     <button type="button" data-rol="admin">Admin</button><button type="button" data-rol="recepcion">Recepción</button><button type="button" data-rol="especialista">Especialista</button>
-    <span class="sp"></span><button type="button" data-demo="salir">Inicio</button><button type="button" data-demo="salon">Link del salón</button><button type="button" data-demo="invitacion">Invitación</button><button type="button" data-demo="whatsapp">💬 WhatsApp</button>
+    <span class="sp"></span><button type="button" data-demo="salir">Inicio</button><button type="button" data-demo="salon">Link del salón</button><button type="button" data-demo="invitacion">Invitación</button><button type="button" data-demo="whatsapp">💬 WhatsApp</button><button type="button" data-demo="aviso">🔔 La dueña agenda</button>
   </div>
   <main id="screen" class="pad" aria-live="polite"></main>
 </div>
@@ -238,6 +259,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   ];
   const EQUIPO = [
     { id: 'antonio', n: 'Antonio', ini: 'AN', rol: 'admin', c: '#4B4B55', serv: [], estado: 'activa', disp: 'iPhone 15 · Safari' },
+    { id: 'duena', n: 'Dueña del salón', ini: 'DS', rol: 'admin', c: '#B4235A', serv: [], estado: 'activa', disp: 'iPhone 14 · Safari' },
     { id: 'lupita', n: 'Lupita Hernández', ini: 'LH', rol: 'recepcion', c: '#3B82F6', serv: [], estado: 'activa', disp: 'iPad · Safari' },
     { id: 'karla', n: 'Karla Méndez', ini: 'KM', rol: 'especialista', c: '#E0457B', serv: ['acr', 'gel', 'ped'], estado: 'activa', disp: 'iPhone 13 · Safari', verTodas: false, horario: 'Lun a sáb · 10:00 a 19:00' },
     { id: 'renata', n: 'Renata Soto', ini: 'RS', rol: 'especialista', c: '#14A3A0', serv: ['lif', 'cej'], estado: 'activa', disp: 'Android · Chrome', verTodas: false, horario: 'Mar a sáb · 11:00 a 19:00' },
@@ -245,6 +267,41 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     { id: 'brenda', n: 'Brenda Castillo', ini: 'BC', rol: 'especialista', c: '#F59E0B', serv: ['gel', 'ped'], estado: 'pendiente', verTodas: false, horario: 'Sáb · 10:00 a 18:00' },
   ];
   const CLIENTAS = { mr: ['Mariana Ruiz', '55 1234 5678'], sl: ['Sofía López', '55 8765 4321'], fc: ['Fernanda Cruz', '55 2222 3333'], ag: ['Andrea García', '55 4444 5555'], pv: ['Paola Vega', '55 6666 7777'], dt: ['Daniela Torres', '55 9090 1212'] };
+  // Horario de trabajo de cada persona: [entra, sale] por día, hora de comida y días especiales.
+  const DK = { Lun: 'lun', Mar: 'mar', 'Mié': 'mie', Jue: 'jue', Vie: 'vie', 'Sáb': 'sab', Dom: 'dom' };
+  const SEM = [['lun', 'Lun'], ['mar', 'Mar'], ['mie', 'Mié'], ['jue', 'Jue'], ['vie', 'Vie'], ['sab', 'Sáb'], ['dom', 'Dom']];
+  const semana = (de, a, dias) => Object.fromEntries(SEM.map(([k]) => [k, dias.includes(k) ? [de, a] : null]));
+  const HOR = {
+    karla: { dias: semana('10:00', '19:00', ['lun', 'mar', 'mie', 'jue', 'vie', 'sab']), comida: ['14:00', '15:00'], esp: [['Sáb 31', 'Sale a las 15:00', '15:00']] },
+    renata: { dias: semana('11:00', '19:00', ['mar', 'mie', 'jue', 'vie', 'sab']), comida: ['15:00', '16:00'], esp: [] },
+    ximena: { dias: semana('12:00', '19:00', ['lun', 'mar', 'mie', 'jue', 'vie']), comida: null, esp: [['Vie 30', 'Día libre', null]] },
+    brenda: { dias: semana('10:00', '18:00', ['sab']), comida: null, esp: [] },
+    lupita: { dias: semana('10:00', '20:00', ['lun', 'mar', 'mie', 'jue', 'vie', 'sab']), comida: ['14:30', '15:30'], esp: [] },
+    antonio: { dias: semana('10:00', '20:00', ['lun', 'mar', 'mie', 'jue', 'vie', 'sab']), comida: null, esp: [] },
+    duena: { dias: semana('10:00', '20:00', ['lun', 'mar', 'mie', 'jue', 'vie', 'sab']), comida: null, esp: [] },
+  };
+  const resumenHor = id => { const h = HOR[id], on = SEM.filter(([k]) => h.dias[k]); if (!on.length) return 'Sin horario';
+    const a = on[0], z = on[on.length - 1], r = h.dias[a[0]]; return `${a[1]} a ${z[1].toLowerCase()} · ${r[0]} a ${r[1]}`; };
+  // ¿Trabaja esa persona de t a t+dur (minutos) el día dn ('Mar', 'Mié'…) con fecha dd?
+  const trabaja = (id, dn, dd, t, dur) => { const h = HOR[id]; if (!h) return true; const r = h.dias[DK[dn]]; if (!r) return false;
+    const e = h.esp.find(x => x[0] === dn + ' ' + dd); if (e && !e[2]) return false;
+    const fin = e && e[2] ? Math.min(mins(r[1]), mins(e[2])) : mins(r[1]);
+    if (t < mins(r[0]) || t + dur > fin) return false;
+    return !(h.comida && t < mins(h.comida[1]) && mins(h.comida[0]) < t + dur); };
+
+  // Clientas del salón (las 6 de ejemplo más un listado generado) y contactos del WhatsApp vinculado.
+  const NOM = ['Ana', 'Lucía', 'Fernanda', 'Valeria', 'Camila', 'Regina', 'Ximena', 'Daniela', 'Andrea', 'Paola', 'Sofía', 'Mariana', 'Itzel', 'Renata', 'Karen', 'Jimena', 'Natalia', 'Alejandra', 'Brenda', 'Diana', 'Lizbeth', 'Gabriela', 'Montserrat', 'Abril'];
+  const APE = ['García', 'Hernández', 'López', 'Martínez', 'González', 'Pérez', 'Rodríguez', 'Sánchez', 'Ramírez', 'Cruz', 'Flores', 'Gómez', 'Morales', 'Vázquez', 'Reyes', 'Jiménez', 'Torres', 'Ruiz', 'Mendoza', 'Aguilar'];
+  let semilla = 7; const rnd = n => (semilla = (semilla * 1103515245 + 12345) % 2147483648) % n;
+  const CATS_S = ['unas', 'ojos', 'pelo'];
+  const BASE = Array.from({ length: 86 }, (_, i) => ({ k: 'g' + i, n: NOM[rnd(NOM.length)] + ' ' + APE[rnd(APE.length)], t: '55 ' + String(1000 + rnd(9000)) + ' ' + String(1000 + rnd(9000)), promo: rnd(10) < 8, cat: CATS_S[rnd(3)], dias: 3 + rnd(80) }));
+  Object.entries(CLIENTAS).forEach(([k, [n, t]], i) => BASE.unshift({ k, n, t, promo: i !== 3, cat: ['unas', 'ojos', 'unas', 'pelo', 'ojos', 'unas'][i], dias: [6, 21, 34, 12, 45, 9][i] }));
+  const CONTACTOS = Array.from({ length: 36 }, (_, i) => ({ k: 'w' + i, n: NOM[rnd(NOM.length)] + ' ' + APE[rnd(APE.length)], t: '55 ' + String(1000 + rnd(9000)) + ' ' + String(1000 + rnd(9000)), chat: ['hoy', 'ayer', 'hace 3 días', 'hace 2 semanas', 'hace 1 mes'][rnd(5)], sel: false }));
+  const PROMOS = [{ id: 'p1', t: 'Martes de gelish', d: 'gelish en manos a $250 todos los martes de noviembre' }, { id: 'p2', t: 'Cejas de regalo', d: 'diseño de cejas gratis al hacerte el lifting de pestañas' }];
+  const P = { promo: 'p1', aud: 'todas', sel: new Set(), txt: null, ver: 20 };
+  const CAMP = [{ t: 'Fin de mes en uñas', total: 74, env: 74, cuando: 'Terminó el sáb 24' }];
+  const POR_DIA = 40;
+
   // Mensajes automáticos y anticipo (configuración de Admin).
   const W = { agendar: true, anticipo: true, dia: true, antes: true, diaHora: '09:00', antesMin: 60, pedir: true, pct: 30, minimo: 300, plazo: 24,
     banco: 'BBVA', clabe: '012 180 0000 0000 0000', titular: "AB' Beauty Room", hoy: 23, porDia: 150,
@@ -377,7 +434,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     const s = serv(sid), quien = EQUIPO.filter(m => m.estado === 'activa' && m.serv.includes(sid)), cs = citasDia(d), out = [];
     for (let t = 600; t + s.min <= 1200; t += 30) {
       if (d === 0 && t < 13 * 60) continue; // hoy ya pasaron las horas antes de las 12:40
-      const m = quien.find(q => !cs.some(c => c.st === q.id && t < mins(c.h) + serv(c.s).min && mins(c.h) < t + s.min));
+      const m = quien.find(q => trabaja(q.id, DIAS[d][0], DIAS[d][1], t, s.min) && !cs.some(c => c.st === q.id && t < mins(c.h) + serv(c.s).min && mins(c.h) < t + s.min));
       if (m) out.push([hhmm(t), m.id]);
     }
     return out;
@@ -424,6 +481,9 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     return `<div class="nav"><button type="button">‹ Octubre</button><button type="button" style="font-weight:600">Hoy</button></div>
       <h1>Martes 27</h1>${chips}${seg}${sum}${cuerpo}${nota}`;
   };
+  const fuera = (id, ini, fin_, px) => { const h = HOR[id], r = h && h.dias.mar; if (!h) return ''; const bl = [];
+    if (!r) bl.push([ini * 60, fin_ * 60, 'Descansa']); else { if (mins(r[0]) > ini * 60) bl.push([ini * 60, mins(r[0]), 'Entra ' + r[0]]); if (mins(r[1]) < fin_ * 60) bl.push([mins(r[1]), fin_ * 60, 'Salió']); if (h.comida) bl.push([mins(h.comida[0]), mins(h.comida[1]), 'Comida']); }
+    return bl.map(([a, b, l]) => `<span class="off" style="top:${(a - ini * 60) / 60 * px}px;height:${(b - a) / 60 * px}px"><span>${l}</span></span>`).join(''); };
   const evRow = c => { const s = serv(c.s), m = miembro(c.st);
     return `<button type="button" class="ev" style="--c:${s.c}" data-cita="${c.id}"><span class="h">${c.h}<small>${fin(c.h, s.min)}</small></span>
       <span class="b"><span class="t">${esc(s.n)}</span><br><span class="m">${esc(CLIENTAS[c.cl][0])}${puede.ingresos() ? ' · ' + money(s.p) : ''}</span>
@@ -432,7 +492,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     const ini = 10, fin_ = 19, px = 56, cols = especialistas().filter(m => S.filtro === 'todas' || m.id === S.filtro);
     const lineas = Array.from({ length: fin_ - ini }, (_, i) => `<span class="grid-h" style="top:${i * px}px"></span>`).join('');
     return `<div class="cols" style="grid-template-columns:repeat(${cols.length},minmax(0,1fr));--hrs:${fin_ - ini}">${cols.map(m => `<div class="col"><div class="hd">${av(m)}${esc(m.n.split(' ')[0])}</div>
-      <div class="track">${lineas}${CITAS.filter(c => c.st === m.id).map(c => { const s = serv(c.s), t = (+c.h.slice(0, 2) - ini) * 60 + +c.h.slice(3);
+      <div class="track">${lineas}${fuera(m.id, ini, fin_, px)}${CITAS.filter(c => c.st === m.id).map(c => { const s = serv(c.s), t = (+c.h.slice(0, 2) - ini) * 60 + +c.h.slice(3);
         return `<button type="button" class="blk" style="--c:${s.c};top:${t / 60 * px + 2}px;height:${s.min / 60 * px - 4}px" data-cita="${c.id}"><b>${c.h}</b>${esc(s.n)}</button>`; }).join('')}</div></div>`).join('')}</div>
       <p class="foot">De 10:00 a 19:00. Cada columna es una especialista; toca una cita para abrirla.</p>`;
   };
@@ -490,21 +550,26 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   const nueva = () => {
     const quien = S.rol === 'especialista' ? [yo()] : especialistas().filter(m => m.serv.includes(N.s));
     if (!quien.find(m => m.id === N.st)) N.st = quien[0] ? quien[0].id : null;
-    const ocupado = h => CITAS.some(c => c.st === N.st && c.h === h);
+    const ocupado = h => CITAS.some(c => c.st === N.st && c.h === h) || (S.rol !== 'admin' && !trabaja(N.st, 'Mar', 27, mins(h), serv(N.s).min));
+    const fuera_ = h => N.st && !trabaja(N.st, 'Mar', 27, mins(h), serv(N.s).min);
     const servs = S.rol === 'especialista' ? SERV.filter(s => yo().serv.includes(s.id)) : SERV;
     sheet(`<div class="nav"><button type="button" data-act="cerrar">Cancelar</button><b>Nueva cita</b><button type="button" data-act="guardar" style="font-weight:700">Guardar</button></div>
       <p class="gh">Servicio</p><div class="opts">${servs.map(s => `<button type="button" class="opt" data-ns="${s.id}" aria-pressed="${N.s === s.id}">${esc(s.n)}</button>`).join('')}</div>
       <p class="gh">La atiende</p><div class="opts">${quien.map(m => `<button type="button" class="opt" data-nst="${m.id}" aria-pressed="${N.st === m.id}" style="display:flex;align-items:center;gap:7px">${av(m, 's')}${esc(m.n.split(' ')[0])}</button>`).join('')}</div>
       <p class="foot">${S.rol === 'especialista' ? 'Solo puedes agendarte a ti y los servicios que haces.' : 'Solo aparecen las especialistas que hacen este servicio.'}</p>
       <p class="gh">Clienta</p><div class="opts">${Object.entries(CLIENTAS).map(([k, [n]]) => `<button type="button" class="opt" data-ncl="${k}" aria-pressed="${N.cl === k}">${esc(n)}</button>`).join('')}</div>
-      <p class="gh">Martes 27 · horarios libres</p><div class="opts">${['11:00', '12:00', '14:00', '15:30', '17:00', '18:00'].map(h => `<button type="button" class="opt" data-nh="${h}" aria-pressed="${N.h === h}" ${ocupado(h) ? 'disabled' : ''}>${h}</button>`).join('')}</div>`);
+      <p class="gh">Martes 27 · horarios libres</p><div class="opts">${['11:00', '12:00', '14:00', '15:30', '17:00', '18:00'].map(h => `<button type="button" class="opt" data-nh="${h}" aria-pressed="${N.h === h}" ${ocupado(h) ? 'disabled' : ''} ${fuera_(h) ? 'title="Fuera de su horario"' : ''}>${h}${fuera_(h) && !ocupado(h) ? ' ⚠️' : ''}</button>`).join('')}</div>
+      <p class="foot">${S.rol === 'admin' ? 'Las horas con ⚠️ están fuera de su horario; puedes agendarlas de todos modos.' : 'Solo aparecen las horas dentro de su horario.'}</p>`);
   };
 
   /* ---------- Clientas y servicios ---------- */
   const clientas = () => { const mias = S.rol === 'especialista' ? new Set(CITAS.filter(c => c.st === yo().id).map(c => c.cl)) : null;
     const lista = Object.entries(CLIENTAS).filter(([k]) => !mias || mias.has(k));
+    const pr = k => (BASE.find(b => b.k === k) || {}).promo;
     return `<div class="nav"><span></span></div><h1>Clientas</h1>
-      <div class="group">${lista.map(([k, [n, t]]) => `<div class="cell"><span class="av" style="--c:#C2457E">${n.split(' ').map(x => x[0]).join('')}</span><span class="l">${esc(n)}<small style="font-variant-numeric:tabular-nums">${tel(t)}</small></span></div>`).join('')}</div>
+      ${mias ? '' : `<p class="sub">${BASE.length} clientas · ${BASE.filter(b => b.promo).length} aceptan promociones</p>`}
+      <div class="group">${lista.map(([k, [n, t]]) => `<div class="cell"><span class="av" style="--c:#C2457E">${n.split(' ').map(x => x[0]).join('')}</span><span class="l">${esc(n)}<small style="font-variant-numeric:tabular-nums">${tel(t)}</small></span>${!mias && pr(k) ? '<span class="pill" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">Promos ✓</span>' : ''}</div>`).join('')}</div>
+      ${mias ? '' : `<p class="foot">Ves 6 de ejemplo. Las clientas nuevas pueden venir de tu link o de los <button type="button" class="link" data-sub2="contactos" style="font-size:13px">contactos de WhatsApp</button>.</p>`}
       ${mias ? '<div class="lock"><span class="e">🔒</span><span>Ves solo a las clientas de tus citas, con el teléfono parcialmente oculto.</span></div>' : ''}`; };
   const servicios = () => `<div class="nav"><span></span>${puede.precios() ? `<button type="button" aria-label="Nuevo servicio">${PLUS}</button>` : ''}</div><h1>Servicios</h1>
     <div class="group">${SERV.map(s => `<div class="cell"><span class="av" style="--c:${s.c};border-radius:10px"></span><span class="l">${esc(s.n)}<small>${s.min} min · ${EQUIPO.filter(m => m.serv.includes(s.id) && m.estado === 'activa').map(m => m.n.split(' ')[0]).join(', ')}</small></span><span class="r">${money(s.p)}</span></div>`).join('')}</div>
@@ -516,6 +581,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       <div class="group"><div class="cell">${av(m)}<span class="l"><b>${esc(m.n)}</b><small>AB' Beauty Room</small></span><span class="pill ${m.rol}">${ROL[m.rol]}</span></div></div>
       ${S.rol === 'admin' ? `<p class="gh">Tu link para clientas</p><div class="linkbox"><span style="flex:1">agendappx.app/ab-beauty-room</span><button type="button" data-act="copiar-publico">Copiar</button></div>
       <div class="group" style="margin-top:10px"><button type="button" class="cell" data-act="ver-publico"><span class="e" style="font-size:22px">👀</span><span class="l">Ver como lo ven tus clientas<small>Servicios, precios, duración y horarios libres</small></span><span class="chev">›</span></button></div>` : ''}
+      <p class="gh">Tú</p><div class="group"><button type="button" class="cell" data-sub="horario:${m.id}"><span class="e" style="font-size:22px">🕙</span><span class="l">Mi horario<small>${resumenHor(m.id)}${HOR[m.id].comida ? ' · comida ' + HOR[m.id].comida[0] : ''}</small></span><span class="chev">›</span></button></div>
       <p class="gh">Salón</p><div class="group">
         ${puede.equipo() ? `<button type="button" class="cell" data-sub="equipo"><span class="e" style="font-size:22px">👩🏻‍🤝‍👩🏽</span><span class="l">Equipo<small>${EQUIPO.filter(x => x.estado === 'activa').length} personas · 1 invitación pendiente</small></span><span class="chev">›</span></button>` : ''}
         ${S.rol === 'admin' ? `<button type="button" class="cell" data-sub="whatsapp"><span class="e" style="font-size:22px">💬</span><span class="l">Mensajes de WhatsApp<small>Al agendar, anticipo, el día y ${W.antesMin} min antes</small></span><span class="chev">›</span></button>` : ''}
@@ -535,11 +601,11 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     return `<div class="nav"><button type="button" data-sub="equipo">‹ Equipo</button></div>
       <div style="display:flex;gap:14px;align-items:center;margin:4px 0 16px"><span class="av" style="--c:${m.c};width:60px;height:60px;font-size:20px">${m.ini}</span>
         <div><h1 style="margin:0;font-size:26px">${esc(m.n)}</h1><span class="pill ${m.estado === 'pendiente' ? 'pend' : m.rol}">${m.estado === 'pendiente' ? 'Invitación pendiente' : ROL[m.rol]}</span></div></div>
-      ${m.rol === 'admin' ? '<div class="lock"><span class="e">👑</span><span>Eres Admin del salón. Para dejar de serlo primero nombra a otra persona como Admin.</span></div>' : `
+      ${m.rol === 'admin' ? `<div class="lock"><span class="e">👑</span><span>${m.id === yo().id ? 'Eres Admin del salón.' : esc(m.n) + ' es Admin: ve y maneja todo el salón, igual que tú.'} Lo que agenda una Admin le aparece al momento a la otra, con aviso en el celular.</span></div>` : `
       <p class="gh">Rol</p><div class="seg" role="tablist">${['recepcion', 'especialista'].map(r => `<button type="button" role="tab" data-setrol="${r}" aria-selected="${m.rol === r}">${ROL[r]}</button>`).join('')}</div>
       ${m.rol === 'especialista' ? `<p class="gh">Servicios que hace</p><div class="opts">${SERV.map(s => `<button type="button" class="opt" data-togserv="${s.id}" aria-pressed="${m.serv.includes(s.id)}">${esc(s.n)}</button>`).join('')}</div>
       <p class="gh">Permisos</p><div class="group"><div class="cell"><span class="l">Ver la agenda de todas<small>Si está apagado solo ve sus citas</small></span><button type="button" class="sw" role="switch" aria-label="Ver la agenda de todas" aria-checked="${!!m.verTodas}" data-togver></button></div>
-        <div class="cell"><span class="l">Horario<small>${esc(m.horario)}</small></span><span class="chev">›</span></div></div>` : ''}
+        <button type="button" class="cell" data-sub="horario:${m.id}"><span class="l">Horario<small>${resumenHor(m.id)}</small></span><span class="chev">›</span></button></div>` : ''}
       ${m.estado === 'activa' ? `<p class="gh">Sesiones abiertas</p><div class="group"><div class="cell"><span class="e" style="font-size:22px">📱</span><span class="l">${esc(m.disp)}<small>Activa hoy</small></span></div></div>` : `<p class="gh">Invitación</p><div class="linkbox"><span style="flex:1">agendappx.app/unirse/K7Q-29M</span><button type="button" data-act="copiar">Copiar</button></div><p class="foot">Se usa una sola vez y vence en 41 horas.</p>`}
       <div id="quitarBox" style="margin-top:22px"><button type="button" class="btn bad" data-act="quitar">${m.estado === 'pendiente' ? 'Cancelar invitación' : 'Quitar del equipo'}</button></div>`}`; };
   const seguridad = () => S.rol !== 'admin' ? `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button></div><h1>Seguridad</h1>
@@ -565,6 +631,10 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     return `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button></div><h1>Mensajes de WhatsApp</h1>
       <p class="sub">Se mandan solos desde tu número vinculado. Si la clienta responde, lo ves en tu teléfono como cualquier chat.</p>
       ${vinculo()}
+      <p class="gh">Promociones</p><div class="group">
+        <button type="button" class="cell" data-sub="contactos"><span class="e" style="font-size:20px">📇</span><span class="l">Contactos de WhatsApp<small>Sincronizado hoy 09:15 · ${CONTACTOS.length} nuevos para revisar</small></span><span class="chev">›</span></button>
+        <button type="button" class="cell" data-sub="promo"><span class="e" style="font-size:20px">📣</span><span class="l">Enviar promoción<small>Eliges la promo y a quién; máximo ${POR_DIA} al día</small></span><span class="chev">›</span></button></div>
+      ${CAMP.length ? `<p class="gh">Envíos de promociones</p><div class="group">${CAMP.map(c => `<div class="cell" style="display:block"><div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(c.t)}</b><span class="r">${c.env} de ${c.total}</span></div><small style="color:var(--ink3)">${c.cuando}</small><div class="bar-p"><i style="width:${Math.round(c.env / c.total * 100)}%"></i></div></div>`).join('')}</div>` : ''}
       <p class="gh">Mensajes automáticos</p><div class="group">
         <div class="cell"><span class="e" style="font-size:20px">📩</span><span class="l">Al agendar<small>Confirma la cita y, si aplica, manda los datos del anticipo</small></span>${sw('agendar', 'Al agendar')}</div>
         <div class="cell"><span class="e" style="font-size:20px">💸</span><span class="l">Anticipo recibido<small>Cuando marcas el anticipo como recibido</small></span>${sw('anticipo', 'Anticipo recibido')}</div>
@@ -598,6 +668,53 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       <button type="button" class="btn fill" data-act="pedir-codigo" style="margin-top:10px">Vincular WhatsApp</button>
       <p class="foot" style="margin:8px 0 0">Te recomendamos un número solo para avisos, así tu WhatsApp principal no corre riesgo.</p></div>`; };
 
+  const HORAS = Array.from({ length: 31 }, (_, i) => hhmm(7 * 60 + i * 30));
+  const hsel = (v, attr, label) => `<select ${attr} aria-label="${label}">${HORAS.map(h => `<option${h === v ? ' selected' : ''}>${h}</option>`).join('')}</select>`;
+  const horario = id => { const m = miembro(id), h = HOR[id], mio = id === yo().id, puedeEditar = mio || S.rol === 'admin';
+    return `<div class="nav"><button type="button" data-sub="${mio ? '' : 'miembro:' + id}">‹ ${mio ? 'Ajustes' : 'Equipo'}</button>${puedeEditar ? '<button type="button" data-act="guardar-horario" style="font-weight:700">Guardar</button>' : ''}</div>
+      <h1>${mio ? 'Mi horario' : 'Horario de ' + esc(m.n.split(' ')[0])}</h1>
+      <p class="sub">${mio ? 'Tus clientas y el equipo solo podrán agendarte en estas horas.' : 'Solo se le puede agendar en estas horas.'}</p>
+      <div class="group">${SEM.map(([k, n]) => { const r = h.dias[k]; return `<div class="hrow"><b>${n}</b>${r ? `<span class="tm">${hsel(r[0], `data-hor="${k}:0"`, n + ', entra')} a ${hsel(r[1], `data-hor="${k}:1"`, n + ', sale')}</span>` : '<span class="off">Descansa</span>'}<button type="button" class="sw" role="switch" aria-label="Trabaja el ${n}" aria-checked="${!!r}" data-dia-on="${k}"></button></div>`; }).join('')}</div>
+      <p class="gh">Hora de comida</p><div class="group"><div class="hrow" style="grid-template-columns:1fr auto"><span class="tm">${h.comida ? `${hsel(h.comida[0], 'data-com="0"', 'Comida, empieza')} a ${hsel(h.comida[1], 'data-com="1"', 'Comida, termina')}` : '<span class="off">Sin hora de comida</span>'}</span><button type="button" class="sw" role="switch" aria-label="Hora de comida" aria-checked="${!!h.comida}" data-com-on></button></div></div>
+      <p class="gh">Días especiales</p><div class="group">${h.esp.map(([f, t], i) => `<div class="cell"><span class="e" style="font-size:20px">${t === 'Día libre' || t === 'Vacaciones' ? '🌴' : '⏱️'}</span><span class="l">${esc(f)}<small>${esc(t)}</small></span><button type="button" class="opt" data-quitar-esp="${i}" style="padding:5px 10px;font-size:13px">Quitar</button></div>`).join('')}
+        <button type="button" class="cell" data-act="nuevo-esp" style="color:var(--acc);font-weight:600;justify-content:center">Agregar día libre, vacaciones u horario distinto</button></div>
+      <p class="foot">Se refleja al momento en la Agenda (las horas fuera de turno se ven rayadas) y en tu link para clientas.</p>`; };
+  const nuevoEsp = () => sheet(`<div class="nav"><button type="button" data-act="cerrar">Cancelar</button><b>Día especial</b><button type="button" data-act="guardar-esp" style="font-weight:700">Agregar</button></div>
+    <p class="gh">¿Qué día?</p><div class="opts">${DIAS.slice(1).map(([n, d], i) => `<button type="button" class="opt" data-esp-dia="${n} ${d}" aria-pressed="${i === 3}">${n} ${d}</button>`).join('')}</div>
+    <p class="gh">¿Qué pasa ese día?</p><div class="seg" role="tablist">${['Día libre', 'Vacaciones', 'Sale temprano'].map((t, i) => `<button type="button" role="tab" data-esp-tipo="${t}" aria-selected="${i === 0}">${t}</button>`).join('')}</div>
+    <p class="foot">Para vacaciones de varios días, agrega cada día o elige un rango (en la app real).</p>`);
+  const contactos = () => { const nuevos = CONTACTOS.filter(c => !c.ya), n = nuevos.filter(c => c.sel).length;
+    return `<div class="nav"><button type="button" data-sub="whatsapp">‹ WhatsApp</button><button type="button" data-act="sincronizar" style="font-weight:600">Sincronizar</button></div>
+      <h1>Contactos</h1><p class="sub">De tu WhatsApp vinculado · sincronizado hoy 09:15. Elige quién pasa a Clientas.</p>
+      <div class="seg" role="tablist" style="margin-bottom:12px"><button type="button" role="tab" aria-selected="true">Nuevos (${nuevos.length})</button><button type="button" role="tab" aria-selected="false" data-tab="clientas">Ya en Clientas (${BASE.length})</button></div>
+      <div class="group">${nuevos.map(c => `<button type="button" class="ck" role="checkbox" aria-checked="${c.sel}" data-ct="${c.k}"><span class="bx">${c.sel ? '✓' : ''}</span><span class="l">${esc(c.n)}<small style="font-variant-numeric:tabular-nums">${c.t} · último chat ${c.chat}</small></span></button>`).join('')}</div>
+      <div style="margin-top:12px"><button type="button" class="btn fill" data-act="importar" ${n ? '' : 'disabled style="opacity:.5"'}>${n ? `Agregar ${n} a Clientas` : 'Elige contactos'}</button></div>
+      <p class="foot">Solo se leen nombres y números de tus contactos, nunca tus mensajes. Al agregarlas, decides si aceptan promociones.</p>`; };
+  const audiencia = () => { const con = BASE.filter(b => b.promo);
+    if (P.aud === 'unas') return con.filter(b => b.cat === 'unas'); if (P.aud === 'ausentes') return con.filter(b => b.dias >= 30);
+    if (P.aud === 'elegir') return con.filter(b => P.sel.has(b.k)); return con; };
+  const plan = n => { const out = [], d = ['hoy', 'mañana', 'el jueves', 'el viernes', 'el sábado']; for (let i = 0; n > 0; i++) { out.push(Math.min(n, POR_DIA) + ' ' + (d[i] || 'después')); n -= POR_DIA; } return out; };
+  const promo = () => { const pr = PROMOS.find(x => x.id === P.promo), lista = audiencia(), con = BASE.filter(b => b.promo);
+    const txt = P.txt ?? `Hola {nombre} 💅🏻 En AB' Beauty Room tenemos ${pr.t.toLowerCase()}: ${pr.d}.\nAgenda aquí: agendappx.app/ab-beauty-room\n\nSi no quieres recibir promociones, respóndenos BAJA.`;
+    const pl = plan(lista.length);
+    return `<div class="nav"><button type="button" data-sub="whatsapp">‹ WhatsApp</button></div><h1>Enviar promoción</h1>
+      <p class="gh">Promoción</p><div class="opts">${PROMOS.map(x => `<button type="button" class="opt" data-pr="${x.id}" aria-pressed="${P.promo === x.id}">${esc(x.t)}</button>`).join('')}</div>
+      <p class="gh">Mensaje</p><textarea class="in" id="prTxt" aria-label="Mensaje de la promoción">${esc(txt)}</textarea>
+      <p class="foot">{nombre} se cambia por el nombre de cada clienta. Cada mensaje sale con pequeñas variaciones para que no sean idénticos.</p>
+      <p class="gh">¿A quién?</p><div class="chips" style="margin-bottom:6px">${[['todas', 'Todas con permiso', con.length], ['unas', 'Se hacen uñas', con.filter(b => b.cat === 'unas').length], ['ausentes', 'No vienen hace 30+ días', con.filter(b => b.dias >= 30).length], ['elegir', 'Elegir una por una', P.sel.size]].map(([k, n, c]) => `<button type="button" class="chip all" data-aud="${k}" aria-pressed="${P.aud === k}">${n} · ${c}</button>`).join('')}</div>
+      ${P.aud === 'elegir' ? `<div class="group">${con.slice(0, P.ver).map(b => `<button type="button" class="ck" role="checkbox" aria-checked="${P.sel.has(b.k)}" data-pick="${b.k}"><span class="bx">${P.sel.has(b.k) ? '✓' : ''}</span><span class="l">${esc(b.n)}<small>Última visita hace ${b.dias} días</small></span></button>`).join('')}
+        ${con.length > P.ver ? `<button type="button" class="cell" data-act="ver-mas" style="color:var(--acc);justify-content:center">Ver ${Math.min(20, con.length - P.ver)} más</button>` : ''}</div>` : ''}
+      <div class="group" style="margin-top:14px"><div class="cell" style="display:block"><b>${lista.length ? `Se enviará a ${lista.length} clientas` : 'Elige a quién enviarla'}</b>
+        ${lista.length ? `<small style="display:block;color:var(--ink3);margin-top:2px">${pl.join(', ')}. De 10:00 a 19:00, con pausas de 1 a 3 minutos entre cada una.</small>` : ''}</div></div>
+      <p class="foot">Solo aparecen clientas que aceptaron promociones (${con.length} de ${BASE.length}). Los recordatorios de citas siempre salen primero.</p>
+      <button type="button" class="btn fill" data-act="programar" style="margin-top:12px" ${lista.length ? '' : 'disabled'}>Programar envío</button>`; };
+  const avisoDuena = () => { const q = miembro('duena'), h = '15:30', c = { id: Date.now(), h, s: 'gel', cl: 'pv', st: 'karla', ok: false, pago: null, hist: [['Dueña', 'Admin', 'la creó', 'Hoy · ahora']] };
+    CITAS.push(c); HIST.unshift(['Dueña', 'agendó Gelish en manos para Paola Vega', 'Hoy · ahora']);
+    if (S.pant === 'app' && S.tab === 'agenda' && !S.sub) render();
+    const el = document.createElement('button'); el.type = 'button'; el.className = 'noti'; el.dataset.cita = c.id;
+    el.innerHTML = `<span class="ic"><span class="e">💅🏻</span></span><span style="flex:1;min-width:0"><small>AGENDAPPX · ahora</small><b>${esc(q.n)} agendó una cita</b><span class="t">Paola Vega · Gelish en manos · hoy ${h} con Karla</span></span>`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 7000); };
+
   /* ---------- Pintar ---------- */
   const TABS = [['agenda', '📅', 'Agenda'], ['clientas', '💁🏻‍♀️', 'Clientas'], null, ['servicios', '💅🏻', 'Servicios'], ['ajustes', '⚙️', 'Ajustes']];
   const render = () => {
@@ -611,6 +728,9 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     else if (S.tab === 'ajustes' && S.sub && S.sub.startsWith('miembro:')) h = verMiembro(S.sub.slice(8));
     else if (S.tab === 'ajustes' && S.sub === 'seguridad') h = seguridad();
     else if (S.tab === 'ajustes' && S.sub === 'whatsapp') h = whatsapp();
+    else if (S.tab === 'ajustes' && S.sub && S.sub.startsWith('horario:')) h = horario(S.sub.slice(8));
+    else if (S.tab === 'ajustes' && S.sub === 'contactos') h = contactos();
+    else if (S.tab === 'ajustes' && S.sub === 'promo') h = promo();
     else h = { agenda, clientas, servicios, ajustes }[S.tab]();
     $('#screen').innerHTML = h;
     const d0 = $('#d0'); if (d0) d0.focus();
@@ -624,7 +744,9 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     if (e.target.value && +m[1] < 5) $('#d' + (+m[1] + 1)).focus();
     if ([0, 1, 2, 3, 4, 5].every(i => $('#d' + i).value)) setTimeout(() => S.pant === 'codigo' && S.registro ? ir({ pant: 'crearSalon' }) : S.pant === 'codigo' && S.invita ? ir({ pant: 'perfil' }) : S.pant === 'codigo' && S.rol === 'admin' ? ir({ pant: 'dospasos' }) : dentro(), 180);
   });
-  document.addEventListener('input', e => { const k = { wBanco: 'banco', wClabe: 'clabe', wTit: 'titular' }[e.target.id]; if (k) W[k] = e.target.value; });
+  ['input', 'change'].forEach(ev => document.addEventListener(ev, e => { const k = { wBanco: 'banco', wClabe: 'clabe', wTit: 'titular' }[e.target.id]; if (k) W[k] = e.target.value; if (e.target.id === 'prTxt') P.txt = e.target.value;
+    const hh = e.target.dataset.hor; if (hh) { const [dk, i] = hh.split(':'); HOR[S.sub.slice(8)].dias[dk][+i] = e.target.value; }
+    if (e.target.dataset.com) HOR[S.sub.slice(8)].comida[+e.target.dataset.com] = e.target.value; }));
   document.addEventListener('input', e => { if (e.target.id !== 'csNombre') return;
     const slug = e.target.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'tu-salon';
     $('#csLink').innerHTML = 'agendappx.app/<b>' + esc(slug) + '</b>'; });
@@ -638,11 +760,22 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     if (d.rol) { S.rol = d.rol; if (S.pant === 'app') { S.sub = null; S.filtro = 'todas'; render(); toast('Ahora ves la app como ' + ROL[d.rol] + ' (' + yo().n.split(' ')[0] + ')'); } else render(); return; }
     if (d.demo === 'salir') { cerrar(); ir({ pant: 'inicio', invita: false, registro: false, desdeApp: false, correo: '' }); return; }
     if (d.demo === 'salon') { cerrar(); ir({ pant: 'salon', desdeApp: false }); return; }
+    if (d.demo === 'aviso') { if (S.pant !== 'app') { S.rol = 'admin'; ir({ pant: 'app', tab: 'agenda', sub: null, filtro: 'todas', vista: 'lista' }); } avisoDuena(); return; }
     if (d.demo === 'whatsapp') { cerrar(); S.rol = 'admin'; ir({ pant: 'app', tab: 'agenda', sub: null, filtro: 'todas', vista: 'lista', desdeApp: false }); verChat(6); return; }
     if (d.demo === 'invitacion') { cerrar(); ir({ pant: 'unirse', invita: true, correo: '' }); return; }
     if (d.tab) { ir({ tab: d.tab, sub: null }); return; }
     if (d.sub !== undefined) { ir({ sub: d.sub || null }); return; }
     if (d.chat) { verChat(+d.chat); return; }
+    if (b.classList.contains('noti')) { b.remove(); ir({ pant: 'app', tab: 'agenda', sub: null }); verCita(+d.cita); return; }
+    if (d.sub2) { ir({ tab: 'ajustes', sub: d.sub2 }); return; }
+    if (d.diaOn) { const h = HOR[S.sub.slice(8)]; h.dias[d.diaOn] = h.dias[d.diaOn] ? null : ['10:00', '19:00']; render(); return; }
+    if (d.comOn !== undefined) { const h = HOR[S.sub.slice(8)]; h.comida = h.comida ? null : ['14:00', '15:00']; render(); return; }
+    if (d.quitarEsp) { HOR[S.sub.slice(8)].esp.splice(+d.quitarEsp, 1); render(); return; }
+    if (d.espDia || d.espTipo) { const g = b.parentElement; g.querySelectorAll('button').forEach(x => x.setAttribute(d.espDia ? 'aria-pressed' : 'aria-selected', String(x === b))); return; }
+    if (d.ct) { const c = CONTACTOS.find(x => x.k === d.ct); c.sel = !c.sel; render(); return; }
+    if (d.pr) { P.promo = d.pr; P.txt = null; render(); return; }
+    if (d.aud) { P.aud = d.aud; render(); return; }
+    if (d.pick) { P.sel.has(d.pick) ? P.sel.delete(d.pick) : P.sel.add(d.pick); render(); return; }
     if (d.w) { W[d.w] = !W[d.w]; render(); return; }
     if (d.antes) { W.antesMin = +d.antes; render(); return; }
     if (d.pct) { W.pct = +d.pct; render(); return; }
@@ -681,7 +814,15 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       case 'cerrar': cerrar(); break;
       case 'nueva': N.h = null; N.st = S.rol === 'especialista' ? yo().id : null; if (S.rol === 'especialista' && !yo().serv.includes(N.s)) N.s = yo().serv[0]; nueva(); break;
       case 'guardar': { if (!N.h) { toast('Elige un horario'); break; } const q = yo(); CITAS.push({ id: Date.now(), h: N.h, s: N.s, cl: N.cl, st: N.st, ok: false, hist: [[q.n.split(' ')[0], ROL[q.rol], 'la creó', 'Hoy · ahora']] });
-        HIST.unshift([q.n.split(' ')[0], 'agendó ' + serv(N.s).n + ' para ' + CLIENTAS[N.cl][0], 'Hoy · ahora']); cerrar(); ir({ tab: 'agenda', sub: null }); toast('Cita guardada para ' + miembro(N.st).n.split(' ')[0] + ' a las ' + N.h); break; }
+        HIST.unshift([q.n.split(' ')[0], 'agendó ' + serv(N.s).n + ' para ' + CLIENTAS[N.cl][0], 'Hoy · ahora']); cerrar(); ir({ tab: 'agenda', sub: null }); toast('Cita guardada para ' + miembro(N.st).n.split(' ')[0] + ' a las ' + N.h + (S.rol === 'admin' ? '. Le avisamos a la otra Admin.' : '')); break; }
+      case 'guardar-horario': toast('Horario guardado. La agenda y tu link ya lo usan.'); ir({ sub: S.sub.slice(8) === yo().id ? null : 'miembro:' + S.sub.slice(8) }); break;
+      case 'nuevo-esp': nuevoEsp(); break;
+      case 'guardar-esp': { const f = $('#sheetCard [data-esp-dia][aria-pressed="true"]').dataset.espDia, t = $('#sheetCard [data-esp-tipo][aria-selected="true"]').dataset.espTipo;
+        HOR[S.sub.slice(8)].esp.push([f, t === 'Sale temprano' ? 'Sale a las 15:00' : t, t === 'Sale temprano' ? '15:00' : null]); cerrar(); render(); toast(f + ': ' + t.toLowerCase()); break; }
+      case 'sincronizar': toast('Simulado: contactos sincronizados con tu WhatsApp vinculado'); break;
+      case 'importar': { const sel = CONTACTOS.filter(c => c.sel && !c.ya); sel.forEach(c => { c.ya = true; BASE.push({ k: c.k, n: c.n, t: c.t, promo: true, cat: 'unas', dias: 0 }); }); render(); toast(sel.length + ' contactos agregados a Clientas con permiso de promociones'); break; }
+      case 'ver-mas': P.ver += 20; render(); break;
+      case 'programar': { const n = audiencia().length, pr = PROMOS.find(x => x.id === P.promo); CAMP.unshift({ t: pr.t, total: n, env: 0, cuando: 'Empieza hoy a las 13:00 · ' + plan(n).join(', ') }); P.sel.clear(); P.txt = null; ir({ sub: 'whatsapp' }); toast('Promoción programada para ' + n + ' clientas'); break; }
       case 'desvincular': W.vinc = 'no'; render(); toast('WhatsApp desvinculado; los avisos automáticos se pausaron'); break;
       case 'pedir-codigo': { const n = $('#wNum').value.replace(/\D/g, ''); if (n.length !== 10) { toast('Escribe el número a 10 dígitos'); break; } W.numero = n; W.vinc = 'codigo'; W.codigo = 'K7QM-29XA'; render(); break; }
       case 'otro-codigo': W.codigo = W.codigo === 'K7QM-29XA' ? 'P3RD-8WNE' : 'K7QM-29XA'; render(); toast('Código nuevo listo'); break;
