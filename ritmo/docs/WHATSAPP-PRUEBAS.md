@@ -1,6 +1,6 @@
 # WhatsApp vinculado, solo envíos: verificación del 27 de octubre de 2026
 
-Estado: implementado y probado localmente en `codex/agendappx-whatsapp-vinculacion`, PR #3. Producción no está migrada ni desplegada; no se vinculó teléfono ni se mandó un mensaje real. Se preservó primero el calendario publicado de la rama de correcciones.
+Estado: implementado y probado localmente en `codex/agendappx-whatsapp-vinculacion`, PR #3. Producción migrada y publicada con aprobación explícita el 27 de octubre; no se vinculó teléfono ni se mandó un mensaje real. Se preservó primero el calendario publicado de la rama de correcciones.
 
 ## Resultados reproducibles
 
@@ -35,8 +35,16 @@ La migración conserva un feed heredado del dueño y permite feeds por persona: 
 
 ## Límites reales de esta verificación
 
-No hay Docker instalado, por lo que no se ha construido la imagen Linux. La importación del Baileys fijado y los módulos del servicio funciona en Node 24 local; la imagen debe compilarse en el despliegue autorizado, con vinculación y envíos apagados, antes de continuar.
+No hay Docker instalado localmente. La imagen Linux se construyó en Railway: despliegue af30f7e3-448f-42ef-86a4-e1d563529cb5, SUCCESS, /salud 200, inicio real 2026-10-27T19:11:09.551883275Z. Vinculación y envíos permanecen apagados.
 
-La prueba de protocolo es con transporte simulado, sin una sesión física. No prueba entrega a un teléfono, posibles cambios del protocolo de WhatsApp, memoria real del socket conectado ni estabilidad durante días. Eso requiere aprobación de despliegue, luego vinculación y primer mensaje real por separado. Tampoco existe consumo real atribuible ni fecha de inicio del servicio para el informe de una semana.
+La prueba de protocolo es con transporte simulado, sin una sesión física. No prueba entrega a un teléfono, posibles cambios del protocolo de WhatsApp, memoria real del socket conectado ni estabilidad durante días. El despliegue ya fue aprobado y realizado; vinculación y primer mensaje real requieren sus aprobaciones separadas. Ya existe fecha real de inicio para el informe de una semana, pero aún no una medición representativa del costo del teléfono conectado.
 
 El acceso temporal de Admin evita depender del SMS de Brevo, pero no completa el registro público, bienvenida, equipo ni todos los requisitos de CUENTAS.md. La aprobación de WhatsApp priorizó este alcance mínimo seguro.
+
+## Comprobación posterior a publicación
+
+Siete tablas conservan exactamente sus campos originales mediante SHA-256 canónico UTF-8: estado 1, objetos 23, mutaciones 42, integraciones 2, tres tablas de WhatsApp sin filas. No se volvieron a transferir datos del respaldo para compararlos. Un primer script de verificación local leyó UTF-8 con cp1252 y produjo falsos desacuerdos; corregir la codificación confirmó todas las coincidencias sin cambiar datos.
+
+Cloudflare página, configuración y salud: 200. Agenda/control sin identidad y con APP_TOKEN: 401. Meta: 503. Feed privado heredado: 200, VCALENDAR Agendappx, sin DESCRIPTION. Navegador Edge real 390 px: Ajustes → Mensajes de WhatsApp → Acceso de Admin visible, sin errores JavaScript ni desbordamiento. No se consumió el enlace del dueño. Supabase confirma un Admin activo y cero sesiones WhatsApp.
+
+Asesoría de seguridad: dos INFO por RLS sin políticas en tablas privadas sin acceso directo; WARN de protección de contraseñas filtradas desactivada, fuera del flujo sin contraseña implementado. No se ampliaron permisos ni planes para suprimir avisos.

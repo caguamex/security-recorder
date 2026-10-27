@@ -1,6 +1,6 @@
 # Siguiente encargo de Agendappx: WhatsApp vinculado, solo envíos
 
-Actualizado el 27 de octubre de 2026. **Antonio priorizó terminar WhatsApp antes del resto de cuentas.** La implementación local incluye un acceso mínimo seguro de Admin por enlace privado y TOTP, sin SMS de Brevo. La migración y publicación fueron autorizadas con «okey, hazlo» y están preparándose; se creó el proyecto/servicio vacío separado de Railway y se configuró; aún no hay despliegue, teléfono vinculado ni mensajes reales.
+Actualizado el 27 de octubre de 2026. **Antonio priorizó terminar WhatsApp antes del resto de cuentas.** La implementación local incluye un acceso mínimo seguro de Admin por enlace privado y TOTP, sin SMS de Brevo. La migración y publicación autorizadas con «okey, hazlo» terminaron. Cloudflare y el servicio separado de Railway están publicados y sanos. No hay teléfono vinculado ni mensajes reales; sus dos interruptores siguen apagados.
 
 ## Fuente y autorización
 
@@ -15,7 +15,7 @@ Antonio autorizó conexión de dispositivo vinculado como FiNeCi, aceptando el r
 - Rol propio agendappx_whatsapp de mínimos permisos y TLS verificado. Admin con sesión vigente, membresía y MFA para vincular/desvincular. Especialistas no ven CLABE, comprobantes, vinculación ni credenciales.
 - Solo envíos. Descartar eventos de mensajes entrantes e historial sin persistencia ni logs de contenido; no leer comprobantes ni emitir confirmaciones de lectura. Los eventos de control imprescindibles del protocolo para mantener conexión/credenciales y confirmar envíos propios no son un chatbot. Las respuestas se atienden manualmente en el teléfono.
 - Código efímero de **ocho caracteres alfanuméricos**: el ejemplo K7QM-29XA de la propia especificación no es solo numérico. Si el protocolo asíncrono exige persistirlo, cifrarlo, limitar su vigencia y acceso; nunca registrarlo en logs ni entregar llaves al navegador.
-- WHATSAPP_REMITENTE=vinculado debe bloquear **todos** los envíos de Cloudflare y dejar Meta deshabilitado, conservando su código. La bandera está implementada y cubierta por las pruebas nuevas; no está activada en producción.
+- WHATSAPP_REMITENTE=vinculado debe bloquear **todos** los envíos de Cloudflare y dejar Meta deshabilitado, conservando su código. La bandera está implementada y cubierta por las pruebas nuevas; está activada en producción desde el despliegue del 27 de octubre.
 - Reemplaza botones de confirmación y automatizaciones de respuestas/comprobantes por gestión humana. Los cinco tipos de aviso salen solo por el remitente del salón. Se confirma el anticipo únicamente al marcarlo en la app.
 
 ## Reglas que se conservan
@@ -28,15 +28,15 @@ Decisiones directas previas de Antonio: **anticipo predeterminado 20 %** y **top
 
 ## Pronóstico actualizado: un único servicio permanente
 
-No es consumo medido del servicio: **todavía no existe**. Base de otros recursos: última consulta verificada del 26 de octubre, uso 1.2089 USD y proyección del ciclo **2.2571 USD**, límite compartido 10 USD y aviso existente en 5 USD. No se volvió a presentar esa consulta como si fuera de hoy ni se modificó su configuración.
+Pronóstico, no medición de un mes: el servicio arrancó el 27 de octubre. Base previa verificada ese día: uso 1.2988 USD y proyección **2.3489 USD**, límite compartido 10 USD y aviso existente en 5 USD, sin cambios. La consulta posterior al arranque fue 1.3016 USD acumulados y proyección 2.3512 USD: incluye todos los recursos y pocos minutos del nuevo servicio; todavía no permite atribuirle un mes de gasto.
 
 Tarifas de contenedor Railway contrastadas el 27 de octubre: RAM 10 USD/GB/mes, CPU 20 USD/vCPU/mes, salida 0.05 USD/GB. Hobby cuesta mínimo 5 USD e incluye 5 USD de recursos: factura antes de impuestos = máximo entre 5 USD y consumo total. No sumar 5 USD de nuevo al total de recursos.
 
 | Escenario de 30 días | RAM media | CPU media | Servicio nuevo, incluido el bucle | Consumo conjunto | Factura total estimada, antes de impuestos |
 |---|---:|---:|---:|---:|---:|
-| Ligero | 0.15 GB | 0.01 vCPU | 1.75 USD | 4.01 USD | 5.00 USD |
-| Intermedio | 0.25 GB | 0.02 vCPU | 2.95 USD | 5.21 USD | 5.21 USD |
-| Alto | 0.50 GB | 0.03 vCPU | 5.65 USD | 7.91 USD | 7.91 USD |
+| Ligero | 0.15 GB | 0.01 vCPU | 1.75 USD | 4.10 USD | 5.00 USD |
+| Intermedio | 0.25 GB | 0.02 vCPU | 2.95 USD | 5.30 USD | 5.30 USD |
+| Alto | 0.50 GB | 0.03 vCPU | 5.65 USD | 8.00 USD | 8.00 USD |
 
 Supuesto de 1 GB de salida al mes. Fórmula del servicio: RAM media × 10 + CPU media × 20 + salida GB × 0.05. La CPU incluye conexión, cifrado y revisión de cola del mismo proceso; no hay un cron adicional que sumar. Las esperas deben usar temporizadores, no ocupar CPU en bucle. Promesa de 150–250 MB aún sin comprobar con un teléfono real. El primer ciclo será proporcional al tiempo encendido; no atribuirle un mes completo antes de activarlo.
 
@@ -46,21 +46,29 @@ La estimación anterior de dos procesos sigue como histórica en WHATSAPP-VINCUL
 
 ## Informe real al cumplir una semana
 
-Seguimiento creado en este chat: **consumo-de-whatsapp-de-agendappx-tras-una-semana**. Revisa a las 09:00 CDMX y permanece en silencio mientras el servicio no exista o no complete siete días desde su fecha real de encendido. Entonces informa una sola vez: gasto atribuible, total compartido, proyección del ciclo y margen frente a 10 USD; distingue consumo e importe mínimo Hobby. No debe activar servicios ni mandar WhatsApp por hacer el informe. Registra aquí la fecha real al desplegar con autorización; todavía no hay fecha. Si faltan permisos para consultar, indicarlo en lugar de inventar cifras. Tras el informe, pausar el seguimiento.
+Seguimiento creado en este chat: **consumo-de-whatsapp-de-agendappx-tras-una-semana**. Revisa a las 09:00 CDMX y permanece en silencio mientras el servicio no exista o no complete siete días desde su fecha real de encendido. Entonces informa una sola vez: gasto atribuible, total compartido, proyección del ciclo y margen frente a 10 USD; distingue consumo e importe mínimo Hobby. No debe activar servicios ni mandar WhatsApp por hacer el informe. Inicio verificado por el log «servicio de solo envíos listo»: **2026-10-27T19:11:09.551883275Z** (13:11:09 CDMX). Despliegue Railway `af30f7e3-448f-42ef-86a4-e1d563529cb5`, SUCCESS; el contenedor comenzó a las 19:11:04.523184917Z. Los siete días se cumplen el **3 de noviembre a las 19:11:09 UTC / 13:11:09 CDMX**. El chequeo diario de las 09:00 CDMX puede entregar el informe el 4 de noviembre si no hay otra ejecución posterior al aniversario. Si faltan permisos para consultar, indicarlo en lugar de inventar cifras. Tras el informe, pausar el seguimiento.
 
 ## Estado verificable de la implementación
 
 Código nuevo en `servidor/src/whatsapp-vinculado`, `whatsapp/` y panel de la app. Reemplaza el proveedor anterior por Baileys fijado a 7.0.0-rc13. Cifrado, custodia, reconexión gradual, límites, reglas por cita, anticipo manual, comprobante, acceso firmado con MFA y bandera de Cloudflare ya tienen pruebas locales. Se integró primero el calendario publicado para evitar regresiones.
 
-Resultados y limitaciones en `WHATSAPP-PRUEBAS.md`; instrucciones operativas en `../whatsapp/README.md`. No confundir transporte simulado con una vinculación física o garantía de estabilidad continua. Docker no está instalado aquí: la construcción Linux y la primera conexión deben comprobarse en el despliegue autorizado antes de mandar un mensaje.
+Resultados y limitaciones en `WHATSAPP-PRUEBAS.md`; instrucciones operativas en `../whatsapp/README.md`. No confundir transporte simulado con una vinculación física o garantía de estabilidad continua. La imagen Linux se construyó en Railway y pasó /salud; la vinculación física y la primera entrega siguen pendientes de confirmación separada.
 
-La migración propuesta conserva los datos sincronizados, versiones e integración del calendario y los asigna al salón y Admin aprobados. Los pendientes que solo existan en el celular se revisan antes de migrar; no se descartan ni se importan automáticamente a otra cuenta. Respaldo privado actualizado obligatorio y confirmación explícita de Antonio antes de ejecutarla.
+La migración propuesta conserva los datos sincronizados, versiones e integración del calendario y los asigna al salón y Admin aprobados. Los pendientes que solo existan en el celular permanecen en la copia heredada y se pueden revisar/importar exclusivamente desde el Admin migrado, conservando conflictos; no se mezclan automáticamente con otras cuentas. Se tomó respaldo bajo mantenimiento y la comparación canónica SHA-256 de las siete tablas confirmó conservación exacta de campos originales, 23 objetos, 42 mutaciones y dos integraciones.
 
-No hay fecha real de activación de agendappx-whatsapp. El seguimiento de consumo de siete días sigue esperando esa fecha. Confirmaciones separadas: migración, publicación, vinculación y primer mensaje con destinatario/consentimiento. No comprar dominios ni modificar FiNeCi.
+La fecha real de activación consta arriba. Migración y publicación ya aprobadas y ejecutadas. Siguen pendientes las confirmaciones separadas de vinculación y primer mensaje con destinatario/consentimiento. No comprar dominios ni modificar FiNeCi.
 
 Fuentes primarias: [tarifas de Railway](https://docs.railway.com/pricing/plans), [Baileys](https://github.com/WhiskeySockets/Baileys), [especificación solicitada](https://github.com/caguamex/security-recorder/blob/dc15fe5/ritmo/docs/WHATSAPP-AUTOMATICO.md).
 
 
-## Continuación de la publicación autorizada
+## Publicación completada — 27 de octubre de 2026
 
-Ver el registro del 27 de octubre al final de `../whatsapp/README.md`: respaldo privado verificado, proyecto nuevo configurado sin proceso y aprobación vigente de migración/publicación. No repetir esta aprobación. Falta la llave Admin de Supabase, solicitada únicamente en un archivo privado preparado; no pedirla en el chat. La operación temporal pública de arranque fue rechazada automáticamente y no se publicó; usar la API Admin normal cuando se proporcione su credencial. No aplicar todavía la migración ni romper el acceso heredado. No hay fecha real de activación para el seguimiento de siete días.
+- Worker `49605020-f7e9-4403-8a0d-8b51ab3c3743`, misma URL e infraestructura. Cuentas activas, mantenimiento retirado y `WHATSAPP_REMITENTE=vinculado`.
+- Railway: proyecto `d82e4094-d981-43cc-ae41-9a73d09cd57a`, servicio `3aae5f13-8c07-40bb-8c75-35233c18883b`, producción `9c3c8682-4a24-4d7a-83f8-8a728945b7ca`. Una réplica, límite 0.5 GB/0.1 vCPU, sin suspensión ni recursos adicionales. `/salud` responde 200.
+- Migración `cuentas_whatsapp_solo_envios_aprobado_20261027`: esquema de cuentas + solo envíos y rol mínimo con TLS comprobado. Un Admin activo; cero sesiones WhatsApp. La llave Admin de Supabase se usó únicamente por la API oficial y permanece fuera de Git/Cloudflare/Railway.
+- Enlace privado de acceso del propietario preparado fuera de Git. El dueño completa TOTP en su dispositivo; no se consumió su enlace en una prueba ni se creó una sesión artificial.
+- Verificación pública: página/configuración/salud 200; agenda y control sin identidad 401, también con APP_TOKEN; webhook Meta 503. Feed heredado 200, Agendappx, sin notas. Navegador real 390 px muestra Acceso de Admin sin SMS, sin errores ni desbordamiento.
+- `WA_ACTIVAR_SERVICIO=true`; **`WA_VINCULACION_HABILITADA=false` y `WA_ENVIOS_HABILITADOS=false`**. No abrir socket, generar código real ni enviar hasta la aprobación correspondiente. FiNeCi no se modificó.
+- Asesoría Supabase: dos INFO de RLS sin políticas en tablas privadas internas (sin grants públicos, uso mediante funciones controladas) y WARN de protección de contraseñas filtradas desactivada. El acceso implementado es sin contraseña; no activar servicios de pago para silenciar ese aviso.
+
+El resto de CUENTAS.md (registro público, equipo y bienvenida completos) sigue pendiente; esta entrega es el acceso mínimo seguro necesario para probar WhatsApp.
