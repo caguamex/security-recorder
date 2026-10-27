@@ -22,7 +22,7 @@ import {createClient} from '@supabase/supabase-js';
  if(!contexto||contexto.usuarioId!==s.user.id)return null;
  const m=contexto.miembros?.[0];if(!m)return null;
  const {data:a}=await cliente.auth.mfa.getAuthenticatorAssuranceLevel();
- return {usuarioId:s.user.id,negocioId:m.negocioId,rol:m.rol,aal:a.currentLevel,accessToken:s.access_token};
+ return {usuarioId:s.user.id,negocioId:m.negocioId,rol:m.rol,aal:a.currentLevel,recuperarLegado:contexto.recuperarLegado===true,accessToken:s.access_token};
  }
  async function montar(root){await listo;if(!root.isConnected)return;
  if(!cliente){root.innerHTML='<p class="foot">El acceso de cuentas todavía no está activado. '+esc(error)+'</p>';return;}
@@ -47,5 +47,6 @@ import {createClient} from '@supabase/supabase-js';
  }
  void listo.then(()=>{if(pendiente)document.dispatchEvent(new Event('agendappx:abrir-acceso'));});
  async function modo(){await listo;return config?.habilitado===true||localStorage.getItem('agendappx.cuentas.activas')==='si';}
- global.AgendappxCuentas=Object.freeze({sesion,montar,modo,listo});
+ async function salir(){await listo;if(cliente)await cliente.auth.signOut();contexto=null;localStorage.removeItem('agendappx.contexto');aviso();}
+ global.AgendappxCuentas=Object.freeze({sesion,montar,modo,listo,salir});
 })(window);

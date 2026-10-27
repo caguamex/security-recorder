@@ -1,7 +1,7 @@
 // Cola persistente: los cambios se guardan antes de intentar enviarlos.
 (function (root) {
   'use strict';
-  function crear({ storage, fetcher, defaults = {}, cuenta = null, obtenerSesion, onChange = () => {}, uuid = () => crypto.randomUUID() }) {
+  function crear({ storage, fetcher, defaults = {}, cuenta = null, obtenerSesion, cerrarSesion, onChange = () => {}, uuid = () => crypto.randomUUID() }) {
     const KEY = 'belleza.v1.sync', TOKEN = 'belleza.v1.token', SESION = 'belleza.v1.sesion';
     const leer = (key, fb) => { const raw = storage.getItem(key); return raw ? JSON.parse(raw) : fb; };
     let sesionCookie = storage.getItem(SESION) === 'si', generacionAcceso = 0;
@@ -121,6 +121,7 @@
         await sync(); emit();
       },
       async desconectar() {
+        if(cuenta){await cerrarSesion?.();return;}
         generacionAcceso++;
         if (sesionCookie) {
           try { await request('/api/dispositivos/sesion', { method: 'DELETE', body: '{}' }); }
@@ -128,6 +129,13 @@
         }
         storage.removeItem(TOKEN); storage.removeItem(SESION); token = ''; sesionCookie = false;
         status = 'Guardado en este dispositivo'; emit();
+      },
+      importarLegado(ops){
+        if(!cuenta?.recuperarLegado||cuenta.rol!=='admin'||cuenta.aal!=='aal2')throw new Error('Solo el propietario verificado puede recuperar su copia anterior.');
+        recargar();const next=clone(state);let cantidad=0;
+        for(const op of ops){if(!op||typeof op.id!=='string'||!Number.isInteger(op.baseVersion)||op.baseVersion<0||next.pending.some(x=>x.id===op.id))continue;
+          next.pending.push({id:op.id,data:clone(op.data),baseVersion:op.baseVersion,mutationId:uuid()});cantidad++;}
+        guardar(next);emit();void sync();return cantidad;
       },
       resolver(id, conservarLocal) {
         recargar(); const conflict = state.conflicts.find(c => c.id === id); if (!conflict) return;

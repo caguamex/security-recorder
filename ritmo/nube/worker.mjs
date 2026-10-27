@@ -50,7 +50,7 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
   migracion: {soloLectura: env.MIGRATION_READ_ONLY === 'true', exportar: async () => null},
   cuentas: rutasCuentas(pool, jwt, {
     habilitado: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true', supabaseURL: env.SUPABASE_URL,
-    llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL,
+    llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL, migracionUsuarioId: env.MIGRACION_USUARIO_ID,
     salones: new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').split(',').map(v=>v.trim()).filter(Boolean)),
   }), integraciones, whatsapp, vinculacion, metaHabilitado: usaMeta(env.WHATSAPP_REMITENTE), dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,
 });

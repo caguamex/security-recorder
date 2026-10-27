@@ -193,25 +193,25 @@
   const Store = (() => {
     if (window.claude && typeof window.claude.use === 'function') return ClaudeStore;
     const listeners = new Set();
-    let sync;
+    let sync,cuentaActual=null;
     const emit = () => listeners.forEach(f => f());
     const seguro = fn => { try { fn(); return true; } catch { toast('No se pudo guardar. Libera espacio en este dispositivo y vuelve a intentar.'); return false; } };
     return {
       get items() { return sync ? sync.items : new Map(); }, get settings() { return sync ? sync.settings : DEFAULTS; },
       get ready() { return !!sync; }, get mode() { return sync?.connected ? 'servidor' : 'local'; },
-      get sync() { return sync; }, onChange: f => listeners.add(f),
+      get sync() { return sync; }, get recuperarLegado(){return cuentaActual?.recuperarLegado===true;}, onChange: f => listeners.add(f),
       async init() {
         let scoped=false,previa='';
         async function preparar(){
           scoped=await window.AgendappxCuentas?.modo?.()||false;
-          const cuenta=scoped?await window.AgendappxCuentas.sesion():null;
+          const cuenta=scoped?await window.AgendappxCuentas.sesion():null;cuentaActual=cuenta;
           const identidad=scoped?(cuenta?[cuenta.usuarioId,cuenta.negocioId,cuenta.rol,cuenta.aal].join(':'):'sin-sesion'):'heredada';
           if(sync&&previa===identidad)return;
           previa=identidad;
           const prefijo='agendappx.cuenta.'+identidad+'.';
           const storage=scoped?{getItem:k=>localStorage.getItem(prefijo+k),setItem:(k,v)=>localStorage.setItem(prefijo+k,v),removeItem:k=>localStorage.removeItem(prefijo+k)}:localStorage;
           const cambio=()=>{if(previa===identidad)emit();};
-          sync=window.BellezaSync.crear({storage,fetcher:(...args)=>fetch(...args),defaults:DEFAULTS,onChange:cambio,cuenta,obtenerSesion:()=>window.AgendappxCuentas.sesion()});
+          sync=window.BellezaSync.crear({storage,fetcher:(...args)=>fetch(...args),defaults:DEFAULTS,onChange:cambio,cuenta,obtenerSesion:()=>window.AgendappxCuentas.sesion(),cerrarSesion:()=>window.AgendappxCuentas.salir()});
           emit();if(!scoped||cuenta)void sync.restaurarSesion();
         }
         try { await preparar(); }
@@ -544,6 +544,8 @@
 
   function sheetServidor() {
     const sync = Store.sync;
+    const cuentas=localStorage.getItem('agendappx.cuentas.activas')==='si';
+    let legado=[];try{if(Store.recuperarLegado){const anterior=JSON.parse(localStorage.getItem('belleza.v1.sync')||'null');const recuperadas=new Set(JSON.parse(localStorage.getItem('agendappx.legado.recuperado')||'[]'));legado=(anterior?.pending||[]).filter(x=>!recuperadas.has(x.mutationId));}}catch{}
     const resumen = data => {
       if (data === null) return 'Registro eliminado';
       const labels = { nombre: 'Nombre', telefono: 'WhatsApp', notas: 'Notas', titulo: 'Título', texto: 'Texto', etiqueta: 'Etiqueta',
@@ -568,17 +570,18 @@
       return `<p class="gh">${esc(local?.data?.nombre || local?.data?.titulo || c.data?.nombre || c.id)}</p><div class="group"><div class="cell"><span class="l">En este dispositivo<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(local?.data ?? null))}</small></span></div><div class="cell"><span class="l">En el servidor<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(c.data))}</small></span></div><button type="button" class="cell" data-conflicto="${esc(c.id)}" data-local="1">Conservar este dispositivo</button><button type="button" class="cell" data-conflicto="${esc(c.id)}">Conservar el servidor</button></div>`;
     }).join('');
     openSheet(`${navSheet('Sincronización', 'Listo')}<p class="foot" role="status" id="sync-status">${esc(sync.status)} · ${sync.pending.length} cambios pendientes.</p>
-      <p class="foot">Activa este celular abriendo tu enlace privado de Agendappx. Después la sincronización se mantiene automáticamente.</p>
-      ${!sync.connected ? '<button type="button" class="cta" id="sync-activate">Activar este dispositivo</button>' : ''}
-      <details><summary class="cell">Configuración avanzada</summary><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
+      <p class="foot">${cuentas?'La agenda se sincroniza con tu cuenta. Los datos anteriores de este dispositivo se conservan por separado.':'Activa este celular abriendo tu enlace privado de Agendappx. Después la sincronización se mantiene automáticamente.'}</p>${legado.length?`<div class="group"><p class="foot">Hay ${legado.length} cambios anteriores guardados en este dispositivo. Puedes recuperarlos y revisar las diferencias antes de elegir qué conservar.</p><button type="button" class="cell" id="sync-legado">Recuperar cambios anteriores</button></div>`:''}
+      ${!sync.connected ? `<button type="button" class="cta" id="sync-activate">${cuentas?'Iniciar sesión':'Activar este dispositivo'}</button>` : ''}
+      ${cuentas?'':`<details><summary class="cell">Configuración avanzada</summary><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
       <p class="foot">Usa el APP_TOKEN de tu servidor. Se guarda en este dispositivo y se envía únicamente a esta misma dirección.</p>
-      <button type="button" class="cta" id="sync-connect">Conectar</button></details>
+      <button type="button" class="cta" id="sync-connect">Conectar</button></details>`}
       ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${conflicto}`,
     'Sincronización', root => {
       const feedback = message => { $('#sync-status', root).textContent = message; };
       root.addEventListener('click', async e => {
         const b = e.target.closest('button'); if (!b) return;
-        if (b.id === 'sync-activate') { sheetActivacion(); }
+        if (b.id === 'sync-activate') { if(cuentas)sheetAccesoAdmin();else sheetActivacion(); }
+        else if(b.id==='sync-legado'){if(!confirm('Se conservará la copia anterior y se enviarán estos cambios con tu cuenta. Si hay diferencias podrás elegir qué versión conservar. ¿Recuperarlos?'))return;try{sync.importarLegado(legado);const prev=JSON.parse(localStorage.getItem('agendappx.legado.recuperado')||'[]');localStorage.setItem('agendappx.legado.recuperado',JSON.stringify([...new Set([...prev,...legado.map(x=>x.mutationId)])]));await sync.sync();sheetServidor();}catch(err){feedback(err.message);}}
         else if (b.id === 'sync-connect') {
           b.disabled = true;
           try { await sync.conectar($('#sync-token', root).value); sheetServidor(); }

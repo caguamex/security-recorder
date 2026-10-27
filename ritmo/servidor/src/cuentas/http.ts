@@ -8,7 +8,7 @@ import {enTransaccion,miembroVigente} from './contexto.js';
 import {RepositorioConCuentas} from './repositorio.js';
 import type {IdentidadFirmada} from './jwt.js';
 const json=(r:ServerResponse,data:unknown)=>{r.writeHead(200,{'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Authorization','Referrer-Policy':'no-referrer'}).end(JSON.stringify(data));};
-export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:{habilitado:boolean;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;origen:string}){
+export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:{habilitado:boolean;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;origen:string;migracionUsuarioId?:string}){
  return async(req:IncomingMessage,res:ServerResponse,url:URL)=>{
  if(url.pathname==='/api/cuentas/config'&&req.method==='GET'){
   // Una clave publicable no autoriza consultas privadas; la base exige JWT, sesión y RLS.
@@ -32,7 +32,7 @@ export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise
  if(url.pathname==='/api/cuentas/contexto'){
   if(req.method!=='GET'||url.search)throw new ErrorAPI(405,'Método no permitido.');
   const miembros=[];for(const n of config.salones){const m=await enTransaccion(pool,i,n,async c=>(await c.query('SELECT negocio_id,rol FROM ritmo.miembros WHERE negocio_id=$1 AND usuario_id=$2 AND activo',[n,i.usuarioId])).rows[0]);if(m)miembros.push({negocioId:m.negocio_id,rol:m.rol});}
-  json(res,{usuarioId:i.usuarioId,aal:i.aal,miembros});return true;
+  json(res,{usuarioId:i.usuarioId,aal:i.aal,miembros,recuperarLegado:i.usuarioId===config.migracionUsuarioId&&i.aal==='aal2'&&miembros.some(m=>m.rol==='admin')});return true;
  }
  const n=m![1];if(!config.salones.has(n))throw new ErrorAPI(403,'Salón no disponible.');
  const repo=new RepositorioConCuentas(pool,i,n);
