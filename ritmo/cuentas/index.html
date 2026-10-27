@@ -456,7 +456,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     if (W.agendar) b.push([dC, a ? `Hola ${nom}, apartamos tu cita de ${s.n} el ${fecha} a las ${c.h} con ${m} en AB' Beauty Room.\n\nPara confirmarla, envía tu anticipo de ${money(a)} antes de ${W.plazo} horas:\nBanco: ${W.banco}\nCLABE: ${W.clabe}\nA nombre de: ${W.titular}\n\nCuando lo envíes, manda aquí tu comprobante.` : `Hola ${nom}, tu cita de ${s.n} quedó agendada para el ${fecha} a las ${c.h} con ${m} en AB' Beauty Room. Te recordaremos el día de tu cita.`, hC, 'Al agendar']);
     if (a && W.anticipo && c.pago) { b.push([dP, 'me:🧾 Comprobante de transferencia.jpg', hhmm(mins(hP) - 6)]); b.push([dP, `¡Gracias, ${nom}! Recibimos tu anticipo de ${money(a)}. Tu cita de ${s.n} el ${fecha} a las ${c.h} está confirmada. Restan ${money(resto)} que pagas en el salón.`, hP, 'Anticipo recibido']); }
     if (W.dia && !omiteDia(c)) { const pr = diaPrevio(c), dd = pr ? 'Ayer' : 'Hoy', hh = pr ? '19:00' : W.diaHora;
-      b.push([dd, `${pr ? 'Hola' : 'Buenos días'}, ${nom}. ${pr ? 'Mañana' : 'Hoy'} es tu cita de ${s.n} a las ${c.h} con ${m}. Responde *1* para confirmar o *2* si necesitas cambiarla.`, hh, pr ? 'Un día antes' : 'Día de la cita'], [dd, 'me:1', hhmm(mins(hh) + 3)], [dd, '¡Gracias! Tu cita quedó confirmada. Te esperamos.', hhmm(mins(hh) + 3), 'Respuesta automática']); }
+      b.push([dd, `${pr ? 'Hola' : 'Buenos días'}, ${nom}. ${pr ? 'Mañana' : 'Hoy'} es tu cita de ${s.n} a las ${c.h} con ${m}. Si necesitas cambiarla, escríbenos por aquí.`, hh, pr ? 'Un día antes' : 'Día de la cita']); }
     if (W.antes) b.push(['Hoy', `${nom}, te esperamos en ${W.antesMin === 60 ? 'una hora' : W.antesMin + ' minutos'}, a las ${c.h}, para tu ${s.n}.\n📍 ${DIRECCION}\nSi vas con retraso, avísanos por aquí.`, hhmm(mins(c.h) - W.antesMin), W.antesMin === 60 ? 'Una hora antes' : 'Antes de la cita']);
     const orden = d => d === 'Hoy' ? 2 : d === 'Ayer' ? 1 : 0;
     b.sort((x, y) => orden(x[0]) - orden(y[0]) || x[2].localeCompare(y[2]));
@@ -467,7 +467,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       return sep + `<div class="bub"><span class="lbl">${lbl}</span>${esc(txt).replace(/\*(.+?)\*/g, '<b>$1</b>')}<time>${h}</time></div>${qr ? `<div class="qr">${qr.map(x => `<span>${x}</span>`).join('')}</div>` : ''}`; }).join('')}</div>`; };
   const verChat = id => { const c = CITAS.find(x => x.id === id);
     sheet(`<div class="nav"><button type="button" data-cita="${c.id}">‹ Cita</button><b>Así lo ve ${esc(CLIENTAS[c.cl][0].split(' ')[0])}</b><span style="width:52px"></span></div>${chat(c)}
-      <p class="foot">Mensajes automáticos de la cita. Las respuestas de la clienta llegan a la app y al WhatsApp del salón.</p>`); };
+      <p class="foot">Mensajes automáticos de la cita. La app solo envía; si la clienta responde, lo ves y contestas en el WhatsApp de tu teléfono.</p>`); };
 
   const verCita = id => { const c = CITAS.find(x => x.id === id), s = serv(c.s), m = miembro(c.st), [n, t] = CLIENTAS[c.cl];
     sheet(`<div class="nav"><button type="button" data-act="cerrar">Cerrar</button><b>Cita</b><span style="width:52px"></span></div>
@@ -563,12 +563,12 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   const sw = (k, label) => `<button type="button" class="sw" role="switch" aria-label="${label}" aria-checked="${!!W[k]}" data-w="${k}"></button>`;
   const whatsapp = () => {
     return `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button></div><h1>Mensajes de WhatsApp</h1>
-      <p class="sub">Se mandan solos desde el número del salón. La clienta puede responder y te llega aquí.</p>
+      <p class="sub">Se mandan solos desde tu número vinculado. Si la clienta responde, lo ves en tu teléfono como cualquier chat.</p>
       ${vinculo()}
       <p class="gh">Mensajes automáticos</p><div class="group">
         <div class="cell"><span class="e" style="font-size:20px">📩</span><span class="l">Al agendar<small>Confirma la cita y, si aplica, manda los datos del anticipo</small></span>${sw('agendar', 'Al agendar')}</div>
         <div class="cell"><span class="e" style="font-size:20px">💸</span><span class="l">Anticipo recibido<small>Cuando marcas el anticipo como recibido</small></span>${sw('anticipo', 'Anticipo recibido')}</div>
-        <div class="cell"><span class="e" style="font-size:20px">☀️</span><span class="l">El día de la cita<small>A las ${W.diaHora}; la clienta responde 1 para confirmar o 2 para cambiarla</small></span>${sw('dia', 'El día de la cita')}</div>
+        <div class="cell"><span class="e" style="font-size:20px">☀️</span><span class="l">El día de la cita<small>A las ${W.diaHora}, con quién la atiende</small></span>${sw('dia', 'El día de la cita')}</div>
         <div class="cell"><span class="e" style="font-size:20px">⏰</span><span class="l">Antes de la cita<small>Con la ubicación del salón</small></span>${sw('antes', 'Antes de la cita')}</div></div>
       <div class="seg" role="tablist" aria-label="Cuánto antes" style="margin-top:10px">${[30, 60, 120].map(v => `<button type="button" role="tab" data-antes="${v}" aria-selected="${W.antesMin === v}">${v === 120 ? '2 horas' : v === 60 ? '1 hora' : '30 min'} antes</button>`).join('')}</div>
       <p class="foot">Si la cita es menos de 2 horas después de las ${W.diaHora}, el mensaje del día sale la noche anterior a las 19:00. Nunca se manda nada entre 21:00 y 8:00.</p>
@@ -581,7 +581,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
         <label class="cell"><span class="l">Banco</span><input class="in" id="wBanco" value="${esc(W.banco)}" style="max-width:190px;min-height:36px;border:0;text-align:right;padding:0"></label>
         <label class="cell"><span class="l">CLABE</span><input class="in" id="wClabe" value="${esc(W.clabe)}" inputmode="numeric" style="max-width:220px;min-height:36px;border:0;text-align:right;padding:0;font-variant-numeric:tabular-nums"></label>
         <label class="cell"><span class="l">A nombre de</span><input class="in" id="wTit" value="${esc(W.titular)}" style="max-width:190px;min-height:36px;border:0;text-align:right;padding:0"></label></div>
-      <p class="foot">La CLABE es de ejemplo. La clienta manda su comprobante por WhatsApp y aparece en la cita para que lo revises.</p>
+      <p class="foot">La CLABE es de ejemplo. La clienta te manda su comprobante al chat; lo revisas en tu teléfono y aquí marcas el anticipo como recibido.</p>
       <p class="gh">Hoy</p><div class="group"><div class="cell"><span class="l">${W.hoy} mensajes enviados<small>Sin costo por mensaje · pausas de 20 a 60 segundos entre cada uno</small></span><span class="r">de ${W.porDia}</span></div></div>
       <p class="foot">Para cuidar tu número: solo se escribe a clientas con cita que aceptaron mensajes, con máximo 30 por hora y ${W.porDia} al día. Si WhatsApp pone un freno, todo se detiene y te avisamos.</p>`; };
   const vinculo = () => {

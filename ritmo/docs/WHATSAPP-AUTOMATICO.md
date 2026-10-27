@@ -1,6 +1,6 @@
 # WhatsApp automático y anticipo: especificación
 
-Estado: aprobada por Antonio el 27 de octubre de 2026, **con WhatsApp vinculado como en FiNeCi** (código de 8 dígitos) en un servicio de Railway.
+Estado: aprobada por Antonio el 27 de octubre de 2026, **con WhatsApp vinculado como en FiNeCi** (código de 8 dígitos) en un servicio de Railway que **solo envía**.
 - Prototipo: `ritmo/cuentas/index.html`, en la cita (Anticipo, Mensajes de WhatsApp, Ver la conversación), en Ajustes → Mensajes de WhatsApp (Vincular WhatsApp) y en «Pedir cita» del perfil público.
 - Captura: `ritmo/imagenes/whatsapp-anticipo.png`.
 
@@ -15,15 +15,15 @@ Antonio lo autorizó conociendo el riesgo: las condiciones de WhatsApp no permit
 **Railway: servicio nuevo `agendappx-whatsapp`**, en un proyecto propio, separado de FiNeCi. **No toques FiNeCi.**
 - Plan Hobby de Antonio: 1.20 USD usados en 12 días, con un estimado de 2.25 USD de los 5 incluidos, y un límite de gasto de 10 USD compartido con FiNeCi.
 - Es un proceso Node/TypeScript **siempre prendido** (1 réplica) que mantiene la conexión de WhatsApp. Usa una librería de dispositivo vinculado mantenida (por ejemplo Baileys), con la versión fijada. Si FiNeCi ya usa una, toma la misma para repetir lo que ya funciona.
-- Hace todo lo de WhatsApp:
+- **Solo envía** (decisión de Antonio). No es un chatbot:
   - vincula el número;
   - revisa la cola **cada minuto** y manda los mensajes de la sección 1;
-  - recibe respuestas y comprobantes;
   - informa el estado de la conexión.
+- **No lee, no guarda y no procesa mensajes entrantes.** Los eventos de mensajes recibidos se descartan sin guardarlos. Tampoco envía confirmaciones de lectura ni marca chats como leídos, para que el salón vea las respuestas como no leídas en su teléfono.
 - **Sesión de WhatsApp**: se guarda **cifrada** (AES-256-GCM, llave `WA_SESSION_KEY` en Railway) en una tabla de Supabase `whatsapp_sesiones` por negocio. Así no hace falta volumen y sobrevive a reinicios.
 - **Supabase**: rol propio `agendappx_whatsapp` con permisos mínimos:
   - lee citas, clientas, servicios, ajustes y miembros;
-  - escribe la cola, entradas, contactos, sesiones, el estado de la vinculación y los campos de estado, anticipo y respuesta de la cita, y la bitácora.
+  - escribe la cola, sesiones, el estado de la vinculación y el estado de envío de cada mensaje.
   - TLS verificado.
 - **Cloudflare** deja de enviar (`WHATSAPP_REMITENTE=vinculado`). El webhook de Meta y su código se conservan, pero quedan apagados.
 - **Costo esperado**: unos 1.5 a 3 USD al mes por estar prendido (unos 150 a 250 MB de RAM). Sumado a lo actual queda cerca de los 5 USD incluidos y lejos del límite de 10. Configura en Railway una alerta de uso. Codex: informa el consumo real después de una semana.
@@ -46,7 +46,7 @@ Son mensajes normales de texto (no hay plantillas de Meta). Cada uno tiene **2 o
 | 1a | Al crear la cita, si el servicio pide anticipo | Cita apartada y datos del anticipo |
 | 1b | Al crear la cita, sin anticipo | Cita agendada |
 | 2 | Cuando el salón marca el anticipo como recibido | Anticipo recibido |
-| 3 | El día de la cita a las 09:00 (configurable) | Hoy es tu cita, «responde 1 o 2» |
+| 3 | El día de la cita a las 09:00 (configurable) | Hoy es tu cita |
 | 4 | 60 min antes (30, 60 o 120, configurable) | Te esperamos, con la dirección |
 | 5 | La cita cambia de día u hora | Tu cita cambió |
 
@@ -55,11 +55,11 @@ Textos base:
 - **1a**: «Hola {nombre}, apartamos tu cita de {servicio} el {fecha} a las {hora} con {especialista} en {salón}. Para confirmarla, envía tu anticipo de {anticipo} antes de {limite}: Banco: {banco} · CLABE: {clabe} · A nombre de: {titular}. Cuando lo envíes, manda aquí tu comprobante.»
 - **1b**: «Hola {nombre}, tu cita de {servicio} quedó agendada para el {fecha} a las {hora} con {especialista} en {salón}. Te recordaremos el día de tu cita.»
 - **2**: «¡Gracias, {nombre}! Recibimos tu anticipo de {anticipo}. Tu cita de {servicio} el {fecha} a las {hora} está confirmada. Restan {resto} que pagas en el salón.»
-- **3**: «Buenos días, {nombre}. Hoy es tu cita de {servicio} a las {hora} con {especialista}. Responde *1* para confirmar o *2* si necesitas cambiarla.»
+- **3**: «Buenos días, {nombre}. Hoy es tu cita de {servicio} a las {hora} con {especialista}. Si necesitas cambiarla, escríbenos por aquí.»
 - **4**: «{nombre}, te esperamos en {tiempo}, a las {hora}, para tu {servicio}. 📍 {dirección}. Si vas con retraso, avísanos por aquí.»
 - **5**: «Hola {nombre}, tu cita de {servicio} cambió al {fecha} a las {hora} con {especialista}. Si no te queda, responde a este mensaje.»
 
-No se usan botones interactivos, porque en dispositivos vinculados no son confiables. Se responde con «1» o «2».
+No hay botones ni respuestas automáticas. Si la clienta contesta, lo lee y responde una persona del salón desde el teléfono.
 
 ## 2. Reglas de envío y protecciones (obligatorias)
 
@@ -92,18 +92,16 @@ No se usan botones interactivos, porque en dispositivos vinculados no son confia
   - datos de transferencia: banco, CLABE (18 dígitos, validada con su dígito de control) y titular.
 - **En la cita**: `data.anticipo = { monto, estado: 'pendiente' | 'recibido' | 'vencido' | 'no_aplica', recibidoEn, recibidoPor, metodo, comprobante }`.
   - La cita queda «Apartada» hasta recibir el anticipo y pasa a «Confirmada» al recibirlo.
-- **Comprobante**: si la clienta manda una imagen o PDF mientras su cita tiene anticipo pendiente, el servicio lo descarga, lo guarda privado (Supabase Storage o R2) y lo adjunta a la cita como «Comprobante por revisar».
-  - **Nunca confirma solo**: Admin o Recepción revisa y toca «Marcar anticipo recibido», lo que dispara el #2.
+- **Comprobante**: la clienta lo manda al chat y el salón lo ve en su teléfono. El servicio no lo lee.
+  - Admin o Recepción revisa la transferencia y toca «Marcar anticipo recibido» en la cita, lo que dispara el #2. Opcional: adjuntar a mano una foto del comprobante a la cita.
 - **Vencido**: al terminar el plazo se avisa a Admin y Recepción («El anticipo de Daniela venció: ¿liberar el horario?»). El horario **no se libera solo**.
 - **Futuro**: un link de pago de Mercado Pago que marque el anticipo como recibido automáticamente.
 
 ## 4. Respuestas de la clienta
 
-- «1» (o «sí», «confirmo»): la cita queda `confirmada`.
-- «2» (o «cambiar»): queda `solicitaCambio: true` y aparece arriba en la Agenda con aviso para el salón.
-- Cualquier otro texto se muestra en la cita para responder a mano.
-- Se mantiene la lógica actual de cita inequívoca: si la clienta tiene varias citas próximas, no se adivina.
-- Como es el mismo WhatsApp del número vinculado, la conversación también se ve en el teléfono, donde se puede contestar normalmente.
+- El servicio **no las lee**: llegan al WhatsApp del número vinculado y el salón las contesta a mano desde el teléfono.
+- Confirmar, cambiar o cancelar una cita lo hace el equipo en la app, con lo que la clienta le diga.
+- Si después se quiere confirmar con «1» o «2», se agrega como opción aparte. Por ahora está fuera de alcance.
 
 ## 5. Lo que necesita Antonio
 
@@ -118,8 +116,8 @@ No se usan botones interactivos, porque en dispositivos vinculados no son confia
 - Las pausas entre mensajes se respetan (prueba con reloj simulado).
 - El #3 se omite al agendar el mismo día con menos de 3 h; el #4 se omite con menos de 90 min.
 - Mover una cita invalida los pendientes, manda el #5 y reprograma los recordatorios. Cancelar invalida todo.
-- Un comprobante recibido no confirma la cita; «Marcar anticipo recibido» sí, y manda el #2 una sola vez.
-- Un mensaje entrante repetido no duplica entradas ni cambios.
+- «Marcar anticipo recibido» manda el #2 una sola vez.
+- Un mensaje entrante no se guarda, no cambia ninguna cita y no se marca como leído.
 - Reiniciar el servicio no pierde la sesión ni repite mensajes. Con la sesión cerrada, la app muestra «desconectado» y nada queda «enviado» por error.
 - El freno de emergencia detiene todo ante errores de bloqueo.
 - La sesión guardada no se puede leer sin `WA_SESSION_KEY`.
