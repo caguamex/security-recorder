@@ -26,7 +26,7 @@ async function conexiones(page) {
   await page.getByRole('dialog', { name: 'Sincronización', exact: true }).waitFor();
 }
 async function conectar(page) {
-  await conexiones(page); await page.getByLabel('Token de acceso', { exact: true }).fill(env.token);
+  await conexiones(page); await page.getByText('Configuración avanzada', { exact: true }).click(); await page.getByLabel('Token de acceso', { exact: true }).fill(env.token);
   await page.getByRole('button', { name: 'Conectar', exact: true }).click();
   await page.waitForFunction(() => document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));
   await page.getByRole('button', { name: 'Listo', exact: true }).click();
@@ -60,12 +60,13 @@ try {
   assert.equal(await a.getByRole('button', { name: /Clienta de prueba sin conexión/ }).count(), 1);
   await a.context().setOffline(false); await sincronizar(a);
   await a.getByRole('tab', { name: 'Ajustes', exact: true }).click();
-  await a.getByRole('button', { name: /Suscribir Apple o Google Calendar/ }).click();
-  await a.getByLabel('Enlace privado del calendario').waitFor();
+  await a.getByRole('button', { name: /Apple Calendar/ }).click();
+  await a.getByLabel('Enlace privado del calendario').waitFor({state:'attached'});
   assert.match(await a.getByLabel('Enlace privado del calendario').inputValue(), /\/calendario\/[a-f0-9]{64}\.ics$/);
   await a.getByRole('button', { name: 'Listo', exact: true }).click();
-  await a.getByRole('button', { name: /Automatización de WhatsApp/ }).click();
-  await a.getByText('Conexión pendiente', { exact: true }).waitFor();
+  await a.getByRole('button', { name: /Mensajes de WhatsApp/ }).click();
+  await a.getByText('Inicia sesión como Admin y completa la verificación en dos pasos para vincular el WhatsApp del salón.', { exact: true }).waitFor();
+  assert.equal(await a.getByRole('button', { name: 'Generar código', exact: true }).isDisabled(), true);
   await a.getByRole('button', { name: 'Listo', exact: true }).click();
   await conexiones(a); await a.screenshot({ path: screenshots + 'pwa-sincronizacion.png', animations: 'disabled' });
   await a.getByRole('button', { name: 'Cancelar', exact: true }).click();

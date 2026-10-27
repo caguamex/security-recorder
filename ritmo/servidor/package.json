@@ -6,15 +6,18 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc && node ../herramientas/empaquetar.mjs",
+    "build": "tsc && node ../herramientas/compilar-cuentas.mjs && node ../herramientas/empaquetar.mjs",
     "start": "node build/index.js",
     "test": "npm run build && node --test pruebas/*.test.mjs ../pruebas/*.test.js",
     "test:navegador": "npm run build && node pruebas/navegador.mjs",
     "test:fotos": "npm run build && node pruebas/fotos-navegador.mjs",
     "test:actualizacion": "npm run build && node pruebas/actualizacion-navegador.mjs",
-    "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs"
+    "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs",
+    "test:whatsapp": "npm run build && node --test pruebas/whatsapp-*.test.mjs && node pruebas/whatsapp-solo-envios-navegador.mjs && node pruebas/whatsapp-vinculacion-navegador.mjs",
+    "test:calendario": "npm run build && node --test pruebas/dispositivos.test.mjs && node pruebas/calendario-navegador.mjs && node pruebas/calendario-pendientes-navegador.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
     "jose": "6.2.13",
     "pg": "^8.16.3"
   },
@@ -22,6 +25,7 @@
     "@electric-sql/pglite": "^0.3.14",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.15.0",
+    "esbuild": "0.28.2",
     "playwright": "^1.58.0",
     "typescript": "^5.9.3"
   }

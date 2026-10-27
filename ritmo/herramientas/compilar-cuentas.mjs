@@ -1,0 +1,2 @@
+import {build} from '../servidor/node_modules/esbuild/lib/main.js';
+await build({entryPoints:[new URL('../servidor/cliente/cuentas.js',import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1')],outfile:new URL('../belleza/cuentas.js',import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1'),bundle:true,minify:true,format:'iife',platform:'browser',target:['safari16'],supported:{'template-literal':false},legalComments:'none'});

@@ -1,57 +1,74 @@
-# Siguiente encargo: WhatsApp automático con anticipo
+# Siguiente encargo de Agendappx: WhatsApp vinculado, solo envíos
 
-Antonio lo encargó el 26 de octubre de 2026. **Comenzar la implementación cuando termine cuentas**. No se ha creado el servicio, activado Meta ni modificado FiNeCi.
+Actualizado el 27 de octubre de 2026. **Antonio priorizó terminar WhatsApp antes del resto de cuentas.** La implementación local incluye un acceso mínimo seguro de Admin por enlace privado y TOTP, sin SMS de Brevo. La migración y publicación autorizadas con «okey, hazlo» terminaron. Cloudflare y el servicio separado de Railway están publicados y sanos. No hay teléfono vinculado ni mensajes reales; sus dos interruptores siguen apagados.
 
-Fuente: rama `claude/es-posible-esto-tjimmb`, commit `513d086`, `ritmo/docs/WHATSAPP-AUTOMATICO.md`, secciones 0–6; prototipo `ritmo/cuentas/index.html` y captura `ritmo/imagenes/whatsapp-anticipo.png`. Se revisó la especificación sin fusionar sus pantallas a la rama de cuentas en curso.
+## Fuente y autorización
 
-## Opción solicitada después: vincular como FiNeCi
+Se leyó completo `ritmo/docs/WHATSAPP-AUTOMATICO.md` (secciones 0–6), de `claude/es-posible-esto-tjimmb`, commit **dc15fe5**. Se conserva una copia exacta en esta rama. El prototipo está en `ritmo/cuentas/index.html` y la captura solicitada es `ritmo/imagenes/whatsapp-vincular.png`; no se fusionaron nuevas pantallas a la página publicada.
 
-Antonio pidió agregar la posibilidad de vincular su WhatsApp mediante un código de ocho caracteres y que los mensajes salgan de ese número. Sigue siendo un encargo posterior a cuentas; no se activó ni se vinculó ningún número.
+Antonio autorizó conexión de dispositivo vinculado como FiNeCi, aceptando el riesgo de bloqueo, y sustituyó la prohibición de librerías no oficiales. Se verificó de solo lectura `financial-app/src/lib/whatsapp.ts`, función requestWhatsAppPairingCode: usa Evolution API con integración **WHATSAPP-BAILEYS**. Reutilizar Baileys como biblioteca, con versión corregida y fijada; no reutilizar números, sesiones, bases, proyectos, servicios o secretos de FiNeCi. No incorporar versiones vulnerables solo por coincidir con una imagen vieja del proveedor.
 
-Se comprobó en el código de FiNeCi (`src/lib/whatsapp.ts`, `requestWhatsAppPairingCode`, y su ruta `whatsapp-pairing`) que usa Evolution API con integración `WHATSAPP-BAILEYS`, no la API oficial de Meta. El código admite ocho letras/números. Adaptar el patrón como referencia; no modificar FiNeCi, sus instancias, credenciales, servicios ni datos.
+## Cambios respecto a la preparación anterior del PR #3
 
-Preparar esta opción de Agendappx con:
-- Ajustes → WhatsApp → Vincular: Admin autenticado y con MFA introduce su número, recibe el código y lo acepta desde Dispositivos vinculados de WhatsApp. Mostrar el número efectivamente vinculado, su estado y Desvincular.
-- Conexión privada por salón, resuelta exclusivamente en servidor desde la membresía. Recepción/Especialistas usan el remitente del salón, sin poder elegir una instancia ajena ni acceder a las llaves. No usar nombres predeterminados de instancias ni reutilizar las de FiNeCi.
-- Autenticación del webhook de Evolution propia de este proveedor y comprobación de instancia/salón; no reutilizar como si fuera una firma de Meta. Mantener consentimiento, límites, horario silencioso, idempotencia, revisión de comprobantes y permiso antes del primer envío real.
-- Comprobar compatibilidad de botones antes de prometerla; si hacen falta respuestas de texto, presentar el ajuste de experiencia para revisión.
-- El servicio que mantiene la conexión WhatsApp Web necesita ejecutarse y conservar su sesión además del mensajero que despierta cada cinco minutos. La estimación inferior solo cubre el cron; **no representa el costo total de esta opción**. Revisar alojamiento, aislamiento y consumo antes de activar recursos, siempre dentro de los permisos concretos y el límite Railway de Antonio.
+- Un solo servicio permanente, **agendappx-whatsapp**, en un proyecto Railway aparte; una réplica y revisión de cola cada minuto. Reemplaza los planes anteriores de proveedor más cron agendappx-mensajero cada cinco minutos. No crear servicios duplicados.
+- Sesión en whatsapp_sesiones por negocio, **AES-256-GCM**, llave WA_SESSION_KEY solo en Railway. La sesión persistente sin cifrar del motor anterior no basta. Nonce único por escritura, autenticación del negocio/tipo en el cifrado, cifrado también de claves de sesión, actualización transaccional y bloqueo que impida dueños simultáneos. Recuperación gradual conservando credenciales ante fallos temporales.
+- Rol propio agendappx_whatsapp de mínimos permisos y TLS verificado. Admin con sesión vigente, membresía y MFA para vincular/desvincular. Especialistas no ven CLABE, comprobantes, vinculación ni credenciales.
+- Solo envíos. Descartar eventos de mensajes entrantes e historial sin persistencia ni logs de contenido; no leer comprobantes ni emitir confirmaciones de lectura. Los eventos de control imprescindibles del protocolo para mantener conexión/credenciales y confirmar envíos propios no son un chatbot. Las respuestas se atienden manualmente en el teléfono.
+- Código efímero de **ocho caracteres alfanuméricos**: el ejemplo K7QM-29XA de la propia especificación no es solo numérico. Si el protocolo asíncrono exige persistirlo, cifrarlo, limitar su vigencia y acceso; nunca registrarlo en logs ni entregar llaves al navegador.
+- WHATSAPP_REMITENTE=vinculado debe bloquear **todos** los envíos de Cloudflare y dejar Meta deshabilitado, conservando su código. La bandera está implementada y cubierta por las pruebas nuevas; está activada en producción desde el despliegue del 27 de octubre.
+- Reemplaza botones de confirmación y automatizaciones de respuestas/comprobantes por gestión humana. Los cinco tipos de aviso salen solo por el remitente del salón. Se confirma el anticipo únicamente al marcarlo en la app.
 
-Baileys es una integración no oficial de WhatsApp Web. Esta opción permite probar el flujo por código sin contratar la API oficial de Meta, pero debe informarse su dependencia de WhatsApp Web y no garantizar disponibilidad o ausencia de restricciones. Agregar la opción no implica sustituir silenciosamente todo el diseño anterior de Meta ni habilitar ambos remitentes a la vez.
+## Reglas que se conservan
 
-Fuentes primarias:
-- https://github.com/WhiskeySockets/docs/blob/main/authentication/pairing-code.mdx
-- https://github.com/WhiskeySockets/Baileys
+Consentimiento y cita válida; 20–60 s de pausa por número, escribiendo 2–5 s, máximo 30/h y 150/día (configurable solo hacia abajo), silencio 21:00–08:00 CDMX, idempotencia y estado incierto sin reintento automático. Al mover/cancelar invalidar pendientes y reprogramar; comprobar de nuevo consentimiento, estado y horario justo antes del envío. Freno persistente ante bloqueo/exceso, con reactivación explícita de Admin. Aviso a Admin si la conexión no vuelve en diez minutos.
 
-## Instrucción vigente que prevalece sobre el documento
+Cumplir las ventanas especiales de la sección 2: recordatorio temprano la noche anterior a las 19:00 cuando corresponda, omisión por cita reciente o confirmación/anticipo enviados en las últimas tres horas, y omisión de aviso de llegada cuando la reserva tiene menos de 90 minutos. Lo tardío o fuera de horario no debe provocar recordatorios después de empezar/cancelar la cita.
 
-El anticipo predeterminado será **20 %**, como escribió Antonio. La sección 3 del documento dice 30 %: usar 20 %. Aplicar a servicios desde $300, plazo de 24 horas o dos horas antes cuando sea anterior. Un comprobante no confirma el anticipo y un vencimiento no libera el horario sin decisión de Admin o Recepción.
+Decisiones directas previas de Antonio: **anticipo predeterminado 20 %** y **tope mensual 600 mensajes**, conservados hasta una instrucción posterior que los sustituya expresamente. La especificación de Claude dice 30 % de anticipo: esta discrepancia queda documentada y no modifica silenciosamente lo aprobado. Precio mínimo $300, plazo de 24 h o dos horas antes cuando sea anterior; nunca liberar horario al vencer sin decisión humana. Comprobante adjunto solo manual, protegido por los roles.
 
-## Alcance y confirmaciones
+## Pronóstico actualizado: un único servicio permanente
 
-- Proyecto separado de Railway, servicio programado `agendappx-mensajero`, cada cinco minutos. Arranca, procesa lo debido y termina. Sin volumen ni dominio nuevo. No tocar FiNeCi.
-- Webhook firmado de Meta, respuestas, botones y comprobantes continúan en Cloudflare. Con `WHATSAPP_REMITENTE=railway`, Cloudflare no envía. Idempotencia y bloqueos protegen incluso si ambos procesos coinciden.
-- Misma base de Supabase, rol `agendappx_mensajero` con permisos mínimos, TLS verificado y pooler. Las cuentas y la separación por salón son un requisito previo.
-- Mensajes con consentimiento; silencio de 21:00 a 08:00; tope de 600/mes; conservar el tope diario y no reenviar resultados inciertos.
-- Incluir las seis plantillas, comprobantes privados y revisión manual, avisos de cambios y anticipo vencido. Seguir omisiones y reprogramación de la especificación.
-- Entregar a Antonio la guía de Meta Business, elegibilidad del número/coexistencia, método de pago, plantillas y secretos. Verificar requisitos y tarifas únicamente en fuentes oficiales; no tratar como tarifa oficial el precio no oficial de la sección 5.
-- Secretos solo en Railway/Cloudflare; nunca en Git ni en el chat.
-- Ejecutar todos los casos de la sección 6.
-- **Pedir confirmación antes de desplegar y antes del primer mensaje real**, con costo concreto de Meta y destinatario.
-- R2 conserva la restricción de costos: preparar sin activarlo hasta comprobar su situación y contar con autorización específica si puede facturar.
+Pronóstico, no medición de un mes: el servicio arrancó el 27 de octubre. Base previa verificada ese día: uso 1.2988 USD y proyección **2.3489 USD**, límite compartido 10 USD y aviso existente en 5 USD, sin cambios. La consulta posterior al arranque fue 1.3016 USD acumulados y proyección 2.3512 USD: incluye todos los recursos y pocos minutos del nuevo servicio; todavía no permite atribuirle un mes de gasto.
 
-## Estimación preliminar de Railway (sin recursos activados)
+Tarifas de contenedor Railway contrastadas el 27 de octubre: RAM 10 USD/GB/mes, CPU 20 USD/vCPU/mes, salida 0.05 USD/GB. Hobby cuesta mínimo 5 USD e incluye 5 USD de recursos: factura antes de impuestos = máximo entre 5 USD y consumo total. No sumar 5 USD de nuevo al total de recursos.
 
-Tarifas oficiales consultadas el 26 de octubre: RAM 10 USD/GB/mes, CPU 20 USD/vCPU/mes, salida 0.05 USD/GB. Hobby cuesta 5 USD/mes e incluye 5 USD de consumo; consumo mayor se cobra como diferencia, no otros 5 USD sumados a todo el consumo.
+| Escenario de 30 días | RAM media | CPU media | Servicio nuevo, incluido el bucle | Consumo conjunto | Factura total estimada, antes de impuestos |
+|---|---:|---:|---:|---:|---:|
+| Ligero | 0.15 GB | 0.01 vCPU | 1.75 USD | 4.10 USD | 5.00 USD |
+| Intermedio | 0.25 GB | 0.02 vCPU | 2.95 USD | 5.30 USD | 5.30 USD |
+| Alto | 0.50 GB | 0.03 vCPU | 5.65 USD | 8.00 USD | 8.00 USD |
 
-A 30 días son 8,640 ejecuciones. Ejemplo orientativo, no medición: 10 segundos encendido por ejecución, 0.25 GB de RAM y dos segundos efectivos de CPU consumen aproximadamente 0.083 USD de RAM + 0.133 USD de CPU al mes, más salida. Con 30 segundos, 0.5 GB y cinco segundos de CPU, serían unos 0.83 USD antes de salida. Presupuesto preliminar del mensajero: **0.20–1 USD/mes adicionales de consumo**, sujeto a medir arranque, duración y tráfico reales. No garantizar menos de 0.50 USD solo por el documento.
+Supuesto de 1 GB de salida al mes. Fórmula del servicio: RAM media × 10 + CPU media × 20 + salida GB × 0.05. La CPU incluye conexión, cifrado y revisión de cola del mismo proceso; no hay un cron adicional que sumar. Las esperas deben usar temporizadores, no ocupar CPU en bucle. Promesa de 150–250 MB aún sin comprobar con un teléfono real. El primer ciclo será proporcional al tiempo encendido; no atribuirle un mes completo antes de activarlo.
 
-Si el consumo actual de 1.20 USD en 12 días mantiene ese ritmo, equivale a unos 3 USD en 30 días; con el mensajero serían aproximadamente 3.20–4 USD de consumo. En ese escenario seguiría dentro de los 5 USD incluidos en Hobby y la factura base sería 5 USD, antes de impuestos y otros cargos. Es una proyección con los datos aportados por Antonio, no una consulta a la facturación actual ni una garantía. Respetar el máximo compartido de 10 USD sin aumentar límites ni modificar FiNeCi.
+Presupuesto operativo recomendado: mantener proyección compartida por debajo de 8 USD para dejar margen frente a 10 USD, fluctuaciones e impuestos. Un uso alto deja poco margen: no garantizar un costo fijo ni aumentar límites/recursos sin autorización específica. No configurar alertas nuevas ni tocar alertas de FiNeCi hasta identificar el alcance exacto aprobado.
 
-Railway documenta que el intervalo mínimo es cinco minutos y que la puntualidad puede variar algunos minutos. Programar cada cinco minutos **no garantiza** un retraso máximo estricto de cinco minutos. Mantener la comprobación de mensajes detenidos tras 15 minutos y no enviar antes de la hora debida.
+La estimación anterior de dos procesos sigue como histórica en WHATSAPP-VINCULACION.md/herramientas/pronostico-whatsapp.mjs; **no usarla como cálculo del servicio único actual**. Ni las pruebas anteriores ni aquel Dockerfile demuestran cifrado o ausencia de procesamiento entrante del alcance nuevo.
 
-Meta y almacenamiento son costos separados del consumo Railway y no caben automáticamente dentro de su cuota. No activar envíos de plantillas ni recursos facturables sin autorización concreta.
+## Informe real al cumplir una semana
 
-Referencias oficiales:
-- https://docs.railway.com/pricing/plans
-- https://docs.railway.com/cron-jobs
+Seguimiento creado en este chat: **consumo-de-whatsapp-de-agendappx-tras-una-semana**. Revisa a las 09:00 CDMX y permanece en silencio mientras el servicio no exista o no complete siete días desde su fecha real de encendido. Entonces informa una sola vez: gasto atribuible, total compartido, proyección del ciclo y margen frente a 10 USD; distingue consumo e importe mínimo Hobby. No debe activar servicios ni mandar WhatsApp por hacer el informe. Inicio verificado por el log «servicio de solo envíos listo»: **2026-10-27T19:11:09.551883275Z** (13:11:09 CDMX). Despliegue Railway `af30f7e3-448f-42ef-86a4-e1d563529cb5`, SUCCESS; el contenedor comenzó a las 19:11:04.523184917Z. Los siete días se cumplen el **3 de noviembre a las 19:11:09 UTC / 13:11:09 CDMX**. El chequeo diario de las 09:00 CDMX puede entregar el informe el 4 de noviembre si no hay otra ejecución posterior al aniversario. Si faltan permisos para consultar, indicarlo en lugar de inventar cifras. Tras el informe, pausar el seguimiento.
+
+## Estado verificable de la implementación
+
+Código nuevo en `servidor/src/whatsapp-vinculado`, `whatsapp/` y panel de la app. Reemplaza el proveedor anterior por Baileys fijado a 7.0.0-rc13. Cifrado, custodia, reconexión gradual, límites, reglas por cita, anticipo manual, comprobante, acceso firmado con MFA y bandera de Cloudflare ya tienen pruebas locales. Se integró primero el calendario publicado para evitar regresiones.
+
+Resultados y limitaciones en `WHATSAPP-PRUEBAS.md`; instrucciones operativas en `../whatsapp/README.md`. No confundir transporte simulado con una vinculación física o garantía de estabilidad continua. La imagen Linux se construyó en Railway y pasó /salud; la vinculación física y la primera entrega siguen pendientes de confirmación separada.
+
+La migración propuesta conserva los datos sincronizados, versiones e integración del calendario y los asigna al salón y Admin aprobados. Los pendientes que solo existan en el celular permanecen en la copia heredada y se pueden revisar/importar exclusivamente desde el Admin migrado, conservando conflictos; no se mezclan automáticamente con otras cuentas. Se tomó respaldo bajo mantenimiento y la comparación canónica SHA-256 de las siete tablas confirmó conservación exacta de campos originales, 23 objetos, 42 mutaciones y dos integraciones.
+
+La fecha real de activación consta arriba. Migración y publicación ya aprobadas y ejecutadas. Siguen pendientes las confirmaciones separadas de vinculación y primer mensaje con destinatario/consentimiento. No comprar dominios ni modificar FiNeCi.
+
+Fuentes primarias: [tarifas de Railway](https://docs.railway.com/pricing/plans), [Baileys](https://github.com/WhiskeySockets/Baileys), [especificación solicitada](https://github.com/caguamex/security-recorder/blob/dc15fe5/ritmo/docs/WHATSAPP-AUTOMATICO.md).
+
+
+## Publicación completada — 27 de octubre de 2026
+
+- Worker `49605020-f7e9-4403-8a0d-8b51ab3c3743`, misma URL e infraestructura. Cuentas activas, mantenimiento retirado y `WHATSAPP_REMITENTE=vinculado`.
+- Railway: proyecto `d82e4094-d981-43cc-ae41-9a73d09cd57a`, servicio `3aae5f13-8c07-40bb-8c75-35233c18883b`, producción `9c3c8682-4a24-4d7a-83f8-8a728945b7ca`. Una réplica, límite 0.5 GB/0.1 vCPU, sin suspensión ni recursos adicionales. `/salud` responde 200.
+- Migración `cuentas_whatsapp_solo_envios_aprobado_20261027`: esquema de cuentas + solo envíos y rol mínimo con TLS comprobado. Un Admin activo; cero sesiones WhatsApp. La llave Admin de Supabase se usó únicamente por la API oficial y permanece fuera de Git/Cloudflare/Railway.
+- Enlace privado de acceso del propietario preparado fuera de Git. El dueño completa TOTP en su dispositivo; no se consumió su enlace en una prueba ni se creó una sesión artificial.
+- Verificación pública: página/configuración/salud 200; agenda y control sin identidad 401, también con APP_TOKEN; webhook Meta 503. Feed heredado 200, Agendappx, sin notas. Navegador real 390 px muestra Acceso de Admin sin SMS, sin errores ni desbordamiento.
+- `WA_ACTIVAR_SERVICIO=true`; **`WA_VINCULACION_HABILITADA=false` y `WA_ENVIOS_HABILITADOS=false`**. No abrir socket, generar código real ni enviar hasta la aprobación correspondiente. FiNeCi no se modificó.
+- Asesoría Supabase: dos INFO de RLS sin políticas en tablas privadas internas (sin grants públicos, uso mediante funciones controladas) y WARN de protección de contraseñas filtradas desactivada. El acceso implementado es sin contraseña; no activar servicios de pago para silenciar ese aviso.
+
+El resto de CUENTAS.md (registro público, equipo y bienvenida completos) sigue pendiente; esta entrega es el acceso mínimo seguro necesario para probar WhatsApp.

@@ -1,0 +1,13 @@
+{
+  "repositorio": "https://github.com/evolution-foundation/evolution-api",
+  "commit": "cd800f2976e1e5b682fbf86a01ee4d85ae61f370",
+  "archivo_sha256": "4aee3973d0cc71e870049c4157642bcb7855050429b3dd455fef29f6c90b9861",
+  "baileys": "7.0.0-rc13",
+  "base": "2.3.7 con actualización de seguridad de Baileys",
+  "compilacion_local": "TypeScript y empaquetado correctos en Node 24.22.1; sin base real ni WhatsApp",
+  "reinicio_con_numero_real": "pendiente",
+  "prisma": "6.19.0",
+  "cambio_local": "baileys actualizado de 7.0.0-rc.9 a 7.0.0-rc13, con lockfile",
+  "contenedor_linux": "pendiente: Docker no está disponible en este entorno",
+  "importacion_baileys": "correcta: crearSocket e iniciarCredenciales disponibles; no se invocaron"
+}

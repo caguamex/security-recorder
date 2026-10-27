@@ -20,14 +20,22 @@ Imágenes: `ritmo/imagenes/diseno-1.png` a `diseno-5.png` (elige uno) y `belleza
 
 ## Cómo funciona cada conexión
 
-### WhatsApp automático (en tu servidor de Railway)
-- Usa la **API oficial de WhatsApp Business (Cloud API de Meta)**. Necesitas una cuenta de Meta Business, un número dedicado y **plantillas aprobadas** (confirmación, recordatorio, gracias).
-- Railway corre un servidor (Node.js) que: guarda las citas en Postgres, programa los recordatorios (por ejemplo, cada 5 minutos busca citas en 24 h) y recibe las respuestas de las clientas por webhook ("1 = confirmo", "2 = cambiar").
-- Meta cobra por mensaje de plantilla. Revisa la tarifa actual para México antes de lanzar.
-- No uses librerías no oficiales que imitan WhatsApp Web: WhatsApp puede bloquear el número del negocio.
+### WhatsApp automático — dispositivo vinculado y solo envíos (27 de octubre de 2026)
+
+Encargo vigente de Antonio, posterior a cuentas: [WHATSAPP-AUTOMATICO.md](WHATSAPP-AUTOMATICO.md), commit de Claude `dc15fe5`. Su aceptación expresa del riesgo de bloqueo reemplaza la regla antigua de usar exclusivamente Meta. FiNeCi usa Baileys a través de Evolution API; se reutiliza esa librería de conexión con una versión corregida y fijada, sin acceder ni modificar su infraestructura, instancias o credenciales.
+
+- Un servicio Node/TypeScript permanente `agendappx-whatsapp`, una réplica, en un proyecto Railway separado. Revisión de cola cada minuto en el mismo proceso. No mensajero cron independiente ni Redis/volumen por defecto.
+- Ajustes → Mensajes de WhatsApp: Admin con MFA introduce su número de México, obtiene el código temporal de ocho caracteres, lo confirma en WhatsApp y ve el número efectivamente vinculado. Aviso si se cierra la sesión o lleva más de diez minutos desconectado; conexión manual por WhatsApp siempre disponible.
+- Sesión cifrada AES-256-GCM por negocio en Supabase, llave WA_SESSION_KEY solo en Railway, rol limitado agendappx_whatsapp y TLS verificado. La preparación anterior del PR #3 requiere adaptación: guardar una sesión persistente sin cifrar no cumple este encargo.
+- Solo envía mensajes de citas autorizadas. No chatbot ni procesamiento/almacenamiento de respuestas, historial, contactos, comprobantes recibidos o marcas de leído. Las respuestas y comprobantes se atienden en el teléfono. El anticipo se confirma manualmente en la app por Admin o Recepción.
+- Pausas aleatorias de 20–60 s, escribiendo 2–5 s, máximo 30/h y 150/día por número, silencio 21:00–08:00 CDMX, idempotencia y freno persistente ante bloqueo. La sección 2 define los casos de omisión de recordatorios y cancelación/cambio de cita. Conservar el límite mensual previamente aprobado de 600 hasta que Antonio lo cambie expresamente.
+- Cloudflare dejará de enviar con WHATSAPP_REMITENTE=vinculado. Meta se conserva deshabilitado; no deben quedar dos remitentes activos ni un webhook de Meta modificando citas mientras rige este modo.
+- Anticipo predeterminado **20 %**, según la instrucción directa anterior de Antonio; la cifra de 30 % en el documento de Claude queda señalada como discrepancia. No liberar el horario automáticamente al vencer.
+
+No se ha creado ni desplegado el servicio. Pedir confirmación antes de migrar, desplegar, vincular el número y realizar el primer mensaje real. Costos y estado: [SIGUIENTE-WHATSAPP.md](SIGUIENTE-WHATSAPP.md). El presupuesto compartido sigue en 10 USD; no activar cargos ni aumentar límites por suposición.
 
 ### Apple Calendar y Google Calendar
-- **Sencillo (recomendado al inicio):** Railway publica un enlace de calendario `.ics` privado con tus citas. Te suscribes una vez desde el iPhone (Ajustes › Calendario › Cuentas › Agregar calendario suscrito) o desde Google Calendar (Otros calendarios › Desde URL). Apple lo actualiza seguido; Google puede tardar varias horas.
+- **Sencillo (recomendado al inicio):** Cloudflare publica un enlace de calendario `.ics` privado con tus citas. Te suscribes una vez desde el iPhone (Ajustes › Calendario › Cuentas › Agregar calendario suscrito) o desde Google Calendar (Otros calendarios › Desde URL). Apple lo actualiza seguido; Google puede tardar varias horas.
 - **Completo:** en la app nativa de iPhone, EventKit escribe las citas directo en el Calendario de Apple; para Google, la API de Google Calendar con inicio de sesión de Google sincroniza en ambos sentidos.
 
 ### Grupos de Facebook, uno por uno
@@ -37,15 +45,11 @@ Imágenes: `ritmo/imagenes/diseno-1.png` a `diseno-5.png` (elige uno) y `belleza
 
 ## Prompts
 
-### Backend en Railway
+### Servicio de WhatsApp en Railway — prioridad actual de Antonio
 ```text
-En ritmo/servidor/ crea el backend de Ritmo Belleza para desplegar en Railway (Node.js + TypeScript + Fastify + Postgres).
-Modelos: clientas (nombre, teléfono con lada 52), servicios (nombre, categoría, duración, precio, foto), promociones (título, texto, imagen, vigencia), citas (clienta, servicio, inicio, fin, estado, avisos enviados), grupos_facebook (nombre, url, último envío).
-- API REST con token para la app.
-- WhatsApp Cloud API: enviar plantillas "cita_confirmada", "recordatorio_24h" y "gracias_resena"; webhook para respuestas 1 (confirmar) y 2 (reprogramar). Tarea programada cada 5 minutos para recordatorios.
-- Calendario .ics privado en /calendario/<token>.ics con todas las citas.
-- Variables: DATABASE_URL, WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, WHATSAPP_VERIFY_TOKEN, APP_TOKEN.
-Incluye pruebas, un README de despliegue en Railway y la lista de plantillas que debo registrar en Meta con su texto en español.
+Implementar ritmo/docs/WHATSAPP-AUTOMATICO.md del commit dc15fe5 con la precisión de alcance de ritmo/docs/SIGUIENTE-WHATSAPP.md.
+Conservar Agendappx y el diseño aprobado. Servicio nuevo agendappx-whatsapp, permanente y una réplica, con Baileys, sesión AES-256-GCM en Supabase y rol mínimo exclusivo; no tocar FiNeCi. Un solo proceso revisa la cola cada minuto y solo envía. Descartar entradas sin guardar ni marcar como leídas. Cloudflare deja de enviar con WHATSAPP_REMITENTE=vinculado. Preservar consentimiento, límites por número, horarios, omisiones, idempotencia, bloqueo de emergencia y anticipo confirmado manualmente. El porcentaje predeterminado sigue siendo 20 % por la instrucción directa de Antonio.
+Completar primero WhatsApp con el acceso mínimo firmado de Admin y MFA; el resto de cuentas y equipo sigue después, por la prioridad nueva de Antonio. Ejecutar toda la sección 6 y documentar cada resultado: no afirmar que las pruebas anteriores del proveedor cubren la automatización nueva. Preparar y verificar sin desplegar ni vincular. Solicitar confirmaciones de migración, publicación, vinculación y primer mensaje real; mantener el máximo compartido de 10 USD sin nuevos servicios facturables no autorizados.
 ```
 
 ### App de iPhone
@@ -57,3 +61,6 @@ Conéctala al backend de ritmo/servidor/. Usa expo-calendar para escribir las ci
 Publicar en grupos de Facebook: copia el texto, guarda la imagen y abre el grupo (enlace fb://group/<id> con respaldo a la URL web), y marca el grupo como listo al regresar.
 Reutiliza el intérprete de frases de ritmo/prototipo/parser.js para escribir citas como "Mariana uñas viernes 4pm".
 ```
+
+
+Entrega local del 27 de octubre: ver `../whatsapp/README.md` para acceso temporal de Admin, despliegue separado y confirmaciones; `WHATSAPP-PRUEBAS.md` para resultados por criterio. La página publicada todavía no incluye este servicio. El prototipo de referencia no es evidencia de que un teléfono esté vinculado.

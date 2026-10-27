@@ -1,10 +1,11 @@
 // Cola persistente: los cambios se guardan antes de intentar enviarlos.
 (function (root) {
   'use strict';
-  function crear({ storage, fetcher, defaults = {}, onChange = () => {}, uuid = () => crypto.randomUUID() }) {
-    const KEY = 'belleza.v1.sync', TOKEN = 'belleza.v1.token';
+  function crear({ storage, fetcher, defaults = {}, cuenta = null, obtenerSesion, cerrarSesion, onChange = () => {}, uuid = () => crypto.randomUUID() }) {
+    const KEY = 'belleza.v1.sync', TOKEN = 'belleza.v1.token', SESION = 'belleza.v1.sesion';
     const leer = (key, fb) => { const raw = storage.getItem(key); return raw ? JSON.parse(raw) : fb; };
-    let state = leer(KEY, null), token = storage.getItem(TOKEN) || '', active = null, status = token ? 'Pendiente de sincronizar' : 'Guardado en este dispositivo';
+    let sesionCookie = storage.getItem(SESION) === 'si', generacionAcceso = 0;
+    let state = leer(KEY, null), token = storage.getItem(TOKEN) || '', active = null, status = token || sesionCookie ? 'Pendiente de sincronizar' : 'Guardado en este dispositivo';
     if (!state) {
       const items = leer('belleza.v1.items', []), settings = leer('belleza.v1.settings', {});
       const records = items.map(data => ({ id: data.id, data, version: 0 }));
@@ -31,8 +32,10 @@
       guardar(next); emit(); void sync();
     }
     async function request(path, options = {}, accessToken = token) {
-      const response = await fetcher(path, { ...options, cache: 'no-store', headers: {
-        'Authorization': 'Bearer ' + accessToken, ...(options.body ? { 'Content-Type': 'application/json' } : {}) },
+      if(cuenta){const vigente=await obtenerSesion?.();if(!vigente||vigente.usuarioId!==cuenta.usuarioId||vigente.negocioId!==cuenta.negocioId)throw Object.assign(new Error('Inicia sesión de nuevo.'),{status:401});accessToken=vigente.accessToken;
+        path=path.replace(/^\/api\/(estado|objetos|conexiones|calendario)/,'/api/negocios/'+encodeURIComponent(cuenta.negocioId)+'/datos/$1');}
+      const response = await fetcher(path, { ...options, credentials: 'same-origin', cache: 'no-store', headers: {
+        ...(accessToken ? { 'Authorization': 'Bearer ' + accessToken } : {}), ...(options.body ? { 'Content-Type': 'application/json' } : {}) },
         signal: AbortSignal.timeout(12000) });
       const body = await response.json();
       if (!response.ok) throw Object.assign(new Error(body.error || 'No se pudo sincronizar.'), { status: response.status, current: body.current });
@@ -49,7 +52,7 @@
       guardar(next);
     }
     function sync() {
-      if (!token) return Promise.resolve();
+      if (!cuenta && !token && !sesionCookie) return Promise.resolve();
       // El botón manual espera también una sincronización automática ya en curso.
       if (active) return active;
       active = sincronizar().finally(() => { active = null; });
@@ -83,12 +86,13 @@
         recibir(await request('/api/estado' + (Number.isInteger(state.cursor) ? '?since=' + state.cursor : '')));
         status = state.conflicts.length ? 'Hay cambios por revisar' : state.pending.length ? 'Cambios pendientes de enviar' : 'Sincronizado con tu servidor';
       } catch (e) {
-        status = e.status === 401 ? 'Revisa tu token de acceso' : e.status && e.status < 500 ? e.message : 'Sin conexión con el servidor; cambios guardados aquí';
+        if (e.status === 401 && sesionCookie && !token) { sesionCookie = false; storage.removeItem(SESION); }
+        status = e.status === 401 ? 'Activa nuevamente este dispositivo; tus cambios siguen guardados aquí' : e.status && e.status < 500 ? e.message : 'Sin conexión con el servidor; cambios guardados aquí';
       } finally { if (JSON.stringify(state) !== before || status !== beforeStatus) emit(); }
     }
     return {
       get items() { return vista().items; }, get settings() { return vista().settings; },
-      get status() { return status; }, get connected() { return !!token; },
+      get status() { return status; }, get connected() { return !!cuenta || !!token || sesionCookie; },
       get pending() { return clone(state.pending); }, get conflicts() { return clone(state.conflicts); },
       put(data) { cambiar(data.id, data); }, remove(id) { cambiar(id, null); },
       setSettings(patch) { recargar(); cambiar('__settings', Object.assign({}, vista().settings, patch)); },
@@ -96,9 +100,43 @@
         const proposed = value.trim();
         if (!proposed) throw new Error('Escribe el token de acceso.');
         const body = await request('/api/estado', {}, proposed);
-        storage.setItem(TOKEN, proposed); token = proposed; recibir(body); await sync();
+        generacionAcceso++; storage.setItem(TOKEN, proposed); token = proposed; recibir(body); await sync();
       },
-      desconectar() { storage.removeItem(TOKEN); token = ''; status = 'Guardado en este dispositivo'; emit(); },
+      async restaurarSesion() {
+        if(cuenta){await sync();return;}
+        if (token) { await sync(); return; }
+        const generacion = generacionAcceso;
+        try {
+          const data = await request('/api/dispositivos/sesion');
+          if (generacion !== generacionAcceso) return;
+          sesionCookie = data.conectado === true;
+          if (sesionCookie) storage.setItem(SESION, 'si'); else storage.removeItem(SESION);
+          if (sesionCookie) await sync(); else { status = 'Guardado en este dispositivo'; emit(); }
+        } catch { /* Sin internet se conserva la sesión conocida y la cola local. */ }
+      },
+      async activarDispositivo(enlace) {
+        generacionAcceso++;
+        await request('/api/dispositivos/activar', { method: 'POST', body: JSON.stringify({ enlace }) }, '');
+        sesionCookie = true; storage.setItem(SESION, 'si'); storage.removeItem(TOKEN); token = '';
+        await sync(); emit();
+      },
+      async desconectar() {
+        if(cuenta){await cerrarSesion?.();return;}
+        generacionAcceso++;
+        if (sesionCookie) {
+          try { await request('/api/dispositivos/sesion', { method: 'DELETE', body: '{}' }); }
+          catch (error) { if (error.status !== 401) throw error; }
+        }
+        storage.removeItem(TOKEN); storage.removeItem(SESION); token = ''; sesionCookie = false;
+        status = 'Guardado en este dispositivo'; emit();
+      },
+      importarLegado(ops){
+        if(!cuenta?.recuperarLegado||cuenta.rol!=='admin'||cuenta.aal!=='aal2')throw new Error('Solo el propietario verificado puede recuperar su copia anterior.');
+        recargar();const next=clone(state);let cantidad=0;
+        for(const op of ops){if(!op||typeof op.id!=='string'||!Number.isInteger(op.baseVersion)||op.baseVersion<0||next.pending.some(x=>x.id===op.id))continue;
+          next.pending.push({id:op.id,data:clone(op.data),baseVersion:op.baseVersion,mutationId:uuid()});cantidad++;}
+        guardar(next);emit();void sync();return cantidad;
+      },
       resolver(id, conservarLocal) {
         recargar(); const conflict = state.conflicts.find(c => c.id === id); if (!conflict) return;
         const next = clone(state), pending = next.pending.find(p => p.id === id);
@@ -108,7 +146,7 @@
         else next.pending = next.pending.filter(p => p.id !== id);
         guardar(next); emit(); void sync();
       },
-      actualizar() { recargar(); token = storage.getItem(TOKEN) || ''; emit(); }, sync,
+      actualizar() { recargar(); token = storage.getItem(TOKEN) || ''; sesionCookie = storage.getItem(SESION) === 'si'; emit(); }, sync,
       conexiones() { return request('/api/conexiones'); },
       renovarCalendario() { return request('/api/calendario/renovar', { method: 'POST', body: '{}' }); },
     };

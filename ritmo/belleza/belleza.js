@@ -2,6 +2,14 @@
    Guarda en tu cuenta (capacidad db de Claude) cuando está disponible y, si no, en este dispositivo. */
 (() => {
   'use strict';
+  // El secreto de un solo uso no llega al servidor en la URL ni permanece en el historial.
+  function tomarEnlaceActivacion() {
+    if (!location.hash.startsWith('#activar-dispositivo=')) return '';
+    const enlace = location.hash.slice('#activar-dispositivo='.length);
+    history.replaceState(null, '', location.pathname + location.search);
+    return enlace;
+  }
+  let enlaceActivacion = tomarEnlaceActivacion();
   const C = window.RitmoCore;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -185,17 +193,30 @@
   const Store = (() => {
     if (window.claude && typeof window.claude.use === 'function') return ClaudeStore;
     const listeners = new Set();
-    let sync;
+    let sync,cuentaActual=null;
     const emit = () => listeners.forEach(f => f());
     const seguro = fn => { try { fn(); return true; } catch { toast('No se pudo guardar. Libera espacio en este dispositivo y vuelve a intentar.'); return false; } };
     return {
       get items() { return sync ? sync.items : new Map(); }, get settings() { return sync ? sync.settings : DEFAULTS; },
       get ready() { return !!sync; }, get mode() { return sync?.connected ? 'servidor' : 'local'; },
-      get sync() { return sync; }, onChange: f => listeners.add(f),
-      init() {
-        try { sync = window.BellezaSync.crear({ storage: localStorage, fetcher: (...args) => fetch(...args), defaults: DEFAULTS, onChange: emit }); }
+      get sync() { return sync; }, get recuperarLegado(){return cuentaActual?.recuperarLegado===true;}, onChange: f => listeners.add(f),
+      async init() {
+        let scoped=false,previa='';
+        async function preparar(){
+          scoped=await window.AgendappxCuentas?.modo?.()||false;
+          const cuenta=scoped?await window.AgendappxCuentas.sesion():null;cuentaActual=cuenta;
+          const identidad=scoped?(cuenta?[cuenta.usuarioId,cuenta.negocioId,cuenta.rol,cuenta.aal].join(':'):'sin-sesion'):'heredada';
+          if(sync&&previa===identidad)return;
+          previa=identidad;
+          const prefijo='agendappx.cuenta.'+identidad+'.';
+          const storage=scoped?{getItem:k=>localStorage.getItem(prefijo+k),setItem:(k,v)=>localStorage.setItem(prefijo+k,v),removeItem:k=>localStorage.removeItem(prefijo+k)}:localStorage;
+          const cambio=()=>{if(previa===identidad)emit();};
+          sync=window.BellezaSync.crear({storage,fetcher:(...args)=>fetch(...args),defaults:DEFAULTS,onChange:cambio,cuenta,obtenerSesion:()=>window.AgendappxCuentas.sesion(),cerrarSesion:()=>window.AgendappxCuentas.salir()});
+          emit();if(!scoped||cuenta)void sync.restaurarSesion();
+        }
+        try { await preparar(); }
         catch { toast('No se pudo abrir el almacenamiento. Revisa el espacio disponible y vuelve a abrir la app.'); return; }
-        emit(); void sync.sync();
+        document.addEventListener('agendappx:sesion',()=>void preparar());
         window.addEventListener('online', () => void sync.sync());
         window.addEventListener('storage', () => sync.actualizar());
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void sync.sync(); });
@@ -360,10 +381,9 @@
       <p class="gh">Calendarios</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#4285F4">G</span><span class="l">Google Calendar<small>Cada cita tiene su botón «Agregar a Google Calendar»</small></span></div>
-        <button type="button" class="cell" data-act="exportar-ics"><span class="ico" style="background:#FF3B30">31</span><span class="l">Apple Calendar<small>Descarga tus citas en un archivo de calendario</small></span><span class="chev">${I.chev}</span></button>
-        ${Store.sync ? `<button type="button" class="cell" data-act="suscripcion"><span class="l">Suscribir Apple o Google Calendar<small>Enlace privado que refleja los cambios de tu agenda</small></span><span class="chev">${I.chev}</span></button>` : ''}
+        <button type="button" class="cell" data-act="suscripcion"><span class="ico" style="background:#FF3B30">31</span><span class="l">Apple Calendar<small>Abre tu calendario o agrega una copia de tus citas</small></span><span class="chev">${I.chev}</span></button>
       </div>
-      <p class="foot">La suscripción requiere conectar tu servidor. Cada calendario decide cuándo actualizar las citas.</p>
+      <p class="foot">Activa tu dispositivo una sola vez para suscribirte. Apple decide cuándo refrescar los cambios.</p>
       <p class="gh">WhatsApp</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#25D366">✓</span><span class="l">Confirmar al agendar</span>${sw('waConfirm', s.waConfirm, 'Confirmar al agendar')}</div>
@@ -371,10 +391,10 @@
         <div class="cell"><span class="ico" style="background:#25D366">♡</span><span class="l">Gracias y pedir reseña</span>${sw('waGracias', s.waGracias, 'Gracias y pedir reseña')}</div>
         <button type="button" class="cell" data-act="recordatorios"><span class="l">Recordatorios de mañana</span><span class="v">${recordar.length}</span><span class="chev">${I.chev}</span></button>
         <button type="button" class="cell" data-act="mensajes"><span class="l">Editar mensajes</span><span class="chev">${I.chev}</span></button>
-        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Automatización de WhatsApp<small>Estado del número oficial y de los envíos</small></span><span class="chev">${I.chev}</span></button>` : ''}
+        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Mensajes de WhatsApp<small>Vincular tu número por código y revisar la conexión</small></span><span class="chev">${I.chev}</span></button>` : ''}
       </div>
       <div class="bubble">${esc(fill(s.tplRecordar, recordar[0] || { date: man, start: '10:00', servicio: (list('servicio')[0] || {}).id, clienta: (list('clienta')[0] || {}).id }))}</div>
-      <p class="foot">El envío manual sigue disponible. La automatización requiere el número oficial, consentimiento de la clienta y una ventana gratuita de conversación abierta.</p>
+      <p class="foot">Vincula el WhatsApp del salón desde Mensajes de WhatsApp. Los envíos automáticos requieren consentimiento y su configuración previa.</p>
       <p class="gh">Grupos de Facebook</p>
       <div class="group">${grupos.map(g => `<button type="button" class="cell" data-grupo="${esc(g.id)}"><span class="ico" style="background:#1877F2">f</span><span class="l">${esc(g.nombre)}</span><span class="chev">${I.chev}</span></button>`).join('')}
         <button type="button" class="cell" data-act="nuevo-grupo" style="color:var(--acc)"><span class="l">Agregar grupo</span></button></div>
@@ -394,28 +414,66 @@
   }
 
   // ---------- Hojas ----------
+  function sheetAccesoAdmin(){openSheet(navSheet('Acceso de Admin','Listo')+'<div id="wa-acceso"></div>','Acceso de Admin',root=>{void window.AgendappxCuentas?.montar($('#wa-acceso',root));root.addEventListener('click',e=>{if(e.target.closest('[data-close],[data-done]'))closeSheet();});});}
+  document.addEventListener('agendappx:abrir-acceso',sheetAccesoAdmin);
   async function sheetConexion(tipo) {
+    if (tipo === 'whatsapp' && window.AgendappxWhatsApp) {
+      openSheet(navSheet('Mensajes de WhatsApp', 'Listo') + '<div id="wa-vinculacion"></div>', 'Vincular WhatsApp', root => {
+        window.AgendappxWhatsApp.montar($('#wa-vinculacion', root), {
+          obtenerSesion: () => window.AgendappxCuentas?.sesion(),
+          abrirAcceso: sheetAccesoAdmin,
+        });
+        root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
+      });
+      return;
+    }
     const sync = Store.sync;
-    if (!sync?.connected) { toast('Primero conecta tu servidor en Sincronización.'); return; }
-    const titulo = tipo === 'calendario' ? 'Suscribir calendario' : 'WhatsApp automático';
+    if (tipo === 'calendario' && !sync?.connected) {
+      openSheet(`${navSheet('Apple Calendar', 'Listo')}<p class="foot">Para que tus citas se actualicen, activa este dispositivo con tu enlace privado. Solo se hace una vez y no necesitas pegar claves.</p>
+        <p class="foot">Si aún no tienes el enlace, solicita la activación de este celular. Mientras tanto puedes agregar una copia de las citas guardadas aquí.</p>
+        <button class="cta" type="button" id="calendar-activate">Activar sincronización</button>
+        <button class="cell" type="button" id="calendar-local">Agregar mis citas (.ics)</button>
+        <p class="foot">La copia no recibe cambios posteriores. La suscripción privada sí refleja las citas que sincronices.</p>`, 'Apple Calendar', root => {
+          root.addEventListener('click', e => {
+            if (e.target.closest('[data-close],[data-done]')) closeSheet();
+            if (e.target.closest('#calendar-local')) void exportarICS();
+            if (e.target.closest('#calendar-activate')) sheetActivacion();
+          });
+        });
+      return;
+    }
+    if (!sync?.connected) { sheetServidor(); return; }
+    const titulo = tipo === 'calendario' ? 'Apple Calendar' : 'WhatsApp automático';
     const done = root => root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
     openSheet(navSheet(titulo, 'Listo') + '<p class="foot">Consultando tu servidor…</p>', titulo, done);
     const panel = card;
     try {
+      if (tipo === 'calendario') {
+        await sync.sync();
+        if (!sync.connected) { await sheetConexion('calendario'); return; }
+      }
       const data = await sync.conexiones();
       if (card !== panel || !S.sheetOpen) return;
       const mostrar = value => {
         if (tipo === 'calendario') {
-          openSheet(`${navSheet(titulo, 'Listo')}<p class="foot">Este enlace es privado. Quien lo tenga podrá consultar las citas.</p>
+          const pendientes = sync.pending.length;
+          const aviso = pendientes || sync.conflicts.length ? `<p class="foot" role="status">Hay cambios pendientes de sincronizar. Apple mostrará las citas ya guardadas en el servidor. Tus cambios de este dispositivo se conservan.</p><button type="button" class="cell" id="calendar-review">Revisar cambios pendientes</button>` : '';
+          openSheet(`${navSheet(titulo, 'Listo')}<p class="foot">Confirma «Suscribirse» en Apple para ver tus citas. También puedes suscribirte si la agenda está vacía.</p>${aviso}
+            <a class="cta" style="text-decoration:none" href="${esc(value.calendarioUrl.replace(/^https?:/, 'webcal:'))}">Abrir Apple Calendar</a>
+            <p class="foot">Los cambios se hacen en Agendappx y Apple los refresca periódicamente. La suscripción es de lectura.</p>
+            <button type="button" class="cell" id="calendar-local">Agregar una copia de mis citas (.ics)</button>
+            <details><summary class="cell">Google y opciones del calendario</summary>
+            <p class="foot">Este enlace es privado. Quien lo tenga podrá consultar las citas.</p>
             <div class="group" style="margin-top:14px"><label class="cell"><textarea class="in" readonly aria-label="Enlace privado del calendario">${esc(value.calendarioUrl)}</textarea></label></div>
             <button class="cta" type="button" id="calendar-copy">Copiar enlace</button>
-            <a class="cell" href="${esc(value.calendarioUrl.replace(/^https?:/, 'webcal:'))}">Abrir suscripción en Apple Calendar</a>
-            <p class="foot">En Google Calendar, desde su sitio web: Otros calendarios → Desde URL. Pega el enlace copiado. Es una suscripción de lectura; Google puede tardar en actualizarla.</p>
+            <p class="foot">En Google Calendar, desde su sitio web: Otros calendarios → Desde URL. Pega el enlace copiado. Google decide cuándo actualizarlo.</p>
             <button class="cell danger" type="button" id="calendar-rotate">Renovar enlace privado</button>
-            <p class="foot" id="calendar-status">Renovar invalida las suscripciones anteriores.</p>`, titulo, root => {
+            <p class="foot" id="calendar-status">Renovar invalida las suscripciones anteriores.</p></details>`, titulo, root => {
               done(root);
               root.addEventListener('click', async e => {
                 const b = e.target.closest('button'); if (!b) return;
+                if (b.id === 'calendar-review') sheetServidor();
+                if (b.id === 'calendar-local') void exportarICS();
                 if (b.id === 'calendar-copy') {
                   try { await navigator.clipboard.writeText(value.calendarioUrl); $('#calendar-status', root).textContent = 'Enlace copiado.'; }
                   catch { $('#calendar-status', root).textContent = 'Selecciona el enlace y cópialo manualmente.'; }
@@ -438,11 +496,56 @@
       };
       mostrar(data);
     } catch {
-      if (card === panel && S.sheetOpen) openSheet(navSheet(titulo, 'Listo') + '<p class="foot">No se pudo consultar el servidor. Revisa tu conexión e intenta de nuevo.</p>', titulo, done);
+      if (card === panel && S.sheetOpen) {
+        if (tipo !== 'calendario') { openSheet(navSheet(titulo, 'Listo') + '<p class="foot">No se pudo consultar el servidor. Intenta de nuevo cuando tengas conexión.</p>', titulo, done); return; }
+        openSheet(`${navSheet(titulo, 'Listo')}<p class="foot" role="status">No se pudo consultar el calendario en este momento. Tus citas siguen guardadas en este dispositivo.</p>
+          <button type="button" class="cta" id="calendar-retry">Reintentar conexión</button>
+          <button type="button" class="cell" id="calendar-review">Revisar sincronización</button>
+          <button type="button" class="cell" id="calendar-local">Agregar una copia de mis citas (.ics)</button>`, titulo, root => {
+            done(root);
+            root.addEventListener('click', e => {
+              if (e.target.closest('#calendar-retry')) void sheetConexion('calendario');
+              if (e.target.closest('#calendar-review')) sheetServidor();
+              if (e.target.closest('#calendar-local')) void exportarICS();
+            });
+          });
+      }
     }
   }
+  function sheetActivacion(invitacion = '') {
+    const entrada = invitacion ? '' : `<label class="cell"><span class="l">Enlace privado de activación<input class="in" id="device-link" type="url" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Enlace privado de activación" placeholder="Pega tu enlace de activación"></span></label>`;
+    openSheet(`${navSheet('Activar este dispositivo', 'Cancelar')}<p class="foot">Este enlace permite ver y editar la agenda del salón. Actívalo en el dispositivo donde ya usas Agendappx.</p>
+      <p class="foot">Tus citas guardadas aquí se conservarán. Si hay diferencias, podrás elegir qué versión conservar.</p>${entrada}
+      <button type="button" class="cta" id="device-activate">Activar y abrir Apple Calendar</button>
+      <p class="foot" id="device-status" role="status"></p>`, 'Activar este dispositivo', root => {
+        root.addEventListener('click', async e => {
+          if (e.target.closest('[data-close],[data-done]')) { invitacion = ''; closeSheet(); return; }
+          const b = e.target.closest('#device-activate'); if (!b) return;
+          let enlace = invitacion;
+          if (!enlace) {
+            try {
+              const url = new URL($('#device-link', root).value.trim());
+              if (url.origin !== location.origin || !url.hash.startsWith('#activar-dispositivo=')) throw new Error('otro origen');
+              enlace = url.hash.slice('#activar-dispositivo='.length);
+            } catch { $('#device-status', root).textContent = 'Pega el enlace privado de activación de esta página.'; return; }
+          }
+          b.disabled = true;
+          try {
+            await Store.sync.activarDispositivo(enlace); invitacion = '';
+            if (card !== root || !S.sheetOpen) return;
+            closeSheet(); await sheetConexion('calendario');
+          } catch (error) {
+            if (card !== root || !S.sheetOpen) return;
+            $('#device-status', root).textContent = error.status === 410 ? 'El enlace venció o ya se utilizó. Solicita otro enlace privado.' : 'No se pudo activar. Revisa tu conexión e intenta de nuevo.'; b.disabled = false;
+          }
+        });
+      });
+  }
+
   function sheetServidor() {
     const sync = Store.sync;
+    const cuentas=localStorage.getItem('agendappx.cuentas.activas')==='si';
+    let legado=[];try{if(Store.recuperarLegado){const anterior=JSON.parse(localStorage.getItem('belleza.v1.sync')||'null');const recuperadas=new Set(JSON.parse(localStorage.getItem('agendappx.legado.recuperado')||'[]'));legado=(anterior?.pending||[]).filter(x=>!recuperadas.has(x.mutationId));}}catch{}
     const resumen = data => {
       if (data === null) return 'Registro eliminado';
       const labels = { nombre: 'Nombre', telefono: 'WhatsApp', notas: 'Notas', titulo: 'Título', texto: 'Texto', etiqueta: 'Etiqueta',
@@ -467,21 +570,29 @@
       return `<p class="gh">${esc(local?.data?.nombre || local?.data?.titulo || c.data?.nombre || c.id)}</p><div class="group"><div class="cell"><span class="l">En este dispositivo<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(local?.data ?? null))}</small></span></div><div class="cell"><span class="l">En el servidor<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(c.data))}</small></span></div><button type="button" class="cell" data-conflicto="${esc(c.id)}" data-local="1">Conservar este dispositivo</button><button type="button" class="cell" data-conflicto="${esc(c.id)}">Conservar el servidor</button></div>`;
     }).join('');
     openSheet(`${navSheet('Sincronización', 'Listo')}<p class="foot" role="status" id="sync-status">${esc(sync.status)} · ${sync.pending.length} cambios pendientes.</p>
-      <p class="gh">Tu servidor</p><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
+      <p class="foot">${cuentas?'La agenda se sincroniza con tu cuenta. Los datos anteriores de este dispositivo se conservan por separado.':'Activa este celular abriendo tu enlace privado de Agendappx. Después la sincronización se mantiene automáticamente.'}</p>${legado.length?`<div class="group"><p class="foot">Hay ${legado.length} cambios anteriores guardados en este dispositivo. Puedes recuperarlos y revisar las diferencias antes de elegir qué conservar.</p><button type="button" class="cell" id="sync-legado">Recuperar cambios anteriores</button></div>`:''}
+      ${!sync.connected ? `<button type="button" class="cta" id="sync-activate">${cuentas?'Iniciar sesión':'Activar este dispositivo'}</button>` : ''}
+      ${cuentas?'':`<details><summary class="cell">Configuración avanzada</summary><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
       <p class="foot">Usa el APP_TOKEN de tu servidor. Se guarda en este dispositivo y se envía únicamente a esta misma dirección.</p>
-      <button type="button" class="cta" id="sync-connect">Conectar</button>
+      <button type="button" class="cta" id="sync-connect">Conectar</button></details>`}
       ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${conflicto}`,
     'Sincronización', root => {
       const feedback = message => { $('#sync-status', root).textContent = message; };
       root.addEventListener('click', async e => {
         const b = e.target.closest('button'); if (!b) return;
-        if (b.id === 'sync-connect') {
+        if (b.id === 'sync-activate') { if(cuentas)sheetAccesoAdmin();else sheetActivacion(); }
+        else if(b.id==='sync-legado'){if(!confirm('Se conservará la copia anterior y se enviarán estos cambios con tu cuenta. Si hay diferencias podrás elegir qué versión conservar. ¿Recuperarlos?'))return;try{sync.importarLegado(legado);const prev=JSON.parse(localStorage.getItem('agendappx.legado.recuperado')||'[]');localStorage.setItem('agendappx.legado.recuperado',JSON.stringify([...new Set([...prev,...legado.map(x=>x.mutationId)])]));await sync.sync();sheetServidor();}catch(err){feedback(err.message);}}
+        else if (b.id === 'sync-connect') {
           b.disabled = true;
           try { await sync.conectar($('#sync-token', root).value); sheetServidor(); }
           catch (error) { feedback(error.status === 401 ? 'El token no es válido.' : 'No se pudo conectar. Revisa el token y tu conexión.'); }
           finally { b.disabled = false; }
         } else if (b.id === 'sync-now') { await sync.sync(); sheetServidor(); }
-        else if (b.id === 'sync-disconnect') { sync.desconectar(); sheetServidor(); }
+        else if (b.id === 'sync-disconnect') {
+          b.disabled = true;
+          try { await sync.desconectar(); sheetServidor(); }
+          catch { feedback('No se pudo desconectar. Revisa tu conexión e intenta otra vez.'); b.disabled = false; }
+        }
         else if (b.dataset.conflicto) { sync.resolver(b.dataset.conflicto, !!b.dataset.local); sheetServidor(); }
         else if (b.hasAttribute('data-done') || b.hasAttribute('data-close')) closeSheet();
       });
@@ -527,7 +638,7 @@
       <p class="gh">Clienta</p>
       <div class="group"><label class="cell"><span class="sr">Clienta</span><select class="in left" id="c-cli"><option value="">Elige una clienta</option>${clis.map(k => `<option value="${esc(k.id)}" ${k.id === st.clienta ? 'selected' : ''}>${esc(k.nombre)}</option>`).join('')}<option value="__nueva">＋ Nueva clienta</option></select></label>
         <label class="cell" id="c-new1" hidden><span class="l">Nombre</span><input class="in" id="c-nombre" placeholder="Nombre y apellido" autocomplete="off"></label>
-        <label class="cell" id="c-new2" hidden><span class="l">WhatsApp</span><input class="in" id="c-tel" type="tel" inputmode="tel" placeholder="55 1234 5678"></label></div>
+        <label class="cell" id="c-new2" hidden><span class="l">WhatsApp</span><input class="in" id="c-tel" type="tel" inputmode="tel" placeholder="55 1234 5678"></label><label class="cell" id="c-new-consent" hidden><span class="l">Acepta avisos de sus citas por WhatsApp</span><input type="checkbox" id="c-optin"></label></div>
       <p class="gh">Servicio</p>
       <div class="hscroll" id="c-svcs">${svcs.map(s => `<button type="button" class="svc" data-svc="${esc(s.id)}" aria-pressed="${s.id === st.servicio}"><b>${esc(s.nombre)}</b><span>${s.duracion} min · ${money(s.precio)}</span></button>`).join('') || '<p class="foot">Primero agrega un servicio en la pestaña Servicios.</p>'}</div>
       <p class="gh">Fecha</p>
@@ -536,7 +647,7 @@
       <div class="slots" id="c-slots"></div>
       <p class="gh">Notas</p>
       <div class="group"><label class="cell"><span class="sr">Notas</span><textarea class="in" id="c-notas" placeholder="Diseño, color, alergias…">${esc(edit ? edit.notas : '')}</textarea></label></div>
-      ${edit ? '' : `<p class="gh">Al guardar</p><div class="group"><div class="cell"><span class="ico" style="background:#25D366">W</span><span class="l">Enviar confirmación por WhatsApp</span><button type="button" class="sw" role="switch" id="c-wa" aria-checked="${!!Store.settings.waConfirm}" aria-label="Enviar confirmación por WhatsApp"></button></div></div>`}
+      ${edit || localStorage.getItem('agendappx.cuentas.activas')==='si' ? '' : `<p class="gh">Al guardar</p><div class="group"><div class="cell"><span class="ico" style="background:#25D366">W</span><span class="l">Enviar confirmación por WhatsApp</span><button type="button" class="sw" role="switch" id="c-wa" aria-checked="${!!Store.settings.waConfirm}" aria-label="Enviar confirmación por WhatsApp"></button></div></div>`}
       <button type="button" class="cta" id="c-go" data-done></button>`, 'Nueva cita', root => {
       const slotsEl = $('#c-slots', root), go = $('#c-go', root);
       const drawSlots = () => {
@@ -550,7 +661,7 @@
       drawSlots();
       $('#c-cli', root).addEventListener('change', e => {
         st.nueva = e.target.value === '__nueva'; st.clienta = st.nueva ? '' : e.target.value;
-        $('#c-new1', root).hidden = $('#c-new2', root).hidden = !st.nueva;
+        $('#c-new1', root).hidden = $('#c-new2', root).hidden = $('#c-new-consent',root).hidden = !st.nueva;
         if (st.nueva) $('#c-nombre', root).focus();
       });
       $('#c-date', root).addEventListener('change', e => { if (C.isKey(e.target.value)) { st.date = e.target.value; st.start = ''; drawSlots(); } });
@@ -567,7 +678,7 @@
             const nombre = $('#c-nombre', root).value.trim();
             if (!nombre) { toast('Escribe el nombre de la clienta.'); $('#c-nombre', root).focus(); return; }
             cliId = newId();
-            if (!save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), notas: '' })) return;
+            if (!save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), whatsappOptIn:$('#c-optin',root).checked, notas: '' })) return;
           }
           if (!cliId) { toast('Elige una clienta.'); return; }
           if (!st.servicio) { toast('Elige un servicio.'); return; }
@@ -607,10 +718,12 @@
         ${c.notas ? `<div class="cell"><span class="l" style="white-space:pre-wrap">${esc(c.notas)}</span></div>` : ''}</div>
       <p class="gh">Estado</p>
       <div class="group">${ESTADOS.map(([v, n]) => `<button type="button" class="cell" data-estado="${v}"><span class="l">${n}</span>${c.estado === v ? `<span style="color:var(--acc)">${I.check}</span>` : ''}</button>`).join('')}</div>
-      <p class="gh">Mensajes</p>
+      <div id="wa-cita"></div>
+      <p class="gh">Mensajes manuales</p>
       <div class="group">${msg('confirmacion', tpl.tplConfirm, 'Confirmación')}${msg('recordatorio', tpl.tplRecordar, 'Recordatorio')}${msg('gracias', tpl.tplGracias, 'Gracias y reseña')}
         <a class="cell" href="${esc(gcalLink(c))}" target="_blank" rel="noopener"><span class="ico" style="background:#4285F4">G</span><span class="l">Agregar a Google Calendar</span><span class="chev">${I.chev}</span></a></div>
       <div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar cita</button></div>`, 'Cita', root => {
+      window.AgendappxWhatsApp?.montarCita?.($('#wa-cita',root),{id,obtenerSesion:()=>window.AgendappxCuentas?.sesion(),prepararFoto,alRecibir:()=>{const actual=byId(id);if(actual&&!['cancelada','completada'].includes(actual.estado)){save({...actual,estado:'confirmada'});void Store.sync?.sync();}}});
       root.addEventListener('click', e => {
         const b = e.target.closest('[data-close],[data-edit],[data-estado],[data-del]');
         if (!b) return;
@@ -836,11 +949,13 @@
   async function exportarICS() {
     const citas = list('cita').filter(c => c.estado !== 'cancelada');
     if (!citas.length) { toast('Aún no hay citas.'); return; }
-    const items = citas.map(c => ({ id: c.id, type: 'event', title: `${svcOf(c).nombre} · ${cliOf(c).nombre}`, date: c.date, start: c.start, end: C.fromMin(Math.min(endOf(c), 1439)), allDay: false, days: 1, repeat: null, category: 'personal', location: Store.settings.negocio, notes: c.notas || '' }));
-    const data = new Blob([C.zip([{ name: 'citas.ics', data: C.toICS(items, { tz: TZ }) }])]);
-    const name = `citas-${today()}.zip`;
+    const items = citas.map(c => ({ id: c.id, type: 'event', title: `${svcOf(c).nombre} · ${cliOf(c).nombre}`, date: c.date, start: c.start, end: C.fromMin(Math.min(endOf(c), 1439)), allDay: false, days: 1, repeat: null, category: 'personal', location: Store.settings.negocio, notes: '' }));
+    const contenido = C.toICS(items, { tz: TZ }).replace('PRODID:-//Ritmo//Agenda//ES', 'PRODID:-//Agendappx//Agenda//ES')
+      .replace('X-WR-CALNAME:Ritmo', 'X-WR-CALNAME:Agendappx').replace(/^(UID:[^\r\n]+)@ritmo(?=\r?$)/gm, '$1@ritmo-belleza');
+    const data = new Blob([contenido], { type: 'text/calendar;charset=utf-8' });
+    const name = `Agendappx-${today()}.ics`;
     const dl = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('downloads').catch(() => null) : null;
-    if (dl) { try { await dl.save({ filename: name, data }); toast('Listo. Abre citas.ics para agregarlas a tu calendario.'); } catch (e) { if (!e || e.code !== 'declined') toast('No se pudo descargar.'); } return; }
+    if (dl) { try { await dl.save({ filename: name, data }); toast('Abre el archivo .ics para agregar tus citas.'); } catch (e) { if (!e || e.code !== 'declined') toast('No se pudo descargar.'); } return; }
     if (!(window.claude && typeof window.claude.use === 'function')) {
       const url = URL.createObjectURL(data), a = document.createElement('a');
       a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
@@ -933,5 +1048,6 @@
   setInterval(() => { if (document.visibilityState === 'visible' && !S.sheetOpen && S.tab === 'agenda') render(); }, 60000);
 
   Store.onChange(render);
-  Store.init();
+  void Promise.resolve(Store.init()).then(() => { if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); } });
+  window.addEventListener('hashchange', () => { const enlace = tomarEnlaceActivacion(); if (enlace && Store.sync) sheetActivacion(enlace); });
 })();

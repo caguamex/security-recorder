@@ -110,3 +110,19 @@ Una sesión aislada que tenía el diseño anterior recibió el aviso real, actua
 Antonio eligió Agendappx y confirmó su publicación. La versión final es `141500c2-0639-423f-a707-3b835d51ea65`. Se actualizan título, manifest (`name` y `short_name`), metadatos de instalación (`apple-mobile-web-app-title` y `application-name`) y nombre visible del calendario. Conserva URL, identidad de instalación, UID de eventos, claves, almacenamiento y prefijo de caché. No crea recursos ni cambia planes.
 
 El primer intento devolvió el error 10013 de Cloudflare al iniciar la carga; el reintento publicó correctamente. Una primera sesión conservó el título anterior; se completó el metadato genérico de nombre y una nueva publicación renovó la caché. La verificación final mantuvo una sesión abierta, recibió el aviso real, actualizó y confirmó título, manifest y metadatos Agendappx también al recargar. Salud respondió 200 y el calendario privado mostró `X-WR-CALNAME:Agendappx`. No se escribieron registros ni se cambiaron claves en producción. El nombre del ícono en instalaciones anteriores depende de la actualización de metadatos del navegador y no se verificó físicamente en el celular.
+
+## Apple Calendar y activación privada publicados — 26 de octubre de 2026
+
+Antonio respondió «Implementa» a la pregunta de publicar la corrección y preparar la activación de su celular. Se publicó desde `codex/agendappx-calendario-sin-claves`, commit de aplicación `69a6537`, PR #4: Worker `48604e6c-0f36-4ce6-9961-a9e2740f3b6c`. Incluye .ics directo, acceso por enlace de un solo uso y sesión HttpOnly del propietario. No incluye los PR #2/#3 de cuentas y WhatsApp.
+
+La verificación real de backend y navegador pasó; la sesión temporal de prueba se revocó y las citas/ajustes conservaron su misma huella antes/después. No se modificaron planes, recursos, claves ni permisos de base; la tabla privada existente guarda únicamente huellas y caducidades. No hubo migraciones. El celular se activa mediante una confirmación de Antonio, conservando su cola local. Detalle: [CALENDARIO-APPLE.md](CALENDARIO-APPLE.md).
+
+Reparación posterior del mismo flujo: Worker `cc592c8f-29ce-4bb5-a8a4-1be92a5018b1`, commit de aplicación `6eb81b3`. Corrige el bloqueo innecesario al suscribirse con diferencias pendientes. Se conservan sesión, cola y conflictos; la UI advierte sobre lo aún no sincronizado y permite revisar/reintentar. Verificación del archivo publicado, salud 200 y privacidad 401 correctas. Sin cambios de claves, datos, esquema ni planes.
+
+## Cuentas mínimas y WhatsApp publicados — 27 de octubre de 2026
+
+Antonio autorizó respaldo, migración y publicación con «okey, hazlo». Worker vigente `49605020-f7e9-4403-8a0d-8b51ab3c3743`, misma URL. Activadas cuentas Supabase firmadas con TOTP Admin y rutas por salón; APP_TOKEN ya no da acceso a agenda ni WhatsApp. Se conservaron exactamente las siete tablas originales del respaldo y el feed privado anterior. Los cambios locales heredados se conservan y el dueño puede recuperarlos con conflictos explícitos.
+
+`WHATSAPP_REMITENTE=vinculado`: Cloudflare no envía ni procesa el webhook de Meta. El proxy apunta al servicio separado `agendappx-whatsapp` de Railway; una réplica, 0.5 GB/0.1 vCPU, salud 200, sin teléfono ni envíos habilitados. Inicio real 2026-10-27T19:11:09.551883275Z; detalle en SIGUIENTE-WHATSAPP.md. La clave Admin de Supabase nunca se cargó en Cloudflare ni Railway; el frontend solo recibe clave publicable. No se renombró infraestructura, compró dominio ni modificó FiNeCi.
+
+Verificación publicada: salud/configuración/página 200, datos y control sin identidad 401 incluso con APP_TOKEN, Meta 503, calendario original 200 sin notas. Acceso Admin sin SMS visible en Edge a 390 px sin errores ni desbordamiento. El dueño debe completar TOTP en su teléfono; vinculación y primer mensaje requieren aprobaciones separadas.
