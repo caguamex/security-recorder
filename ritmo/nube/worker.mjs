@@ -36,7 +36,7 @@ const whatsapp = new WhatsApp(pool, repo, {
   token: env.WHATSAPP_TOKEN, phoneId: env.WHATSAPP_PHONE_ID, verifyToken: env.WHATSAPP_VERIFY_TOKEN,
   appSecret: env.WHATSAPP_APP_SECRET, version: env.WHATSAPP_API_VERSION, tz: env.TZ,
 });
-const jwt = env.SUPABASE_URL ? new VerificadorJWT(env.SUPABASE_URL) : {verificar: async () => { throw new Error('Falta configurar el acceso.'); }};
+const jwt = env.SUPABASE_URL ? new VerificadorJWT(env.SUPABASE_URL,{permitirAnonimos: env.AGENDAPPX_INVITACIONES_TEMPORALES === 'true'}) : {verificar: async () => { throw new Error('Falta configurar el acceso.'); }};
 // La nueva integración exige identidad firmada y configuración expresa. Nunca usa APP_TOKEN.
 const vinculacion = env.WHATSAPP_REMITENTE === 'vinculado' && env.WA_SERVICIO_URL
   ? proxyWhatsApp(env.WA_SERVICIO_URL, env.PUBLIC_URL, jwt)
@@ -50,7 +50,7 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
   migracion: {soloLectura: env.MIGRATION_READ_ONLY === 'true', exportar: async () => null},
   cuentas: rutasCuentas(pool, jwt, {
     habilitado: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true', supabaseURL: env.SUPABASE_URL,
-    llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL, migracionUsuarioId: env.MIGRACION_USUARIO_ID,
+    llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL, migracionUsuarioId: env.MIGRACION_USUARIO_ID, claveLimite: env.APP_TOKEN, turnstileSiteKey: env.TURNSTILE_SITE_KEY, temporales: env.AGENDAPPX_INVITACIONES_TEMPORALES === 'true',
     salones: new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').split(',').map(v=>v.trim()).filter(Boolean)),
   }), integraciones, whatsapp, vinculacion, metaHabilitado: usaMeta(env.WHATSAPP_REMITENTE), dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,
 });

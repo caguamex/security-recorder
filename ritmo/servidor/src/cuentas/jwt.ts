@@ -8,7 +8,7 @@ const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 export class VerificadorJWT {
   private emisor: string;
   private llaves: ReturnType<typeof createRemoteJWKSet>;
-  constructor(urlSupabase: string, private opciones: { fetch?: FetchImplementation; ahora?: () => Date } = {}) {
+  constructor(urlSupabase: string, private opciones: { fetch?: FetchImplementation; ahora?: () => Date; permitirAnonimos?: boolean } = {}) {
     const base = new URL(urlSupabase);
     if (base.protocol !== 'https:' || base.username || base.password || base.search || base.hash || base.pathname !== '/') {
       throw new Error('La dirección de Supabase debe ser un origen HTTPS de confianza.');
@@ -34,7 +34,7 @@ export class VerificadorJWT {
       });
       if (typeof payload.sub !== 'string' || !uuid.test(payload.sub) ||
           typeof payload.session_id !== 'string' || !uuid.test(payload.session_id) ||
-          !['aal1','aal2'].includes(String(payload.aal)) || payload.role !== 'authenticated' || payload.is_anonymous === true ||
+          !['aal1','aal2'].includes(String(payload.aal)) || payload.role !== 'authenticated' || (payload.is_anonymous === true && !this.opciones.permitirAnonimos) ||
           !Number.isSafeInteger(payload.exp) || !Number.isSafeInteger(payload.iat) ||
           payload.exp! - payload.iat! > 3600 || payload.exp! <= payload.iat!) throw invalido();
       // No devolver ni confiar en user_metadata o roles de negocio contenidos en el JWT.

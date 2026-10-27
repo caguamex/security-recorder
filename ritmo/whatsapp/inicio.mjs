@@ -10,7 +10,7 @@ try{
  pool.on('error',()=>console.warn('WhatsApp: conexión de datos pendiente.'));
  await verificarRol(pool);
  const remitente=new BaileysSoloEnvios(new (await import('../servidor/build/whatsapp-vinculado/db.js')).BaseWhatsApp(pool),config.key,{vincular:config.politica.vincular});
- app=crearAplicacion({pool,remitente,jwt:new VerificadorJWT(config.supabase),config});
+ app=crearAplicacion({pool,remitente,jwt:new VerificadorJWT(config.supabase,{permitirAnonimos:process.env.AGENDAPPX_INVITACIONES_TEMPORALES==='true'}),config});
  app.server.listen(config.port,'0.0.0.0',()=>{console.log('Agendappx: servicio de solo envíos listo.');app.iniciar();});
  let cerrando=false;const salir=async()=>{if(cerrando)return;cerrando=true;await app.cerrar();await pool.end();};
  process.on('SIGTERM',()=>void salir());process.on('SIGINT',()=>void salir());

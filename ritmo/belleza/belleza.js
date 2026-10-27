@@ -575,12 +575,12 @@
       ${cuentas?'':`<details><summary class="cell">Configuración avanzada</summary><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
       <p class="foot">Usa el APP_TOKEN de tu servidor. Se guarda en este dispositivo y se envía únicamente a esta misma dirección.</p>
       <button type="button" class="cta" id="sync-connect">Conectar</button></details>`}
-      ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${conflicto}`,
+      ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${cuentas&&sync.connected?'<button type="button" class="cell" id="sync-account">Administrar acceso</button>':''}${conflicto}`,
     'Sincronización', root => {
       const feedback = message => { $('#sync-status', root).textContent = message; };
       root.addEventListener('click', async e => {
         const b = e.target.closest('button'); if (!b) return;
-        if (b.id === 'sync-activate') { if(cuentas)sheetAccesoAdmin();else sheetActivacion(); }
+        if (b.id === 'sync-activate' || b.id === 'sync-account') { if(cuentas)sheetAccesoAdmin();else sheetActivacion(); }
         else if(b.id==='sync-legado'){if(!confirm('Se conservará la copia anterior y se enviarán estos cambios con tu cuenta. Si hay diferencias podrás elegir qué versión conservar. ¿Recuperarlos?'))return;try{sync.importarLegado(legado);const prev=JSON.parse(localStorage.getItem('agendappx.legado.recuperado')||'[]');localStorage.setItem('agendappx.legado.recuperado',JSON.stringify([...new Set([...prev,...legado.map(x=>x.mutationId)])]));await sync.sync();sheetServidor();}catch(err){feedback(err.message);}}
         else if (b.id === 'sync-connect') {
           b.disabled = true;

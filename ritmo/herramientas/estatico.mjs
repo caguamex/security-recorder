@@ -18,7 +18,7 @@ export async function estatico(req, res, root) {
     res.writeHead(200, { 'Content-Type': MIME[extname(file)], 'Content-Length': data.length,
       'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
-      'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://zkqwephmuflbuagevvxj.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" });
+      'Content-Security-Policy': "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://zkqwephmuflbuagevvxj.supabase.co https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" });
     res.end(req.method === 'HEAD' ? undefined : data);
   } catch { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('No encontrado'); }
 }
