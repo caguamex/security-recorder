@@ -1,3 +1,5 @@
+> **Actualización de alcance, 27 de octubre:** esta preparación corresponde al PR #3 anterior al commit dc15fe5. El servicio único agendappx-whatsapp exige cifrado AES-256-GCM, solo envíos y cola cada minuto. El motor, rol, bandera y pronóstico anteriores requieren adaptación después de cuentas. Consulta [SIGUIENTE-WHATSAPP.md](SIGUIENTE-WHATSAPP.md). No tratar estas pruebas como cumplimiento de la sección 6 nueva.
+
 # Vinculación de WhatsApp de Agendappx
 
 Implementación autorizada por Antonio el 26 de octubre de 2026: código de ocho caracteres, mensajes desde ese número, sesión persistente y pronóstico de consumo. Se conserva la etapa de cuentas como requisito. La aplicación publicada y FiNeCi no se han modificado.
