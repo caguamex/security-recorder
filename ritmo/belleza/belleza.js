@@ -200,10 +200,23 @@
       get items() { return sync ? sync.items : new Map(); }, get settings() { return sync ? sync.settings : DEFAULTS; },
       get ready() { return !!sync; }, get mode() { return sync?.connected ? 'servidor' : 'local'; },
       get sync() { return sync; }, onChange: f => listeners.add(f),
-      init() {
-        try { sync = window.BellezaSync.crear({ storage: localStorage, fetcher: (...args) => fetch(...args), defaults: DEFAULTS, onChange: emit }); }
+      async init() {
+        let scoped=false,previa='';
+        async function preparar(){
+          scoped=await window.AgendappxCuentas?.modo?.()||false;
+          const cuenta=scoped?await window.AgendappxCuentas.sesion():null;
+          const identidad=scoped?(cuenta?[cuenta.usuarioId,cuenta.negocioId,cuenta.rol,cuenta.aal].join(':'):'sin-sesion'):'heredada';
+          if(sync&&previa===identidad)return;
+          previa=identidad;
+          const prefijo='agendappx.cuenta.'+identidad+'.';
+          const storage=scoped?{getItem:k=>localStorage.getItem(prefijo+k),setItem:(k,v)=>localStorage.setItem(prefijo+k,v),removeItem:k=>localStorage.removeItem(prefijo+k)}:localStorage;
+          const cambio=()=>{if(previa===identidad)emit();};
+          sync=window.BellezaSync.crear({storage,fetcher:(...args)=>fetch(...args),defaults:DEFAULTS,onChange:cambio,cuenta,obtenerSesion:()=>window.AgendappxCuentas.sesion()});
+          emit();if(!scoped||cuenta)void sync.restaurarSesion();
+        }
+        try { await preparar(); }
         catch { toast('No se pudo abrir el almacenamiento. Revisa el espacio disponible y vuelve a abrir la app.'); return; }
-        emit(); void sync.restaurarSesion();
+        document.addEventListener('agendappx:sesion',()=>void preparar());
         window.addEventListener('online', () => void sync.sync());
         window.addEventListener('storage', () => sync.actualizar());
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void sync.sync(); });
@@ -378,10 +391,10 @@
         <div class="cell"><span class="ico" style="background:#25D366">♡</span><span class="l">Gracias y pedir reseña</span>${sw('waGracias', s.waGracias, 'Gracias y pedir reseña')}</div>
         <button type="button" class="cell" data-act="recordatorios"><span class="l">Recordatorios de mañana</span><span class="v">${recordar.length}</span><span class="chev">${I.chev}</span></button>
         <button type="button" class="cell" data-act="mensajes"><span class="l">Editar mensajes</span><span class="chev">${I.chev}</span></button>
-        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Automatización de WhatsApp<small>Vincular tu número por código y revisar la conexión</small></span><span class="chev">${I.chev}</span></button>` : ''}
+        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Mensajes de WhatsApp<small>Vincular tu número por código y revisar la conexión</small></span><span class="chev">${I.chev}</span></button>` : ''}
       </div>
       <div class="bubble">${esc(fill(s.tplRecordar, recordar[0] || { date: man, start: '10:00', servicio: (list('servicio')[0] || {}).id, clienta: (list('clienta')[0] || {}).id }))}</div>
-      <p class="foot">Vincula el WhatsApp del salón desde Automatización de WhatsApp. Los envíos automáticos requieren consentimiento y su configuración previa.</p>
+      <p class="foot">Vincula el WhatsApp del salón desde Mensajes de WhatsApp. Los envíos automáticos requieren consentimiento y su configuración previa.</p>
       <p class="gh">Grupos de Facebook</p>
       <div class="group">${grupos.map(g => `<button type="button" class="cell" data-grupo="${esc(g.id)}"><span class="ico" style="background:#1877F2">f</span><span class="l">${esc(g.nombre)}</span><span class="chev">${I.chev}</span></button>`).join('')}
         <button type="button" class="cell" data-act="nuevo-grupo" style="color:var(--acc)"><span class="l">Agregar grupo</span></button></div>
@@ -401,11 +414,14 @@
   }
 
   // ---------- Hojas ----------
+  function sheetAccesoAdmin(){openSheet(navSheet('Acceso de Admin','Listo')+'<div id="wa-acceso"></div>','Acceso de Admin',root=>{void window.AgendappxCuentas?.montar($('#wa-acceso',root));root.addEventListener('click',e=>{if(e.target.closest('[data-close],[data-done]'))closeSheet();});});}
+  document.addEventListener('agendappx:abrir-acceso',sheetAccesoAdmin);
   async function sheetConexion(tipo) {
     if (tipo === 'whatsapp' && window.AgendappxWhatsApp) {
-      openSheet(navSheet('Vincular WhatsApp', 'Listo') + '<div id="wa-vinculacion"></div>', 'Vincular WhatsApp', root => {
+      openSheet(navSheet('Mensajes de WhatsApp', 'Listo') + '<div id="wa-vinculacion"></div>', 'Vincular WhatsApp', root => {
         window.AgendappxWhatsApp.montar($('#wa-vinculacion', root), {
           obtenerSesion: () => window.AgendappxCuentas?.sesion(),
+          abrirAcceso: sheetAccesoAdmin,
         });
         root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
       });
@@ -619,7 +635,7 @@
       <p class="gh">Clienta</p>
       <div class="group"><label class="cell"><span class="sr">Clienta</span><select class="in left" id="c-cli"><option value="">Elige una clienta</option>${clis.map(k => `<option value="${esc(k.id)}" ${k.id === st.clienta ? 'selected' : ''}>${esc(k.nombre)}</option>`).join('')}<option value="__nueva">＋ Nueva clienta</option></select></label>
         <label class="cell" id="c-new1" hidden><span class="l">Nombre</span><input class="in" id="c-nombre" placeholder="Nombre y apellido" autocomplete="off"></label>
-        <label class="cell" id="c-new2" hidden><span class="l">WhatsApp</span><input class="in" id="c-tel" type="tel" inputmode="tel" placeholder="55 1234 5678"></label></div>
+        <label class="cell" id="c-new2" hidden><span class="l">WhatsApp</span><input class="in" id="c-tel" type="tel" inputmode="tel" placeholder="55 1234 5678"></label><label class="cell" id="c-new-consent" hidden><span class="l">Acepta avisos de sus citas por WhatsApp</span><input type="checkbox" id="c-optin"></label></div>
       <p class="gh">Servicio</p>
       <div class="hscroll" id="c-svcs">${svcs.map(s => `<button type="button" class="svc" data-svc="${esc(s.id)}" aria-pressed="${s.id === st.servicio}"><b>${esc(s.nombre)}</b><span>${s.duracion} min · ${money(s.precio)}</span></button>`).join('') || '<p class="foot">Primero agrega un servicio en la pestaña Servicios.</p>'}</div>
       <p class="gh">Fecha</p>
@@ -628,7 +644,7 @@
       <div class="slots" id="c-slots"></div>
       <p class="gh">Notas</p>
       <div class="group"><label class="cell"><span class="sr">Notas</span><textarea class="in" id="c-notas" placeholder="Diseño, color, alergias…">${esc(edit ? edit.notas : '')}</textarea></label></div>
-      ${edit ? '' : `<p class="gh">Al guardar</p><div class="group"><div class="cell"><span class="ico" style="background:#25D366">W</span><span class="l">Enviar confirmación por WhatsApp</span><button type="button" class="sw" role="switch" id="c-wa" aria-checked="${!!Store.settings.waConfirm}" aria-label="Enviar confirmación por WhatsApp"></button></div></div>`}
+      ${edit || localStorage.getItem('agendappx.cuentas.activas')==='si' ? '' : `<p class="gh">Al guardar</p><div class="group"><div class="cell"><span class="ico" style="background:#25D366">W</span><span class="l">Enviar confirmación por WhatsApp</span><button type="button" class="sw" role="switch" id="c-wa" aria-checked="${!!Store.settings.waConfirm}" aria-label="Enviar confirmación por WhatsApp"></button></div></div>`}
       <button type="button" class="cta" id="c-go" data-done></button>`, 'Nueva cita', root => {
       const slotsEl = $('#c-slots', root), go = $('#c-go', root);
       const drawSlots = () => {
@@ -642,7 +658,7 @@
       drawSlots();
       $('#c-cli', root).addEventListener('change', e => {
         st.nueva = e.target.value === '__nueva'; st.clienta = st.nueva ? '' : e.target.value;
-        $('#c-new1', root).hidden = $('#c-new2', root).hidden = !st.nueva;
+        $('#c-new1', root).hidden = $('#c-new2', root).hidden = $('#c-new-consent',root).hidden = !st.nueva;
         if (st.nueva) $('#c-nombre', root).focus();
       });
       $('#c-date', root).addEventListener('change', e => { if (C.isKey(e.target.value)) { st.date = e.target.value; st.start = ''; drawSlots(); } });
@@ -659,7 +675,7 @@
             const nombre = $('#c-nombre', root).value.trim();
             if (!nombre) { toast('Escribe el nombre de la clienta.'); $('#c-nombre', root).focus(); return; }
             cliId = newId();
-            if (!save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), notas: '' })) return;
+            if (!save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), whatsappOptIn:$('#c-optin',root).checked, notas: '' })) return;
           }
           if (!cliId) { toast('Elige una clienta.'); return; }
           if (!st.servicio) { toast('Elige un servicio.'); return; }
@@ -699,10 +715,12 @@
         ${c.notas ? `<div class="cell"><span class="l" style="white-space:pre-wrap">${esc(c.notas)}</span></div>` : ''}</div>
       <p class="gh">Estado</p>
       <div class="group">${ESTADOS.map(([v, n]) => `<button type="button" class="cell" data-estado="${v}"><span class="l">${n}</span>${c.estado === v ? `<span style="color:var(--acc)">${I.check}</span>` : ''}</button>`).join('')}</div>
-      <p class="gh">Mensajes</p>
+      <div id="wa-cita"></div>
+      <p class="gh">Mensajes manuales</p>
       <div class="group">${msg('confirmacion', tpl.tplConfirm, 'Confirmación')}${msg('recordatorio', tpl.tplRecordar, 'Recordatorio')}${msg('gracias', tpl.tplGracias, 'Gracias y reseña')}
         <a class="cell" href="${esc(gcalLink(c))}" target="_blank" rel="noopener"><span class="ico" style="background:#4285F4">G</span><span class="l">Agregar a Google Calendar</span><span class="chev">${I.chev}</span></a></div>
       <div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar cita</button></div>`, 'Cita', root => {
+      window.AgendappxWhatsApp?.montarCita?.($('#wa-cita',root),{id,obtenerSesion:()=>window.AgendappxCuentas?.sesion(),prepararFoto,alRecibir:()=>{const actual=byId(id);if(actual&&!['cancelada','completada'].includes(actual.estado)){save({...actual,estado:'confirmada'});void Store.sync?.sync();}}});
       root.addEventListener('click', e => {
         const b = e.target.closest('[data-close],[data-edit],[data-estado],[data-del]');
         if (!b) return;
@@ -1027,7 +1045,6 @@
   setInterval(() => { if (document.visibilityState === 'visible' && !S.sheetOpen && S.tab === 'agenda') render(); }, 60000);
 
   Store.onChange(render);
-  Store.init();
-  if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); }
+  void Promise.resolve(Store.init()).then(() => { if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); } });
   window.addEventListener('hashchange', () => { const enlace = tomarEnlaceActivacion(); if (enlace && Store.sync) sheetActivacion(enlace); });
 })();

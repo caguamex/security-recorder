@@ -44,7 +44,7 @@ const context=await browser.newContext({viewport:{width:390,height:844},locale:'
 const page=await context.newPage(),errores=[];page.on('pageerror',e=>errores.push(e.message));
 const imagenes=fileURLToPath(new URL('../../imagenes/',import.meta.url));await mkdir(imagenes,{recursive:true});
 const sesion={usuarioId:ids.admin,negocioId:ids.salon,accessToken:token,rol:'admin',aal:'aal2'};
-async function abrir(){await page.getByRole('tab',{name:'Ajustes',exact:true}).click();await page.getByRole('button',{name:/Automatización de WhatsApp/}).click();}
+async function abrir(){await page.getByRole('tab',{name:'Ajustes',exact:true}).click();await page.getByRole('button',{name:/Mensajes de WhatsApp/}).click();}
 async function cerrar(){await page.getByRole('button',{name:'Listo',exact:true}).click();}
 try{
  await page.addInitScript(()=>{Object.defineProperty(navigator.clipboard,'writeText',{value:async texto=>{window.__copiadoLocal=texto;}});});

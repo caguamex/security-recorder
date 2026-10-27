@@ -1,7 +1,7 @@
 // Cola persistente: los cambios se guardan antes de intentar enviarlos.
 (function (root) {
   'use strict';
-  function crear({ storage, fetcher, defaults = {}, onChange = () => {}, uuid = () => crypto.randomUUID() }) {
+  function crear({ storage, fetcher, defaults = {}, cuenta = null, obtenerSesion, onChange = () => {}, uuid = () => crypto.randomUUID() }) {
     const KEY = 'belleza.v1.sync', TOKEN = 'belleza.v1.token', SESION = 'belleza.v1.sesion';
     const leer = (key, fb) => { const raw = storage.getItem(key); return raw ? JSON.parse(raw) : fb; };
     let sesionCookie = storage.getItem(SESION) === 'si', generacionAcceso = 0;
@@ -32,6 +32,8 @@
       guardar(next); emit(); void sync();
     }
     async function request(path, options = {}, accessToken = token) {
+      if(cuenta){const vigente=await obtenerSesion?.();if(!vigente||vigente.usuarioId!==cuenta.usuarioId||vigente.negocioId!==cuenta.negocioId)throw Object.assign(new Error('Inicia sesión de nuevo.'),{status:401});accessToken=vigente.accessToken;
+        path=path.replace(/^\/api\/(estado|objetos|conexiones|calendario)/,'/api/negocios/'+encodeURIComponent(cuenta.negocioId)+'/datos/$1');}
       const response = await fetcher(path, { ...options, credentials: 'same-origin', cache: 'no-store', headers: {
         ...(accessToken ? { 'Authorization': 'Bearer ' + accessToken } : {}), ...(options.body ? { 'Content-Type': 'application/json' } : {}) },
         signal: AbortSignal.timeout(12000) });
@@ -50,7 +52,7 @@
       guardar(next);
     }
     function sync() {
-      if (!token && !sesionCookie) return Promise.resolve();
+      if (!cuenta && !token && !sesionCookie) return Promise.resolve();
       // El botón manual espera también una sincronización automática ya en curso.
       if (active) return active;
       active = sincronizar().finally(() => { active = null; });
@@ -90,7 +92,7 @@
     }
     return {
       get items() { return vista().items; }, get settings() { return vista().settings; },
-      get status() { return status; }, get connected() { return !!token || sesionCookie; },
+      get status() { return status; }, get connected() { return !!cuenta || !!token || sesionCookie; },
       get pending() { return clone(state.pending); }, get conflicts() { return clone(state.conflicts); },
       put(data) { cambiar(data.id, data); }, remove(id) { cambiar(id, null); },
       setSettings(patch) { recargar(); cambiar('__settings', Object.assign({}, vista().settings, patch)); },
@@ -101,6 +103,7 @@
         generacionAcceso++; storage.setItem(TOKEN, proposed); token = proposed; recibir(body); await sync();
       },
       async restaurarSesion() {
+        if(cuenta){await sync();return;}
         if (token) { await sync(); return; }
         const generacion = generacionAcceso;
         try {

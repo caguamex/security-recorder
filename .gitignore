@@ -10,3 +10,6 @@ ritmo/servidor/build/
 .dev.vars.*
 ritmo/nube/build/
 ritmo/dist/pwa/_headers
+
+# Caché de la CLI, sin migraciones ni secretos.
+supabase/.temp/

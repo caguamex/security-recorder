@@ -27,7 +27,7 @@ async function leerJSON(req: IncomingMessage) {
   const raw = await leerRaw(req);
   try { return JSON.parse(raw.toString('utf8')); } catch { throw new ErrorAPI(400, 'JSON inválido.'); }
 }
-type Opciones = { vinculacion?: RutasVinculacion; dispositivos?: Dispositivos; integraciones?: ConfigIntegraciones; whatsapp?: WhatsApp; tz?: string; publicURL?: string;
+type Opciones = { metaHabilitado?: boolean; cuentas?: RutasVinculacion; vinculacion?: RutasVinculacion; dispositivos?: Dispositivos; integraciones?: ConfigIntegraciones; whatsapp?: WhatsApp; tz?: string; publicURL?: string;
   migracion?: { token?: string; soloLectura?: boolean; exportar: () => Promise<unknown> } };
 export function crearServidor(repo: Repositorio, token: string, publicRoot: string, options: Opciones = {}) {
   if (token.length < 32) throw new Error('APP_TOKEN debe tener al menos 32 caracteres aleatorios.');
@@ -46,13 +46,14 @@ export function crearServidor(repo: Repositorio, token: string, publicRoot: stri
       if (options.migracion?.soloLectura && !['GET', 'HEAD'].includes(req.method || '')) {
         throw new ErrorAPI(503, 'Agenda en traslado. Tus cambios quedan guardados en este dispositivo y se enviarán al reconectar.');
       }
+      if (options.cuentas && await options.cuentas(req,res,url)) return;
       if (options.vinculacion && await options.vinculacion(req,res,url)) return;
       if (url.pathname === '/salud' && req.method === 'GET') {
         await repo.salud(); json(res, 200, { estado: 'listo' }); return;
       }
       if (url.pathname === '/webhooks/whatsapp') {
         const wa = options.whatsapp;
-        if (!wa?.configurado) throw new ErrorAPI(503, 'WhatsApp oficial aún no está conectado.');
+        if (options.metaHabilitado === false || !wa?.configurado) throw new ErrorAPI(503, 'WhatsApp oficial aún no está conectado.');
         if (req.method === 'GET' && url.searchParams.get('hub.mode') === 'subscribe' && igualSecreto(url.searchParams.get('hub.verify_token') || '', wa.verificacion)) {
           res.writeHead(200, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' }).end((url.searchParams.get('hub.challenge') || '').slice(0, 1000)); return;
         }

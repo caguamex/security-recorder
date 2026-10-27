@@ -10,6 +10,8 @@ import { WhatsApp } from '../servidor/src/whatsapp.ts';
 import { ProveedorEvolution } from '../servidor/src/whatsapp-evolution/proveedor.ts';
 import { VinculacionWhatsApp } from '../servidor/src/whatsapp-evolution/vinculacion.ts';
 import { rutasVinculacion } from '../servidor/src/whatsapp-evolution/http.ts';
+import { rutasCuentas } from '../servidor/src/cuentas/http.ts';
+import { proxyWhatsApp, usaMeta } from '../servidor/src/whatsapp-vinculado/proxy.ts';
 import { VerificadorJWT } from '../servidor/src/cuentas/jwt.ts';
 
 // Cada operación abre su cliente; no se comparten sockets entre solicitudes de Workers.
@@ -34,15 +36,22 @@ const whatsapp = new WhatsApp(pool, repo, {
   token: env.WHATSAPP_TOKEN, phoneId: env.WHATSAPP_PHONE_ID, verifyToken: env.WHATSAPP_VERIFY_TOKEN,
   appSecret: env.WHATSAPP_APP_SECRET, version: env.WHATSAPP_API_VERSION, tz: env.TZ,
 });
-// La nueva integración exige cuentas terminadas y configuración expresa. Nunca usa APP_TOKEN.
-const vinculacion = env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' && env.WHATSAPP_PROVEEDOR === 'evolution'
+const jwt = env.SUPABASE_URL ? new VerificadorJWT(env.SUPABASE_URL) : {verificar: async () => { throw new Error('Falta configurar el acceso.'); }};
+// La nueva integración exige identidad firmada y configuración expresa. Nunca usa APP_TOKEN.
+const vinculacion = env.WHATSAPP_REMITENTE === 'vinculado' && env.WA_SERVICIO_URL
+  ? proxyWhatsApp(env.WA_SERVICIO_URL, env.PUBLIC_URL, jwt)
+  : env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' && env.WHATSAPP_PROVEEDOR === 'evolution'
   ? rutasVinculacion(new VinculacionWhatsApp(pool,new ProveedorEvolution({
       url: env.EVOLUTION_API_URL, apiKey: env.EVOLUTION_API_KEY,
       webhookKey: env.EVOLUTION_WEBHOOK_KEY, publicURL: env.PUBLIC_URL,
-    }), new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').toLowerCase().split(',').map(v=>v.trim()).filter(Boolean))),new VerificadorJWT(env.SUPABASE_URL)) : undefined;
+    }), new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').toLowerCase().split(',').map(v=>v.trim()).filter(Boolean))),jwt) : undefined;
 // El esquema se instala antes de publicar; el Worker no crea tablas al atender visitas.
 const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
-  integraciones, whatsapp, vinculacion, dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,
+  cuentas: rutasCuentas(pool, jwt, {
+    habilitado: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true', supabaseURL: env.SUPABASE_URL,
+    llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL,
+    salones: new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').split(',').map(v=>v.trim()).filter(Boolean)),
+  }), integraciones, whatsapp, vinculacion, metaHabilitado: usaMeta(env.WHATSAPP_REMITENTE), dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,
 });
 const api = httpServerHandler(servidor);
 export default {
@@ -55,7 +64,7 @@ export default {
   },
   async scheduled(_controller, _bindings, context) {
     // La misma cola oficial y gratuita; no hay proceso permanente ni mensajes sin Meta configurado.
-    if (env.WHATSAPP_REMITENTE !== 'railway' && env.WHATSAPP_PROVEEDOR !== 'evolution' && whatsapp.configurado) {
+    if (usaMeta(env.WHATSAPP_REMITENTE) && env.WHATSAPP_PROVEEDOR !== 'evolution' && whatsapp.configurado) {
       context.waitUntil(whatsapp.procesar());
     }
   },

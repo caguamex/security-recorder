@@ -1,6 +1,6 @@
 # Siguiente encargo de Agendappx: WhatsApp vinculado, solo envíos
 
-Actualizado el 27 de octubre de 2026. **Comenzar la implementación completa después de terminar cuentas.** Esta revisión actualiza documentación y presupuesto; no despliega, crea recursos, vincula un teléfono ni manda mensajes. Cuentas sigue pendiente de resolver el proveedor de inicio de sesión tras el bloqueo de Brevo.
+Actualizado el 27 de octubre de 2026. **Antonio priorizó terminar WhatsApp antes del resto de cuentas.** La implementación local incluye un acceso mínimo seguro de Admin por enlace privado y TOTP, sin SMS de Brevo. La migración y publicación siguen pendientes de aprobación; no se creó servicio, vinculó teléfono ni enviaron mensajes reales.
 
 ## Fuente y autorización
 
@@ -15,7 +15,7 @@ Antonio autorizó conexión de dispositivo vinculado como FiNeCi, aceptando el r
 - Rol propio agendappx_whatsapp de mínimos permisos y TLS verificado. Admin con sesión vigente, membresía y MFA para vincular/desvincular. Especialistas no ven CLABE, comprobantes, vinculación ni credenciales.
 - Solo envíos. Descartar eventos de mensajes entrantes e historial sin persistencia ni logs de contenido; no leer comprobantes ni emitir confirmaciones de lectura. Los eventos de control imprescindibles del protocolo para mantener conexión/credenciales y confirmar envíos propios no son un chatbot. Las respuestas se atienden manualmente en el teléfono.
 - Código efímero de **ocho caracteres alfanuméricos**: el ejemplo K7QM-29XA de la propia especificación no es solo numérico. Si el protocolo asíncrono exige persistirlo, cifrarlo, limitar su vigencia y acceso; nunca registrarlo en logs ni entregar llaves al navegador.
-- WHATSAPP_REMITENTE=vinculado debe bloquear **todos** los envíos de Cloudflare y dejar Meta deshabilitado, conservando su código. La bandera y sus pruebas están pendientes: el código preparado antes para railway/evolution no acredita este modo nuevo.
+- WHATSAPP_REMITENTE=vinculado debe bloquear **todos** los envíos de Cloudflare y dejar Meta deshabilitado, conservando su código. La bandera está implementada y cubierta por las pruebas nuevas; no está activada en producción.
 - Reemplaza botones de confirmación y automatizaciones de respuestas/comprobantes por gestión humana. Los cinco tipos de aviso salen solo por el remitente del salón. Se confirma el anticipo únicamente al marcarlo en la app.
 
 ## Reglas que se conservan
@@ -48,14 +48,14 @@ La estimación anterior de dos procesos sigue como histórica en WHATSAPP-VINCUL
 
 Seguimiento creado en este chat: **consumo-de-whatsapp-de-agendappx-tras-una-semana**. Revisa a las 09:00 CDMX y permanece en silencio mientras el servicio no exista o no complete siete días desde su fecha real de encendido. Entonces informa una sola vez: gasto atribuible, total compartido, proyección del ciclo y margen frente a 10 USD; distingue consumo e importe mínimo Hobby. No debe activar servicios ni mandar WhatsApp por hacer el informe. Registra aquí la fecha real al desplegar con autorización; todavía no hay fecha. Si faltan permisos para consultar, indicarlo en lugar de inventar cifras. Tras el informe, pausar el seguimiento.
 
-## Orden de implementación y pruebas
+## Estado verificable de la implementación
 
-1. Terminar cuentas, invitaciones, roles/RLS, MFA y su enlace con la app publicada; conservar fotos, modo sin conexión, sincronización y calendario.
-2. Implementar almacenamiento cifrado, rol mínimo y custodia de sesión; preparar cambios sin aplicarlos a producción.
-3. Adaptar vínculo/estado/cierre del número a este único servicio y Admin con MFA.
-4. Integrar cola duradera de citas/anticipos, consentimiento, horarios, límites, invalidaciones y freno persistente; desactivar remitente de Cloudflare para el modo vinculado.
-5. Ejecutar **cada prueba de la sección 6** con reloj, transporte y mensajes simulados. Añadir reinicios, caídas, intentos paralelos, cifrado alterado/llave errónea y descarte de entradas sin read receipts.
-6. Documentar resultados reales por criterio. **No se ejecutó todavía la sección 6 contra la implementación nueva**, porque esta se aplazó hasta terminar cuentas; 132 pruebas anteriores no equivalen a completarla.
-7. Revisar consumo y solicitar confirmaciones separadas antes de migrar datos, desplegar, vincular el teléfono y enviar el primer mensaje real con destinatario. No comprar dominios ni modificar FiNeCi.
+Código nuevo en `servidor/src/whatsapp-vinculado`, `whatsapp/` y panel de la app. Reemplaza el proveedor anterior por Baileys fijado a 7.0.0-rc13. Cifrado, custodia, reconexión gradual, límites, reglas por cita, anticipo manual, comprobante, acceso firmado con MFA y bandera de Cloudflare ya tienen pruebas locales. Se integró primero el calendario publicado para evitar regresiones.
+
+Resultados y limitaciones en `WHATSAPP-PRUEBAS.md`; instrucciones operativas en `../whatsapp/README.md`. No confundir transporte simulado con una vinculación física o garantía de estabilidad continua. Docker no está instalado aquí: la construcción Linux y la primera conexión deben comprobarse en el despliegue autorizado antes de mandar un mensaje.
+
+La migración propuesta conserva los datos sincronizados, versiones e integración del calendario y los asigna al salón y Admin aprobados. Los pendientes que solo existan en el celular se revisan antes de migrar; no se descartan ni se importan automáticamente a otra cuenta. Respaldo privado actualizado obligatorio y confirmación explícita de Antonio antes de ejecutarla.
+
+No hay fecha real de activación de agendappx-whatsapp. El seguimiento de consumo de siete días sigue esperando esa fecha. Confirmaciones separadas: migración, publicación, vinculación y primer mensaje con destinatario/consentimiento. No comprar dominios ni modificar FiNeCi.
 
 Fuentes primarias: [tarifas de Railway](https://docs.railway.com/pricing/plans), [Baileys](https://github.com/WhiskeySockets/Baileys), [especificación solicitada](https://github.com/caguamex/security-recorder/blob/dc15fe5/ritmo/docs/WHATSAPP-AUTOMATICO.md).

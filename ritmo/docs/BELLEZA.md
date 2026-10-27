@@ -45,11 +45,11 @@ No se ha creado ni desplegado el servicio. Pedir confirmación antes de migrar, 
 
 ## Prompts
 
-### Servicio de WhatsApp en Railway — ejecutar después de cuentas
+### Servicio de WhatsApp en Railway — prioridad actual de Antonio
 ```text
 Implementar ritmo/docs/WHATSAPP-AUTOMATICO.md del commit dc15fe5 con la precisión de alcance de ritmo/docs/SIGUIENTE-WHATSAPP.md.
 Conservar Agendappx y el diseño aprobado. Servicio nuevo agendappx-whatsapp, permanente y una réplica, con Baileys, sesión AES-256-GCM en Supabase y rol mínimo exclusivo; no tocar FiNeCi. Un solo proceso revisa la cola cada minuto y solo envía. Descartar entradas sin guardar ni marcar como leídas. Cloudflare deja de enviar con WHATSAPP_REMITENTE=vinculado. Preservar consentimiento, límites por número, horarios, omisiones, idempotencia, bloqueo de emergencia y anticipo confirmado manualmente. El porcentaje predeterminado sigue siendo 20 % por la instrucción directa de Antonio.
-Primero completar y probar cuentas, membresías y MFA. Ejecutar toda la sección 6 y documentar cada resultado: no afirmar que las pruebas anteriores del proveedor cubren la automatización nueva. Preparar y verificar sin desplegar ni vincular. Solicitar confirmaciones de migración, publicación, vinculación y primer mensaje real; mantener el máximo compartido de 10 USD sin nuevos servicios facturables no autorizados.
+Completar primero WhatsApp con el acceso mínimo firmado de Admin y MFA; el resto de cuentas y equipo sigue después, por la prioridad nueva de Antonio. Ejecutar toda la sección 6 y documentar cada resultado: no afirmar que las pruebas anteriores del proveedor cubren la automatización nueva. Preparar y verificar sin desplegar ni vincular. Solicitar confirmaciones de migración, publicación, vinculación y primer mensaje real; mantener el máximo compartido de 10 USD sin nuevos servicios facturables no autorizados.
 ```
 
 ### App de iPhone
@@ -61,3 +61,6 @@ Conéctala al backend de ritmo/servidor/. Usa expo-calendar para escribir las ci
 Publicar en grupos de Facebook: copia el texto, guarda la imagen y abre el grupo (enlace fb://group/<id> con respaldo a la URL web), y marca el grupo como listo al regresar.
 Reutiliza el intérprete de frases de ritmo/prototipo/parser.js para escribir citas como "Mariana uñas viernes 4pm".
 ```
+
+
+Entrega local del 27 de octubre: ver `../whatsapp/README.md` para acceso temporal de Admin, despliegue separado y confirmaciones; `WHATSAPP-PRUEBAS.md` para resultados por criterio. La página publicada todavía no incluye este servicio. El prototipo de referencia no es evidencia de que un teléfono esté vinculado.

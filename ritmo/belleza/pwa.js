@@ -35,7 +35,7 @@
   luego.addEventListener('click', () => { aviso.hidden = true; });
   ahora.addEventListener('click', () => {
     if (solicitada) return;
-    if (hoja()?.querySelector('[data-subir-foto]:disabled')) {
+    if (hoja()?.querySelector('[data-subir-foto]:disabled,[data-preparando-foto="si"]')) {
       mensaje.textContent = 'Espera a que termine de prepararse la foto antes de actualizar.'; return;
     }
     if (formulario() !== baseFormulario && !window.confirm('Tienes cambios sin guardar en este formulario. Si actualizas ahora, se perderán. ¿Quieres actualizar de todos modos?')) return;
