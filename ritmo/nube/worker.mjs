@@ -47,6 +47,7 @@ const vinculacion = env.WHATSAPP_REMITENTE === 'vinculado' && env.WA_SERVICIO_UR
     }), new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').toLowerCase().split(',').map(v=>v.trim()).filter(Boolean))),jwt) : undefined;
 // El esquema se instala antes de publicar; el Worker no crea tablas al atender visitas.
 const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
+  migracion: {soloLectura: env.MIGRATION_READ_ONLY === 'true', exportar: async () => null},
   cuentas: rutasCuentas(pool, jwt, {
     habilitado: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true', supabaseURL: env.SUPABASE_URL,
     llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL,

@@ -1,6 +1,6 @@
 # Siguiente encargo de Agendappx: WhatsApp vinculado, solo envíos
 
-Actualizado el 27 de octubre de 2026. **Antonio priorizó terminar WhatsApp antes del resto de cuentas.** La implementación local incluye un acceso mínimo seguro de Admin por enlace privado y TOTP, sin SMS de Brevo. La migración y publicación siguen pendientes de aprobación; no se creó servicio, vinculó teléfono ni enviaron mensajes reales.
+Actualizado el 27 de octubre de 2026. **Antonio priorizó terminar WhatsApp antes del resto de cuentas.** La implementación local incluye un acceso mínimo seguro de Admin por enlace privado y TOTP, sin SMS de Brevo. La migración y publicación fueron autorizadas con «okey, hazlo» y están preparándose; se creó el proyecto/servicio vacío separado de Railway y se configuró; aún no hay despliegue, teléfono vinculado ni mensajes reales.
 
 ## Fuente y autorización
 
@@ -59,3 +59,8 @@ La migración propuesta conserva los datos sincronizados, versiones e integraci�
 No hay fecha real de activación de agendappx-whatsapp. El seguimiento de consumo de siete días sigue esperando esa fecha. Confirmaciones separadas: migración, publicación, vinculación y primer mensaje con destinatario/consentimiento. No comprar dominios ni modificar FiNeCi.
 
 Fuentes primarias: [tarifas de Railway](https://docs.railway.com/pricing/plans), [Baileys](https://github.com/WhiskeySockets/Baileys), [especificación solicitada](https://github.com/caguamex/security-recorder/blob/dc15fe5/ritmo/docs/WHATSAPP-AUTOMATICO.md).
+
+
+## Continuación de la publicación autorizada
+
+Ver el registro del 27 de octubre al final de `../whatsapp/README.md`: respaldo privado verificado, proyecto nuevo configurado sin proceso y aprobación vigente de migración/publicación. No repetir esta aprobación. Falta la llave Admin de Supabase, solicitada únicamente en un archivo privado preparado; no pedirla en el chat. La operación temporal pública de arranque fue rechazada automáticamente y no se publicó; usar la API Admin normal cuando se proporcione su credencial. No aplicar todavía la migración ni romper el acceso heredado. No hay fecha real de activación para el seguimiento de siete días.

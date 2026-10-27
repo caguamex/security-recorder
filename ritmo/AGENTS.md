@@ -111,3 +111,8 @@ En `codex/agendappx-whatsapp-vinculacion`, PR #3, se preparó la implementación
 El esquema y el acceso por cuentas aún requieren migración y publicación aprobadas; no declarar WhatsApp disponible en la URL actual hasta comprobarlo. Solicitar aprobación explícita de migración del salón antes de ejecutarla. «Implementa para probarlo» autoriza terminar la preparación; no elimina las confirmaciones separadas ya exigidas para vincular el número y primer mensaje real. No generar códigos reales, abrir sockets con credenciales del dueño o habilitar envíos como parte de pruebas locales.
 
 La pantalla actual conserva diseño, modos, fotos y calendario publicado. Cachés/colas de cuentas se separan del almacenamiento heredado; no mezclar ni borrar pendientes del celular durante la transición. El Worker bloquea rutas heredadas al activar cuentas y proxy WhatsApp; Meta deja de procesar cron/webhook con WHATSAPP_REMITENTE=vinculado. No aplicar las migraciones históricas de Evolution al servicio nuevo.
+
+
+### Autorización y estado de publicación del 27 de octubre
+
+Antonio aprobó expresamente respaldo, migración y publicación con «okey, hazlo» tras su explicación. La aprobación sigue vigente; no repetirla. No incluye vinculación ni primer WhatsApp real. Ver el registro al final de `whatsapp/README.md`: respaldo privado listo, servicio Railway separado vacío y configurado, sin despliegue. Falta la credencial Admin de Supabase para crear el acceso del dueño por su API oficial. No migrar datos ni publicar mientras falte un acceso válido del propietario; tampoco sortear la función pública privilegiada rechazada por revisión automática. El archivo privado de la llave está preparado; nunca pedirla en el chat ni guardarla en Git.
