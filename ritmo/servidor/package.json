@@ -13,7 +13,8 @@
     "test:fotos": "npm run build && node pruebas/fotos-navegador.mjs",
     "test:actualizacion": "npm run build && node pruebas/actualizacion-navegador.mjs",
     "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs",
-    "test:whatsapp": "npm run build && node --test pruebas/whatsapp-*.test.mjs && node pruebas/whatsapp-vinculacion-navegador.mjs"
+    "test:whatsapp": "npm run build && node --test pruebas/whatsapp-*.test.mjs && node pruebas/whatsapp-vinculacion-navegador.mjs",
+    "test:calendario": "npm run build && node --test pruebas/dispositivos.test.mjs && node pruebas/calendario-navegador.mjs && node pruebas/calendario-pendientes-navegador.mjs"
   },
   "dependencies": {
     "jose": "6.2.13",

@@ -5,6 +5,7 @@ import pg from 'pg';
 import { crearServidor } from '../servidor/src/http.ts';
 import { PostgresRepositorio } from '../servidor/src/repositorio.ts';
 import { ConfigIntegraciones } from '../servidor/src/integraciones.ts';
+import { Dispositivos } from '../servidor/src/dispositivos.ts';
 import { WhatsApp } from '../servidor/src/whatsapp.ts';
 import { ProveedorEvolution } from '../servidor/src/whatsapp-evolution/proveedor.ts';
 import { VinculacionWhatsApp } from '../servidor/src/whatsapp-evolution/vinculacion.ts';
@@ -41,7 +42,7 @@ const vinculacion = env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' && env.WHATSAPP
     }), new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').toLowerCase().split(',').map(v=>v.trim()).filter(Boolean))),new VerificadorJWT(env.SUPABASE_URL)) : undefined;
 // El esquema se instala antes de publicar; el Worker no crea tablas al atender visitas.
 const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
-  integraciones, whatsapp, vinculacion, tz: env.TZ, publicURL: env.PUBLIC_URL,
+  integraciones, whatsapp, vinculacion, dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,
 });
 const api = httpServerHandler(servidor);
 export default {
