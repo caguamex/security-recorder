@@ -1,6 +1,6 @@
 # Comunidad de Agendappx — primera entrega
 
-Antonio aprobó las muestras de celular y computadora y pidió empezar el 28 de octubre de 2026. Se inició en codex/agendappx-comunidad, desde codex/agendappx-siguiente-version. La petición autoriza esta implementación; la publicación nueva y las migraciones conservan sus confirmaciones separadas. No se crearon servicios, no se modificaron bases ni se publicaron cambios.
+Antonio aprobó las muestras de celular y computadora y pidió empezar el 28 de octubre de 2026. Se inició en codex/agendappx-comunidad, desde codex/agendappx-siguiente-version. PR de la primera entrega: https://github.com/caguamex/security-recorder/pull/8 (borrador, base codex/agendappx-siguiente-version). La petición autoriza esta implementación; la publicación nueva y las migraciones conservan sus confirmaciones separadas. No se crearon servicios, no se modificaron bases ni se publicaron cambios.
 
 ## Lo que ya se puede probar
 
