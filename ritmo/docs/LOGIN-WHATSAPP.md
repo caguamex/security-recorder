@@ -86,3 +86,8 @@ No se vinculó el número, no se generó código real ni se activaron envíos. T
 
 
 Antonio confirmó «listo» después de pegar Secret y Create hook. Ese guardado se considera informado por el propietario, todavía no verificado en el panel: el control del navegador volvió a responder Local browser use is disabled in Work settings. Lectura de Auth settings confirmó teléfono apagado y registro público cerrado. Se abrió el enlace directo del proveedor Phone para activar acceso, conservar confirmación, OTP seis dígitos y caducidad 600 segundos. No pedir un OTP de producción para verificar el hook antes de autorizar el primer envío.
+
+
+## Phone habilitado — 28 de octubre de 2026
+
+Antonio confirmó «okey, listo» al guardar Phone. La lectura oficial de /auth/v1/settings confirmó external.phone=true y disable_signup=true. Hook guardado informado antes por el propietario; no se solicitó OTP real para probarlo. Siguiente paso: pedir confirmación explícita para vincular la sesión independiente del 528661241483 y confirmar que hay un espacio de dispositivo libre en su teléfono. El primer código real conserva su confirmación separada. No activar WA_CODIGOS_HABILITADOS ni enviar como prueba todavía.
