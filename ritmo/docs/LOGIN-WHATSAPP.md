@@ -91,3 +91,10 @@ Antonio confirmó «listo» después de pegar Secret y Create hook. Ese guardado
 ## Phone habilitado — 28 de octubre de 2026
 
 Antonio confirmó «okey, listo» al guardar Phone. La lectura oficial de /auth/v1/settings confirmó external.phone=true y disable_signup=true. Hook guardado informado antes por el propietario; no se solicitó OTP real para probarlo. Siguiente paso: pedir confirmación explícita para vincular la sesión independiente del 528661241483 y confirmar que hay un espacio de dispositivo libre en su teléfono. El primer código real conserva su confirmación separada. No activar WA_CODIGOS_HABILITADOS ni enviar como prueba todavía.
+
+
+## Operación de vinculación preparada; confirmación exacta pendiente
+
+Antonio confirmó espacio libre con captura de un solo dispositivo vinculado. Se habilitó únicamente WA_CODIGOS_VINCULAR=true en el servicio existente; los códigos reales, citas y vinculación de salones siguen apagados. Actualización de Railway cc818d4c-42bc-44b2-a938-56658cfdc78a. Se creó y registró la llave SSH temporal agendappx-operacion-temporal para ejecutar el comando local dentro de ese contenedor; claves privadas fuera de Git. Retirar el registro temporal al completar la operación.
+
+La revisión automática rechazó ejecutar operar-codigos.mjs codigo: interpretó Sí hay espacio como capacidad disponible y no autorización inequívoca de vincular ahora. No se generó código ni se abrió la conexión de WhatsApp por esa acción. Se pidió confirmación explícita de generar ahora el código para 866 124 1483, con riesgo de bloqueo y conservando FiNeCi/envíos apagados. No eludir el rechazo ni repetir la acción hasta recibir respuesta.
