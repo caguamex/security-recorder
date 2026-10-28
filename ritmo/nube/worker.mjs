@@ -10,6 +10,7 @@ import { WhatsApp } from '../servidor/src/whatsapp.ts';
 import { ProveedorEvolution } from '../servidor/src/whatsapp-evolution/proveedor.ts';
 import { VinculacionWhatsApp } from '../servidor/src/whatsapp-evolution/vinculacion.ts';
 import { rutasVinculacion } from '../servidor/src/whatsapp-evolution/http.ts';
+import { rutasAcceso } from '../servidor/src/cuentas/acceso.ts';
 import { rutasCuentas } from '../servidor/src/cuentas/http.ts';
 import { proxyWhatsApp, usaMeta } from '../servidor/src/whatsapp-vinculado/proxy.ts';
 import { VerificadorJWT } from '../servidor/src/cuentas/jwt.ts';
@@ -50,6 +51,8 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
   migracion: {soloLectura: env.MIGRATION_READ_ONLY === 'true', exportar: async () => null},
   cuentas: rutasCuentas(pool, jwt, {
     habilitado: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true', supabaseURL: env.SUPABASE_URL,
+    acceso:{whatsapp:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true'},
+    rutasAcceso:rutasAcceso(pool,jwt,{recuperacionHash:env.ACCESO_RECUPERACION_HASH,recuperacionUsuario:env.MIGRACION_USUARIO_ID,habilitado:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,salones:new Set(String(env.WHATSAPP_SALONES_HABILITADOS||'').split(',').filter(Boolean)),ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL, migracionUsuarioId: env.MIGRACION_USUARIO_ID,
     salones: new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').split(',').map(v=>v.trim()).filter(Boolean)),
   }), integraciones, whatsapp, vinculacion, metaHabilitado: usaMeta(env.WHATSAPP_REMITENTE), dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,

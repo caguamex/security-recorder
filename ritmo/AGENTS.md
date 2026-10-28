@@ -134,3 +134,10 @@ El login será por WhatsApp mediante hook firmado de Supabase, con sesión de pl
 ## Avisos 24 horas publicados
 
 Autorización «publícalo» y «sigue»: cambio de horarios de los avisos existentes publicado en Cloudflare 843ab4e0-a836-4acd-9a1e-abf420770707 y Railway 9a4a3f3b-8a32-48fd-a652-2a1c09d2ab99, aplicación a17a88b, PR #7. Ver registro final de docs/SIGUIENTE-VERSION.md. Cero sesiones; vinculación y envíos reales siguen apagados. Esta publicación no completa login por WhatsApp, sesión de plataforma, equipo ni campañas. Continuar las etapas del encargo sin repetir migración ya realizada ni reiniciar la fecha original del informe de consumo. No interpretar esta aprobación como permiso de vincular un número o primer envío.
+
+
+## Login por WhatsApp preparado — 28 de octubre de 2026
+
+Antonio pidió implementar el login por WhatsApp. Se agregó el proxy OTP con el SDK real, límites durables 3/destino/15 min y 10/IP/h, cinco intentos y diez minutos, hook Standard Webhooks con texto fijo, sesión cifrada de plataforma aislada en tablas plataforma_*, prioridad de códigos y acceso de Admin con MFA. Sesiones nuevas de Auth requieren admisión del proxy para impedir que la API pública evite los límites. Se conserva la identidad existente mediante phone_change autenticado; no hay altas ni fusiones automáticas. Recuperación solo por enlace de operación registrado y UUID esperado. Correo tiene bandera independiente y sigue pendiente del SMTP real.
+
+193 pruebas automáticas aprobadas y navegador local con SDK real/RLS: WhatsApp, correo simulado, MFA, Recepción, mismo UUID, vinculación propia, espera de veinte segundos y White/Dark a 390/768/1440. Cloudflare dry-run. Detalles, configuración, operación y límites reales en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md). No confundir preparación con publicación: esta migración y etapa no están desplegadas, el número no está vinculado y no hubo códigos reales. Confirmaciones pendientes antes de migrar/publicar, vincular y primer envío. Los diez códigos de respaldo MFA y el resto del encargo de cuentas siguen pendientes de sus etapas propias.

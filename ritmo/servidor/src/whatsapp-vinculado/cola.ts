@@ -3,7 +3,7 @@ import type {ClienteSQL} from '../repositorio.js';
 import {BaseWhatsApp} from './db.js';
 import {anticipo,configuracion,huella,idEnvio,inicio,plan,mensaje,dia,numero,type Datos,type Tipo} from './reglas.js';
 export interface Remitente {estado(n:string):Promise<{estado:string;numero?:string;verificado?:boolean}>;codigo(n:string,tel:string):Promise<string>;recuperar(n:string):Promise<void>;salir(n:string):Promise<void>;olvidar?(n:string):Promise<void>;escribir(n:string,tel:string):Promise<void>;enviar(n:string,tel:string,texto:string,id:string):Promise<string>;}
-export type Politica={envios:boolean;vincular:boolean;destinatarios?:ReadonlySet<string>};
+export type Politica={envios:boolean;vincular:boolean;destinatarios?:ReadonlySet<string>;codigosPendientes?:()=>boolean};
 const fecha=(ms:number)=>new Date(ms);
 export class Mensajero {
  constructor(readonly db:BaseWhatsApp,readonly remitente:Remitente,readonly politica:Politica,readonly dormir:(ms:number)=>Promise<void>=ms=>new Promise(r=>setTimeout(r,ms)),readonly azar=()=>Math.random()){}
@@ -34,7 +34,7 @@ export class Mensajero {
   if(con?.ultima_conexion&&con.estado!=='conectado'&&(con.estado==='requiere_vincular'||con.desconectado_desde&&new Date(con.desconectado_desde).getTime()<=ahora-600000))await this.db.alerta(n,null,'whatsapp_desconectado',c);
  });}
  private async datos(c:ClienteSQL,n:string,id:string){const x=(await this.db.fuente(n,id,c))?.data;if(x?.kind!=='cita')return null;const k=(await this.db.fuente(n,x.clienta,c))?.data,s=(await this.db.fuente(n,x.servicio,c))?.data;return k?.kind==='clienta'&&s?.kind==='servicio'?{cita:x,clienta:k,servicio:s}:null;}
- async tomar(n:string){if(!this.politica.envios)return null;
+ async tomar(n:string){if(!this.politica.envios||this.politica.codigosPendientes?.())return null;
   const estado=await this.remitente.estado(n);if(estado.estado!=='conectado'||!estado.verificado||!estado.numero)return null;
   return this.db.tx(async c=>{
    const con=await this.db.prepararConexion(n,c),a=await this.db.config(n,c),ahora=this.db.ahora();
@@ -75,6 +75,7 @@ export class Mensajero {
    const p=await this.db.usar(async c=>(await c.query('SELECT * FROM ritmo.whatsapp_anticipos WHERE negocio_id=$1 AND cita_id=$2',[n,f.cita_id])).rows[0]);
    const extra=await this.db.usar(async c=>({salon:(await c.query('SELECT nombre FROM ritmo.negocios WHERE id=$1',[n])).rows[0]?.nombre,especialista:actual.cita.especialista?(await c.query('SELECT nombre FROM ritmo.miembros WHERE negocio_id=$1 AND usuario_id=$2 AND activo',[n,actual.cita.especialista])).rows[0]?.nombre:''}));
    const texto=mensaje(f.tipo,actual.cita,actual.clienta,actual.servicio,extra.especialista,extra.salon,a,p,new Date(f.debido).getTime(),parseInt(f.id.slice(0,4),16));
+   if(this.politica.codigosPendientes?.()){await this.finalizar(f.id,n,'pendiente','prioridad_codigo');return true;}
    enviado=true;const id=await this.remitente.enviar(n,f.tel,texto,f.id);
    await this.finalizar(f.id,n,'aceptado','',id);
   }catch(e:any){const codigo=Number(e?.status||e?.output?.statusCode||e?.statusCode);const bloqueo=[401,403,429].includes(codigo);if(bloqueo)await this.db.tx(async c=>{await c.query("UPDATE ritmo.whatsapp_conexiones SET freno=true,motivo='bloqueo_o_limite' WHERE negocio_id=$1",[n]);await this.db.alerta(n,null,'envios_detenidos',c);});await this.finalizar(f.id,n,enviado?'incierto':'pendiente',bloqueo?'bloqueo_o_limite':enviado?'resultado_incierto':'conexion_pendiente');}
