@@ -270,7 +270,7 @@
   }
 
   // ---------- Estado de la vista ----------
-  const S = { tab: 'agenda', day: today(), seg: 'servicios', cat: 'Todas', q: '', sheetOpen: false };
+  const S = { tab: 'agenda', day: today(), seg: 'servicios', cat: 'Todas', q: '', qServicios: '', sheetOpen: false };
   const screen = $('#screen');
   function applySkin() {
     const k = Store.settings.skin || 'clasico';
@@ -278,12 +278,14 @@
     if (k === 'clasico') delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = k;
   }
   function render() {
+    const anterior=document.activeElement?.id==='buscar-servicios' ? {inicio:document.activeElement.selectionStart,fin:document.activeElement.selectionEnd} : null;
     applySkin();
     const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Ajustes']];
     $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k === 'servicios' && S.tab === 'promos')}">${I[k]}${n}</button>`).join('');
     $('#fab').hidden = false;
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
     screen.innerHTML = ({ agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas: viewMas })[S.tab]();
+    if(anterior){const campo=$('#buscar-servicios');if(campo){campo.focus({preventScroll:true});campo.setSelectionRange(anterior.inicio,anterior.fin);}}
   }
   // Permite retirar ejemplos guardados por versiones anteriores sin borrar registros propios.
   const banner = () => all().some(x => x.example) ? `<div class="banner"><p>Todavía tienes datos de ejemplo.</p><button type="button" class="btn" data-act="borrar-ejemplos">Borrar ejemplos</button></div>` : '';
@@ -347,6 +349,66 @@
   }
 
   // Servicios y promociones
+  // La búsqueda se mantiene en este dispositivo y no modifica los datos del salón.
+  const normalizarBusqueda = valor => String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+  const formasBusqueda = palabra => {
+    const formas = [palabra];
+    if (palabra.length > 4 && palabra.endsWith('es')) formas.push(palabra.slice(0,-2));
+    if (palabra.length > 3 && palabra.endsWith('s')) formas.push(palabra.slice(0,-1));
+    return [...new Set(formas.filter(Boolean))];
+  };
+  const palabrasBusqueda = q => normalizarBusqueda(q).trim().split(/\s+/).filter(Boolean);
+  function marcarBusqueda(texto, q) {
+    texto=String(texto||''); const terminos=palabrasBusqueda(q); if(!terminos.length)return esc(texto);
+    let normal='',posiciones=[],offset=0;
+    for(const caracter of texto){const inicio=offset;offset+=caracter.length;const parte=normalizarBusqueda(caracter);
+      if(!parte && posiciones.length){posiciones[posiciones.length-1].fin=offset;continue;}
+      for(let j=0;j<parte.length;j++){normal+=parte[j];posiciones.push({inicio,fin:offset});}}
+    const rangos=[];
+    for(const palabra of terminos){let index=-1, elegido='';for(const forma of formasBusqueda(palabra)){const i=normal.indexOf(forma);if(i>=0){index=i;elegido=forma;break;}}
+      if(index>=0&&posiciones[index]&&posiciones[index+elegido.length-1])rangos.push([posiciones[index].inicio,posiciones[index+elegido.length-1].fin]);}
+    rangos.sort((a,b)=>a[0]-b[0]);let cursor=0,out='';for(const [inicio,fin] of rangos){if(inicio<cursor)continue;out+=esc(texto.slice(cursor,inicio))+'<mark>'+esc(texto.slice(inicio,fin))+'</mark>';cursor=fin;}return out+esc(texto.slice(cursor));
+  }
+  let equipoServicios = {clave:'', personas:null, enCurso:null};
+  async function cargarEquipoServicios() {
+    const cuenta=await window.AgendappxCuentas?.sesion?.();
+    if(!cuenta){equipoServicios={clave:'',personas:null,enCurso:null};actualizarResultadosServicios();return;}
+    const clave=cuenta.usuarioId+':'+cuenta.negocioId;
+    if(equipoServicios.clave!==clave){equipoServicios={clave,personas:null,enCurso:null};try{const guardado=JSON.parse(localStorage.getItem('agendappx.prestadores.'+clave));if(Array.isArray(guardado))equipoServicios.personas=guardado;}catch{}}
+    if(cuenta.sinConexion || equipoServicios.enCurso){actualizarResultadosServicios();return;}
+    const operacion=(async()=>{try {
+      const r=await fetch('/api/negocios/'+encodeURIComponent(cuenta.negocioId)+'/datos/prestadores',{headers:{Authorization:'Bearer '+cuenta.accessToken},cache:'no-store',signal:AbortSignal.timeout(12000)});
+      if(!r.ok)throw new Error();const d=await r.json();
+      if(!Array.isArray(d.equipo))throw new Error();
+      const actual=await window.AgendappxCuentas.sesion();if(!actual||actual.usuarioId!==cuenta.usuarioId||actual.negocioId!==cuenta.negocioId||equipoServicios.clave!==clave)return;
+      const personas=d.equipo.filter(m=>typeof m.nombre==='string'&&Array.isArray(m.servicios)).map(m=>({nombre:m.nombre,servicios:m.servicios.filter(x=>typeof x==='string')}));
+      equipoServicios.personas=personas;try{localStorage.setItem('agendappx.prestadores.'+clave,JSON.stringify(personas));}catch{}actualizarResultadosServicios();
+    }catch{/* Se conservan solo las asignaciones previamente guardadas para esta cuenta. */}finally{if(equipoServicios.clave===clave)equipoServicios.enCurso=null;}})();
+    equipoServicios.enCurso=operacion;await operacion;
+  }
+  function prestadoresServicio(s){
+    if(!Array.isArray(equipoServicios.personas))return 'Equipo no disponible';
+    return equipoServicios.personas.filter(p=>p.servicios.includes(s.id)).map(p=>p.nombre).join(', ')||'Sin asignar';
+  }
+  function resultadosServicios(){
+    const q=S.qServicios,palabras=palabrasBusqueda(q), svcs=list('servicio');
+    const mostrados=svcs.filter(s=>{const texto=normalizarBusqueda((s.nombre||'')+' '+(s.categoria||''));return palabras.every(p=>formasBusqueda(p).some(f=>texto.includes(f)));});
+    const orden=c=>{const i=CATS.findIndex(x=>x[0]===c);return i<0?CATS.length:i;};
+    mostrados.sort((a,b)=>orden(a.categoria)-orden(b.categoria)||String(a.categoria||'Otro').localeCompare(String(b.categoria||'Otro'),'es')||String(a.nombre).localeCompare(String(b.nombre),'es'));
+    if(!svcs.length)return '<p class="empty">Agrega tu primer servicio con el +.</p>';
+    if(!mostrados.length)return `<p class="empty">No encontramos servicios para «${esc(q.trim())}». Prueba con otra búsqueda.</p>`;
+    const cats=[...new Set(mostrados.map(s=>s.categoria||'Otro'))];
+    const conteo=q.trim()?`<p class="foot servicios-conteo" role="status">${mostrados.length} ${mostrados.length===1?'servicio':'servicios'} para «${esc(q.trim())}»</p>`:'';
+    const grupos=cats.map(c=>{const grupo=mostrados.filter(s=>(s.categoria||'Otro')===c);return `<p class="gh">${marcarBusqueda(c,q)} · ${grupo.length}</p><div class="group">${grupo.map(s=>`<button type="button" class="cell" data-servicio="${esc(s.id)}">${miniaturaServicio(s)}<span class="l">${marcarBusqueda(s.nombre,q)}<small>${esc(s.duracion)} min · ${esc(prestadoresServicio(s))}</small></span><span class="p">${money(s.precio)}</span></button>`).join('')}</div>`;}).join('');
+    const destacados=`<p class="gh">Destacados · desliza para verlos</p><div class="cards" id="cards">${mostrados.map(s=>{const fotos=fotosServicio(s);return `<div class="promo${fotos.length?' trabajo':''}" style="--c:${catColor(s.categoria)};--foco:${s.categoria==='Cejas'?'45%':'64%'};min-height:200px">${fotos.length?`<img class="trabajo-fondo" src="${esc(fotos[0])}" alt="" decoding="async"><button type="button" class="trabajo-ver" data-fotos="${esc(s.id)}" aria-label="Ver fotos de ${esc(s.nombre)}">Ver fotos</button>`:''}<small>${esc(s.categoria||'Otro')}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion||'')}</p><span class="badge" style="left:14px;right:auto">${esc(s.duracion)} min · ${money(s.precio)}</span><button type="button" class="badge" data-agendar="${esc(s.id)}" style="border:0">Agendar ›</button></div>`;}).join('')}</div><div class="pdots" id="pdots">${mostrados.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`;
+    return conteo+grupos+destacados;
+  }
+  function actualizarResultadosServicios(){
+    const resultados=$('#resultados-servicios');if(!resultados)return;
+    resultados.innerHTML=resultadosServicios();
+    document.querySelectorAll('[data-busqueda-servicio]').forEach(b=>b.setAttribute('aria-pressed',String(normalizarBusqueda(S.qServicios.trim())===normalizarBusqueda(b.dataset.busquedaServicio))));
+    const borrar=$('#borrar-busqueda-servicios');if(borrar)borrar.hidden=!S.qServicios;
+  }
   function viewServicios() {
     const promos = S.tab === 'promos' || S.seg === 'promos';
     const head = `<div class="nav"><span></span><button type="button" class="icon" data-act="${promos ? 'nueva-promo' : 'nuevo-servicio'}" aria-label="${promos ? 'Nueva promoción' : 'Nuevo servicio'}">${I.plus}</button></div>
@@ -360,15 +422,8 @@
         <p class="gh">Desliza para ver todas · toca una para publicarla en tus grupos</p>
         ${ps.length ? `<div class="group">${ps.map(p => { const n = Object.keys(p.publicado || {}).length; return `<button type="button" class="cell" data-promo="${esc(p.id)}"><span class="ico" style="background:${esc(p.color)}">%</span><span class="l">${esc(p.titulo)}<small>${n ? `Publicada en ${n} ${n === 1 ? 'grupo' : 'grupos'}` : 'Sin publicar'}</small></span><span class="chev">${I.chev}</span></button>`; }).join('')}</div>` : ''}`;
     }
-    const svcs = list('servicio');
-    const cats = ['Todas', ...CATS.map(c => c[0]).filter(c => svcs.some(s => s.categoria === c))];
-    const shown = svcs.filter(s => S.cat === 'Todas' || s.categoria === S.cat);
-    return head + `<div class="hscroll" role="group" aria-label="Categorías">${cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}</div>
-      <div class="cards" id="cards" style="margin-top:12px">${shown.map(s => { const fotos = fotosServicio(s); return `<div class="promo${fotos.length ? ' trabajo' : ''}" style="--c:${catColor(s.categoria)};--foco:${s.categoria === 'Cejas' ? '45%' : '64%'};min-height:200px">${fotos.length ? `<img class="trabajo-fondo" src="${esc(fotos[0])}" alt="" decoding="async"><button type="button" class="trabajo-ver" data-fotos="${esc(s.id)}" aria-label="Ver fotos de ${esc(s.nombre)}">Ver fotos</button>` : ''}<small>${esc(s.categoria)}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion || '')}</p>
-        <span class="badge" style="left:14px;right:auto">${s.duracion} min · ${money(s.precio)}</span><button type="button" class="badge" data-agendar="${esc(s.id)}" style="border:0">Agendar ›</button></div>`; }).join('') || '<p class="empty">Agrega tu primer servicio con el +.</p>'}</div>
-      <div class="pdots" id="pdots">${shown.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>
-      <p class="gh">Todos los servicios · toca para editar</p>
-      ${svcs.length ? `<div class="group">${svcs.slice().sort((a, b) => CATS.findIndex(c => c[0] === a.categoria) - CATS.findIndex(c => c[0] === b.categoria) || a.nombre.localeCompare(b.nombre, 'es')).map(s => `<button type="button" class="cell" data-servicio="${esc(s.id)}">${miniaturaServicio(s)}<span class="l">${esc(s.nombre)}<small>${esc(s.categoria)} · ${s.duracion} min</small></span><span class="p">${money(s.precio)}</span></button>`).join('')}</div>` : ''}`;
+    return head + `<div class="search servicios-busqueda"><span aria-hidden="true">🔍</span><input id="buscar-servicios" type="search" value="${esc(S.qServicios)}" placeholder="Buscar: cejas, pestañas, uñas…" aria-label="Buscar servicios" autocomplete="off"><button type="button" id="borrar-busqueda-servicios" data-act="borrar-busqueda-servicios" aria-label="Borrar búsqueda" ${S.qServicios?'':'hidden'}>✕</button></div>
+      <div class="hscroll" role="group" aria-label="Categorías rápidas">${['Uñas','Pestañas','Cejas','Cabello'].map(c=>`<button type="button" class="chip" data-busqueda-servicio="${esc(c)}" aria-pressed="${normalizarBusqueda(S.qServicios.trim())===normalizarBusqueda(c)}">${esc(c)}</button>`).join('')}</div><div id="resultados-servicios">${resultadosServicios()}</div>`;
   }
 
   // Conexiones y ajustes
@@ -575,12 +630,12 @@
       ${cuentas?'':`<details><summary class="cell">Configuración avanzada</summary><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
       <p class="foot">Usa el APP_TOKEN de tu servidor. Se guarda en este dispositivo y se envía únicamente a esta misma dirección.</p>
       <button type="button" class="cta" id="sync-connect">Conectar</button></details>`}
-      ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${conflicto}`,
+      ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${cuentas&&sync.connected?'<button type="button" class="cell" id="sync-account">Administrar acceso</button>':''}${conflicto}`,
     'Sincronización', root => {
       const feedback = message => { $('#sync-status', root).textContent = message; };
       root.addEventListener('click', async e => {
         const b = e.target.closest('button'); if (!b) return;
-        if (b.id === 'sync-activate') { if(cuentas)sheetAccesoAdmin();else sheetActivacion(); }
+        if (b.id === 'sync-activate' || b.id === 'sync-account') { if(cuentas)sheetAccesoAdmin();else sheetActivacion(); }
         else if(b.id==='sync-legado'){if(!confirm('Se conservará la copia anterior y se enviarán estos cambios con tu cuenta. Si hay diferencias podrás elegir qué versión conservar. ¿Recuperarlos?'))return;try{sync.importarLegado(legado);const prev=JSON.parse(localStorage.getItem('agendappx.legado.recuperado')||'[]');localStorage.setItem('agendappx.legado.recuperado',JSON.stringify([...new Set([...prev,...legado.map(x=>x.mutationId)])]));await sync.sync();sheetServidor();}catch(err){feedback(err.message);}}
         else if (b.id === 'sync-connect') {
           b.disabled = true;
@@ -991,10 +1046,10 @@
       }
       return;
     }
-    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-agendar],[data-act],[data-modo],[data-skin],[data-setsw],[data-newat],[data-fotos]');
+    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-busqueda-servicio],[data-agendar],[data-act],[data-modo],[data-skin],[data-setsw],[data-newat],[data-fotos]');
     if (!b) return;
     const d = b.dataset;
-    if (d.tab) { S.tab = d.tab; if (d.tab === 'servicios') S.seg = 'servicios'; lastScrollDay = null; scrollTo({ top: 0 }); render(); }
+    if (d.tab) { S.tab = d.tab; if (d.tab === 'servicios') { S.seg = 'servicios'; void cargarEquipoServicios(); } lastScrollDay = null; scrollTo({ top: 0 }); render(); }
     else if (d.day) { S.day = d.day; lastScrollDay = null; render(); }
     else if (d.cita) sheetDetalle(d.cita);
     else if (d.clienta !== undefined && d.clienta !== '') sheetClienta(d.clienta);
@@ -1003,6 +1058,7 @@
     else if (d.promo) sheetPromo(d.promo);
     else if (d.grupo) sheetGrupo(d.grupo);
     else if (d.seg) { S.seg = d.seg; S.tab = d.seg === 'promos' ? 'promos' : 'servicios'; render(); }
+    else if (d.busquedaServicio) { S.qServicios=normalizarBusqueda(S.qServicios.trim())===normalizarBusqueda(d.busquedaServicio)?'':d.busquedaServicio; const input=$('#buscar-servicios');if(input)input.value=S.qServicios;actualizarResultadosServicios(); }
     else if (d.cat) { S.cat = d.cat; render(); }
     else if (d.agendar) sheetCita({ servicio: d.agendar });
     else if (d.newat) sheetCita({ date: S.day, start: d.newat });
@@ -1010,6 +1066,7 @@
     else if (d.modo && ['white', 'dark'].includes(d.modo)) Store.setSettings({ modo: d.modo });
     else if (d.setsw) Store.setSettings({ [d.setsw]: !Store.settings[d.setsw] });
     else if (d.act) ({
+      'borrar-busqueda-servicios': () => { S.qServicios='';const input=$('#buscar-servicios');if(input){input.value='';input.focus();}actualizarResultadosServicios(); },
       mes: sheetMes, hoy: () => { S.day = today(); lastScrollDay = null; render(); },
       'nueva-clienta': () => sheetClienta(null), 'nuevo-servicio': () => sheetServicio(null), 'nueva-promo': () => sheetPromo(null), 'nuevo-grupo': () => sheetGrupo(null),
       'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes, servidor: sheetServidor,
@@ -1019,6 +1076,7 @@
   });
   $('#fab').addEventListener('click', () => sheetCita({ date: S.day }));
   document.addEventListener('input', e => {
+    if (e.target.id === 'buscar-servicios') { S.qServicios=e.target.value; actualizarResultadosServicios(); return; }
     if (e.target.id === 'q') { S.q = e.target.value; const pos = e.target.selectionStart; render(); const q = $('#q'); if (q) { q.focus(); q.setSelectionRange(pos, pos); } }
   });
   document.addEventListener('change', e => {
@@ -1047,6 +1105,8 @@
   }, { passive: true });
   setInterval(() => { if (document.visibilityState === 'visible' && !S.sheetOpen && S.tab === 'agenda') render(); }, 60000);
 
+  document.addEventListener('agendappx:sesion',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();});
+  window.addEventListener('online',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();});
   Store.onChange(render);
   void Promise.resolve(Store.init()).then(() => { if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); } });
   window.addEventListener('hashchange', () => { const enlace = tomarEnlaceActivacion(); if (enlace && Store.sync) sheetActivacion(enlace); });

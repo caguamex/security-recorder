@@ -1,0 +1,22 @@
+# Administradoras con invitación temporal — 27 de octubre de 2026
+
+Antonio autorizó que otra persona sea Admin con acceso completo, y que se genere un enlace en su propia cuenta para compartirlo con ella. Aprobó expresamente una excepción temporal al registro cerrado: sesiones de Supabase sin correo protegidas con CAPTCHA y acceso al salón solo por invitación. El correo por código sigue pendiente, no se considera terminado.
+
+## Funcionamiento preparado
+
+En Ajustes → Sincronización → Administrar acceso, la Admin con TOTP crea un enlace de 128 bits que dura 48 h y se puede usar una vez. La invitada abre el enlace en su dispositivo, indica su nombre, supera Turnstile y configura su propio TOTP antes de que el servidor consuma la invitación y le conceda Admin. El enlace va en el fragmento, se retira del historial y no se envía a servidores externos. La lista de equipo permite retirar acceso de otra persona; la base vuelve a validar la membresía y rechaza la siguiente consulta. Una copia que ya exista en un dispositivo desconectado no se puede borrar a distancia.
+
+Las dos administradoras consultan el mismo salón, crean y editan promociones; la app sincroniza al recuperar conexión y cada 30 s mientras es visible. La invitada tiene identidad independiente, sin compartir credenciales. Hasta configurar correo, si cierra sesión o borra datos deberá recibir otra invitación. El acceso anónimo no tiene recuperación por sí solo. No se deben inventar cuentas, JWT ni entregar el enlace del dueño.
+
+## Seguridad y activación
+
+- Las rutas comprueban origen, JWT firmado, sesión vigente, rol Admin y `aal2`; RLS y membresía se comprueban de nuevo en la base. El código de invitación se guarda solo como hash, con expiración, uso único, límite de intentos y verificación de salón permitido. Cuentas temporales sin membresía no leen datos. El último Admin y el propio acceso no se quitan desde la pantalla.
+- `AGENDAPPX_INVITACIONES_TEMPORALES=true` habilita explícitamente JWT de cuentas temporales en Cloudflare y Railway; sin la bandera la verificación previa sigue rechazándolos. La API de invitación exige además `TURNSTILE_SITE_KEY`. Supabase debe validar el CAPTCHA con la llave secreta correspondiente, y su configuración debe permitir sesiones temporales. No activar la opción sin CAPTCHA ni ampliar planes. Se deben revisar los efectos de habilitar registro para no permitir que una cuenta sin invitación reciba membresía.
+- Cloudflare: crear un widget Turnstile gratuito para `ritmo-belleza.antonio-t-22.workers.dev`, conservando su secreto fuera de Git. La sesión Wrangler disponible carece de permiso `challenge-widgets.write`; el intento de consulta devolvió error 10000. El código de autorización generado venció. Solicitar un código nuevo cuando Antonio pueda autorizarlo. No alterar otros widgets ni proyectos.
+- Supabase proyecto `zkqwephmuflbuagevvxj`: el conector no administra la configuración de Auth. Preparar la activación de Turnstile, su secreto y sesiones temporales con acceso apropiado al panel o Management API. Los secretos nunca se comparten en chat. No habilitar cuentas temporales sin CAPTCHA. Verificar si el cambio de CAPTCHA afecta el acceso existente antes de aplicar; dejar salida de recuperación operativa y plan de reversión.
+- Publicar cambios en Cloudflare y el servicio exclusivo de Railway, conservando WhatsApp sin vinculación y envíos apagados. La publicación de este conjunto requiere confirmación específica de Antonio según la skill ritmo-confirmar-deploy; su aceptación de sesiones temporales no equivale a aprobar el deploy. No tocar FiNeCi ni límites de gasto.
+- El acceso de Antonio debe estar iniciado y con MFA para crear la invitación. Si su enlace privado de arranque caducó, generar otro con la API Admin normal, solo cuando vaya a usarlo, sin imprimirlo ni publicarlo.
+
+## Verificación
+
+177 pruebas automáticas pasaron; las pruebas nuevas verifican invitación de uso único, caducidad del mecanismo de base, acceso de dos Admin con MFA, sincronización de promociones, aislamiento entre salones y revocación en la siguiente solicitud. La prueba en Edge usa JWT firmados, PostgreSQL local con RLS, SDK real, Supabase Auth y Turnstile simulados: crea enlace desde UI, registra la identidad temporal, configura MFA, acepta y revoca. Revisa anchos 390, 768 y 1440. Worker compilado con dry-run. La conexión real de Turnstile/Supabase y el celular físico siguen pendientes hasta la configuración y publicación autorizadas.
