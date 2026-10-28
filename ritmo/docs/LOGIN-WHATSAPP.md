@@ -4,7 +4,7 @@ Rama codex/agendappx-siguiente-version, PR #7. Fuente CUENTAS.md y WHATSAPP-AUTO
 
 ## Comportamiento entregado
 
-La pantalla «Iniciar sesión» pide diez dígitos mexicanos y envía un código de seis dígitos. El SDK real de Supabase conserva y renueva la sesión; no hay contraseñas. El intercambio pasa por rutas propias /api/acceso/solicitar y /verificar que usan exclusivamente la llave publicable y create_user:false. No se crean usuarios ni se conceden membresías por escribir un teléfono o correo.
+Ruta visible actual: Ajustes → Sincronización → Iniciar sesión. La bienvenida completa pertenece a la siguiente etapa del encargo. La pantalla «Iniciar sesión» pide diez dígitos mexicanos y envía un código de seis dígitos. El SDK real de Supabase conserva y renueva la sesión; no hay contraseñas. El intercambio pasa por rutas propias /api/acceso/solicitar y /verificar que usan exclusivamente la llave publicable y create_user:false. No se crean usuarios ni se conceden membresías por escribir un teléfono o correo.
 
 El servicio Railway recibe POST /hook/codigo directamente de Supabase. Valida Standard Webhooks sobre el cuerpo exacto, timestamp ±5 minutos, id y firma v1; admite el payload real user + sms.otp, con sms.phone en versiones recientes. No admite un endpoint libre {telefono,codigo,texto}. Solo envía el texto fijo de CUENTAS.md. Antes de enviar exige una solicitud reciente creada por el servidor; así llamar directamente a /auth/v1/otp no evita el límite por IP. Phone change necesita además el ticket del mismo usuario autenticado.
 
