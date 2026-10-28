@@ -57,3 +57,20 @@ Comandos reproducibles:
     npm run build --prefix ritmo/nube
 
 Referencias verificadas: https://supabase.com/docs/guides/auth/auth-hooks/send-sms-hook y https://supabase.com/docs/guides/auth/auth-hooks (HTTP hooks: cinco segundos; Send SMS en Free). El adaptador cubre el payload documentado y sms.phone del código actual de Supabase Auth.
+
+
+## Publicación autorizada y verificada — 28 de octubre de 2026
+
+Antonio respondió «sí autorizo» a respaldar, aplicar cambios de acceso en Supabase y publicar en Cloudflare/Railway. Se ejecutó el alcance aprobado desde 9e3c0e8, PR #7. No extiende la autorización a vincular números ni al primer código real.
+
+Respaldo privado previo de 21 tablas: SHA-256 96e6767b607fb85817cc1787096724ae376a801b815c2c5dd1ecdaf4c801c17d, archivo local fuera de Git. Comparación de huellas antes/después: las 21 tablas originales idénticas, 23 objetos, 42 mutaciones; la única cuenta Admin conserva UUID y membresía. Migración login_whatsapp_aprobado_20261028 aplicada; cinco tablas nuevas con RLS forzado y sin SELECT para anon/authenticated. Los asesores no mostraron avisos nuevos: persisten los dos INFO de tablas internas anteriores y el aviso de protección de contraseñas del proyecto, cuyo acceso es sin contraseña.
+
+Worker 0679a8c3-eb04-483a-ad3b-410356aaeb6b publicado en la misma URL. Railway b63a5b0a-e9dd-443b-a87f-4feff1dfc80c SUCCESS: servicio existente, una réplica, máximo 0.5 GB/0.1 vCPU, sin nuevos planes ni recursos. Se conservó la fecha original de inicio 2026-10-27T19:11:09.551883275Z para el informe semanal; este despliegue no reinicia el contador. Consumo compartido consultado: 1.3659 USD, proyección 2.4293 USD para el ciclo, límite 10 USD y aviso 5 USD intactos.
+
+Claves HMAC y Standard Webhooks guardadas fuera de Git, iguales donde corresponden. Clave Admin únicamente en la operación local oficial de Supabase; no se cargó al Worker ni Railway. El enlace de recuperación corresponde al mismo Admin y su huella está registrada en el Worker; no se consumió como prueba. Archivo privado local ACCESO-AGENDAPPX-LOGIN.md.
+
+Verificación publicada: /, /salud y configuración 200; agenda anónima 401; tres rutas de acceso rechazan entradas inválidas con 400 antes de pedir códigos. cuentas.js, belleza.js y sw.js coinciden por SHA-256 con los archivos aprobados. Railway /salud 200. Navegador aislado a 390 px abrió Ajustes → Sincronización → Iniciar sesión, mostró teléfono y botón de código, sin errores ni desbordamiento. Captura imagenes/login-whatsapp/publicado-390.png. No se inició sesión del propietario ni se pidió código.
+
+Estado real: pantalla y soporte publicados; acceso por WhatsApp TODAVÍA NO OPERATIVO. Supabase informa external.phone=false y el hook no se configuró. Las altas públicas siguen en el valor previo del proveedor y deben cerrarse al configurar teléfono; el proxy ya usa create_user:false y la base rechaza sesiones nuevas no admitidas. El conector disponible no administra esta configuración y el navegador devolvió «Local browser use is disabled in Work settings». Se pidió a Antonio habilitar el uso del navegador mientras se completaba la publicación; no intentar acceder al panel mediante otro mecanismo que eluda ese ajuste.
+
+ACCESO_WHATSAPP_HABILITADO=true muestra la pantalla; ACCESO_CORREO_HABILITADO=false por Brevo pendiente. En Railway WA_CODIGOS_HABILITADOS=false, WA_CODIGOS_VINCULAR=false, WA_ENVIOS_HABILITADOS=false y WA_VINCULACION_HABILITADA=false, comprobadas por lectura; cero sesiones de salón/plataforma y cero envíos reales. Siguiente paso: acceso al panel para Phone OTP/Send SMS Hook y cierre de altas abiertas; luego pedir confirmación para vincular 528661241483 como dispositivo independiente y, por separado, para el primer código físico. No afirmar que el celular ya recibe códigos.
