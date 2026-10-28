@@ -469,7 +469,7 @@
   }
 
   // ---------- Hojas ----------
-  function sheetAccesoAdmin(){openSheet(navSheet('Acceso de Admin','Listo')+'<div id="wa-acceso"></div>','Acceso de Admin',root=>{void window.AgendappxCuentas?.montar($('#wa-acceso',root));root.addEventListener('click',e=>{if(e.target.closest('[data-close],[data-done]'))closeSheet();});});}
+  function sheetAccesoAdmin(){openSheet(navSheet('Iniciar sesión','Listo')+'<div id="wa-acceso"></div>','Iniciar sesión',root=>{void window.AgendappxCuentas?.montar($('#wa-acceso',root));root.addEventListener('click',e=>{if(e.target.closest('[data-close],[data-done]'))closeSheet();});});}
   document.addEventListener('agendappx:abrir-acceso',sheetAccesoAdmin);
   async function sheetConexion(tipo) {
     if (tipo === 'whatsapp' && window.AgendappxWhatsApp) {

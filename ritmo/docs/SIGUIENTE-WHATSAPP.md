@@ -72,3 +72,32 @@ Fuentes primarias: [tarifas de Railway](https://docs.railway.com/pricing/plans),
 - Asesoría Supabase: dos INFO de RLS sin políticas en tablas privadas internas (sin grants públicos, uso mediante funciones controladas) y WARN de protección de contraseñas filtradas desactivada. El acceso implementado es sin contraseña; no activar servicios de pago para silenciar ese aviso.
 
 El resto de CUENTAS.md (registro público, equipo y bienvenida completos) sigue pendiente; esta entrega es el acceso mínimo seguro necesario para probar WhatsApp.
+
+## Horario 24 horas publicado — 28 de octubre de 2026
+
+Antonio confirmó «publícalo» y «sigue» después de autorizar códigos, citas y promociones a cualquier hora. Se implementó y publicó el cambio en los avisos de citas existentes y su texto de configuración. No se publicaron como terminados el login por WhatsApp, la sesión de plataforma ni las campañas: continúan en preparación según SIGUIENTE-VERSION.md.
+
+Aplicación `a17a88b`, rama codex/agendappx-siguiente-version, PR #7. Cloudflare `843ab4e0-a836-4acd-9a1e-abf420770707`; Railway `9a4a3f3b-8a32-48fd-a652-2a1c09d2ab99`, SUCCESS, proceso listo 2026-10-28T07:57:22.104148792Z. No reiniciar el conteo semanal: el servicio comenzó originalmente el 27 de octubre, y estos logs corresponden a su actualización. Una réplica, máximo 0.5 GB/0.1 vCPU; sin cambios de planes ni límites.
+
+Se eliminaron filtros de silencio 21–08 y la omisión nocturna del aviso anterior a la cita. Se conserva la hora programada, caducidad al comenzar/cancelar la cita, consentimiento, pausas, límites y freno persistente. La huella de configuración cambia a 24h-v1 para actualizar planes pendientes conservando la confirmación ya enviada, los anticipos y los resultados inciertos. Anticipo predeterminado 30 % y las otras funciones del encargo completo se incorporarán en su etapa propia; no se cambiaron pagos ni preferencias guardadas en esta publicación.
+
+Verificación: 180 pruebas automáticas, cero fallos; navegador SDK real con Auth/WhatsApp simulado y RLS local, pagos/fotos/White/Dark a 390/768/1440. Incluye noches, cruce de medianoche y de las 21, programación de madrugada, caducidad, replanificación sin duplicados, consentimiento y topes. Producción: Cloudflare y Railway /salud 200; agenda anónima 401, Meta 503; JavaScript publicado idéntico por SHA-256; navegador real conserva buscador y panel sin errores. Lectura con rol mínimo confirmó cero sesiones. `WA_VINCULACION_HABILITADA=false`, `WA_ENVIOS_HABILITADOS=false`; no hubo mensajes reales ni cambios en FiNeCi. No se ejecutó migración.
+
+
+## Login por WhatsApp preparado — 28 de octubre de 2026
+
+Antonio pidió implementar el login por WhatsApp. Se agregó el proxy OTP con el SDK real, límites durables 3/destino/15 min y 10/IP/h, cinco intentos y diez minutos, hook Standard Webhooks con texto fijo, sesión cifrada de plataforma aislada en tablas plataforma_*, prioridad de códigos y acceso de Admin con MFA. Sesiones nuevas de Auth requieren admisión del proxy para impedir que la API pública evite los límites. Se conserva la identidad existente mediante phone_change autenticado; no hay altas ni fusiones automáticas. Recuperación solo por enlace de operación registrado y UUID esperado. Correo tiene bandera independiente y sigue pendiente del SMTP real.
+
+193 pruebas automáticas aprobadas y navegador local con SDK real/RLS: WhatsApp, correo simulado, MFA, Recepción, mismo UUID, vinculación propia, espera de veinte segundos y White/Dark a 390/768/1440. Cloudflare dry-run. Detalles, configuración, operación y límites reales en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md). No confundir preparación con publicación: esta migración y etapa no están desplegadas, el número no está vinculado y no hubo códigos reales. Confirmaciones pendientes antes de migrar/publicar, vincular y primer envío. Los diez códigos de respaldo MFA y el resto del encargo de cuentas siguen pendientes de sus etapas propias.
+
+
+## Login publicado, activación pendiente — 28 de octubre de 2026
+
+Antonio confirmó «sí autorizo». Respaldo verificado y migración 20261028163724_login_whatsapp_aprobado_20261028 aplicada. Las 21 tablas previas conservan sus huellas exactas y el mismo Admin. Aplicación 9e3c0e8, PR #7; Worker 0679a8c3-eb04-483a-ad3b-410356aaeb6b y Railway b63a5b0a-e9dd-443b-a87f-4feff1dfc80c SUCCESS, sin modificar planes, límites, recursos ni FiNeCi. Salud, archivos y pantalla real de login verificados; detalle y respaldo en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md).
+
+La pantalla está publicada; los códigos aún NO funcionan: external.phone=false, Send SMS Hook pendiente y control del navegador deshabilitado en Work. Se pidió habilitarlo para completar la configuración de Supabase y cerrar altas públicas. Correo y las cuatro banderas de vinculación/envío de Railway siguen apagados. Cero sesiones vinculadas y envíos reales. Confirmaciones para vincular número y primer código siguen pendientes. Preservar el inicio real del servicio del 27 de octubre para el seguimiento semanal.
+
+
+Vinculación de plataforma: primer intento rechazado sin llegar a conectado. Reparación local del saludo de registro y conservación del intento pasó 196 pruebas. Antonio autorizó explícitamente publicar la reparación y generar otro código; ver última entrada de LOGIN-WHATSAPP.md. No habilitar envíos reales ni borrar credenciales.
+
+La comprobación pasiva detectó rechazo 405 de la versión de protocolo incluida; la actual sí preparó el registro. Reparación ampliada dentro de la aprobación vigente: consulta acotada y caché de versión; 198 pruebas aprobadas. Ver LOGIN-WHATSAPP.md. Pendiente publicar este ajuste y entregar código físicamente válido, sin habilitar mensajes.

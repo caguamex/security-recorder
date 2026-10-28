@@ -124,3 +124,27 @@ Cuentas mínimas activas con TOTP; resto de cuentas pendiente. `WHATSAPP_REMITEN
 Antonio autorizó «sí, publica esto para probarlo en la app». Publicado desde `codex/agendappx-buscador-servicios`, aplicación `2a98555`, PR #6; Worker `a8277d15-0c7d-41b5-b65d-b24b4694a1ec`. Ver `docs/BUSCADOR-SERVICIOS.md`: búsqueda local por nombre/categoría sin acentos, mayúsculas ni plural, agrupación, precio, duración y nombres asignados del mismo salón. Conserva fotos, edición, carrusel y uso sin conexión. Producción comprobada sin modificar citas ni ajustes. No se activaron invitaciones ni recursos nuevos.
 
 El acceso de otra administradora está preparado aparte en `codex/agendappx-equipo-compartido`, PR #5. Antonio aprobó enlace temporal sin correo y sesiones temporales protegidas; falta configurar Turnstile/Auth y aprobar su publicación. No confundir la aprobación de este buscador con la de aquella etapa. El código del buscador también está integrado en esa rama para no perderlo al continuarla.
+
+## Encargo completo y envío 24 horas — instrucción vigente del 28 de octubre
+
+El encargo completo pegado por Antonio y los dos documentos del commit f743ccf sustituyen mensajes anteriores sobre cuentas y WhatsApp. Leer CUENTAS.md y WHATSAPP-AUTOMATICO.md completos y SIGUIENTE-VERSION.md. Después Antonio respondió explícitamente «los códigos a cualquier hora, citas y promociones también»: quitar ventanas de silencio y de promociones en la siguiente versión, preservando consentimiento, topes, pausas, prioridades y recordatorios a tiempo. No es autorización de deploy ni vinculación.
+
+El login será por WhatsApp mediante hook firmado de Supabase, con sesión de plataforma propia del 528661241483 y sesiones de salones separadas; no usar ni tocar sesiones de FiNeCi. Leer solo metadatos de contactos autorizados, nunca mensajes ni marcas de lectura. Anticipo nuevo predeterminado 30 % según especificación vigente; no alterar pagos previos. La propuesta de cuentas anónimas temporales deja de ser el destino. No publicar las funciones nuevas ni activar R2 facturable sin las aprobaciones correspondientes. Registrar lo ya publicado y preparar cada etapa en esta rama nueva y PR nuevo.
+
+## Avisos 24 horas publicados
+
+Autorización «publícalo» y «sigue»: cambio de horarios de los avisos existentes publicado en Cloudflare 843ab4e0-a836-4acd-9a1e-abf420770707 y Railway 9a4a3f3b-8a32-48fd-a652-2a1c09d2ab99, aplicación a17a88b, PR #7. Ver registro final de docs/SIGUIENTE-VERSION.md. Cero sesiones; vinculación y envíos reales siguen apagados. Esta publicación no completa login por WhatsApp, sesión de plataforma, equipo ni campañas. Continuar las etapas del encargo sin repetir migración ya realizada ni reiniciar la fecha original del informe de consumo. No interpretar esta aprobación como permiso de vincular un número o primer envío.
+
+
+## Login por WhatsApp preparado — 28 de octubre de 2026
+
+Antonio pidió implementar el login por WhatsApp. Se agregó el proxy OTP con el SDK real, límites durables 3/destino/15 min y 10/IP/h, cinco intentos y diez minutos, hook Standard Webhooks con texto fijo, sesión cifrada de plataforma aislada en tablas plataforma_*, prioridad de códigos y acceso de Admin con MFA. Sesiones nuevas de Auth requieren admisión del proxy para impedir que la API pública evite los límites. Se conserva la identidad existente mediante phone_change autenticado; no hay altas ni fusiones automáticas. Recuperación solo por enlace de operación registrado y UUID esperado. Correo tiene bandera independiente y sigue pendiente del SMTP real.
+
+193 pruebas automáticas aprobadas y navegador local con SDK real/RLS: WhatsApp, correo simulado, MFA, Recepción, mismo UUID, vinculación propia, espera de veinte segundos y White/Dark a 390/768/1440. Cloudflare dry-run. Detalles, configuración, operación y límites reales en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md). No confundir preparación con publicación: esta migración y etapa no están desplegadas, el número no está vinculado y no hubo códigos reales. Confirmaciones pendientes antes de migrar/publicar, vincular y primer envío. Los diez códigos de respaldo MFA y el resto del encargo de cuentas siguen pendientes de sus etapas propias.
+
+
+## Login publicado, activación pendiente — 28 de octubre de 2026
+
+Antonio confirmó «sí autorizo». Respaldo verificado y migración 20261028163724_login_whatsapp_aprobado_20261028 aplicada. Las 21 tablas previas conservan sus huellas exactas y el mismo Admin. Aplicación 9e3c0e8, PR #7; Worker 0679a8c3-eb04-483a-ad3b-410356aaeb6b y Railway b63a5b0a-e9dd-443b-a87f-4feff1dfc80c SUCCESS, sin modificar planes, límites, recursos ni FiNeCi. Salud, archivos y pantalla real de login verificados; detalle y respaldo en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md).
+
+La pantalla está publicada; los códigos aún NO funcionan: external.phone=false, Send SMS Hook pendiente y control del navegador deshabilitado en Work. Se pidió habilitarlo para completar la configuración de Supabase y cerrar altas públicas. Correo y las cuatro banderas de vinculación/envío de Railway siguen apagados. Cero sesiones vinculadas y envíos reales. Confirmaciones para vincular número y primer código siguen pendientes. Preservar el inicio real del servicio del 27 de octubre para el seguimiento semanal.

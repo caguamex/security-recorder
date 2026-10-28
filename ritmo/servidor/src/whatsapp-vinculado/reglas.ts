@@ -23,8 +23,6 @@ export function clabeValida(s:string){return /^\d{18}$/.test(s)&&Number(s[17])==
 export function numero(value:unknown){let s=String(value||'').replace(/\D/g,'');if(s.length===10)s='52'+s;if(/^521\d{10}$/.test(s))s='52'+s.slice(3);if(!/^52\d{10}$/.test(s))throw new ErrorAPI(400,'Escribe un número de México de diez dígitos.');return s;}
 export function partes(ms:number){return Object.fromEntries(new Intl.DateTimeFormat('sv-SE',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(ms)).map(v=>[v.type,v.value]));}
 export function dia(ms:number){const p=partes(ms);return `${p.year}-${p.month}-${p.day}`;}
-export function silencioso(ms:number){const h=Number(partes(ms).hour);return h<8||h>=21;}
-export function siguientePermitido(ms:number){if(!silencioso(ms))return ms;const p=partes(ms),base=new Date(dia(ms)+'T12:00:00Z');if(Number(p.hour)>=21)base.setUTCDate(base.getUTCDate()+1);return fechaUTC(base.toISOString().slice(0,10),'08:00',TZ);}
 export function inicio(c:Datos){return fechaUTC(c.date,c.start,TZ);}
 export function huella(c:Datos){return createHash('sha256').update(JSON.stringify([c.date,c.start,c.clienta,c.servicio,c.especialista||'',c.estado==='cancelada'?'cancelada':c.estado==='completada'?'completada':'activa'])).digest('hex');}
 export function idEnvio(n:string,c:Datos,t:Tipo,h=huella(c)){return createHash('sha256').update([n,c.id,t,h].join('|')).digest('hex');}
@@ -37,7 +35,7 @@ export function plan(c:Datos,a:Ajustes,creada:number,nueva:boolean,movida:boolea
   if(t-aviso<7200000){const d=new Date(c.date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-1);aviso=fechaUTC(d.toISOString().slice(0,10),'19:00',TZ);}
   if(creada<=aviso-10800000)out.push({tipo:'dia',debido:aviso});
   const antes=t-a.minutosAntes*60000;
-  if(creada<=t-5400000&&!silencioso(antes))out.push({tipo:'antes',debido:antes});
+  if(creada<=t-5400000)out.push({tipo:'antes',debido:antes});
   return out;
 }
 export function mensaje(tipo:Tipo,c:Datos,k:Datos,s:Datos,especialista:string,salon:string,a:Ajustes,p:Datos,debido:number,variante:number){

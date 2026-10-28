@@ -8,14 +8,15 @@ import {enTransaccion,miembroVigente} from './contexto.js';
 import {RepositorioConCuentas} from './repositorio.js';
 import type {IdentidadFirmada} from './jwt.js';
 const json=(r:ServerResponse,data:unknown)=>{r.writeHead(200,{'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Authorization','Referrer-Policy':'no-referrer'}).end(JSON.stringify(data));};
-export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:{habilitado:boolean;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;origen:string;migracionUsuarioId?:string}){
+export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:{habilitado:boolean;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;origen:string;migracionUsuarioId?:string;acceso?:{whatsapp:boolean;correo:boolean};rutasAcceso?:(req:IncomingMessage,res:ServerResponse,url:URL)=>Promise<boolean>}){
  return async(req:IncomingMessage,res:ServerResponse,url:URL)=>{
  if(url.pathname==='/api/cuentas/config'&&req.method==='GET'){
   // Una clave publicable no autoriza consultas privadas; la base exige JWT, sesión y RLS.
   if(config.habilitado){let publica=/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.llavePublica||'');if(!publica)try{publica=JSON.parse(Buffer.from(config.llavePublica.split('.')[1],'base64url').toString()).role==='anon';}catch{}if(!publica)throw new ErrorAPI(503,'Falta configurar la llave publicable de acceso.');}
-  json(res,config.habilitado?{habilitado:true,supabaseURL:config.supabaseURL,llavePublica:config.llavePublica}:{habilitado:false});return true;
+  json(res,config.habilitado?{habilitado:true,supabaseURL:config.supabaseURL,llavePublica:config.llavePublica,...(config.acceso?{acceso:config.acceso}:{})}:{habilitado:false});return true;
  }
  if(!config.habilitado)return false;
+ if(config.rutasAcceso&&await config.rutasAcceso(req,res,url))return true;
  const feed=/^\/calendario\/(?:cuentas\/)?([a-f0-9]{64})\.ics$/.exec(url.pathname);
  if(feed&&req.method==='GET'){
   const c=await pool.connect();let records;try{records=(await c.query('SELECT * FROM ritmo.feed_cuentas($1)',[createHash('sha256').update(feed[1]).digest('hex')])).rows;}finally{c.release();}

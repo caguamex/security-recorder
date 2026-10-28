@@ -130,3 +130,20 @@ Verificación publicada: salud/configuración/página 200, datos y control sin i
 ## Buscador publicado — 28 de octubre de 2026
 
 Con aprobación expresa de Antonio, Worker `a8277d15-0c7d-41b5-b65d-b24b4694a1ec`, aplicación `2a98555`, PR #6. Solo añade buscador, agrupación y consulta autenticada de nombres/asignaciones del equipo. Archivos y navegador de producción verificados; sin migración, cambios de datos, nuevos planes o activación de invitaciones/WhatsApp. Referencia y pruebas: BUSCADOR-SERVICIOS.md. Los móviles reciben el aviso de nueva versión y actualizan con su confirmación.
+
+## Horario 24 horas publicado — 28 de octubre de 2026
+
+Antonio confirmó «publícalo» y «sigue» después de autorizar códigos, citas y promociones a cualquier hora. Se implementó y publicó el cambio en los avisos de citas existentes y su texto de configuración. No se publicaron como terminados el login por WhatsApp, la sesión de plataforma ni las campañas: continúan en preparación según SIGUIENTE-VERSION.md.
+
+Aplicación `a17a88b`, rama codex/agendappx-siguiente-version, PR #7. Cloudflare `843ab4e0-a836-4acd-9a1e-abf420770707`; Railway `9a4a3f3b-8a32-48fd-a652-2a1c09d2ab99`, SUCCESS, proceso listo 2026-10-28T07:57:22.104148792Z. No reiniciar el conteo semanal: el servicio comenzó originalmente el 27 de octubre, y estos logs corresponden a su actualización. Una réplica, máximo 0.5 GB/0.1 vCPU; sin cambios de planes ni límites.
+
+Se eliminaron filtros de silencio 21–08 y la omisión nocturna del aviso anterior a la cita. Se conserva la hora programada, caducidad al comenzar/cancelar la cita, consentimiento, pausas, límites y freno persistente. La huella de configuración cambia a 24h-v1 para actualizar planes pendientes conservando la confirmación ya enviada, los anticipos y los resultados inciertos. Anticipo predeterminado 30 % y las otras funciones del encargo completo se incorporarán en su etapa propia; no se cambiaron pagos ni preferencias guardadas en esta publicación.
+
+Verificación: 180 pruebas automáticas, cero fallos; navegador SDK real con Auth/WhatsApp simulado y RLS local, pagos/fotos/White/Dark a 390/768/1440. Incluye noches, cruce de medianoche y de las 21, programación de madrugada, caducidad, replanificación sin duplicados, consentimiento y topes. Producción: Cloudflare y Railway /salud 200; agenda anónima 401, Meta 503; JavaScript publicado idéntico por SHA-256; navegador real conserva buscador y panel sin errores. Lectura con rol mínimo confirmó cero sesiones. `WA_VINCULACION_HABILITADA=false`, `WA_ENVIOS_HABILITADOS=false`; no hubo mensajes reales ni cambios en FiNeCi. No se ejecutó migración.
+
+
+## Login publicado, activación pendiente — 28 de octubre de 2026
+
+Antonio confirmó «sí autorizo». Respaldo verificado y migración 20261028163724_login_whatsapp_aprobado_20261028 aplicada. Las 21 tablas previas conservan sus huellas exactas y el mismo Admin. Aplicación 9e3c0e8, PR #7; Worker 0679a8c3-eb04-483a-ad3b-410356aaeb6b y Railway b63a5b0a-e9dd-443b-a87f-4feff1dfc80c SUCCESS, sin modificar planes, límites, recursos ni FiNeCi. Salud, archivos y pantalla real de login verificados; detalle y respaldo en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md).
+
+La pantalla está publicada; los códigos aún NO funcionan: external.phone=false, Send SMS Hook pendiente y control del navegador deshabilitado en Work. Se pidió habilitarlo para completar la configuración de Supabase y cerrar altas públicas. Correo y las cuatro banderas de vinculación/envío de Railway siguen apagados. Cero sesiones vinculadas y envíos reales. Confirmaciones para vincular número y primer código siguen pendientes. Preservar el inicio real del servicio del 27 de octubre para el seguimiento semanal.

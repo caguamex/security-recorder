@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash,randomBytes} from 'node:crypto';
 import {preparar,ids,sesiones} from './whatsapp-solo-envios-entorno.mjs';
 import {CifradoSesion} from '../build/whatsapp-vinculado/cifrado.js';
-import {configuracion,clabeValida,plan,PREDETERMINADOS,siguientePermitido} from '../build/whatsapp-vinculado/reglas.js';
+import {configuracion,clabeValida,plan,PREDETERMINADOS} from '../build/whatsapp-vinculado/reglas.js';
 const n=ids.salon,clabe='01218000000000000';
 const digito=(10-[...clabe].reduce((s,d,i)=>s+(Number(d)*[3,7,1][i%3])%10,0)%10)%10;
 const pagos={anticipoActivo:true,banco:'Banco de prueba',clabe:clabe+digito,titular:'Titular de prueba'};
@@ -21,13 +21,29 @@ test('solo crea avisos de citas y exige consentimiento antes de enviar',async t=
  const e=await entorno(t);await e.iniciar();await e.cita();await e.fuente({id:'clienta',kind:'clienta',nombre:'Sin permiso',telefono:'5511111111',whatsappOptIn:false});await e.cola.vuelta(n);assert.equal(enviados(e).length,0);assert.equal((await filas(e)).find(f=>f.tipo==='inicio').motivo,'sin_consentimiento');
  await e.fuente({id:'cita',kind:'cita',date:'2026-11-10',start:'15:00',estado:'pendiente',clienta:'inexistente',servicio:'cejas'});await e.cola.vuelta(n);assert.equal(enviados(e).length,0);
 });
-test('el horario silencioso conserva el aviso hasta las ocho y no adelanta mensajes',async t=>{
- const e=await entorno(t);e.fijar('2026-11-09T21:00:00-06:00');await e.iniciar();await e.cita();await e.cola.vuelta(n);assert.equal(enviados(e).length,0);
- e.fijar('2026-11-10T07:59:59-06:00');assert.equal(await e.cola.enviarUno(n),false);e.avanzar(1000);assert.equal(await e.cola.enviarUno(n),true);assert.equal(enviados(e).length,1);
+for(const hora of ['21:00:00','23:59:58','00:01:00','07:59:59'])test('avisos permitidos a las '+hora+' sin posponer hasta las ocho',async t=>{
+ const e=await entorno(t);e.fijar('2026-11-09T'+hora+'-06:00');await e.iniciar();await e.cita();await e.cola.vuelta(n);assert.equal(enviados(e).length,1);assert.equal((await filas(e)).find(f=>f.tipo==='inicio').estado,'aceptado');assert.equal(await e.cola.enviarUno(n),false);
 });
-test('si empieza el silencio durante escribiendo, pospone en vez de mandar de noche',async t=>{
- const e=await entorno(t);e.fijar('2026-11-09T20:59:58-06:00');await e.iniciar();await e.cita();await e.cola.vuelta(n);assert.equal(enviados(e).length,0);const f=(await filas(e)).find(f=>f.tipo==='inicio');assert.equal(f.estado,'pendiente');assert.equal(new Date(f.debido).getTime(),Date.parse('2026-11-10T08:00:00-06:00'));
+
+test('cruzar las 21 durante escribiendo conserva el envio sin duplicarlo',async t=>{
+ const e=await entorno(t);e.fijar('2026-11-09T20:59:58-06:00');await e.iniciar();await e.cita();await e.cola.vuelta(n);assert.equal(enviados(e).length,1);assert.equal((await filas(e)).find(f=>f.tipo==='inicio').estado,'aceptado');
 });
+
+test('recordatorio de madrugada se emite al vencer y nunca despues de iniciar la cita',async t=>{
+ const e=await entorno(t);e.fijar('2026-11-08T12:00:00-06:00');await e.iniciar({direccion:'Direccion de prueba'});await e.cita({date:'2026-11-10',start:'01:30'});await e.cola.vuelta(n);
+ e.fijar('2026-11-09T19:00:00-06:00');await e.cola.enviarUno(n);
+ e.fijar('2026-11-10T00:29:59-06:00');await e.cola.enviarUno(n);assert.equal((await filas(e)).find(f=>f.tipo==='antes').estado,'pendiente');e.avanzar(1000);assert.equal(await e.cola.enviarUno(n),true);assert.equal((await filas(e)).find(f=>f.tipo==='antes').estado,'aceptado');
+ e.fijar('2026-11-11T01:30:00-06:00');const prev=enviados(e).length;await e.cola.vuelta(n);assert.equal(enviados(e).length,prev);
+});
+
+test('actualizar a 24 horas reprograma pendientes sin repetir la confirmacion',async t=>{
+ const e=await entorno(t);await e.iniciar();await e.cita();await e.cola.vuelta(n);
+ await e.db.usar(c=>c.query("UPDATE ritmo.whatsapp_citas SET config_huella='version-horario-anterior' WHERE negocio_id=$1",[n]));
+ await e.cola.reconciliar(n);await e.cola.reconciliar(n);const f=await filas(e);
+ assert.equal(f.filter(x=>x.tipo==='inicio').length,1);assert.equal(f.filter(x=>x.tipo==='inicio'&&x.estado==='aceptado').length,1);
+ for(const tipo of ['dia','antes'])assert.equal(f.filter(x=>x.tipo===tipo&&x.estado==='pendiente').length,1);
+});
+
 test('pausas duraderas entre mensajes y escribiendo de dos a cinco segundos',async t=>{
  const e=await entorno(t);await e.iniciar();await e.cita();await e.cita({id:'cita2',start:'16:00'});await e.cola.vuelta(n);assert.equal(enviados(e).length,1);assert.ok(e.esperas[0]>=2000&&e.esperas[0]<=5000);assert.equal(await e.cola.enviarUno(n),false);e.avanzar(39999);assert.equal(await e.cola.enviarUno(n),false);e.avanzar(1);assert.equal(await e.cola.enviarUno(n),true);assert.equal(enviados(e).length,2);
 });
@@ -40,7 +56,7 @@ test('reglas de día y llegada omiten reservas recientes y adelantan citas tempr
  const nueva=Date.parse('2026-11-10T08:00:00-06:00');assert.equal(plan(c,a,nueva,true,false,nueva).some(p=>p.tipo==='dia'),false);
  const tardia=Date.parse('2026-11-10T13:00:00-06:00');assert.equal(plan(c,a,tardia,true,false,tardia).some(p=>p.tipo==='antes'),false);
  const anticipada=plan({...c,start:'10:00'},a,Date.parse('2026-11-08T12:00:00-06:00'),false,false,Date.parse('2026-11-09T12:00:00-06:00'));assert.equal(anticipada.find(p=>p.tipo==='dia').debido,Date.parse('2026-11-09T19:00:00-06:00'));
- assert.equal(plan({...c,start:'08:30'},a,Date.parse('2026-11-08T12:00:00-06:00'),false,false,Date.parse('2026-11-09T12:00:00-06:00')).some(p=>p.tipo==='antes'),false);
+ assert.equal(plan({...c,start:'08:30'},a,Date.parse('2026-11-08T12:00:00-06:00'),false,false,Date.parse('2026-11-09T12:00:00-06:00')).some(p=>p.tipo==='antes'),true);
 });
 test('mover invalida pendientes, avisa del cambio y regresar a un horario no reutiliza la huella vieja',async t=>{
  const e=await entorno(t);await e.iniciar();const c=await e.cita();await e.cola.vuelta(n);await e.fuente({...c,start:'15:00'});await e.cola.reconciliar(n);const antiguos=(await filas(e)).filter(f=>f.tipo==='antes');assert.equal(antiguos.length,2);assert.equal(antiguos.filter(f=>f.estado==='cancelado').length,1);

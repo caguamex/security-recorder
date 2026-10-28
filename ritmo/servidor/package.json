@@ -9,6 +9,7 @@
     "build": "tsc && node ../herramientas/compilar-cuentas.mjs && node ../herramientas/empaquetar.mjs",
     "start": "node build/index.js",
     "test": "npm run build && node --test pruebas/*.test.mjs ../pruebas/*.test.js",
+    "test:login": "npm run build && node --test pruebas/login-whatsapp.test.mjs && node pruebas/login-whatsapp-navegador.mjs",
     "test:navegador": "npm run build && node pruebas/navegador.mjs",
     "test:fotos": "npm run build && node pruebas/fotos-navegador.mjs",
     "test:actualizacion": "npm run build && node pruebas/actualizacion-navegador.mjs",

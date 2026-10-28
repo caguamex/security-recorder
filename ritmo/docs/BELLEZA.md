@@ -64,3 +64,7 @@ Reutiliza el intérprete de frases de ritmo/prototipo/parser.js para escribir ci
 
 
 Entrega local del 27 de octubre: ver `../whatsapp/README.md` para acceso temporal de Admin, despliegue separado y confirmaciones; `WHATSAPP-PRUEBAS.md` para resultados por criterio. La página publicada todavía no incluye este servicio. El prototipo de referencia no es evidencia de que un teléfono esté vinculado.
+
+## Alcance vigente del 28 de octubre de 2026
+
+Ver SIGUIENTE-VERSION.md, CUENTAS.md y WHATSAPP-AUTOMATICO.md, fuentes f743ccf. Antonio autorizó el dispositivo vinculado conociendo el riesgo; reemplaza la prohibición histórica de bibliotecas no oficiales. Usar Baileys actualizado y fijado, aislado de FiNeCi. Se permite sincronizar únicamente nombres y números de contactos; no mensajes entrantes ni lecturas. La decisión posterior «los códigos a cualquier hora, citas y promociones también» elimina las ventanas nocturnas de la siguiente versión. Se mantienen consentimiento, límites, pausas, idempotencia, prioridades y freno. El login telefónico usa el número de plataforma en una sesión propia; los mensajes de cada salón salen solo de su propio número. No desplegar, migrar ni vincular sin la confirmación respectiva.
