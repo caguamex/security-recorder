@@ -13,3 +13,6 @@ ritmo/dist/pwa/_headers
 
 # Caché de la CLI, sin migraciones ni secretos.
 supabase/.temp/
+
+# Empaquetado aislado de la comunidad, regenerable desde sus fuentes.
+ritmo/dist/comunidad/
