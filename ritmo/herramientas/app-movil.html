@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Agendappx en iPhone y Android</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap">
+<style>
+/* Lámina: Agendappx como app nativa. Fila 1 iPhone, fila 2 Android: ícono en la pantalla de inicio, pantalla de carga y bienvenida. */
+* { box-sizing: border-box; margin: 0; }
+body { width: 1500px; padding: 46px 40px 50px; background: #ECEEF3; font-family: Inter, system-ui, sans-serif; color: #0B0B0F; }
+h1 { font-size: 44px; font-weight: 800; text-align: center; letter-spacing: -.02em; }
+.sub { text-align: center; color: #5A6070; font-size: 20px; margin: 8px 0 30px; }
+.row { display: grid; grid-template-columns: 150px repeat(3, 1fr); align-items: center; gap: 30px; margin-bottom: 34px; }
+.plat { font-size: 24px; font-weight: 800; text-align: right; line-height: 1.2; }
+.plat small { display: block; font-size: 14px; font-weight: 500; color: #7A8090; }
+.cap { text-align: center; font-size: 16px; font-weight: 700; color: #3C3C43; margin-top: 12px; }
+.cel { justify-self: center; }
+
+/* Marcos */
+.ios { width: 330px; height: 690px; border-radius: 54px; padding: 11px; background: #1C1C1E; box-shadow: 0 0 0 2px #3A3A3C, 0 30px 60px rgba(20, 30, 60, .25); }
+.and { width: 330px; height: 690px; border-radius: 38px; padding: 9px; background: #202124; box-shadow: 0 0 0 2px #3C4043, 0 30px 60px rgba(20, 30, 60, .25); }
+.scr { position: relative; width: 100%; height: 100%; overflow: hidden; background: #FFFFFF; }
+.ios .scr { border-radius: 44px; } .and .scr { border-radius: 30px; font-family: Roboto, Inter, sans-serif; }
+.island { position: absolute; z-index: 5; top: 10px; left: 50%; width: 104px; height: 30px; margin-left: -52px; border-radius: 20px; background: #000; }
+.punch { position: absolute; z-index: 5; top: 12px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: #000; }
+.sb { position: absolute; z-index: 4; top: 0; left: 0; right: 0; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 6px 26px 0 30px; font-size: 15px; font-weight: 700; }
+.and .sb { height: 38px; padding: 4px 20px 0; font-size: 13px; font-weight: 500; }
+.sb.w { color: #fff; }
+.sb .ic { display: flex; gap: 5px; align-items: center; }
+.home-ind { position: absolute; z-index: 4; bottom: 8px; left: 50%; width: 120px; height: 5px; margin-left: -60px; border-radius: 3px; background: #0B0B0F; }
+.home-ind.w { background: #fff; }
+.gest { position: absolute; z-index: 4; bottom: 7px; left: 50%; width: 96px; height: 4px; margin-left: -48px; border-radius: 2px; background: #0B0B0F; opacity: .7; }
+.gest.w { background: #fff; }
+
+/* Ícono de la app */
+.appic { width: 60px; height: 60px; border-radius: 15px; display: grid; place-items: center; background: linear-gradient(160deg, #FF8DB5, #E0457B 55%, #B8285F); box-shadow: inset 0 2px 1px rgba(255, 255, 255, .45), inset 0 -3px 4px rgba(0, 0, 0, .18), 0 6px 14px rgba(224, 69, 123, .35); }
+.and .appic { border-radius: 50%; }
+.appic svg { width: 58%; height: 58%; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+
+/* Pantalla de inicio del celular */
+.wall { position: absolute; inset: 0; background: radial-gradient(120% 70% at 20% 10%, #FFD1E2, transparent 60%), radial-gradient(120% 80% at 90% 90%, #C9C2FF, transparent 55%), linear-gradient(160deg, #F7C6D9, #B9B4F5); }
+.grid { position: absolute; top: 74px; left: 22px; right: 22px; display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 20px; justify-items: center; }
+.slot { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+.slot .ph { width: 60px; height: 60px; border-radius: 15px; background: rgba(255, 255, 255, .42); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
+.and .slot .ph { border-radius: 50%; }
+.slot.me { font-weight: 700; }
+.slot.me .appic { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), inset 0 2px 1px rgba(255, 255, 255, .45), 0 8px 18px rgba(224, 69, 123, .45); }
+.dock { position: absolute; left: 14px; right: 14px; bottom: 22px; height: 86px; border-radius: 30px; display: flex; align-items: center; justify-content: space-around; background: rgba(255, 255, 255, .35); backdrop-filter: blur(12px); }
+.dock .ph { width: 58px; height: 58px; border-radius: 15px; background: rgba(255, 255, 255, .5); }
+.and .dock { border-radius: 0; background: none; bottom: 22px; height: 70px; }
+.and .dock .ph { border-radius: 50%; }
+.gsearch { position: absolute; left: 22px; right: 22px; bottom: 104px; height: 46px; border-radius: 23px; background: rgba(255, 255, 255, .85); display: flex; align-items: center; padding: 0 16px; gap: 10px; color: #5F6368; font-size: 14px; }
+
+/* Pantalla de carga */
+.splash { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #FFFFFF; }
+.splash .appic { width: 104px; height: 104px; border-radius: 26px; }
+.and .splash .appic { border-radius: 50%; width: 120px; height: 120px; }
+.wm { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
+.wm b { color: #E0457B; }
+.tag { color: #8A8A8E; font-size: 14px; }
+.load { position: absolute; bottom: 70px; display: flex; gap: 6px; }
+.load i { width: 7px; height: 7px; border-radius: 50%; background: #E0457B; opacity: .3; } .load i:first-child { opacity: 1; } .load i:nth-child(2) { opacity: .6; }
+
+/* Bienvenida */
+.wel { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 58px 22px 30px; background: #FFFFFF; }
+.and .wel { padding-top: 46px; }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; }
+.brand .appic { width: 30px; height: 30px; border-radius: 9px; box-shadow: inset 0 1px 1px rgba(255, 255, 255, .45), 0 3px 6px rgba(224, 69, 123, .3); }
+.and .brand .appic { border-radius: 50%; }
+.brand span.sk { margin-left: auto; color: #8A8A8E; font-weight: 600; font-size: 14px; }
+.mos { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 100px 100px; gap: 10px; margin: 18px 0 20px; }
+.tile { border-radius: 22px; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 13px; background: linear-gradient(160deg, color-mix(in srgb, var(--pt) 55%, #fff), var(--pt)); box-shadow: 0 1px 0 #fff inset, 0 4px 0 color-mix(in srgb, var(--pi) 22%, #E8E8E8), 0 10px 20px color-mix(in srgb, var(--pi) 14%, transparent); color: var(--pi); }
+.tile svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--pi) 25%, transparent)); }
+.tile b { font-size: 14px; color: #0B0B0F; } .tile small { display: block; color: #6A6A70; font-size: 11.5px; font-weight: 600; }
+.t1 { --pt: #EDE4FF; --pi: #7C5CD6; } .t2 { --pt: #FFE3EE; --pi: #D63C78; } .t3 { --pt: #E0F0FF; --pi: #2F7BD6; } .t4 { --pt: #DDF6EC; --pi: #1E9E6A; }
+.wel h2 { font-size: 29px; line-height: 1.08; font-weight: 800; letter-spacing: -.03em; }
+.and .wel h2 { font-weight: 700; letter-spacing: -.01em; }
+.wel p { margin-top: 8px; color: #55555C; font-size: 14.5px; line-height: 1.4; }
+.stats { display: flex; gap: 14px; margin-top: 12px; font-size: 12.5px; color: #3C3C43; font-weight: 600; }
+.stats span { display: flex; align-items: center; gap: 4px; } .stats .st { color: #F5A623; }
+.cta { margin-top: auto; display: grid; gap: 10px; }
+.b1, .b2 { height: 52px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 16px; }
+.b1 { color: #fff; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 4px 0 #9E2453, 0 12px 22px rgba(224, 69, 123, .35), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.b2 { background: #fff; box-shadow: 0 1px 0 #fff inset, 0 3px 0 #E2E2E2, 0 10px 20px rgba(0, 0, 0, .06); border: 1px solid #F0F0F0; }
+.and .b1, .and .b2 { height: 50px; font-weight: 500; letter-spacing: .02em; }
+.lk { text-align: center; font-size: 13.5px; color: #6A6A70; margin-top: 4px; } .lk b { color: #E0457B; }
+.b1 svg, .b2 svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ios .wel h2 { font-size: 26px; } .ios .mos { grid-template-rows: 90px 90px; margin: 14px 0 16px; } .ios .wel { padding-bottom: 34px; } .ios .wel p { font-size: 14px; }
+.foot { text-align: center; color: #5A6070; font-size: 15px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>Agendappx como app en iPhone y Android</h1>
+<p class="sub">Estilo minimalista 3D con color · lo primero que ve una persona al instalarla</p>
+<div id="filas"></div>
+<p class="foot">Misma app para los dos: en Android se adapta a sus íconos redondos, su letra (Roboto) y su barra de gestos.</p>
+<script>
+const LOGO = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8.6 14.6l2.2 2.2 4.6-4.6" stroke-width="2.4"/></svg>';
+const ic = { cejas: '<path d="M3.5 10C6.5 6.5 13 5.8 20.5 8.5"/><path d="M4 15.5s3-3.5 8-3.5 8 3.5 8 3.5-3 3.5-8 3.5-8-3.5-8-3.5z"/><circle cx="12" cy="15.5" r="1.8"/>',
+  unas: '<rect x="7" y="11" width="10" height="10" rx="2.5"/><path d="M9.5 11V8h5v3"/><path d="M10.5 8V3h3v5"/>',
+  pestanas: '<path d="M3 13.5s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5z"/><circle cx="12" cy="13.5" r="2.4"/><path d="M12 4.5V7M7.3 5.6l1 2.2M16.7 5.6l-1 2.2M3.8 8.4l1.7 1.6M20.2 8.4l-1.7 1.6"/>',
+  dep: '<rect x="5" y="3" width="14" height="5" rx="1.5"/><path d="M8 8v2h8V8"/><path d="M12 10v11"/>' };
+const svg = p => `<svg viewBox="0 0 24 24">${p}</svg>`;
+const sbIos = (w) => `<div class="sb ${w ? 'w' : ''}"><span>9:41</span><span class="ic"><svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.2-1.2C13.2 1.5 10.7.5 8 .5S2.8 1.5.8 3.4L2 4.6c1.6-1.5 3.7-2.4 6-2.4zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2C11.5 4.6 9.8 3.9 8 3.9s-3.5.7-4.8 1.9l1.2 1.2c1-.9 2.2-1.4 3.6-1.4zM8 9l2.2-2.2C9.6 6.3 8.8 6 8 6s-1.6.3-2.2.8z"/></svg><svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor"/><rect x="23.5" y="4" width="1.8" height="4" rx=".8" fill="currentColor" opacity=".5"/></svg></span></div>`;
+const sbAnd = (w) => `<div class="sb ${w ? 'w' : ''}"><span>9:41</span><span class="ic"><svg width="14" height="12" viewBox="0 0 14 12" fill="currentColor"><path d="M7 2C4.6 2 2.4 2.9.8 4.4L7 12l6.2-7.6C11.6 2.9 9.4 2 7 2z"/></svg><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M12 0v12H0z"/></svg><svg width="8" height="13" viewBox="0 0 8 13" fill="currentColor"><rect x="0" y="1.5" width="8" height="11.5" rx="1.5"/><rect x="2.5" y="0" width="3" height="2" rx=".5"/></svg></span></div>`;
+const NOMBRES = ['Fotos', 'Cámara', 'Mapas', 'Clima', 'Notas', 'Reloj', 'Música', 'Banco', 'Correo', 'Agendappx', 'Salud', 'Ajustes'];
+const inicio = (and) => `<div class="wall"></div>${and ? sbAnd(true) : sbIos(true)}<div class="grid">${NOMBRES.map(n => n === 'Agendappx' ? `<div class="slot me"><span class="appic">${LOGO}</span>Agendappx</div>` : `<div class="slot"><span class="ph"></span>${n}</div>`).join('')}</div>
+  ${and ? '<div class="gsearch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Buscar</div>' : ''}<div class="dock"><span class="ph"></span><span class="ph"></span><span class="ph"></span><span class="ph"></span></div>${and ? '<span class="gest w"></span>' : '<span class="home-ind w"></span>'}`;
+const carga = (and) => `${and ? sbAnd() : sbIos()}<div class="splash"><span class="appic">${LOGO}</span><span class="wm">Agend<b>app</b>x</span><span class="tag">Tu salón favorito, a un toque</span><span class="load"><i></i><i></i><i></i></span></div>${and ? '<span class="gest"></span>' : '<span class="home-ind"></span>'}`;
+const bienvenida = (and) => `${and ? sbAnd() : sbIos()}<div class="wel">
+  <div class="brand"><span class="appic">${LOGO}</span>Agendappx<span class="sk">Omitir</span></div>
+  <div class="mos"><div class="tile t1">${svg(ic.cejas)}<span><b>Cejas</b><small>desde $150</small></span></div><div class="tile t2">${svg(ic.unas)}<span><b>Uñas</b><small>desde $280</small></span></div>
+    <div class="tile t3">${svg(ic.pestanas)}<span><b>Pestañas</b><small>desde $550</small></span></div><div class="tile t4">${svg(ic.dep)}<span><b>Depilación</b><small>desde $100</small></span></div></div>
+  <h2>Encuentra tu salón y agenda en segundos</h2>
+  <p>Busca lo que necesitas, mira fotos de trabajos, precios y horarios libres de salones cerca de ti.</p>
+  <div class="stats"><span><span class="st">★</span> Reseñas verificadas</span><span>Sin contraseñas</span></div>
+  <div class="cta"><div class="b1"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Explorar salones cerca</div>
+    <div class="b2"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v1a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v7h14v-7"/></svg>Tengo un salón</div>
+    <div class="lk">¿Ya tienes cuenta? <b>Inicia sesión</b></div></div></div>${and ? '<span class="gest"></span>' : '<span class="home-ind"></span>'}`;
+const fila = (and) => `<div class="row"><div class="plat">${and ? 'Android<small>Google Play</small>' : 'iPhone<small>App Store</small>'}</div>
+  ${[['1. El ícono en su celular', inicio], ['2. Pantalla de carga', carga], ['3. Primera pantalla', bienvenida]].map(([t, f]) => `<div class="cel"><div class="${and ? 'and' : 'ios'}"><div class="scr">${and ? '<span class="punch"></span>' : '<span class="island"></span>'}${f(and)}</div></div><div class="cap">${t}</div></div>`).join('')}</div>`;
+document.getElementById('filas').innerHTML = fila(false) + fila(true);
+</script>
+</body>
+</html>
