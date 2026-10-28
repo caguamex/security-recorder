@@ -385,7 +385,7 @@ mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit;
     <p class="fine">Empiezas con servicios de ejemplo que puedes cambiar o borrar.</p></div>`;
   const codigo = () => `<div class="nav"><button type="button" data-act="atras-entrar">‹ Atrás</button></div>
     <div class="auth" style="padding-top:20px"><h1 style="text-align:left">${S.via === 'correo' ? 'Revisa tu correo' : 'Revisa tu WhatsApp'}</h1>
-    <p class="sub" style="text-align:left;margin-bottom:8px">${S.via === 'correo' ? `Escribe el código que enviamos a <b style="color:var(--ink)">${esc(S.correo)}</b>.` : `Te mandamos un código por <b style="color:var(--ink)">WhatsApp</b> al <b style="color:var(--ink)">+52 ${fmtTel(S.tel)}</b>. Llega en un chat de Agendappx.`}</p>
+    <p class="sub" style="text-align:left;margin-bottom:8px">${S.via === 'correo' ? `Escribe el código que enviamos a <b style="color:var(--ink)">${esc(S.correo)}</b>.` : `Te mandamos un código por <b style="color:var(--ink)">WhatsApp</b> al <b style="color:var(--ink)">+52 ${fmtTel(S.tel)}</b>. Te llega del <b style="color:var(--ink)">+52 866 124 1483</b> (Agendappx).`}</p>
     <div class="code">${[0, 1, 2, 3, 4, 5].map(i => `<input id="d${i}" inputmode="numeric" maxlength="1" aria-label="Dígito ${i + 1}">`).join('')}</div>
     <p class="fine" style="text-align:left;margin:0">En la demostración cualquier código funciona. Después de 5 intentos fallidos hay que pedir uno nuevo.</p>
     <button type="button" class="btn soft" data-act="reenviar">Enviar otro código</button>

@@ -6,7 +6,8 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
 ## 1. Inicio de sesión
 
 - **Con número de WhatsApp, sin contraseñas** (decisión de Antonio, como la app de Steren): la persona escribe su número (+52, 10 dígitos), le llega un **código de 6 dígitos por WhatsApp**, lo escribe y entra.
-  - Usa el login por teléfono de Supabase Auth (OTP de teléfono) con el **«Send SMS Hook»**: en vez de un proveedor de SMS, el hook manda el código al servicio `agendappx-whatsapp` de Railway (ver `WHATSAPP-AUTOMATICO.md`), que lo envía como mensaje de WhatsApp desde el número de Agendappx. **Sin costo por código.**
+  - Usa el login por teléfono de Supabase Auth (OTP de teléfono) con el **«Send SMS Hook»**: en vez de un proveedor de SMS, el hook manda el código al servicio `agendappx-whatsapp` de Railway (ver `WHATSAPP-AUTOMATICO.md`), que lo envía por WhatsApp. **Sin costo por código.**
+  - **Número de Agendappx: +52 866 124 1483**, el mismo que usa FiNeCi (decisión de Antonio). Es el número de la plataforma y sirve **solo para los códigos de registro e inicio de sesión de todos los salones**. Los recordatorios y promociones de cada salón salen del WhatsApp que **ese salón** vincule en Ajustes.
   - El hook va firmado (secreto del hook de Supabase) y solo acepta mensajes de código; no se puede usar para mandar otros textos.
   - Texto: «Tu código de Agendappx es *482913*. Vence en 10 minutos. No lo compartas con nadie.»
   - El código vence en 10 minutos; máximo 5 intentos. Máximo 3 códigos por número cada 15 minutos y 10 por IP por hora.

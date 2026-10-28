@@ -33,6 +33,12 @@ PARTE 1 · CUENTAS Y EQUIPO (CUENTAS.md)
    Steren): escribo mi número, me llega un código de 6 dígitos por WhatsApp,
    lo escribo y entro. Usa el login por teléfono de Supabase con el «Send SMS
    Hook» apuntando al servicio de WhatsApp de Railway (gratis, sin SMS).
+   Los códigos salen del NÚMERO DE AGENDAPPX: +52 866 124 1483, el mismo de
+   FiNeCi. Vincúlalo como un dispositivo más de ese número, con su propia
+   sesión, SIN tocar la de FiNeCi (revisa que quepa en el límite de
+   dispositivos vinculados). Ese número es solo para códigos de registro e
+   inicio de sesión de todos los salones; los recordatorios y promociones
+   de cada salón salen del WhatsApp que el salón vincule en Ajustes.
    Respaldo: «Prefiero recibirlo por correo» con un SMTP gratuito (Resend o
    Brevo); dime paso a paso cómo crear la cuenta. Google y Apple quedan
    pospuestos. Verificación en dos pasos (app autenticadora) obligatoria
