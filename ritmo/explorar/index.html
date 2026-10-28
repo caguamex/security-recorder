@@ -173,12 +173,70 @@ h1 .ver { width: 24px; height: 24px; vertical-align: -2px; }
 .banner .bic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--bg) 14%, transparent); flex: none; } .banner .bic .ic { width: 24px; height: 24px; }
 .empty .eic { display: block; width: 38px; height: 38px; margin: 0 auto 10px; color: var(--ink3); stroke-width: 1.5; }
 .done .mi .ic { width: 20px; height: 20px; color: var(--ok); }
+/* Estilo minimalista: blanco y negro, sin sombras ni degradados, líneas finas y más aire. */
+.estilo { display: inline-flex; gap: 4px; margin-left: 8px; vertical-align: middle; }
+.estilo button { padding: 3px 10px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; background: none; color: inherit; font-size: 12px; font-weight: 600; }
+.estilo button[aria-pressed="true"] { background: #F5F5F7; color: #0B0B0F; }
+html[data-estilo="min"] { --acc: #0B0B0F; --accInk: #FFFFFF; --soft: #F2F2F2; --bg: #FFFFFF; --card: #FFFFFF; --stage: #FFFFFF; --sep: #EAEAEA; --star: #0B0B0F; --lift: none; --line: #EAEAEA; --tile: #F4F4F4; --tileInk: #A3A3A3; }
+@media (prefers-color-scheme: dark) { html[data-estilo="min"]:not([data-theme="light"]) { --acc: #F5F5F7; --accInk: #0B0B0F; --soft: #1A1A1D; --bg: #000000; --card: #000000; --stage: #000000; --sep: #222226; --star: #F5F5F7; --line: #222226; --tile: #121214; --tileInk: #55555C; } }
+html[data-estilo="min"][data-theme="dark"] { --acc: #F5F5F7; --accInk: #0B0B0F; --soft: #1A1A1D; --bg: #000000; --card: #000000; --stage: #000000; --sep: #222226; --star: #F5F5F7; --line: #222226; --tile: #121214; --tileInk: #55555C; }
+html[data-estilo="min"] h1 { font-weight: 600; font-size: 32px; letter-spacing: -.03em; }
+html[data-estilo="min"] .gh { margin-top: 32px; } html[data-estilo="min"] .gh b { font-weight: 600; font-size: 17px; }
+html[data-estilo="min"] .gh .mi .ic { color: var(--ink); }
+html[data-estilo="min"] .loc .ic, html[data-estilo="min"] .top button { color: var(--ink); }
+html[data-estilo="min"] .search { box-shadow: none; border: 1px solid var(--line); border-radius: 999px; background: var(--card); }
+html[data-estilo="min"] .search:focus-within { border-color: var(--ink); box-shadow: none; }
+html[data-estilo="min"] .cats { gap: 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+html[data-estilo="min"] .cat { border-radius: 0; box-shadow: none; background: none; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 16px 4px 14px; font-weight: 500; }
+html[data-estilo="min"] .cat .cic { width: auto; height: auto; background: none; color: var(--ink); }
+html[data-estilo="min"] .cat .cic .ic { width: 26px; height: 26px; stroke-width: 1.4; }
+html[data-estilo="min"] .card { box-shadow: none; border-radius: 0; background: none; margin-bottom: 28px; }
+html[data-estilo="min"] .cover, html[data-estilo="min"] .hero { gap: 2px; }
+html[data-estilo="min"] .cover { border-radius: 14px; overflow: hidden; height: 150px; }
+html[data-estilo="min"] .ph { background: var(--tile); }
+html[data-estilo="min"] .ph .phi { color: var(--tileInk); filter: none; stroke-width: 1.2; opacity: 1; }
+html[data-estilo="min"] .ph small { color: var(--tileInk); text-shadow: none; font-weight: 500; }
+html[data-estilo="min"] .body { padding: 12px 0 0; }
+html[data-estilo="min"] .name { font-weight: 600; }
+html[data-estilo="min"] .rate { font-weight: 600; }
+html[data-estilo="min"] .open { color: var(--ink2); font-weight: 500; }
+html[data-estilo="min"] .open::before { content: "● "; color: var(--ok); font-size: 9px; vertical-align: 2px; }
+html[data-estilo="min"] .match { border-top-color: var(--line); }
+html[data-estilo="min"] .match b { font-weight: 600; }
+html[data-estilo="min"] .next { background: none; padding: 0; color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+html[data-estilo="min"] .tagrank { background: #FFFFFF; color: #0B0B0F; backdrop-filter: none; font-weight: 600; }
+html[data-estilo="min"] .cover .fav { background: #FFFFFF; box-shadow: none; }
+html[data-estilo="min"] .seg { background: none; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0; }
+html[data-estilo="min"] .seg button { border-radius: 0; color: var(--ink3); font-weight: 500; padding-bottom: 8px; }
+html[data-estilo="min"] .seg button[aria-selected="true"] { background: none; box-shadow: inset 0 -2px 0 var(--ink); color: var(--ink); font-weight: 600; }
+html[data-estilo="min"] .chip { box-shadow: none; border: 1px solid var(--line); background: var(--card); font-weight: 500; }
+html[data-estilo="min"] .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); box-shadow: none; }
+html[data-estilo="min"] .btn.fill { box-shadow: none; border-radius: 999px; font-weight: 600; }
+html[data-estilo="min"] .btn.soft { box-shadow: none; border: 1px solid var(--line); border-radius: 999px; background: none; }
+html[data-estilo="min"] .group { box-shadow: none; border-radius: 0; background: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+html[data-estilo="min"] .cell { padding-left: 0; padding-right: 0; }
+html[data-estilo="min"] .cell.hit { background: none; } html[data-estilo="min"] .cell.hit .l { font-weight: 600; }
+html[data-estilo="min"] .cell .p { font-weight: 600; }
+html[data-estilo="min"] .cell .go { background: none; border: 1px solid var(--ink); color: var(--ink); font-weight: 600; }
+html[data-estilo="min"] .logo { background: var(--ink); color: var(--bg); border-radius: 50%; box-shadow: none; }
+html[data-estilo="min"] .back { box-shadow: none; }
+html[data-estilo="min"] .day, html[data-estilo="min"] .slot { box-shadow: none; border: 1px solid var(--line); background: none; }
+html[data-estilo="min"] .day[aria-pressed="true"], html[data-estilo="min"] .slot[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+html[data-estilo="min"] .banner { background: none; color: var(--ink); border: 1px solid var(--line); border-radius: 14px; }
+html[data-estilo="min"] .banner .bic { background: var(--tile); } html[data-estilo="min"] .banner button { background: var(--ink); color: var(--bg); }
+html[data-estilo="min"] .tabbar { border-top-color: var(--line); }
+html[data-estilo="min"] .tab[aria-selected="true"]::before { display: none; }
+html[data-estilo="min"] .tab .ic { stroke-width: 1.5; } html[data-estilo="min"] .tab[aria-selected="true"] .ic { stroke-width: 2; }
+html[data-estilo="min"] .ver path:first-child { fill: var(--ink); } html[data-estilo="min"] .ver path:last-child { stroke: var(--bg); }
+html[data-estilo="min"] .sq { background: var(--tile); } html[data-estilo="min"] .sq .phi { color: var(--tileInk); }
+html[data-estilo="min"] .done { background: none; border: 1px solid var(--line); }
+html[data-estilo="min"] .bars i b { background: var(--ink); }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
 
 <div class="phone">
-  <div class="note">Demostración · salones, fotos, calificaciones y distancias de ejemplo</div>
+  <div class="note">Demostración con datos de ejemplo · Estilo: <span class="estilo" role="group" aria-label="Estilo"><button type="button" data-estilo="base">Actual</button><button type="button" data-estilo="min">Minimalista</button></span></div>
   <main id="screen" aria-live="polite"></main>
 </div>
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones"></nav>
@@ -395,6 +453,12 @@ h1 .ver { width: 24px; height: 24px; vertical-align: -2px; }
         render(); break; }
     }
   });
+  // Estilo de la demostración (se recuerda en este navegador).
+  const estilo = v => { if (v === 'min') document.documentElement.dataset.estilo = 'min'; else delete document.documentElement.dataset.estilo;
+    document.querySelectorAll('[data-estilo]').forEach(b => b.matches('button') && b.setAttribute('aria-pressed', String(b.dataset.estilo === v))); };
+  let ev = 'min'; try { ev = localStorage.getItem('explorar.estilo') || 'min'; } catch (e) {}
+  estilo(ev);
+  document.querySelector('.estilo').addEventListener('click', e => { const b = e.target.closest('[data-estilo]'); if (!b) return; estilo(b.dataset.estilo); try { localStorage.setItem('explorar.estilo', b.dataset.estilo); } catch (err) {} });
   render();
 })();
 </script>
