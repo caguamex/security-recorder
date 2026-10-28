@@ -16,3 +16,7 @@ supabase/.temp/
 
 # Empaquetado aislado de la comunidad, regenerable desde sus fuentes.
 ritmo/dist/comunidad/
+
+# Capturas repetibles de las pruebas de comunidad.
+ritmo/imagenes/comunidad/inicio-*.png
+ritmo/imagenes/comunidad/publicacion-movil.png
