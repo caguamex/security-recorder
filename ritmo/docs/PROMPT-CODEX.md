@@ -54,7 +54,7 @@ PARTE 1 · CUENTAS Y EQUIPO (CUENTAS.md)
    del equipo» corta el acceso al momento. El equipo entra SOLO por invitación.
 5. Agenda por especialista (lista y columnas) e historial de cada cita.
 6. DOS ADMIN EN EL MISMO SALÓN (sección 1c): la dueña y yo, cada quien con
-   su correo. Lo que uno agenda, mueve o cancela le aparece al otro al
+   su número de WhatsApp. Lo que uno agenda, mueve o cancela le aparece al otro al
    momento (Supabase Realtime) y le llega un aviso en el celular (push de
    la PWA), por ejemplo: «Dueña del salón agendó una cita · Paola Vega ·
    hoy 15:30 con Karla».

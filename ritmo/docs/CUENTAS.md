@@ -48,7 +48,7 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
 
 ## 1c. Dos Admin en el mismo salón y avisos al momento
 
-- Antonio y la dueña del salón usan **la misma cuenta del salón**, cada quien con su correo y los dos con rol **Admin**. No comparten acceso.
+- Antonio y la dueña del salón usan **la misma cuenta del salón**, cada quien con su número de WhatsApp (o correo) y los dos con rol **Admin**. No comparten acceso.
 - **Todo es una sola agenda**: lo que agenda, mueve o cancela una persona le aparece **al momento** a las demás, sin recargar.
   - Usa Supabase Realtime (cambios de `belleza_objetos` del negocio, filtrados por RLS).
   - Si no hay conexión en tiempo real, se revisa cada 15 s. Al volver a la app, se sincroniza de inmediato.
