@@ -5,10 +5,19 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
 
 ## 1. Inicio de sesión
 
-- **Sin contraseñas. Por ahora solo código por correo**, con Supabase Auth (plan gratis):
-  - Código de 6 dígitos por correo (OTP de Supabase, no enlace mágico: funciona aunque el correo se abra en otro dispositivo). Vence en 10 minutos; máximo 5 intentos.
-  - El correo integrado de Supabase solo envía unos pocos mensajes por hora. Conecta SMTP propio con plan gratis (Resend: 100 al día, o Brevo: 300 al día), con remitente verificado y SPF/DKIM. Antonio crea la cuenta; la llave va en secretos, nunca en Git.
-  - **Pospuestos**: Continuar con Google (gratis, se agrega cuando Antonio lo pida) y Continuar con Apple (requiere Apple Developer, 99 USD al año). Deja el código preparado para activarlos después, pero no muestres los botones.
+- **Con número de WhatsApp, sin contraseñas** (decisión de Antonio, como la app de Steren): la persona escribe su número (+52, 10 dígitos), le llega un **código de 6 dígitos por WhatsApp**, lo escribe y entra.
+  - Usa el login por teléfono de Supabase Auth (OTP de teléfono) con el **«Send SMS Hook»**: en vez de un proveedor de SMS, el hook manda el código al servicio `agendappx-whatsapp` de Railway (ver `WHATSAPP-AUTOMATICO.md`), que lo envía por WhatsApp. **Sin costo por código.**
+  - **Número de Agendappx: +52 866 124 1483**, el mismo que usa FiNeCi (decisión de Antonio). Es el número de la plataforma y sirve **solo para los códigos de registro e inicio de sesión de todos los salones**. Los recordatorios y promociones de cada salón salen del WhatsApp que **ese salón** vincule en Ajustes.
+  - El hook va firmado (secreto del hook de Supabase) y solo acepta mensajes de código; no se puede usar para mandar otros textos.
+  - Texto: «Tu código de Agendappx es *482913*. Vence en 10 minutos. No lo compartas con nadie.»
+  - El código vence en 10 minutos; máximo 5 intentos. Máximo 3 códigos por número cada 15 minutos y 10 por IP por hora.
+  - Los códigos de acceso **no cuentan** en los topes de recordatorios ni de promociones, y siempre salen primero.
+- **Respaldo por correo**: «Prefiero recibirlo por correo» y «¿No te llegó? Recibirlo por correo» mandan el mismo tipo de código al correo (OTP de correo de Supabase + SMTP gratuito: Resend o Brevo). Así nadie se queda fuera si el WhatsApp de Agendappx está desconectado. Si el servicio de WhatsApp no responde en 20 segundos, la app ofrece el correo automáticamente.
+- **SMS**: no por ahora (cuesta por mensaje). El hook queda listo para agregar un proveedor de SMS después, si Antonio lo decide.
+- Una cuenta puede tener número y correo; los dos sirven para entrar.
+- **Admin: verificación en dos pasos obligatoria** con app autenticadora (MFA TOTP de Supabase, nivel `aal2`), más 10 códigos de respaldo. Sin `aal2`, la API rechaza cualquier acción de Admin.
+- Sesión: token de acceso corto (1 h) con renovación. Especialistas y Recepción se cierran solas tras 30 días sin abrir la app.
+- No se guarda ninguna contraseña ni token en `localStorage` fuera de lo que maneja el SDK de Supabase.
 - **Quién puede crear cuenta**:
   - **Dueñas de salón**: con «Registrarse» desde la bienvenida. Correo → código → «Tu salón» (nombre, su nombre, qué ofrece, link) → crea un negocio nuevo y queda como Admin, con servicios de ejemplo que puede cambiar. Antes de usar acciones de Admin configura los dos pasos.
   - **Equipo**: solo por invitación (`/unirse/<código>`), validada en el servidor.
@@ -36,6 +45,32 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
   - el nombre de pila de la especialista se muestra solo si el salón lo permite;
   - las solicitudes llevan Turnstile y un límite de 5 por teléfono al día.
 - **En Ajustes (Admin)**: «Tu link para clientas» con Copiar y «Ver como lo ven tus clientas». El slug se elige al crear el salón y puede cambiarse; el anterior redirige 90 días.
+
+## 1c. Dos Admin en el mismo salón y avisos al momento
+
+- Antonio y la dueña del salón usan **la misma cuenta del salón**, cada quien con su número de WhatsApp (o correo) y los dos con rol **Admin**. No comparten acceso.
+- **Todo es una sola agenda**: lo que agenda, mueve o cancela una persona le aparece **al momento** a las demás, sin recargar.
+  - Usa Supabase Realtime (cambios de `belleza_objetos` del negocio, filtrados por RLS).
+  - Si no hay conexión en tiempo real, se revisa cada 15 s. Al volver a la app, se sincroniza de inmediato.
+- **Aviso en el celular** (notificación push web de la PWA, con permiso de cada persona) cuando otra persona agenda, mueve o cancela. Ejemplo: «Dueña del salón agendó una cita · Paola Vega · Gelish en manos · hoy 15:30 con Karla».
+  - Al tocarlo se abre la cita.
+  - A Admin le llega todo. A una Especialista, solo lo de sus citas.
+  - Quien hizo el cambio no recibe su propio aviso.
+  - Llaves VAPID como secretos, nunca en Git.
+- Cada cita muestra en su historial quién la creó y quién la cambió (ya está en `bitacora`).
+
+## 1d. Horario de trabajo («Mi horario»)
+
+- **Ajustes → Mi horario**: cada persona edita el suyo. Admin también puede editar el de cualquiera desde Equipo → ficha → Horario.
+  - Por día de la semana: trabaja sí o no, y de qué hora a qué hora (pasos de 30 min, formato 24 h).
+  - Hora de comida opcional.
+  - **Días especiales**: día libre, vacaciones (uno o varios días) o «sale temprano» con hora.
+- Modelo: `miembros.horario = { "lun": ["10:00","19:00"] | null, ..., "comida": ["14:00","15:00"] | null }` y tabla `horario_especial(negocio_id, usuario_id, fecha, tipo, desde, hasta)`.
+- Efectos:
+  - **Agenda «Por especialista»**: fuera de turno y comida se ven rayados («Entra 11:00», «Comida», «Salió», «Descansa»).
+  - **Nueva cita**: Recepción y Especialista solo pueden elegir horas dentro del horario. Admin ve las de fuera con ⚠️ y puede agendarlas confirmando.
+  - **Perfil público**: las horas libres solo salen dentro del horario de quien hace el servicio, incluyendo comida y días especiales.
+  - Los mensajes automáticos no cambian.
 
 ## 2. Roles
 
@@ -162,3 +197,7 @@ Planes y cobro (Mercado Pago o Stripe) y un número de WhatsApp por salón. Los 
 - Una invitación vencida, usada o con código incorrecto se rechaza.
 - Admin sin `aal2` no puede usar acciones de Admin.
 - La bitácora registra crear, mover y cancelar con usuario y hora.
+
+## Aclaración posterior de Antonio — 28 de octubre de 2026
+
+Antonio confirmó expresamente: «los códigos a cualquier hora, citas y promociones también». Los códigos, avisos de citas y promociones se pueden enviar las 24 horas. Esta decisión sustituye las ventanas de silencio de cualquier versión anterior; no cambia consentimiento, topes, pausas, prioridades, idempotencia ni freno de emergencia. Los avisos conservan su momento según la cita y los recordatorios caducados no se mandan después de empezar. Esta decisión no autoriza vincular números, migrar datos o publicar una etapa sin su confirmación correspondiente.

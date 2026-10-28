@@ -15,15 +15,17 @@ Antonio lo autorizó conociendo el riesgo: las condiciones de WhatsApp no permit
 **Railway: servicio nuevo `agendappx-whatsapp`**, en un proyecto propio, separado de FiNeCi. **No toques FiNeCi.**
 - Plan Hobby de Antonio: 1.20 USD usados en 12 días, con un estimado de 2.25 USD de los 5 incluidos, y un límite de gasto de 10 USD compartido con FiNeCi.
 - Es un proceso Node/TypeScript **siempre prendido** (1 réplica) que mantiene la conexión de WhatsApp. Usa una librería de dispositivo vinculado mantenida (por ejemplo Baileys), con la versión fijada. Si FiNeCi ya usa una, toma la misma para repetir lo que ya funciona.
-- **Solo envía** (decisión de Antonio). No es un chatbot:
+- **Solo envía** (decisión de Antonio). No es un chatbot. Lo único que lee son los **contactos** (sección 7):
   - vincula el número;
   - revisa la cola **cada minuto** y manda los mensajes de la sección 1;
   - informa el estado de la conexión.
+  - **manda los códigos de inicio de sesión desde el número de Agendappx, +52 866 124 1483** (el mismo de FiNeCi). Es una sesión vinculada **propia y separada**: otro dispositivo vinculado de ese número, sin tocar la sesión ni el servicio de FiNeCi. WhatsApp permite hasta 4 dispositivos vinculados por número; Codex verifica cuántos usa FiNeCi antes de vincular. Esta sesión de plataforma se vincula una sola vez con un comando de operación que muestra el código de 8 dígitos a Antonio (no desde la app de un salón). Variable `WA_NUMERO_CODIGOS=528661241483` en Railway. Por ese número salen solo códigos: ni recordatorios ni promociones de salones.
+  - **endpoint de códigos**: expone `POST /hook/codigo` para el «Send SMS Hook» de Supabase Auth (firma verificada con el secreto del hook). Solo acepta `{telefono, codigo}` y manda el texto fijo del código (ver `CUENTAS.md`, sección 1). Los códigos tienen prioridad sobre todo lo demás y no cuentan en los topes. Si el número no está vinculado, responde error y la app ofrece el correo.
 - **No lee, no guarda y no procesa mensajes entrantes.** Los eventos de mensajes recibidos se descartan sin guardarlos. Tampoco envía confirmaciones de lectura ni marca chats como leídos, para que el salón vea las respuestas como no leídas en su teléfono.
 - **Sesión de WhatsApp**: se guarda **cifrada** (AES-256-GCM, llave `WA_SESSION_KEY` en Railway) en una tabla de Supabase `whatsapp_sesiones` por negocio. Así no hace falta volumen y sobrevive a reinicios.
 - **Supabase**: rol propio `agendappx_whatsapp` con permisos mínimos:
   - lee citas, clientas, servicios, ajustes y miembros;
-  - escribe la cola, sesiones, el estado de la vinculación y el estado de envío de cada mensaje.
+  - escribe la cola, sesiones, el estado de la vinculación, el estado de envío de cada mensaje y la lista de contactos sincronizados (sección 7).
   - TLS verificado.
 - **Cloudflare** deja de enviar (`WHATSAPP_REMITENTE=vinculado`). El webhook de Meta y su código se conservan, pero quedan apagados.
 - **Costo esperado**: unos 1.5 a 3 USD al mes por estar prendido (unos 150 a 250 MB de RAM). Sumado a lo actual queda cerca de los 5 USD incluidos y lejos del límite de 10. Configura en Railway una alerta de uso. Codex: informa el consumo real después de una semana.
@@ -66,13 +68,13 @@ No hay botones ni respuestas automáticas. Si la clienta contesta, lo lee y resp
 - **Consentimiento**: solo se envía si `clienta.whatsappOptIn === true`.
   - En el perfil público, la casilla «Acepto recibir por WhatsApp…» es obligatoria.
   - Cuando el equipo crea la clienta, marca el permiso al pedirle su número.
-- **Solo mensajes de citas**: nunca promociones masivas ni mensajes a números sin cita.
+- **Mensajes de citas** solo a clientas con cita. **Promociones** solo con las reglas de la sección 7.
 - **Ritmo humano**:
   - pausa aleatoria de 20 a 60 segundos entre mensajes;
   - «escribiendo…» de 2 a 5 segundos antes de cada uno;
   - máximo 30 por hora y 150 por día por número (configurable hacia abajo).
   - Lo que no alcance a salir espera a la siguiente vuelta, respetando los horarios de la cita: si un #4 ya no tiene sentido, se omite.
-- **Horario silencioso**: nada entre 21:00 y 08:00 (hora de Ciudad de México). Lo que caiga ahí espera a las 08:00, salvo el #4, que se omite.
+- **Horario de envío: las 24 horas**, por decisión posterior expresa de Antonio del 28 de octubre de 2026. Aplica a códigos de acceso, avisos de citas y promociones. No posponer ni omitir un mensaje por ser de noche; conservar el momento programado, caducidad de recordatorios, consentimiento, pausas, prioridades y topes.
 - **#3 el día**:
   - si la cita empieza menos de 2 horas después de esa hora (con 09:00, antes de las 11:00), sale la noche anterior a las 19:00 como «Mañana es tu cita», para no juntarse con el #4;
   - se **omite** si la cita se agendó menos de 3 horas antes de esa hora, o si ya se mandó el #1 o el #2 en las últimas 3 horas.
@@ -110,9 +112,35 @@ No hay botones ni respuestas automáticas. Si la clienta contesta, lo lee y resp
 3. Nada en Meta, sin plantillas y sin tarjeta.
 4. Para Codex: secretos solo en Railway (`DATABASE_URL` del rol `agendappx_whatsapp`, `WA_SESSION_KEY` y `TZ=America/Mexico_City`) y la bandera en Cloudflare. Nunca en Git.
 
+## 7. Contactos de WhatsApp y promociones
+
+Antonio quiere sincronizar los contactos del WhatsApp vinculado, como en FiNeCi, para crear promociones y elegir a quién mandarlas. Se maneja con moderación.
+
+**Contactos (Ajustes → Mensajes de WhatsApp → Contactos de WhatsApp, solo Admin):**
+- Al vincular y con «Sincronizar», el servicio lee **solo nombre y número** de los contactos del WhatsApp vinculado (lo que la librería expone de la libreta y los chats). Los guarda en `whatsapp_contactos(negocio_id, telefono, nombre, ultimo_chat)`. **Nunca lee ni guarda mensajes.**
+- La app muestra los **nuevos** (los que no están en Clientas) con casillas. Admin elige quién pasa a Clientas; no se importa nada solo.
+- Al importarlas se marca «Acepta promociones», que Admin puede cambiar después.
+- Cada clienta tiene `promosOptIn` (sí o no, con fecha y origen: link, importada o a mano). En el perfil público, «Pedir cita» ofrece la casilla opcional «Quiero recibir promociones».
+
+**Enviar promoción (solo Admin):**
+1. Elige una promoción de las que ya existen en la app (o escribe el texto). El mensaje usa `{nombre}` y lleva al final: «Si no quieres recibir promociones, respóndenos BAJA».
+2. Elige a quién, **solo entre clientas con `promosOptIn`**: todas, por categoría de servicio que se han hecho, «no vienen hace 30+ días» o una por una.
+3. La app muestra el plan antes de confirmar: «Se enviará a 79 clientas: 40 hoy, 39 mañana».
+4. «Programar envío» crea una campaña. El servicio la manda poco a poco:
+   - **máximo 40 promociones al día** por número (configurable solo hacia abajo);
+   - a cualquier hora, con pausas de 1 a 3 minutos (cambio expreso de Antonio del 28 de octubre de 2026);
+   - 2 o 3 variaciones del texto;
+   - **nunca** dos promociones a la misma clienta en menos de 7 días.
+5. En Mensajes de WhatsApp se ve el avance de cada campaña («40 de 79»), con botones para pausar o cancelar.
+
+**Prioridad y frenos:**
+- Los mensajes de citas siempre salen primero y no cuentan en el tope de promociones.
+- Si WhatsApp rechaza mensajes o desconecta el número durante una campaña, **se pausan todas las campañas**, se avisa a Admin y solo se reanudan a mano.
+- **BAJA**: el servicio no lee mensajes, así que Admin la marca a mano en la ficha de la clienta («Quitar de promociones»). Eso la saca de inmediato de las campañas pendientes.
+
 ## 6. Pruebas mínimas
 
-- Ningún envío sin consentimiento, en horario silencioso, a números sin cita, ni pasados los topes por hora y por día.
+- Ningún aviso de cita sin consentimiento, sin cita vigente ni pasados los topes por hora y por día. Comprobar también avisos nocturnos sin posponerlos hasta las 08:00.
 - Las pausas entre mensajes se respetan (prueba con reloj simulado).
 - El #3 se omite al agendar el mismo día con menos de 3 h; el #4 se omite con menos de 90 min.
 - Mover una cita invalida los pendientes, manda el #5 y reprograma los recordatorios. Cancelar invalida todo.
@@ -123,3 +151,12 @@ No hay botones ni respuestas automáticas. Si la clienta contesta, lo lee y resp
 - La sesión guardada no se puede leer sin `WA_SESSION_KEY`.
 - Una Especialista no ve CLABE, comprobantes ni el estado de vinculación.
 - Con `WHATSAPP_REMITENTE=vinculado`, Cloudflare no envía nada.
+- La sincronización guarda solo nombre y número; ningún mensaje.
+- Una promoción nunca llega a quien no tiene `promosOptIn`, ni a la misma clienta dos veces en 7 días.
+- Se respeta el tope de 40 promociones al día y las pausas de 1 a 3 min; la campaña puede avanzar también por la noche, por instrucción posterior de Antonio.
+- Quitar el permiso saca a la clienta de las campañas pendientes.
+- Un error de WhatsApp pausa todas las campañas.
+
+## Precedencia de la aclaración del 28 de octubre
+
+Los documentos del commit f743ccf sustituyen los encargos anteriores. Después Antonio autorizó códigos, citas y promociones a cualquier hora. Por ello, las referencias antiguas a silencio 21–08 o promociones 10–19 quedan sustituidas. Permanecen los límites de 30/h y 150/día por número para avisos, 40 promociones/día, separación de siete días, consentimiento, prioridad códigos → citas → promociones y freno ante bloqueo. Esto es la especificación de la siguiente versión, no un cambio ya publicado en el servicio existente.
