@@ -61,6 +61,12 @@ PARTE 1 · CUENTAS Y EQUIPO (CUENTAS.md)
    casilla de permiso para WhatsApp. Nunca muestra datos de otras clientas.
    En Ajustes: «Tu link para clientas» con Copiar.
 10. Respaldo diario y calendario .ics por persona.
+10b. Buscador en Servicios (captura ritmo/imagenes/buscador-servicios.png):
+   barra «Buscar: cejas, pestañas, uñas…» y botones rápidos Uñas, Pestañas,
+   Cejas y Cabello. Busca por nombre o categoría, sin importar acentos,
+   mayúsculas ni plural («pestaña» encuentra «pestañas»). Muestra los
+   resultados agrupados con precio, duración y quién lo hace, y resalta
+   la palabra encontrada. Filtra mientras escribo.
 
 PARTE 2 · WHATSAPP COMO EN FINECI (WHATSAPP-AUTOMATICO.md)
 Autorizo usar la conexión de dispositivo vinculado (código de 8 dígitos),

@@ -229,6 +229,12 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
 .ck .l { flex: 1; min-width: 0; } .ck small { display: block; color: var(--ink3); font-size: 13px; }
 .bar-p { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; margin-top: 8px; } .bar-p i { display: block; height: 100%; background: var(--ok); border-radius: 4px; }
 textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: vertical; font-size: 15px; }
+.search { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 14px; background: var(--fill); }
+.search input { flex: 1; min-width: 0; border: 0; background: none; font-size: 17px; outline: none; }
+.search input::-webkit-search-cancel-button { display: none; }
+.search button { border: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--ink3); color: var(--bg); font-size: 11px; font-weight: 800; }
+.search:focus-within { box-shadow: 0 0 0 2px var(--acc); }
+mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
@@ -253,16 +259,18 @@ textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: v
 
   // Datos de ejemplo de AB' Beauty Room (martes 27 de octubre).
   const SERV = [
-    { id: 'acr', n: 'Uñas acrílicas', min: 90, p: 650, c: '#E0457B' }, { id: 'gel', n: 'Gelish en manos', min: 45, p: 300, c: '#F06A9B' },
-    { id: 'ped', n: 'Pedicure spa', min: 60, p: 400, c: '#C2457E' }, { id: 'lif', n: 'Lifting de pestañas', min: 60, p: 550, c: '#14A3A0' },
-    { id: 'cej', n: 'Diseño de cejas', min: 45, p: 250, c: '#2BB3C0' }, { id: 'bal', n: 'Balayage', min: 150, p: 1500, c: '#8B5CF6' },
+    { id: 'acr', n: 'Uñas acrílicas', cat: 'Uñas', min: 90, p: 650, c: '#E0457B' }, { id: 'gel', n: 'Gelish en manos', cat: 'Uñas', min: 45, p: 300, c: '#F06A9B' },
+    { id: 'ped', n: 'Pedicure spa', cat: 'Uñas', min: 60, p: 400, c: '#C2457E' }, { id: 'gelp', n: 'Gelish en pies', cat: 'Uñas', min: 45, p: 280, c: '#D9618F' },
+    { id: 'lif', n: 'Lifting de pestañas', cat: 'Pestañas', min: 60, p: 550, c: '#14A3A0' }, { id: 'ext', n: 'Extensiones de pestañas', cat: 'Pestañas', min: 120, p: 900, c: '#0E8C89' },
+    { id: 'cej', n: 'Diseño de cejas', cat: 'Cejas', min: 45, p: 250, c: '#2BB3C0' }, { id: 'lam', n: 'Laminado de cejas', cat: 'Cejas', min: 45, p: 350, c: '#3AA6C9' },
+    { id: 'tin', n: 'Tinte de cejas', cat: 'Cejas', min: 30, p: 150, c: '#5BB8D6' }, { id: 'bal', n: 'Balayage', cat: 'Cabello', min: 150, p: 1500, c: '#8B5CF6' },
   ];
   const EQUIPO = [
     { id: 'antonio', n: 'Antonio', ini: 'AN', rol: 'admin', c: '#4B4B55', serv: [], estado: 'activa', disp: 'iPhone 15 · Safari' },
     { id: 'duena', n: 'Dueña del salón', ini: 'DS', rol: 'admin', c: '#B4235A', serv: [], estado: 'activa', disp: 'iPhone 14 · Safari' },
     { id: 'lupita', n: 'Lupita Hernández', ini: 'LH', rol: 'recepcion', c: '#3B82F6', serv: [], estado: 'activa', disp: 'iPad · Safari' },
-    { id: 'karla', n: 'Karla Méndez', ini: 'KM', rol: 'especialista', c: '#E0457B', serv: ['acr', 'gel', 'ped'], estado: 'activa', disp: 'iPhone 13 · Safari', verTodas: false, horario: 'Lun a sáb · 10:00 a 19:00' },
-    { id: 'renata', n: 'Renata Soto', ini: 'RS', rol: 'especialista', c: '#14A3A0', serv: ['lif', 'cej'], estado: 'activa', disp: 'Android · Chrome', verTodas: false, horario: 'Mar a sáb · 11:00 a 19:00' },
+    { id: 'karla', n: 'Karla Méndez', ini: 'KM', rol: 'especialista', c: '#E0457B', serv: ['acr', 'gel', 'ped', 'gelp'], estado: 'activa', disp: 'iPhone 13 · Safari', verTodas: false, horario: 'Lun a sáb · 10:00 a 19:00' },
+    { id: 'renata', n: 'Renata Soto', ini: 'RS', rol: 'especialista', c: '#14A3A0', serv: ['lif', 'ext', 'cej', 'lam', 'tin'], estado: 'activa', disp: 'Android · Chrome', verTodas: false, horario: 'Mar a sáb · 11:00 a 19:00' },
     { id: 'ximena', n: 'Ximena Lara', ini: 'XL', rol: 'especialista', c: '#8B5CF6', serv: ['bal'], estado: 'activa', disp: 'iPhone 14 · Safari', verTodas: false, horario: 'Lun a vie · 12:00 a 19:00' },
     { id: 'brenda', n: 'Brenda Castillo', ini: 'BC', rol: 'especialista', c: '#F59E0B', serv: ['gel', 'ped'], estado: 'pendiente', verTodas: false, horario: 'Sáb · 10:00 a 18:00' },
   ];
@@ -424,7 +432,7 @@ textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: v
 
   /* ---------- Perfil público del salón (link para compartir) ---------- */
   const DIAS = [['Mar', 27], ['Mié', 28], ['Jue', 29], ['Vie', 30], ['Sáb', 31], ['Dom', 1], ['Lun', 2]];
-  const CATS = [['todas', 'Todas'], ['unas', 'Uñas', ['acr', 'gel', 'ped']], ['ojos', 'Pestañas y cejas', ['lif', 'cej']], ['pelo', 'Cabello', ['bal']]];
+  const CATS = [['todas', 'Todas'], ['unas', 'Uñas', ['acr', 'gel', 'ped', 'gelp']], ['ojos', 'Pestañas y cejas', ['lif', 'ext', 'cej', 'lam', 'tin']], ['pelo', 'Cabello', ['bal']]];
   const mins = h => +h.slice(0, 2) * 60 + +h.slice(3);
   const hhmm = t => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
   // Citas de otros días: las de hoy recorridas unas horas, solo para que la disponibilidad cambie de un día a otro.
@@ -571,8 +579,19 @@ textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: v
       <div class="group">${lista.map(([k, [n, t]]) => `<div class="cell"><span class="av" style="--c:#C2457E">${n.split(' ').map(x => x[0]).join('')}</span><span class="l">${esc(n)}<small style="font-variant-numeric:tabular-nums">${tel(t)}</small></span>${!mias && pr(k) ? '<span class="pill" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">Promos ✓</span>' : ''}</div>`).join('')}</div>
       ${mias ? '' : `<p class="foot">Ves 6 de ejemplo. Las clientas nuevas pueden venir de tu link o de los <button type="button" class="link" data-sub2="contactos" style="font-size:13px">contactos de WhatsApp</button>.</p>`}
       ${mias ? '<div class="lock"><span class="e">🔒</span><span>Ves solo a las clientas de tus citas, con el teléfono parcialmente oculto.</span></div>' : ''}`; };
+  // Buscador de servicios: sin acentos ni mayúsculas, por nombre o categoría («cejas», «pestaña», «unas»).
+  const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const marca = (txt, q) => { const n = norm(txt), i = q ? n.indexOf(q) : -1; return i < 0 ? esc(txt) : esc(txt.slice(0, i)) + '<mark>' + esc(txt.slice(i, i + q.length)) + '</mark>' + esc(txt.slice(i + q.length)); };
+  const buscar = q => { const w = norm(q.trim()).replace(/s\b/g, ''); return SERV.filter(x => !w || w.split(/\s+/).every(t => norm(x.n + ' ' + x.cat).includes(t))); };
+  const resultados = q => { const lista = buscar(q), w = norm(q.trim()).replace(/s\b/g, '').split(/\s+/)[0];
+    if (!lista.length) return `<div class="lock"><span class="e">🔎</span><span>No encontramos «${esc(q.trim())}». Prueba con uñas, cejas, pestañas o cabello.</span></div>`;
+    const cats = [...new Set(lista.map(x => x.cat))];
+    return (q.trim() ? `<p class="foot" style="margin:0 4px 4px">${lista.length} ${lista.length === 1 ? 'servicio' : 'servicios'} para «${esc(q.trim())}»</p>` : '') +
+      cats.map(c => { const g = lista.filter(x => x.cat === c); return `<p class="gh">${esc(c)} · ${g.length}</p><div class="group">${g.map(x => `<div class="cell"><span class="av" style="--c:${x.c};border-radius:10px"></span><span class="l">${marca(x.n, w)}<small>${x.min} min · ${EQUIPO.filter(m => m.serv.includes(x.id) && m.estado === 'activa').map(m => m.n.split(' ')[0]).join(', ') || 'Sin asignar'}</small></span><span class="r" style="color:var(--ink);font-weight:800;font-size:17px">${money(x.p)}</span></div>`).join('')}</div>`; }).join(''); };
   const servicios = () => `<div class="nav"><span></span>${puede.precios() ? `<button type="button" aria-label="Nuevo servicio">${PLUS}</button>` : ''}</div><h1>Servicios</h1>
-    <div class="group">${SERV.map(s => `<div class="cell"><span class="av" style="--c:${s.c};border-radius:10px"></span><span class="l">${esc(s.n)}<small>${s.min} min · ${EQUIPO.filter(m => m.serv.includes(s.id) && m.estado === 'activa').map(m => m.n.split(' ')[0]).join(', ')}</small></span><span class="r">${money(s.p)}</span></div>`).join('')}</div>
+    <div class="search"><span aria-hidden="true">🔍</span><input id="svcQ" type="search" placeholder="Buscar: cejas, pestañas, uñas…" value="${esc(S.q || '')}" autocomplete="off" aria-label="Buscar servicios"><button type="button" data-act="limpiar-q" aria-label="Borrar búsqueda" ${S.q ? '' : 'hidden'}>✕</button></div>
+    <div class="chips" style="margin:10px -16px 0">${['Uñas', 'Pestañas', 'Cejas', 'Cabello'].map(c => `<button type="button" class="chip all" data-q="${c}" aria-pressed="${norm(S.q || '') === norm(c)}">${c}</button>`).join('')}</div>
+    <div id="svcRes">${resultados(S.q || '')}</div>
     ${puede.precios() ? '' : '<div class="lock"><span class="e">🔒</span><span>Solo Admin puede cambiar servicios, precios y promociones.</span></div>'}`;
 
   /* ---------- Ajustes, equipo y seguridad ---------- */
@@ -746,7 +765,9 @@ textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: v
   });
   ['input', 'change'].forEach(ev => document.addEventListener(ev, e => { const k = { wBanco: 'banco', wClabe: 'clabe', wTit: 'titular' }[e.target.id]; if (k) W[k] = e.target.value; if (e.target.id === 'prTxt') P.txt = e.target.value;
     const hh = e.target.dataset.hor; if (hh) { const [dk, i] = hh.split(':'); HOR[S.sub.slice(8)].dias[dk][+i] = e.target.value; }
-    if (e.target.dataset.com) HOR[S.sub.slice(8)].comida[+e.target.dataset.com] = e.target.value; }));
+    if (e.target.dataset.com) HOR[S.sub.slice(8)].comida[+e.target.dataset.com] = e.target.value;
+    if (e.target.id === 'svcQ') { S.q = e.target.value; $('#svcRes').innerHTML = resultados(S.q); $('.search button').hidden = !S.q;
+      document.querySelectorAll('[data-q]').forEach(c => c.setAttribute('aria-pressed', String(norm(S.q) === norm(c.dataset.q)))); } }));
   document.addEventListener('input', e => { if (e.target.id !== 'csNombre') return;
     const slug = e.target.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'tu-salon';
     $('#csLink').innerHTML = 'agendappx.app/<b>' + esc(slug) + '</b>'; });
@@ -765,6 +786,7 @@ textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: v
     if (d.demo === 'invitacion') { cerrar(); ir({ pant: 'unirse', invita: true, correo: '' }); return; }
     if (d.tab) { ir({ tab: d.tab, sub: null }); return; }
     if (d.sub !== undefined) { ir({ sub: d.sub || null }); return; }
+    if (d.q) { S.q = norm(S.q || '') === norm(d.q) ? '' : d.q; render(); return; }
     if (d.chat) { verChat(+d.chat); return; }
     if (b.classList.contains('noti')) { b.remove(); ir({ pant: 'app', tab: 'agenda', sub: null }); verCita(+d.cita); return; }
     if (d.sub2) { ir({ tab: 'ajustes', sub: d.sub2 }); return; }
@@ -823,6 +845,7 @@ textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: v
       case 'importar': { const sel = CONTACTOS.filter(c => c.sel && !c.ya); sel.forEach(c => { c.ya = true; BASE.push({ k: c.k, n: c.n, t: c.t, promo: true, cat: 'unas', dias: 0 }); }); render(); toast(sel.length + ' contactos agregados a Clientas con permiso de promociones'); break; }
       case 'ver-mas': P.ver += 20; render(); break;
       case 'programar': { const n = audiencia().length, pr = PROMOS.find(x => x.id === P.promo); CAMP.unshift({ t: pr.t, total: n, env: 0, cuando: 'Empieza hoy a las 13:00 · ' + plan(n).join(', ') }); P.sel.clear(); P.txt = null; ir({ sub: 'whatsapp' }); toast('Promoción programada para ' + n + ' clientas'); break; }
+      case 'limpiar-q': S.q = ''; render(); $('#svcQ').focus(); break;
       case 'desvincular': W.vinc = 'no'; render(); toast('WhatsApp desvinculado; los avisos automáticos se pausaron'); break;
       case 'pedir-codigo': { const n = $('#wNum').value.replace(/\D/g, ''); if (n.length !== 10) { toast('Escribe el número a 10 dígitos'); break; } W.numero = n; W.vinc = 'codigo'; W.codigo = 'K7QM-29XA'; render(); break; }
       case 'otro-codigo': W.codigo = W.codigo === 'K7QM-29XA' ? 'P3RD-8WNE' : 'K7QM-29XA'; render(); toast('Código nuevo listo'); break;
