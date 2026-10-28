@@ -6,7 +6,7 @@ Pégalo completo en el chat de Codex.
 Hola Codex. Este es el encargo completo para la siguiente versión de Agendappx.
 Reemplaza a todos los mensajes anteriores sobre cuentas y WhatsApp.
 
-TODO ESTÁ EN LA RAMA claude/es-posible-esto-tjimmb (commit 9b603e1):
+TODO ESTÁ EN LA RAMA claude/es-posible-esto-tjimmb (usa su último commit):
 - ritmo/docs/CUENTAS.md: cuentas, roles, equipo, bienvenida, perfil público,
   dos Admin y «Mi horario»
 - ritmo/docs/WHATSAPP-AUTOMATICO.md: WhatsApp vinculado, anticipo,
@@ -14,8 +14,9 @@ TODO ESTÁ EN LA RAMA claude/es-posible-esto-tjimmb (commit 9b603e1):
 - Prototipo aprobado: ritmo/cuentas/index.html
   (vista navegable: https://claude.ai/artifact/BV5xqvaHhdosQnkvcQ7i8i;
   usa la franja «Demostración» de arriba para recorrerlo)
-- Capturas en ritmo/imagenes/: cuentas-equipo.png, registro-correo.png,
-  bienvenida-perfil-publico.png, whatsapp-anticipo.png y whatsapp-vincular.png
+- Capturas en ritmo/imagenes/: registro-whatsapp.png, cuentas-equipo.png,
+  bienvenida-perfil-publico.png, buscador-servicios.png, whatsapp-anticipo.png
+  y whatsapp-vincular.png
 Lee los dos documentos completos antes de empezar. Si algo de este mensaje
 no coincide con ellos, mandan los documentos.
 
@@ -26,7 +27,7 @@ REGLAS GENERALES
 - Trabaja en una rama y un PR nuevos, por etapas.
 - Secretos solo en Cloudflare, Railway o Supabase, nunca en Git.
 - Pídeme confirmación antes de migrar mis datos, antes de cada despliegue
-  y antes de vincular mi número de WhatsApp.
+  y antes de vincular cualquier número de WhatsApp.
 
 PARTE 1 · CUENTAS Y EQUIPO (CUENTAS.md)
 1. Inicio de sesión con NÚMERO DE WHATSAPP, sin contraseñas (como la app de
