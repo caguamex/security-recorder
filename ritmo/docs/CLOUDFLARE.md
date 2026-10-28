@@ -126,3 +126,7 @@ Antonio autorizó respaldo, migración y publicación con «okey, hazlo». Worke
 `WHATSAPP_REMITENTE=vinculado`: Cloudflare no envía ni procesa el webhook de Meta. El proxy apunta al servicio separado `agendappx-whatsapp` de Railway; una réplica, 0.5 GB/0.1 vCPU, salud 200, sin teléfono ni envíos habilitados. Inicio real 2026-10-27T19:11:09.551883275Z; detalle en SIGUIENTE-WHATSAPP.md. La clave Admin de Supabase nunca se cargó en Cloudflare ni Railway; el frontend solo recibe clave publicable. No se renombró infraestructura, compró dominio ni modificó FiNeCi.
 
 Verificación publicada: salud/configuración/página 200, datos y control sin identidad 401 incluso con APP_TOKEN, Meta 503, calendario original 200 sin notas. Acceso Admin sin SMS visible en Edge a 390 px sin errores ni desbordamiento. El dueño debe completar TOTP en su teléfono; vinculación y primer mensaje requieren aprobaciones separadas.
+
+## Buscador publicado — 28 de octubre de 2026
+
+Con aprobación expresa de Antonio, Worker `a8277d15-0c7d-41b5-b65d-b24b4694a1ec`, aplicación `2a98555`, PR #6. Solo añade buscador, agrupación y consulta autenticada de nombres/asignaciones del equipo. Archivos y navegador de producción verificados; sin migración, cambios de datos, nuevos planes o activación de invitaciones/WhatsApp. Referencia y pruebas: BUSCADOR-SERVICIOS.md. Los móviles reciben el aviso de nueva versión y actualizan con su confirmación.

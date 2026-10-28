@@ -24,7 +24,7 @@ export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise
   res.writeHead(200,{'Content-Type':'text/calendar; charset=utf-8','Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}).end(texto);return true;
  }
  if(req.headers.origin&&req.headers.origin!==config.origen||req.headers['sec-fetch-site']==='cross-site')throw new ErrorAPI(403,'Origen no permitido.');
- const m=/^\/api\/negocios\/([a-f0-9-]{36})\/datos\/(estado|conexiones|calendario\/renovar|objetos\/([a-zA-Z0-9_-]{1,120}))$/.exec(url.pathname);
+ const m=/^\/api\/negocios\/([a-f0-9-]{36})\/datos\/(estado|prestadores|conexiones|calendario\/renovar|objetos\/([a-zA-Z0-9_-]{1,120}))$/.exec(url.pathname);
  if(url.pathname!=='/api/cuentas/contexto'&&!m){
   if(url.pathname.startsWith('/api/')&&!/\/whatsapp(?:\/|$)/.test(url.pathname))throw new ErrorAPI(401,'Inicia sesión con tu cuenta.');return false;
  }
@@ -36,6 +36,12 @@ export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise
  }
  const n=m![1];if(!config.salones.has(n))throw new ErrorAPI(403,'Salón no disponible.');
  const repo=new RepositorioConCuentas(pool,i,n);
+ if(m![2]==='prestadores'&&req.method==='GET'){
+  const equipo=await enTransaccion(pool,i,n,async c=>{await miembroVigente(c,n,i.usuarioId);
+   return (await c.query('SELECT nombre,servicios FROM ritmo.miembros WHERE negocio_id=$1 AND activo AND cardinality(servicios)>0 ORDER BY nombre',[n])).rows;});
+  json(res,{equipo:equipo.map(m=>({nombre:m.nombre,servicios:m.servicios}))});return true;
+ }
+
  if(['conexiones','calendario/renovar'].includes(m![2])){
   if(req.method!==(m![2]==='conexiones'?'GET':'POST'))throw new ErrorAPI(405,'Método no permitido.');
   const token=await enTransaccion(pool,i,n,async c=>{await miembroVigente(c,n,i.usuarioId);const raw=randomBytes(32).toString('hex');

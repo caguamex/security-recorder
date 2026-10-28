@@ -308,6 +308,14 @@ html[data-modo="dark"] .pwa-update { background: #141418; }
 /* Respeta también las áreas seguras laterales en la barra nueva. */
 .tabbar { padding-left: max(6px, env(safe-area-inset-left, 0px)) !important; padding-right: max(6px, env(safe-area-inset-right, 0px)) !important; }
 .modo button { min-height: 44px; }
+.servicios-busqueda { height: 44px; }
+.servicios-busqueda input { min-width: 0; }
+.servicios-busqueda input::-webkit-search-cancel-button { display: none; }
+.servicios-busqueda button { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--ink3); color: var(--card); font-size: 15px; }
+.servicios-busqueda button[hidden] { display: none; }
+#resultados-servicios mark { background: #ffe18a; color: #211900; border-radius: 3px; padding: 0 1px; }
+.servicios-conteo { margin: 8px 20px 2px; }
+
 </style>
 
 <div class="app" id="app">
