@@ -149,6 +149,30 @@ label.t { display: block; margin: 14px 2px 6px; color: var(--ink3); font-size: 1
 .done { padding: 14px; border-radius: 16px; background: color-mix(in srgb, var(--ok) 14%, var(--card)); font-size: 14.5px; }
 .empty { padding: 26px 16px; text-align: center; color: var(--ink2); }
 .empty .e { display: block; font-size: 40px; margin-bottom: 8px; }
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ic.mut { color: var(--ink3); }
+.ver { width: 19px; height: 19px; vertical-align: -3px; }
+h1 .ver { width: 24px; height: 24px; vertical-align: -2px; }
+.mi { display: inline-flex; align-items: center; gap: 5px; } .mi .ic { width: 16px; height: 16px; }
+.gh .mi .ic { width: 20px; height: 20px; color: var(--acc); }
+.loc .ic { width: 16px; height: 16px; color: var(--acc); }
+.cat .cic { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--soft); color: var(--acc); }
+.cat .cic .ic { width: 26px; height: 26px; stroke-width: 1.6; }
+.cat[aria-pressed="true"] .cic { background: var(--acc); color: var(--accInk); }
+.chip { display: inline-flex; align-items: center; gap: 6px; } .chip .ic { width: 16px; height: 16px; }
+.next .ic { width: 15px; height: 15px; }
+.ph .phi { width: 46%; height: 46%; max-width: 56px; max-height: 56px; color: #fff; stroke-width: 1.3; opacity: .9; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .2)); }
+.hero .ph .phi { max-width: 72px; max-height: 72px; }
+.sq .phi { width: 22px; height: 22px; color: #fff; }
+.cover .fav { color: #111; } .cover .fav .ic { width: 18px; height: 18px; }
+.cover .fav.on, .btn.faved { color: #E5383B; } .cover .fav.on .ic, .btn.faved .ic { fill: currentColor; }
+.btn .ic { width: 20px; height: 20px; }
+.back { display: grid; place-items: center; } .back .ic { width: 20px; height: 20px; stroke-width: 2.2; }
+.tab .ic { width: 24px; height: 24px; stroke-width: 1.7; }
+.tab[aria-selected="true"] .ic { stroke-width: 2.2; }
+.banner .bic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--bg) 14%, transparent); flex: none; } .banner .bic .ic { width: 24px; height: 24px; }
+.empty .eic { display: block; width: 38px; height: 38px; margin: 0 auto 10px; color: var(--ink3); stroke-width: 1.5; }
+.done .mi .ic { width: 20px; height: 20px; color: var(--ok); }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
@@ -166,11 +190,34 @@ label.t { display: block; margin: 14px 2px 6px; color: var(--ink3); font-size: 1
   const $ = s => document.querySelector(s);
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const norm = t => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  // Íconos de línea (24×24, trazo de 1.8) en lugar de emojis.
+  const P = {
+    search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    heart: '<path d="M12 20s-7.5-4.6-9-9.4C1.8 6.8 4.6 4 7.6 4c1.9 0 3.4 1 4.4 2.6C13 5 14.5 4 16.4 4c3 0 5.8 2.8 4.6 6.6C19.5 15.4 12 20 12 20z"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/>',
+    nav: '<path d="M3 11l18-8-8 18-2-8-8-2z"/>',
+    store: '<path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v1a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v7h14v-7"/><path d="M10 20v-4h4v4"/>',
+    moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+    check: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>',
+    back: '<path d="M15 5l-7 7 7 7"/>',
+    cejas: '<path d="M3.5 10C6.5 6.5 13 5.8 20.5 8.5"/><path d="M4 15.5s3-3.5 8-3.5 8 3.5 8 3.5-3 3.5-8 3.5-8-3.5-8-3.5z"/><circle cx="12" cy="15.5" r="1.8"/>',
+    pestanas: '<path d="M3 13.5s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5z"/><circle cx="12" cy="13.5" r="2.4"/><path d="M12 4.5V7M7.3 5.6l1 2.2M16.7 5.6l-1 2.2M3.8 8.4l1.7 1.6M20.2 8.4l-1.7 1.6"/>',
+    unas: '<rect x="7" y="11" width="10" height="10" rx="2.5"/><path d="M9.5 11V8h5v3"/><path d="M10.5 8V3h3v5"/>',
+    depilacion: '<rect x="5" y="3" width="14" height="5" rx="1.5"/><path d="M8 8v2h8V8"/><path d="M12 10v11"/>',
+    cabello: '<circle cx="6" cy="17.5" r="3"/><circle cx="18" cy="17.5" r="3"/><path d="M8.2 15.3L19 3M15.8 15.3L5 3"/>',
+    maquillaje: '<path d="M9 21h6v-8H9z"/><path d="M10 13V8.5L14 5v8"/><path d="M7.5 21h9"/>',
+    facial: '<path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5z"/><path d="M9.5 14.5A2.5 2.5 0 0 0 12 17"/>',
+    barberia: '<rect x="8" y="4" width="8" height="16" rx="2"/><path d="M8 8.5l8 4M8 13l8 4"/><path d="M6.5 4h11M6.5 20h11"/>',
+  };
+  const I = (k, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
+  const VER = '<svg class="ver" viewBox="0 0 24 24" aria-label="Salón verificado" role="img"><path d="M12 2l2.4 1.8 3-.2 1 2.8 2.6 1.6-.8 2.9.8 2.9-2.6 1.6-1 2.8-3-.2L12 22l-2.4-1.8-3 .2-1-2.8-2.6-1.6.8-2.9-.8-2.9 2.6-1.6 1-2.8 3 .2z" fill="#1D9BF0"/><path d="M8.3 12.2l2.5 2.5 4.9-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const money = n => '$' + n.toLocaleString('es-MX');
 
   // Catálogo por categoría: [nombre, minutos, precio base, emoji].
-  const CATS = [['cejas', 'Cejas', '✨'], ['pestanas', 'Pestañas', '👁️'], ['unas', 'Uñas', '💅🏻'], ['depilacion', 'Depilación', '🪒'],
-    ['cabello', 'Cabello', '💇🏻‍♀️'], ['maquillaje', 'Maquillaje', '💄'], ['facial', 'Facial', '🧖🏻‍♀️'], ['barberia', 'Barbería', '💈']];
+  const CATS = [['cejas', 'Cejas'], ['pestanas', 'Pestañas'], ['unas', 'Uñas'], ['depilacion', 'Depilación'],
+    ['cabello', 'Cabello'], ['maquillaje', 'Maquillaje'], ['facial', 'Facial'], ['barberia', 'Barbería']].map(([k, n]) => [k, n, k]);
   const CAT = Object.fromEntries(CATS.map(c => [c[0], c]));
   const CATALOGO = {
     cejas: [['Diseño de cejas', 45, 250], ['Laminado de cejas', 45, 350], ['Tinte de cejas', 30, 150]],
@@ -225,58 +272,58 @@ label.t { display: block; margin: 14px 2px 6px; color: var(--ink3); font-size: 1
     const key = { reco: x => -puntaje(x.s), rating: x => -bayes(x.s), cerca: x => x.s.km, precio: x => Math.min(...x.m.map(y => y.p)) }[S.orden];
     return l.sort((a, b) => key(a) - key(b)); };
 
-  const ph = (s, e, lbl) => `<span class="ph" style="--c1:${s.c1};--c2:${s.c2}"><span class="e">${e}</span>${lbl ? `<small>${esc(lbl)}</small>` : ''}</span>`;
+  const ph = (s, e, lbl) => `<span class="ph" style="--c1:${s.c1};--c2:${s.c2}">${I(e, 'phi')}${lbl ? `<small>${esc(lbl)}</small>` : ''}</span>`;
   const estrellas = s => `<span class="rate"><span class="s">★</span>${s.r.toFixed(1)} <small>(${s.rev})</small></span>`;
   const tarjeta = ({ s, m }, i) => { const f = fotos(s), c = consulta();
     return `<button type="button" class="card" data-salon="${s.id}">
-      <span class="cover">${ph(s, f[0][0])}${ph(s, f[1][0])}${ph(s, f[2] ? f[2][0] : f[0][0])}${i === 0 && S.orden === 'reco' ? '<span class="tagrank">⭐ Mejor opción cerca</span>' : ''}<span class="fav e" data-fav="${s.id}" role="button" aria-label="Guardar en favoritos">${S.favs.has(s.id) ? '❤️' : '🤍'}</span></span>
-      <span class="body" style="display:block"><span class="row"><span class="name">${esc(s.n)} ${s.ver ? '<span class="ver" title="Salón verificado">✔︎</span>' : ''}</span>${estrellas(s)}</span>
-        <span class="meta"><span>📍 ${s.km.toFixed(1)} km · ${esc(s.zona)}</span><span class="open">Abierto · cierra ${s.cierra}</span></span>
-        ${c ? `<span class="match">${m.slice(0, 3).map(x => `<div><span>${esc(x.n)} <small style="color:var(--ink3)">· ${x.min} min</small></span><b>${money(x.p)}</b></div>`).join('')}${m.length > 3 ? `<small style="color:var(--ink3)">y ${m.length - 3} más</small>` : ''}</span>` : `<span class="meta" style="margin-top:6px">${s.cats.map(k => CAT[k][2] + ' ' + CAT[k][1]).join(' · ')}</span>`}
-        <span class="next">🗓️ Próximo lugar: ${proxima(s)}</span></span></button>`; };
+      <span class="cover">${ph(s, f[0][0])}${ph(s, f[1][0])}${ph(s, f[2] ? f[2][0] : f[0][0])}${i === 0 && S.orden === 'reco' ? '<span class="tagrank">★ Mejor opción cerca</span>' : ''}<span class="fav ${S.favs.has(s.id) ? 'on' : ''}" data-fav="${s.id}" role="button" aria-label="Guardar en favoritos">${I('heart')}</span></span>
+      <span class="body" style="display:block"><span class="row"><span class="name">${esc(s.n)} ${s.ver ? VER : ''}</span>${estrellas(s)}</span>
+        <span class="meta"><span class="mi">${I('pin')}${s.km.toFixed(1)} km · ${esc(s.zona)}</span><span class="open">Abierto · cierra ${s.cierra}</span></span>
+        ${c ? `<span class="match">${m.slice(0, 3).map(x => `<div><span>${esc(x.n)} <small style="color:var(--ink3)">· ${x.min} min</small></span><b>${money(x.p)}</b></div>`).join('')}${m.length > 3 ? `<small style="color:var(--ink3)">y ${m.length - 3} más</small>` : ''}</span>` : `<span class="meta" style="margin-top:6px">${s.cats.map(k => CAT[k][1]).join(' · ')}</span>`}
+        <span class="next">${I('cal')}Próximo lugar: ${proxima(s)}</span></span></button>`; };
 
   /* ---------- Explorar ---------- */
   const explorar = () => { const c = consulta();
-    const buscador = `<label class="sr" for="q">Buscar servicio o salón</label><div class="search"><span aria-hidden="true">🔍</span><input id="q" type="search" placeholder="Cejas, pestañas, depilación…" value="${esc(S.q)}" autocomplete="off">${S.q || S.cat ? '<button type="button" class="x" data-act="limpiar" aria-label="Borrar búsqueda">✕</button>' : ''}</div>`;
+    const buscador = `<label class="sr" for="q">Buscar servicio o salón</label><div class="search">${I('search', 'mut')}<input id="q" type="search" placeholder="Cejas, pestañas, depilación…" value="${esc(S.q)}" autocomplete="off">${S.q || S.cat ? '<button type="button" class="x" data-act="limpiar" aria-label="Borrar búsqueda">✕</button>' : ''}</div>`;
     if (!c) { const top = SALONES.slice().sort((a, b) => puntaje(b) - puntaje(a)).slice(0, 4).map(s => ({ s, m: s.serv }));
-      return `<div class="top"><button type="button" class="loc" data-act="ubicacion">📍 Cerca de ti · Centro ▾</button><button type="button" data-tab="perfil">Entrar</button></div>
+      return `<div class="top"><button type="button" class="loc" data-act="ubicacion">${I('pin')}Cerca de ti · Centro ▾</button><button type="button" data-tab="perfil">Entrar</button></div>
         <h1>¿Qué te quieres hacer hoy?</h1>${buscador}
         <div class="gh"><b>Buscar por servicio</b></div>
-        <div class="cats">${CATS.map(([k, n, e]) => `<button type="button" class="cat" data-cat="${k}"><span class="e">${e}</span>${n}</button>`).join('')}</div>
+        <div class="cats">${CATS.map(([k, n, e]) => `<button type="button" class="cat" data-cat="${k}"><span class="cic">${I(e)}</span>${n}</button>`).join('')}</div>
         <div class="gh"><b>Mejor calificados cerca de ti</b><span>${SALONES.length} salones</span></div>
         <div id="res">${top.map(tarjeta).join('')}</div>
-        <div class="banner"><span class="e">💼</span><span style="flex:1;min-width:0"><b>¿Tienes un salón?</b><small>Aparece aquí y recibe citas. Es gratis.</small></span><button type="button" data-act="registrar">Súmate</button></div>`; }
+        <div class="banner"><span class="bic">${I('store')}</span><span style="flex:1;min-width:0"><b>¿Tienes un salón?</b><small>Aparece aquí y recibe citas. Es gratis.</small></span><button type="button" data-act="registrar">Súmate</button></div>`; }
     const l = lista(), t0 = S.cat ? CAT[S.cat][1] : S.q.trim(), titulo = t0.charAt(0).toUpperCase() + t0.slice(1);
-    return `<div class="top"><button type="button" class="loc" data-act="ubicacion">📍 Cerca de ti · Centro ▾</button><button type="button" data-act="limpiar">Cancelar</button></div>
+    return `<div class="top"><button type="button" class="loc" data-act="ubicacion">${I('pin')}Cerca de ti · Centro ▾</button><button type="button" data-act="limpiar">Cancelar</button></div>
       ${buscador}
-      <div class="chips" style="margin-top:10px">${CATS.map(([k, n, e]) => `<button type="button" class="chip" data-cat="${k}" aria-pressed="${S.cat === k}"><span class="e">${e}</span> ${n}</button>`).join('')}</div>
+      <div class="chips" style="margin-top:10px">${CATS.map(([k, n, e]) => `<button type="button" class="chip" data-cat="${k}" aria-pressed="${S.cat === k}">${I(e)}${n}</button>`).join('')}</div>
       <div class="gh"><b>${esc(titulo)} cerca de ti</b><span>${l.length} ${l.length === 1 ? 'salón' : 'salones'}</span></div>
       <div class="seg" role="tablist" aria-label="Ordenar">${[['reco', 'Recomendados'], ['rating', 'Calificación'], ['cerca', 'Cercanía'], ['precio', 'Precio']].map(([k, n]) => `<button type="button" role="tab" data-orden="${k}" aria-selected="${S.orden === k}">${n}</button>`).join('')}</div>
-      <div class="chips" style="margin-top:8px"><button type="button" class="chip" data-filtro="hoy" aria-pressed="${S.filtro.hoy}">🗓️ Con lugar hoy</button><button type="button" class="chip" data-filtro="abierto" aria-pressed="${S.filtro.abierto}">🌙 Abierto en la noche</button></div>
-      <div id="res" style="margin-top:6px">${l.length ? l.map(tarjeta).join('') : `<div class="empty"><span class="e">🔎</span>No encontramos salones con «${esc(titulo)}» cerca.<br>Prueba con cejas, pestañas, uñas o depilación.</div>`}</div>
+      <div class="chips" style="margin-top:8px"><button type="button" class="chip" data-filtro="hoy" aria-pressed="${S.filtro.hoy}">${I('cal')}Con lugar hoy</button><button type="button" class="chip" data-filtro="abierto" aria-pressed="${S.filtro.abierto}">${I('moon')}Abierto en la noche</button></div>
+      <div id="res" style="margin-top:6px">${l.length ? l.map(tarjeta).join('') : `<div class="empty">${I('search', 'eic')}No encontramos salones con «${esc(titulo)}» cerca.<br>Prueba con cejas, pestañas, uñas o depilación.</div>`}</div>
       ${S.orden === 'reco' && l.length ? '<p class="foot">«Recomendados» combina la calificación (y cuántas reseñas tiene) con la distancia. Las reseñas solo las dejan clientas que tuvieron cita.</p>' : ''}`; };
 
   /* ---------- Perfil del salón ---------- */
   const perfilSalon = () => { const s = SALONES.find(x => x.id === S.salon), f = fotos(s), c = consulta(), hits = new Set(coincide(s, c).map(x => x.n));
     let cuerpo = '';
     const orden = c ? [...s.cats].sort((a, b) => c.cats.includes(b) - c.cats.includes(a)) : s.cats;
-    if (S.vista === 'servicios') cuerpo = orden.map(k => `<div class="gh"><b>${CAT[k][2]} ${CAT[k][1]}</b></div><div class="group">${s.serv.filter(x => x.cat === k).map(x => `<button type="button" class="cell ${c && hits.has(x.n) ? 'hit' : ''}" data-svc="${esc(x.n)}"><span class="l">${esc(x.n)}<small>${x.min} min</small></span><span class="p">${money(x.p)}</span><span class="go">Agendar</span></button>`).join('')}</div>`).join('');
+    if (S.vista === 'servicios') cuerpo = orden.map(k => `<div class="gh"><b class="mi">${I(CAT[k][2])}${CAT[k][1]}</b></div><div class="group">${s.serv.filter(x => x.cat === k).map(x => `<button type="button" class="cell ${c && hits.has(x.n) ? 'hit' : ''}" data-svc="${esc(x.n)}"><span class="l">${esc(x.n)}<small>${x.min} min</small></span><span class="p">${money(x.p)}</span><span class="go">Agendar</span></button>`).join('')}</div>`).join('');
     if (S.vista === 'trabajos') cuerpo = `<div class="gh"><b>Fotos de sus trabajos</b><span>${f.length} fotos</span></div><div class="gal">${f.map(([e, l], i) => `<button type="button" data-foto="${i}" aria-label="${esc(l)}">${ph(s, e, l)}</button>`).join('')}</div><p class="foot">Fotos de ejemplo. Cada salón sube las suyas desde su app.</p>`;
     if (S.vista === 'horarios') { const l = libres(s, S.dia);
       cuerpo = `<div class="gh"><b>Citas disponibles</b><span>${s.cierra === '21:00' ? '10:00 a 21:00' : '10:00 a ' + s.cierra}</span></div>
         <div class="days">${DIAS.map(([n, d], i) => `<button type="button" class="day" data-dia="${i}" aria-pressed="${S.dia === i}" ${n === 'Dom' ? 'disabled' : ''}>${n}<b>${d}</b></button>`).join('')}</div>
-        ${l.length ? `<div class="slots">${l.map(h => `<button type="button" class="slot" data-hora="${h}">${h}</button>`).join('')}</div>` : `<div class="empty"><span class="e">🌙</span>${DIAS[S.dia][0] === 'Dom' ? 'Los domingos está cerrado.' : 'Ya no hay lugares este día.'}</div>`}
+        ${l.length ? `<div class="slots">${l.map(h => `<button type="button" class="slot" data-hora="${h}">${h}</button>`).join('')}</div>` : `<div class="empty">${I('moon', 'eic')}${DIAS[S.dia][0] === 'Dom' ? 'Los domingos está cerrado.' : 'Ya no hay lugares este día.'}</div>`}
         <p class="foot">Solo ves horas libres. Toca una para agendar.</p>`; }
     if (S.vista === 'resenas') { const dist = [78, 15, 5, 1, 1];
       cuerpo = `<div class="gh"><b>Reseñas</b><span>Solo de clientas con cita</span></div>
         <div class="group"><div class="score"><span><span class="big">${s.r.toFixed(1)}</span><br><span class="rate"><span class="s">★★★★★</span></span><br><small style="color:var(--ink3)">${s.rev} reseñas</small></span>
           <span class="bars">${dist.map((p, i) => `<div><span>${5 - i}</span><i><b style="width:${p}%"></b></i></div>`).join('')}</span></div></div>
         <div class="group" style="margin-top:12px">${RESENAS.map(([n, st, t, w]) => `<div class="rev"><div class="row"><b>${n}</b><span class="rate"><span class="s">${'★'.repeat(st)}</span></span></div><p>${t}</p><small><span class="okb">✔︎ Cita verificada</span> · ${w}</small></div>`).join('')}</div>`; }
-    return `<div class="hero">${ph(s, f[0][0])}${ph(s, f[1][0], f[1][1])}${ph(s, (f[2] || f[0])[0], (f[2] || f[0])[1])}<button type="button" class="back" data-act="atras" aria-label="Regresar">‹</button></div>
+    return `<div class="hero">${ph(s, f[0][0])}${ph(s, f[1][0], f[1][1])}${ph(s, (f[2] || f[0])[0], (f[2] || f[0])[1])}<button type="button" class="back" data-act="atras" aria-label="Regresar">${I('back')}</button></div>
       <div class="prof"><span class="logo" style="--c1:${s.c1};--c2:${s.c2}">${s.ini}</span>
-        <h1>${esc(s.n)} ${s.ver ? '<span class="ver" title="Salón verificado">✔︎</span>' : ''}</h1>
-        <div class="meta" style="margin-top:6px">${estrellas(s)}<span>📍 ${s.km.toFixed(1)} km · ${esc(s.zona)}</span><span class="open">Abierto · cierra ${s.cierra}</span></div>
-        <div class="btns"><button type="button" class="btn fill" data-act="agendar">Agendar cita</button><button type="button" class="btn soft e" data-fav="${s.id}" aria-label="Guardar en favoritos">${S.favs.has(s.id) ? '❤️' : '🤍'}</button><button type="button" class="btn soft" data-act="llegar">🧭 Ir</button></div></div>
+        <h1>${esc(s.n)} ${s.ver ? VER : ''}</h1>
+        <div class="meta" style="margin-top:6px">${estrellas(s)}<span class="mi">${I('pin')}${s.km.toFixed(1)} km · ${esc(s.zona)}</span><span class="open">Abierto · cierra ${s.cierra}</span></div>
+        <div class="btns"><button type="button" class="btn fill" data-act="agendar">Agendar cita</button><button type="button" class="btn soft ${S.favs.has(s.id) ? 'faved' : ''}" data-fav="${s.id}" aria-label="Guardar en favoritos">${I('heart')}</button><button type="button" class="btn soft" data-act="llegar">${I('nav')}Ir</button></div></div>
       <div class="seg" role="tablist" aria-label="Secciones del salón" style="margin-top:18px">${[['servicios', 'Precios'], ['trabajos', 'Fotos'], ['horarios', 'Disponibles'], ['resenas', 'Reseñas']].map(([k, n]) => `<button type="button" role="tab" data-vista="${k}" aria-selected="${S.vista === k}">${n}</button>`).join('')}</div>
       ${cuerpo}`; };
 
@@ -295,17 +342,17 @@ label.t { display: block; margin: 14px 2px 6px; color: var(--ink3); font-size: 1
 
   /* ---------- Mis citas, favoritos y perfil ---------- */
   const citas = () => `<div class="top"><span></span></div><h1>Mis citas</h1>
-    ${S.citas.length ? `<div class="group" style="margin-top:16px">${S.citas.map(c => `<div class="cell"><span class="sq" style="--c1:${c.s.c1};--c2:${c.s.c2}"><span class="e">${CAT[c.cat][2]}</span></span><span class="l"><b>${esc(c.svc)}</b><small>${esc(c.s.n)} · ${c.dia} a las ${c.hora} · ${money(c.p)}</small></span><span style="color:var(--acc);font-size:12.5px;font-weight:800">Por confirmar</span></div>`).join('')}</div>
-      <p class="foot">Te avisaremos por WhatsApp cuando el salón la confirme.</p>` : '<div class="empty"><span class="e">🗓️</span>Aún no tienes citas.<br>Busca un servicio en Explorar.</div>'}`;
-  const favoritos = () => `<div class="top"><span></span></div><h1>Favoritos</h1><div style="margin-top:16px">${S.favs.size ? SALONES.filter(s => S.favs.has(s.id)).map(s => ({ s, m: s.serv })).map(tarjeta).join('') : '<div class="empty"><span class="e">🤍</span>Toca el corazón de un salón para guardarlo aquí.</div>'}</div>`;
+    ${S.citas.length ? `<div class="group" style="margin-top:16px">${S.citas.map(c => `<div class="cell"><span class="sq" style="--c1:${c.s.c1};--c2:${c.s.c2}">${I(CAT[c.cat][2], 'phi')}</span><span class="l"><b>${esc(c.svc)}</b><small>${esc(c.s.n)} · ${c.dia} a las ${c.hora} · ${money(c.p)}</small></span><span style="color:var(--acc);font-size:12.5px;font-weight:800">Por confirmar</span></div>`).join('')}</div>
+      <p class="foot">Te avisaremos por WhatsApp cuando el salón la confirme.</p>` : '<div class="empty">' + I('cal', 'eic') + 'Aún no tienes citas.<br>Busca un servicio en Explorar.</div>'}`;
+  const favoritos = () => `<div class="top"><span></span></div><h1>Favoritos</h1><div style="margin-top:16px">${S.favs.size ? SALONES.filter(s => S.favs.has(s.id)).map(s => ({ s, m: s.serv })).map(tarjeta).join('') : '<div class="empty">' + I('heart', 'eic') + 'Toca el corazón de un salón para guardarlo aquí.</div>'}</div>`;
   const perfil = () => `<div class="top"><span></span></div><h1>Tu perfil</h1>
     <div class="group" style="margin-top:16px;padding:16px"><b>Entra con tu WhatsApp</b><p style="margin:6px 0 12px;color:var(--ink2);font-size:14px">Para ver tus citas en cualquier celular y dejar reseñas. Te llega un código por WhatsApp; sin contraseñas.</p>
       <button type="button" class="btn fill" data-act="entrar" style="width:100%">Entrar con WhatsApp</button></div>
-    <div class="banner"><span class="e">💼</span><span style="flex:1;min-width:0"><b>¿Tienes un salón?</b><small>Regístralo gratis y recibe citas de clientas cerca de ti.</small></span><button type="button" data-act="registrar">Súmate</button></div>`;
+    <div class="banner"><span class="bic">${I('store')}</span><span style="flex:1;min-width:0"><b>¿Tienes un salón?</b><small>Regístralo gratis y recibe citas de clientas cerca de ti.</small></span><button type="button" data-act="registrar">Súmate</button></div>`;
 
-  const TABS = [['explorar', '🔎', 'Explorar'], ['citas', '🗓️', 'Mis citas'], ['favoritos', '❤️', 'Favoritos'], ['perfil', '👤', 'Perfil']];
+  const TABS = [['explorar', 'search', 'Explorar'], ['citas', 'cal', 'Mis citas'], ['favoritos', 'heart', 'Favoritos'], ['perfil', 'user', 'Perfil']];
   const render = () => {
-    $('#tabbar').innerHTML = TABS.map(([k, e, n]) => `<button type="button" class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab === k}"><span class="e">${e}</span>${n}${k === 'citas' && S.citas.length ? `<span class="badge">${S.citas.length}</span>` : ''}</button>`).join('');
+    $('#tabbar').innerHTML = TABS.map(([k, e, n]) => `<button type="button" class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${I(e)}${n}${k === 'citas' && S.citas.length ? `<span class="badge">${S.citas.length}</span>` : ''}</button>`).join('');
     $('#screen').innerHTML = S.tab === 'explorar' ? (S.salon ? perfilSalon() : explorar()) : { citas, favoritos, perfil }[S.tab]();
   };
   const ir = o => { Object.assign(S, o); render(); scrollTo(0, 0); };
@@ -344,7 +391,7 @@ label.t { display: block; margin: 14px 2px 6px; color: var(--ink3); font-size: 1
         if (!$('#okwa').checked) { toast('Para confirmarte la cita necesitamos tu permiso para escribirte por WhatsApp'); break; }
         const dia = S.dia === 0 ? 'hoy' : DIAS[S.dia][0] + ' ' + DIAS[S.dia][1];
         S.citas.unshift({ s, svc: x.n, cat: x.cat, p: x.p, dia, hora: S.hora });
-        $('#out').innerHTML = `<div class="done"><b>✅ Simulado: ${esc(s.n)} recibió tu solicitud, ${esc(n.split(' ')[0])}.</b><br>${esc(x.n)} · ${dia} a las ${S.hora}. Te confirmarán por WhatsApp al ${t.slice(0, 2)} ${t.slice(2, 6)} ${t.slice(6)}.</div><button type="button" class="btn soft" data-tab="citas" style="width:100%;margin-top:10px">Ver mis citas</button>`;
+        $('#out').innerHTML = `<div class="done"><b class="mi">${I('check')}Simulado: ${esc(s.n)} recibió tu solicitud, ${esc(n.split(' ')[0])}.</b><br>${esc(x.n)} · ${dia} a las ${S.hora}. Te confirmarán por WhatsApp al ${t.slice(0, 2)} ${t.slice(2, 6)} ${t.slice(6)}.</div><button type="button" class="btn soft" data-tab="citas" style="width:100%;margin-top:10px">Ver mis citas</button>`;
         render(); break; }
     }
   });
