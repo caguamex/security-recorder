@@ -7,7 +7,7 @@ import {preparar,ids} from './whatsapp-solo-envios-entorno.mjs';
 import {BaileysSoloEnvios,SesionesCifradas,OPCIONES_PRIVADAS} from '../../whatsapp/baileys.mjs';
 import {configurar} from '../../whatsapp/config.mjs';
 const n=ids.salon,esperar=()=>new Promise(r=>setTimeout(r,5));
-function simular(){const sockets=[],opciones=[];let leidos=0;return {sockets,opciones,get leidos(){return leidos;},fabrica(o){opciones.push(o);const ev=new EventEmitter(),s={ev,user:{id:'525511111111:2@s.whatsapp.net'},ws:{isOpen:true},async requestPairingCode(){return 'ABCD1234';},async sendPresenceUpdate(){},async sendMessage(_a,_b,op){return {key:{id:op.messageId}};},async readMessages(){leidos++;},end(){},async logout(){}};sockets.push(s);return s;}};}
+function simular(){const sockets=[],opciones=[];let leidos=0;return {sockets,opciones,get leidos(){return leidos;},fabrica(o){opciones.push(o);const ev=new EventEmitter(),s={ev,user:{id:'525511111111:2@s.whatsapp.net'},ws:{isOpen:true},async requestPairingCode(){return 'ABCD1234';},async sendPresenceUpdate(){},async sendMessage(_a,_b,op){return {key:{id:op.messageId}};},async readMessages(){leidos++;},end(){},async logout(){}};sockets.push(s);setTimeout(()=>ev.emit('connection.update',{qr:'señal-local-sin-guardar'}),0);return s;}};}
 async function entorno(t){const e=await preparar();t.after(()=>e.cerrar());await e.iniciar();return e;}
 test('solo conexión/credenciales: descarta entradas e historial y nunca marca leído',async t=>{
  const e=await entorno(t),f=simular(),a=new BaileysSoloEnvios(e.db,randomBytes(32).toString('base64'),{fabrica:f.fabrica,vincular:true});t.after(()=>a.cerrar());
@@ -38,4 +38,17 @@ test('configuración rechaza FiNeCi, rol amplio, activación implícita y provee
  const env={WA_ACTIVAR_SERVICIO:'true',SUPABASE_URL:'https://zkqwephmuflbuagevvxj.supabase.co',PUBLIC_URL:'https://agendappx.local/',DATABASE_URL:'postgresql://agendappx_whatsapp:clave@db.zkqwephmuflbuagevvxj.supabase.co/postgres',WHATSAPP_SALONES_HABILITADOS:n};const c=configurar(env);assert.equal(c.politica.envios,false);assert.equal(c.politica.vincular,false);assert.equal(c.ssl.rejectUnauthorized,true);
  for(const patch of [{WA_ACTIVAR_SERVICIO:'false'},{SUPABASE_URL:'https://fineci.supabase.co'},{DATABASE_URL:env.DATABASE_URL.replace('agendappx_whatsapp:','postgres:')},{DATABASE_URL:env.DATABASE_URL.replace('db.zkqwephmuflbuagevvxj','db.otro')},{WHATSAPP_SALONES_HABILITADOS:''}])assert.throws(()=>configurar({...env,...patch}));
  assert.equal(configurar({...env,DATABASE_URL:'postgresql://agendappx_whatsapp.zkqwephmuflbuagevvxj:clave@aws-0-us-east-1.pooler.supabase.com:6543/postgres'}).politica.envios,false);
+});
+
+test('no pide código con ws abierto ni connecting: espera la señal de registro completado',async t=>{
+ const e=await entorno(t);let s,pedidos=0;const fabrica=()=>s={ev:new EventEmitter(),ws:{isOpen:true},async requestPairingCode(){pedidos++;return 'ABCD1234';},end(){}};
+ const a=new BaileysSoloEnvios(e.db,randomBytes(32).toString('base64'),{fabrica,vincular:true});t.after(()=>a.cerrar());const p=a.codigo(n,'525511111111');while(!s)await esperar();await esperar();s.ev.emit('connection.update',{connection:'connecting'});await esperar();assert.equal(pedidos,0);s.ev.emit('connection.update',{qr:'no_persistir'});assert.equal(await p,'ABCD1234');assert.equal(pedidos,1);
+});
+test('revisar cada minuto conserva una vinculación pendiente y el rechazo no reutiliza me provisional',async t=>{
+ const e=await entorno(t),key=randomBytes(32).toString('base64'),f=simular();const a=new BaileysSoloEnvios(e.db,key,{fabrica:f.fabrica,vincular:true});t.after(()=>a.cerrar());await a.codigo(n,'525511111111');const x=a.conexiones.get(n);x.auth.creds.me={id:'525511111111@s.whatsapp.net'};x.auth.creds.pairingCode='ABCD1234';await x.store.guardar('credenciales','principal',x.auth.creds);
+ await a.recuperar(n);assert.equal(a.conexiones.get(n),x);assert.equal(x.cerrada,false);await a.cambio(n,x,{connection:'close',lastDisconnect:{error:{output:{statusCode:401}}}});assert.equal((await e.db.usar(c=>c.query('SELECT motivo FROM ritmo.whatsapp_conexiones WHERE negocio_id=$1',[n]))).rows[0].motivo,'vinculacion_rechazada');
+ const b=new BaileysSoloEnvios(e.db,key,{fabrica:f.fabrica,vincular:true});t.after(()=>b.cerrar());await b.codigo(n,'525511111111');assert.equal(f.opciones[1].auth.creds.me,undefined);assert.equal(f.opciones[1].auth.creds.pairingCode,undefined);assert.equal(f.opciones[1].auth.creds.noiseKey.public.toString(),x.auth.creds.noiseKey.public.toString());
+});
+test('cerrar durante la preparación rechaza sin generar ni mostrar código',async t=>{
+ const e=await entorno(t);let s,pedidos=0;const a=new BaileysSoloEnvios(e.db,randomBytes(32).toString('base64'),{vincular:true,fabrica:()=>s={ev:new EventEmitter(),ws:{isOpen:true},async requestPairingCode(){pedidos++;return 'ABCD1234';},end(){}}});t.after(()=>a.cerrar());const p=a.codigo(n,'525511111111');const rechazo=assert.rejects(()=>p,/cerró la preparación/);while(!s)await esperar();await a.detener(n,'prueba');await rechazo;assert.equal(pedidos,0);
 });
