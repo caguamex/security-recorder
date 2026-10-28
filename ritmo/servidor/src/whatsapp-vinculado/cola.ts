@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto';
 import type {ClienteSQL} from '../repositorio.js';
 import {BaseWhatsApp} from './db.js';
-import {anticipo,configuracion,huella,idEnvio,inicio,plan,mensaje,silencioso,siguientePermitido,dia,numero,type Datos,type Tipo} from './reglas.js';
+import {anticipo,configuracion,huella,idEnvio,inicio,plan,mensaje,dia,numero,type Datos,type Tipo} from './reglas.js';
 export interface Remitente {estado(n:string):Promise<{estado:string;numero?:string;verificado?:boolean}>;codigo(n:string,tel:string):Promise<string>;recuperar(n:string):Promise<void>;salir(n:string):Promise<void>;olvidar?(n:string):Promise<void>;escribir(n:string,tel:string):Promise<void>;enviar(n:string,tel:string,texto:string,id:string):Promise<string>;}
 export type Politica={envios:boolean;vincular:boolean;destinatarios?:ReadonlySet<string>};
 const fecha=(ms:number)=>new Date(ms);
@@ -11,7 +11,7 @@ export class Mensajero {
  async reconciliar(n:string){await this.db.tx(async c=>{
   await this.db.prepararConexion(n,c); const a=await this.db.config(n,c),ahora=this.db.ahora();
   const registros=(await c.query('SELECT id,data,actualizado_en FROM ritmo.belleza_objetos WHERE negocio_id=$1',[n])).rows;
-  const configHash=createHash('sha256').update(JSON.stringify([a.habilitado,a.horaDia,a.minutosAntes])).digest('hex');
+  const configHash=createHash('sha256').update(JSON.stringify([a.habilitado,a.horaDia,a.minutosAntes,'24h-v1'])).digest('hex');
   const objetos=new Map<string,Datos>(registros.filter(r=>r.data).map(r=>[r.id,r.data]));
   const previas=(await c.query('SELECT * FROM ritmo.whatsapp_citas WHERE negocio_id=$1',[n])).rows, metas=new Map(previas.map(r=>[r.cita_id,r]));
   for(const r of registros){const v=r.data as Datos;if(v?.kind!=='cita')continue;
@@ -34,7 +34,7 @@ export class Mensajero {
   if(con?.ultima_conexion&&con.estado!=='conectado'&&(con.estado==='requiere_vincular'||con.desconectado_desde&&new Date(con.desconectado_desde).getTime()<=ahora-600000))await this.db.alerta(n,null,'whatsapp_desconectado',c);
  });}
  private async datos(c:ClienteSQL,n:string,id:string){const x=(await this.db.fuente(n,id,c))?.data;if(x?.kind!=='cita')return null;const k=(await this.db.fuente(n,x.clienta,c))?.data,s=(await this.db.fuente(n,x.servicio,c))?.data;return k?.kind==='clienta'&&s?.kind==='servicio'?{cita:x,clienta:k,servicio:s}:null;}
- async tomar(n:string){if(!this.politica.envios||silencioso(this.db.ahora()))return null;
+ async tomar(n:string){if(!this.politica.envios)return null;
   const estado=await this.remitente.estado(n);if(estado.estado!=='conectado'||!estado.verificado||!estado.numero)return null;
   return this.db.tx(async c=>{
    const con=await this.db.prepararConexion(n,c),a=await this.db.config(n,c),ahora=this.db.ahora();
@@ -69,7 +69,6 @@ export class Mensajero {
    // Se vuelve a comprobar justo después de la pausa, antes de emitir el texto.
    const actual=await this.db.usar(c=>this.datos(c,n,f.cita_id)),a=await this.db.config(n),ahora=this.db.ahora();
    if(!actual||actual.clienta.whatsappOptIn!==true||numero(actual.clienta.telefono)!==f.tel||huella(actual.cita)!==f.huella||['cancelada','completada'].includes(actual.cita.estado)||inicio(actual.cita)<=ahora||!a.habilitado){await this.finalizar(f.id,n,'cancelado','cita_o_permiso_cambio');return true;}
-   if(silencioso(ahora)){await this.finalizar(f.id,n,f.tipo==='antes'?'omitido':'pendiente','horario_silencioso');return true;}
    const con=await this.db.usar(async c=>(await c.query('SELECT * FROM ritmo.whatsapp_conexiones WHERE negocio_id=$1',[n])).rows[0]);
    const remoto=await this.remitente.estado(n);
    if(con?.freno||con?.manual||remoto.estado!=='conectado'||!remoto.verificado){await this.finalizar(f.id,n,'pendiente','conexion_pendiente');return true;}
@@ -81,6 +80,6 @@ export class Mensajero {
   }catch(e:any){const codigo=Number(e?.status||e?.output?.statusCode||e?.statusCode);const bloqueo=[401,403,429].includes(codigo);if(bloqueo)await this.db.tx(async c=>{await c.query("UPDATE ritmo.whatsapp_conexiones SET freno=true,motivo='bloqueo_o_limite' WHERE negocio_id=$1",[n]);await this.db.alerta(n,null,'envios_detenidos',c);});await this.finalizar(f.id,n,enviado?'incierto':'pendiente',bloqueo?'bloqueo_o_limite':enviado?'resultado_incierto':'conexion_pendiente');}
   return true;
  }
- private async finalizar(id:string,n:string,estado:string,motivo:string,mensajeId:string|null=null){const ahora=this.db.ahora(),pausa=20000+Math.floor(this.azar()*40001);await this.db.tx(async c=>{await c.query(`UPDATE ritmo.whatsapp_envios SET estado=$2,motivo=$3,mensaje_id=$4,aceptado_en=CASE WHEN $2='aceptado' THEN $5 ELSE aceptado_en END,debido=CASE WHEN $2='pendiente' THEN $6 ELSE debido END WHERE id=$1 AND estado='procesando'`,[id,estado,motivo,mensajeId,fecha(ahora),fecha(motivo==='horario_silencioso'?siguientePermitido(ahora):ahora+60000)]);await c.query('UPDATE ritmo.whatsapp_conexiones SET proximo_envio=$2 WHERE negocio_id=$1',[n,fecha(ahora+pausa)]);});}
+ private async finalizar(id:string,n:string,estado:string,motivo:string,mensajeId:string|null=null){const ahora=this.db.ahora(),pausa=20000+Math.floor(this.azar()*40001);await this.db.tx(async c=>{await c.query(`UPDATE ritmo.whatsapp_envios SET estado=$2,motivo=$3,mensaje_id=$4,aceptado_en=CASE WHEN $2='aceptado' THEN $5 ELSE aceptado_en END,debido=CASE WHEN $2='pendiente' THEN $6 ELSE debido END WHERE id=$1 AND estado='procesando'`,[id,estado,motivo,mensajeId,fecha(ahora),fecha(ahora+60000)]);await c.query('UPDATE ritmo.whatsapp_conexiones SET proximo_envio=$2 WHERE negocio_id=$1',[n,fecha(ahora+pausa)]);});}
  async vuelta(n:string){await this.reconciliar(n);return this.enviarUno(n);}
 }
