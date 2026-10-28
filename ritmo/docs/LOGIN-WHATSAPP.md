@@ -109,3 +109,10 @@ Se encontraron dos defectos reproducibles en el conector: codigo() aceptaba ws a
 196 pruebas aprobadas, incluidas tres regresiones nuevas: no pedir código con ws abierto/connecting; conservar intento en revisión y volver a registrar tras un rechazo; cancelar espera si la preparación se cierra. Pruebas de plataforma y sesión cifrada conservadas. La prueba física continúa pendiente; no afirmar que resolverá todos los rechazos de WhatsApp hasta verificar open y credenciales guardadas.
 
 Antonio confirmó «Sí, publica la reparación y genera otro código» a la solicitud específica. Autoriza publicar solo esta reparación en el Railway existente y otro intento de vinculación del 866 124 1483. Códigos de acceso, citas y vinculación de salones siguen apagados; primer mensaje real necesita confirmación separada. No modificar FiNeCi ni aumentar recursos.
+
+
+## Compatibilidad comprobada tras publicar la reparación
+
+El despliegue a6b8ba24-f8a1-4d5b-a811-3fe55830fac1 arrancó el 28 de octubre a las 18:05 UTC. El segundo intento se cerró durante la preparación y no devolvió otro código. Una comprobación pasiva, sin vincular ni enviar, reprodujo error 405 con la versión incluida en Baileys [2,3000,1035194821]; el mismo saludo llegó a la señal de registro preparado al consultar la versión web actual [2,3000,1052053390]. Las credenciales siguen sin registered ni account, y la fila cifrada se conserva.
+
+La reparación ahora consulta la versión pública con el helper del SDK, plazo de seis segundos y caché compartida de una hora. Rechaza una respuesta de respaldo o inválida, libera la custodia si falla y no cambia una conexión ya abierta. No cambia la versión de Baileys, claves, recursos, límites ni políticas de mensajes. Pasaron 198 pruebas, incluidas caché concurrente, rechazo del respaldo, recuperación tras fallo y entrega de versión comprobada al saludo. La aprobación de Antonio para publicar la reparación y generar otro código sigue siendo el alcance vigente; el resultado físico aún está pendiente y los envíos reales siguen apagados.

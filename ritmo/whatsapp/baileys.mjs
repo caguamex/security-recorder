@@ -1,6 +1,7 @@
 // Conector exclusivamente emisor. Ningún mensaje, historial ni contacto entra en la aplicación.
 import makeWASocket,{initAuthCreds,BufferJSON,proto,DisconnectReason} from 'baileys';
 import {randomUUID} from 'node:crypto';
+import {versionActual} from './version.mjs';
 import {CifradoSesion} from '../servidor/build/whatsapp-vinculado/cifrado.js';
 const tablasSalones=Object.freeze({sesiones:'ritmo.whatsapp_sesiones',conexiones:'ritmo.whatsapp_conexiones',alertas:'ritmo.whatsapp_alertas'});
 const tablasPlataforma=Object.freeze({sesiones:'ritmo.plataforma_sesiones',conexiones:'ritmo.plataforma_conexiones',alertas:'ritmo.plataforma_alertas'});
@@ -14,7 +15,7 @@ export class SesionesCifradas {
  async estado(){let creds=await this.leer('credenciales','principal');if(!creds){const existen=await this.db.usar(async c=>(await c.query(`SELECT negocio_id FROM ${this.tablas.sesiones} WHERE negocio_id=$1 LIMIT 1`,[this.n])).rows[0]);if(existen)throw new Error('La llave no permite abrir las credenciales guardadas.');creds=initAuthCreds();}return {creds,keys:{get:async(tipo,ids)=>{const out={};for(const id of ids){let v=await this.leer(tipo,id);if(tipo==='app-state-sync-key'&&v)v=proto.Message.AppStateSyncKeyData.fromObject(v);if(v)out[id]=v;}return out;},set:async datos=>{for(const [tipo,items] of Object.entries(datos))for(const [id,valor] of Object.entries(items||{}))await this.guardar(tipo,id,valor);}}};}
 }
 export class BaileysSoloEnvios {
- constructor(db,key,{vincular=false,fabrica=makeWASocket,temporizador=setTimeout}={}){this.db=db;this.tablas=tablas(db);this.key=key;new CifradoSesion(key);this.vincular=vincular;this.fabrica=fabrica;this.temporizador=temporizador;this.propietario=randomUUID();this.conexiones=new Map();this.iniciando=new Map();this.cerrado=false;this.fallos=new Map();this.reintentos=new Map();}
+ constructor(db,key,{vincular=false,fabrica=makeWASocket,temporizador=setTimeout,resolverVersion=fabrica===makeWASocket?versionActual:async()=>undefined}={}){this.db=db;this.tablas=tablas(db);this.key=key;new CifradoSesion(key);this.vincular=vincular;this.fabrica=fabrica;this.resolverVersion=resolverVersion;this.temporizador=temporizador;this.propietario=randomUUID();this.conexiones=new Map();this.iniciando=new Map();this.cerrado=false;this.fallos=new Map();this.reintentos=new Map();}
  async meta(n,estado,motivo='',extra={}){await this.db.usar(c=>c.query(`UPDATE ${this.tablas.conexiones} SET estado=$2,motivo=$3,numero=coalesce($4,numero),ultima_conexion=CASE WHEN $2='conectado' THEN $5 ELSE ultima_conexion END,desconectado_desde=CASE WHEN $2='conectado' THEN NULL ELSE coalesce(desconectado_desde,$5) END,freno=freno OR $6 WHERE negocio_id=$1 AND propietario=$7 AND cerca=$8`,[n,estado,motivo,extra.numero||null,new Date(this.db.ahora()),!!extra.freno,this.propietario,extra.cerca]));}
  async abrir(n){if(this.cerrado)throw new Error('Proceso cerrado.');if(this.conexiones.has(n))return this.conexiones.get(n);if(this.iniciando.has(n))return this.iniciando.get(n);
   const op=this.crear(n).finally(()=>this.iniciando.delete(n));this.iniciando.set(n,op);return op;
@@ -26,7 +27,7 @@ export class BaileysSoloEnvios {
   if(!auth.creds.registered&&!auth.creds.account){delete auth.creds.me;auth.creds.pairingCode=undefined;}
   if(auth.creds.registered)await this.meta(n,'reconectando','recuperando_sesion',{cerca});
   const x={cerca,store,auth,socket:null,abierta:false,cerrada:false,fallos:0,latido:null,reintento:null,listaParaVincular:false,listos:[]};
-  let socket;try{socket=this.fabrica({...OPCIONES_PRIVADAS,auth});}catch{await this.db.soltar(n,this.propietario,cerca);throw new Error('No se pudo preparar la conexión.');}x.socket=socket;this.conexiones.set(n,x);
+  let socket;try{const version=await this.resolverVersion();socket=this.fabrica({...OPCIONES_PRIVADAS,auth,...(version?{version}:{})});}catch{await this.db.soltar(n,this.propietario,cerca);throw new Error('No se pudo preparar la conexión.');}x.socket=socket;this.conexiones.set(n,x);
   // Solo conexión y credenciales. No hay listeners de messages.upsert, history, contacts ni chats.
   socket.ev.on('creds.update',datos=>{Object.assign(auth.creds,datos);void store.guardar('credenciales','principal',auth.creds).catch(()=>this.detener(n,'persistencia_no_disponible'));});
   socket.ev.on('connection.update',u=>{void this.cambio(n,x,u).catch(()=>this.detener(n,'conexion_no_verificada'));});

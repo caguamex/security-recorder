@@ -99,3 +99,5 @@ La pantalla está publicada; los códigos aún NO funcionan: external.phone=fals
 
 
 Vinculación de plataforma: primer intento rechazado sin llegar a conectado. Reparación local del saludo de registro y conservación del intento pasó 196 pruebas. Antonio autorizó explícitamente publicar la reparación y generar otro código; ver última entrada de LOGIN-WHATSAPP.md. No habilitar envíos reales ni borrar credenciales.
+
+La comprobación pasiva detectó rechazo 405 de la versión de protocolo incluida; la actual sí preparó el registro. Reparación ampliada dentro de la aprobación vigente: consulta acotada y caché de versión; 198 pruebas aprobadas. Ver LOGIN-WHATSAPP.md. Pendiente publicar este ajuste y entregar código físicamente válido, sin habilitar mensajes.

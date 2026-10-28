@@ -6,6 +6,7 @@ import {readFile} from 'node:fs/promises';
 import {preparar,ids} from './whatsapp-solo-envios-entorno.mjs';
 import {BaileysSoloEnvios,SesionesCifradas,OPCIONES_PRIVADAS} from '../../whatsapp/baileys.mjs';
 import {configurar} from '../../whatsapp/config.mjs';
+import {crearResolverVersion} from '../../whatsapp/version.mjs';
 const n=ids.salon,esperar=()=>new Promise(r=>setTimeout(r,5));
 function simular(){const sockets=[],opciones=[];let leidos=0;return {sockets,opciones,get leidos(){return leidos;},fabrica(o){opciones.push(o);const ev=new EventEmitter(),s={ev,user:{id:'525511111111:2@s.whatsapp.net'},ws:{isOpen:true},async requestPairingCode(){return 'ABCD1234';},async sendPresenceUpdate(){},async sendMessage(_a,_b,op){return {key:{id:op.messageId}};},async readMessages(){leidos++;},end(){},async logout(){}};sockets.push(s);setTimeout(()=>ev.emit('connection.update',{qr:'señal-local-sin-guardar'}),0);return s;}};}
 async function entorno(t){const e=await preparar();t.after(()=>e.cerrar());await e.iniciar();return e;}
@@ -51,4 +52,20 @@ test('revisar cada minuto conserva una vinculación pendiente y el rechazo no re
 });
 test('cerrar durante la preparación rechaza sin generar ni mostrar código',async t=>{
  const e=await entorno(t);let s,pedidos=0;const a=new BaileysSoloEnvios(e.db,randomBytes(32).toString('base64'),{vincular:true,fabrica:()=>s={ev:new EventEmitter(),ws:{isOpen:true},async requestPairingCode(){pedidos++;return 'ABCD1234';},end(){}}});t.after(()=>a.cerrar());const p=a.codigo(n,'525511111111');const rechazo=assert.rejects(()=>p,/cerró la preparación/);while(!s)await esperar();await a.detener(n,'prueba');await rechazo;assert.equal(pedidos,0);
+});
+
+
+test('versión actual compartida y acotada: no usa el respaldo obsoleto ni consulta por cada intento',async()=>{
+ let consultas=0,ahora=0,actual=true;
+ const resolver=crearResolverVersion({ahora:()=>ahora,consultar:async({signal})=>{consultas++;assert.ok(signal instanceof AbortSignal);return {isLatest:actual,version:[2,3000,1052053390]};}});
+ const [a,b]=await Promise.all([resolver(),resolver()]);assert.equal(consultas,1);a[2]=0;assert.equal(b[2],1052053390);assert.equal((await resolver())[2],1052053390);assert.equal(consultas,1);
+ ahora=3600001;actual=false;await assert.rejects(resolver,/versión actual/);actual=true;assert.equal((await resolver())[2],1052053390);assert.equal(consultas,3);
+});
+
+test('el saludo recibe la versión comprobada; si falla la consulta libera la custodia sin pedir código',async t=>{
+ const e=await entorno(t),f=simular(),key=randomBytes(32).toString('base64');
+ const a=new BaileysSoloEnvios(e.db,key,{fabrica:f.fabrica,vincular:true,resolverVersion:async()=>{throw new Error('sin red');}});t.after(()=>a.cerrar());
+ await assert.rejects(()=>a.codigo(n,'525511111111'),/preparar la conexión/);assert.equal(f.sockets.length,0);
+ const b=new BaileysSoloEnvios(e.db,key,{fabrica:f.fabrica,vincular:true,resolverVersion:async()=>[2,3000,1052053390]});t.after(()=>b.cerrar());
+ assert.equal(await b.codigo(n,'525511111111'),'ABCD1234');assert.deepEqual(f.opciones[0].version,[2,3000,1052053390]);
 });
