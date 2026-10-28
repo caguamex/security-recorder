@@ -29,18 +29,21 @@ REGLAS GENERALES
   y antes de vincular mi número de WhatsApp.
 
 PARTE 1 · CUENTAS Y EQUIPO (CUENTAS.md)
-1. Inicio de sesión solo con código de 6 dígitos por correo, sin contraseñas.
-   Google y Apple quedan pospuestos (deja el código listo, sin botones).
-   Conecta un SMTP gratuito (Resend o Brevo) y dime paso a paso cómo crear
-   la cuenta. Verificación en dos pasos (app autenticadora) obligatoria
-   para Admin.
+1. Inicio de sesión con NÚMERO DE WHATSAPP, sin contraseñas (como la app de
+   Steren): escribo mi número, me llega un código de 6 dígitos por WhatsApp,
+   lo escribo y entro. Usa el login por teléfono de Supabase con el «Send SMS
+   Hook» apuntando al servicio de WhatsApp de Railway (gratis, sin SMS).
+   Respaldo: «Prefiero recibirlo por correo» con un SMTP gratuito (Resend o
+   Brevo); dime paso a paso cómo crear la cuenta. Google y Apple quedan
+   pospuestos. Verificación en dos pasos (app autenticadora) obligatoria
+   para Admin. → CUENTAS.md, sección 1. Captura: registro-whatsapp.png.
 2. Multi-salón desde el inicio (negocio_id en todo, reglas RLS). Por ahora
    solo AB' Beauty Room; mis datos actuales pasan a ese salón.
 3. Roles Admin, Recepción y Especialista según la tabla de CUENTAS.md.
    Las especialistas ven solo lo suyo y los teléfonos les llegan ocultos
    desde el servidor.
 4. Equipo: invitaciones por enlace de un solo uso (48 h); al aceptarla,
-   la persona pone su correo, el código y confirma su perfil. «Quitar
+   la persona pone su número de WhatsApp, el código y confirma su perfil. «Quitar
    del equipo» corta el acceso al momento. El equipo entra SOLO por invitación.
 5. Agenda por especialista (lista y columnas) e historial de cada cita.
 6. DOS ADMIN EN EL MISMO SALÓN (sección 1c): la dueña y yo, cada quien con
@@ -112,10 +115,12 @@ AGENTS.md y BELLEZA.md. Si FiNeCi ya usa una librería para esto, usa la misma.
     y pausa automática de todo si WhatsApp rechaza mensajes.
 
 ORDEN SUGERIDO
-1) Cuentas, roles, equipo y migración de mis datos (pídeme confirmación).
-2) Dos Admin con avisos, Mi horario, bienvenida y perfil público.
-3) Servicio de WhatsApp en Railway, vinculación y mensajes automáticos.
-4) Contactos y promociones.
+1) Servicio de WhatsApp en Railway y vinculación (lo necesita el login).
+2) Cuentas con login por WhatsApp, roles, equipo y migración de mis datos
+   (pídeme confirmación).
+3) Dos Admin con avisos, Mi horario, bienvenida, perfil público y buscador.
+4) Mensajes automáticos y anticipo.
+5) Contactos y promociones.
 Despliega cada etapa por separado, con mi confirmación.
 
 PRUEBAS

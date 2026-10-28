@@ -5,10 +5,18 @@ Primero solo para AB' Beauty Room; todo se marca con su negocio desde el día un
 
 ## 1. Inicio de sesión
 
-- **Sin contraseñas. Por ahora solo código por correo**, con Supabase Auth (plan gratis):
-  - Código de 6 dígitos por correo (OTP de Supabase, no enlace mágico: funciona aunque el correo se abra en otro dispositivo). Vence en 10 minutos; máximo 5 intentos.
-  - El correo integrado de Supabase solo envía unos pocos mensajes por hora. Conecta SMTP propio con plan gratis (Resend: 100 al día, o Brevo: 300 al día), con remitente verificado y SPF/DKIM. Antonio crea la cuenta; la llave va en secretos, nunca en Git.
-  - **Pospuestos**: Continuar con Google (gratis, se agrega cuando Antonio lo pida) y Continuar con Apple (requiere Apple Developer, 99 USD al año). Deja el código preparado para activarlos después, pero no muestres los botones.
+- **Con número de WhatsApp, sin contraseñas** (decisión de Antonio, como la app de Steren): la persona escribe su número (+52, 10 dígitos), le llega un **código de 6 dígitos por WhatsApp**, lo escribe y entra.
+  - Usa el login por teléfono de Supabase Auth (OTP de teléfono) con el **«Send SMS Hook»**: en vez de un proveedor de SMS, el hook manda el código al servicio `agendappx-whatsapp` de Railway (ver `WHATSAPP-AUTOMATICO.md`), que lo envía como mensaje de WhatsApp desde el número de Agendappx. **Sin costo por código.**
+  - El hook va firmado (secreto del hook de Supabase) y solo acepta mensajes de código; no se puede usar para mandar otros textos.
+  - Texto: «Tu código de Agendappx es *482913*. Vence en 10 minutos. No lo compartas con nadie.»
+  - El código vence en 10 minutos; máximo 5 intentos. Máximo 3 códigos por número cada 15 minutos y 10 por IP por hora.
+  - Los códigos de acceso **no cuentan** en los topes de recordatorios ni de promociones, y siempre salen primero.
+- **Respaldo por correo**: «Prefiero recibirlo por correo» y «¿No te llegó? Recibirlo por correo» mandan el mismo tipo de código al correo (OTP de correo de Supabase + SMTP gratuito: Resend o Brevo). Así nadie se queda fuera si el WhatsApp de Agendappx está desconectado. Si el servicio de WhatsApp no responde en 20 segundos, la app ofrece el correo automáticamente.
+- **SMS**: no por ahora (cuesta por mensaje). El hook queda listo para agregar un proveedor de SMS después, si Antonio lo decide.
+- Una cuenta puede tener número y correo; los dos sirven para entrar.
+- **Admin: verificación en dos pasos obligatoria** con app autenticadora (MFA TOTP de Supabase, nivel `aal2`), más 10 códigos de respaldo. Sin `aal2`, la API rechaza cualquier acción de Admin.
+- Sesión: token de acceso corto (1 h) con renovación. Especialistas y Recepción se cierran solas tras 30 días sin abrir la app.
+- No se guarda ninguna contraseña ni token en `localStorage` fuera de lo que maneja el SDK de Supabase.
 - **Quién puede crear cuenta**:
   - **Dueñas de salón**: con «Registrarse» desde la bienvenida. Correo → código → «Tu salón» (nombre, su nombre, qué ofrece, link) → crea un negocio nuevo y queda como Admin, con servicios de ejemplo que puede cambiar. Antes de usar acciones de Admin configura los dos pasos.
   - **Equipo**: solo por invitación (`/unirse/<código>`), validada en el servidor.

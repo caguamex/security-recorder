@@ -235,6 +235,10 @@ textarea.in { min-height: 150px; padding: 12px 14px; line-height: 1.4; resize: v
 .search button { border: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--ink3); color: var(--bg); font-size: 11px; font-weight: 800; }
 .search:focus-within { box-shadow: 0 0 0 2px var(--acc); }
 mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+.telin { display: flex; align-items: center; min-height: 50px; border: 1.5px solid var(--sep); border-radius: 14px; background: var(--card); overflow: hidden; }
+.telin span { padding: 0 12px; align-self: stretch; display: flex; align-items: center; border-right: 1.5px solid var(--sep); background: var(--fill); font-weight: 700; white-space: nowrap; }
+.telin input { flex: 1; min-width: 0; min-height: 46px; padding: 0 14px; border: 0; background: none; font-size: 19px; font-weight: 600; letter-spacing: .02em; font-variant-numeric: tabular-nums; outline: none; }
+.telin:focus-within { border-color: var(--acc); }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
@@ -331,7 +335,7 @@ mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit;
   const ROL = { admin: 'Admin', recepcion: 'Recepción', especialista: 'Especialista' };
   const COMO = { admin: 'antonio', recepcion: 'lupita', especialista: 'karla' };
 
-  const S = { pant: 'inicio', svc: 'acr', dia: 0, cat: 'todas', rol: 'admin', tab: 'agenda', sub: null, vista: 'lista', filtro: 'todas', correo: '' };
+  const S = { via: 'wa', tel: '', pant: 'inicio', svc: 'acr', dia: 0, cat: 'todas', rol: 'admin', tab: 'agenda', sub: null, vista: 'lista', filtro: 'todas', correo: '' };
   const yo = () => EQUIPO.find(m => m.id === COMO[S.rol]);
   const serv = id => SERV.find(s => s.id === id);
   const miembro = id => EQUIPO.find(m => m.id === id);
@@ -353,13 +357,18 @@ mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit;
   const cerrar = () => { $('#sheet').hidden = true; };
 
   /* ---------- Entrar ---------- */
+  const fmtTel = t => t.slice(0, 2) + ' ' + t.slice(2, 6) + ' ' + t.slice(6);
+  const campo = () => S.via === 'correo'
+    ? `<label class="sr" for="correo" style="position:absolute;left:-9999px">Correo</label><input class="in" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" value="${esc(S.correo)}">`
+    : `<label class="sr" for="tel" style="position:absolute;left:-9999px">Número de WhatsApp</label><div class="telin"><span>🇲🇽 +52</span><input id="tel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="55 1234 5678" value="${esc(S.tel ? fmtTel(S.tel) : '')}"></div>`;
+  const otraVia = () => `<button type="button" class="link" data-act="cambiar-via" style="font-size:14px">${S.via === 'correo' ? 'Mejor por WhatsApp' : 'Prefiero recibirlo por correo'}</button>`;
   const entrar = () => `<div class="nav"><button type="button" data-demo="salir">‹ Inicio</button></div><div class="auth" style="padding-top:16px">
     <div class="logo"><span class="e">💅🏻</span></div>
-    <h1>${S.registro ? 'Crea tu cuenta' : 'Iniciar sesión'}</h1><p class="sub">${S.registro ? 'Gratis. Solo necesitas tu correo.' : 'Para dueñas de salón y su equipo'}</p>
-    <label class="sr" for="correo" style="position:absolute;left:-9999px">Correo</label>
-    <input class="in" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" value="${esc(S.correo)}">
-    <button type="button" class="btn fill" data-act="enviar-codigo">Enviarme un código</button>
+    <h1>${S.registro ? 'Crea tu cuenta' : 'Iniciar sesión'}</h1><p class="sub">${S.via === 'correo' ? (S.registro ? 'Gratis. Solo necesitas tu correo.' : 'Escribe tu correo') : (S.registro ? 'Gratis. Solo necesitas tu número de WhatsApp.' : 'Escribe tu número de WhatsApp')}</p>
+    ${campo()}
+    <button type="button" class="btn fill" data-act="enviar-codigo">${S.via === 'correo' ? 'Enviarme un código' : 'Enviarme código por WhatsApp'}</button>
     <p class="fine">Sin contraseñas. Te mandamos un código de 6 dígitos que vence en 10 minutos.</p>
+    <p class="fine" style="margin-top:0">${otraVia()}</p>
     <p class="fine">${S.registro ? '¿Ya tienes cuenta? <button type="button" class="link" data-act="ir-entrar" style="font-size:13px">Inicia sesión</button>' : '¿Primera vez? <button type="button" class="link" data-act="ir-registro" style="font-size:13px">Regístrate</button>'}</p></div>`;
   const crearSalon = () => `<div class="auth" style="padding-top:28px">
     <h1 style="text-align:left">Tu salón</h1>
@@ -375,11 +384,12 @@ mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit;
     <button type="button" class="btn fill" data-act="crear-salon" style="margin-top:10px">Crear mi salón</button>
     <p class="fine">Empiezas con servicios de ejemplo que puedes cambiar o borrar.</p></div>`;
   const codigo = () => `<div class="nav"><button type="button" data-act="atras-entrar">‹ Atrás</button></div>
-    <div class="auth" style="padding-top:20px"><h1 style="text-align:left">Revisa tu correo</h1>
-    <p class="sub" style="text-align:left;margin-bottom:8px">Escribe el código que enviamos a <b style="color:var(--ink)">${esc(S.correo || 'antonio@correo.com')}</b>.</p>
+    <div class="auth" style="padding-top:20px"><h1 style="text-align:left">${S.via === 'correo' ? 'Revisa tu correo' : 'Revisa tu WhatsApp'}</h1>
+    <p class="sub" style="text-align:left;margin-bottom:8px">${S.via === 'correo' ? `Escribe el código que enviamos a <b style="color:var(--ink)">${esc(S.correo)}</b>.` : `Te mandamos un código por <b style="color:var(--ink)">WhatsApp</b> al <b style="color:var(--ink)">+52 ${fmtTel(S.tel)}</b>. Llega en un chat de Agendappx.`}</p>
     <div class="code">${[0, 1, 2, 3, 4, 5].map(i => `<input id="d${i}" inputmode="numeric" maxlength="1" aria-label="Dígito ${i + 1}">`).join('')}</div>
     <p class="fine" style="text-align:left;margin:0">En la demostración cualquier código funciona. Después de 5 intentos fallidos hay que pedir uno nuevo.</p>
-    <button type="button" class="btn soft" data-act="reenviar">Enviar otro código</button></div>`;
+    <button type="button" class="btn soft" data-act="reenviar">Enviar otro código</button>
+    ${S.via === 'correo' ? '' : '<p class="fine">¿No te llegó? <button type="button" class="link" data-act="via-correo" style="font-size:13px">Recibirlo por correo</button></p>'}</div>`;
   const dospasos = () => `<div class="auth" style="padding-top:28px">
     <div class="logo"><span class="e">🔐</span></div>
     <h1>Verificación en dos pasos</h1>
@@ -393,10 +403,11 @@ mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit;
       <p style="margin:6px 0 0"><span class="pill especialista">Especialista</span></p>
       <p class="foot" style="text-align:center">Uñas: Gelish en manos y Pedicure spa · Sábados de 10:00 a 18:00</p></div>
     <p class="fine" style="margin-bottom:6px">La invitación es para Brenda Castillo, se usa una sola vez y vence en 48 horas.</p>
-    <label for="correo" class="gh" style="margin:6px 4px 0">Tu correo</label>
-    <input class="in" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" value="${esc(S.correo)}">
-    <button type="button" class="btn fill" data-act="enviar-codigo">Enviarme un código</button>
-    <p class="fine">Sin contraseñas. Cada vez que entres te mandamos un código nuevo.</p></div>`;
+    <p class="gh" style="margin:6px 4px 0">${S.via === 'correo' ? 'Tu correo' : 'Tu WhatsApp'}</p>
+    ${campo()}
+    <button type="button" class="btn fill" data-act="enviar-codigo">${S.via === 'correo' ? 'Enviarme un código' : 'Enviarme código por WhatsApp'}</button>
+    <p class="fine">Sin contraseñas. Cada vez que entres te mandamos un código nuevo.</p>
+    <p class="fine" style="margin-top:0">${otraVia()}</p></div>`;
   const perfil = () => `<div class="auth" style="padding-top:28px">
     <h1 style="text-align:left">Tu perfil</h1>
     <p class="sub" style="text-align:left;margin-bottom:8px">Así te verá el equipo de AB' Beauty Room en la agenda.</p>
@@ -404,8 +415,8 @@ mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit;
       <div style="min-width:0"><b id="pfNom">Brenda Castillo</b><br><span class="pill especialista">Especialista</span></div></div>
     <label for="pfNombre" class="gh" style="margin:14px 4px 0">Nombre</label>
     <input class="in" id="pfNombre" value="Brenda Castillo" autocomplete="name">
-    <label class="gh" style="margin:14px 4px 0">Correo</label>
-    <div class="in" style="display:flex;align-items:center;color:var(--ink3)">${esc(S.correo)}</div>
+    <label class="gh" style="margin:14px 4px 0">${S.via === 'correo' ? 'Correo' : 'WhatsApp'}</label>
+    <div class="in" style="display:flex;align-items:center;color:var(--ink3)">${S.via === 'correo' ? esc(S.correo) : '+52 ' + fmtTel(S.tel)}</div>
     <div class="group" style="margin-top:14px"><div class="cell"><span class="l">Recibir mis citas por correo<small>Un resumen cada mañana con tus citas del día</small></span><button type="button" class="sw" role="switch" aria-label="Recibir mis citas por correo" aria-checked="true" data-act="sw"></button></div></div>
     <button type="button" class="btn fill" data-act="aceptar" style="margin-top:10px">Unirme al equipo</button>
     <p class="fine">Al unirte aceptas que Admin vea tus citas e ingresos del salón. Puedes salir del equipo cuando quieras.</p></div>`;
@@ -816,7 +827,10 @@ mark { background: color-mix(in srgb, #FFD54A 60%, transparent); color: inherit;
     if (d.invrol !== undefined || d.invserv !== undefined) { if (d.invrol !== undefined) b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', String(x === b))); else b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); return; }
     switch (d.act) {
       case 'proveedor': S.correo = S.rol === 'admin' ? 'antonio@correo.com' : ''; if (S.rol === 'admin') ir({ pant: 'dospasos' }); else dentro(); break;
-      case 'enviar-codigo': { const v = $('#correo').value.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('Escribe un correo válido, por ejemplo tu@correo.com'); $('#correo').focus(); break; } S.correo = v; ir({ pant: 'codigo' }); break; }
+      case 'cambiar-via': S.via = S.via === 'correo' ? 'wa' : 'correo'; render(); break;
+      case 'via-correo': S.via = 'correo'; ir({ pant: S.invita ? 'unirse' : 'entrar' }); toast('Escribe tu correo y te mandamos el código ahí'); break;
+      case 'enviar-codigo': if (S.via !== 'correo') { const t = $('#tel').value.replace(/\D/g, '').replace(/^52(?=\d{10}$)/, ''); if (t.length !== 10) { toast('Escribe tu número a 10 dígitos'); $('#tel').focus(); break; } S.tel = t; ir({ pant: 'codigo' }); toast('Simulado: te mandamos el código por WhatsApp'); break; }
+      { const v = $('#correo').value.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('Escribe un correo válido, por ejemplo tu@correo.com'); $('#correo').focus(); break; } S.correo = v; ir({ pant: 'codigo' }); break; }
       case 'atras-entrar': ir({ pant: S.invita ? 'unirse' : 'entrar' }); break;
       case 'ir-entrar': cerrar(); ir({ pant: 'entrar', registro: false, invita: false, desdeApp: false }); break;
       case 'ir-registro': ir({ pant: 'entrar', registro: true, invita: false }); break;

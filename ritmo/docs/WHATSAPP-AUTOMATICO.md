@@ -19,6 +19,7 @@ Antonio lo autorizó conociendo el riesgo: las condiciones de WhatsApp no permit
   - vincula el número;
   - revisa la cola **cada minuto** y manda los mensajes de la sección 1;
   - informa el estado de la conexión.
+  - **manda los códigos de inicio de sesión**: expone `POST /hook/codigo` para el «Send SMS Hook» de Supabase Auth (firma verificada con el secreto del hook). Solo acepta `{telefono, codigo}` y manda el texto fijo del código (ver `CUENTAS.md`, sección 1). Los códigos tienen prioridad sobre todo lo demás y no cuentan en los topes. Si el número no está vinculado, responde error y la app ofrece el correo.
 - **No lee, no guarda y no procesa mensajes entrantes.** Los eventos de mensajes recibidos se descartan sin guardarlos. Tampoco envía confirmaciones de lectura ni marca chats como leídos, para que el salón vea las respuestas como no leídas en su teléfono.
 - **Sesión de WhatsApp**: se guarda **cifrada** (AES-256-GCM, llave `WA_SESSION_KEY` en Railway) en una tabla de Supabase `whatsapp_sesiones` por negocio. Así no hace falta volumen y sobrevive a reinicios.
 - **Supabase**: rol propio `agendappx_whatsapp` con permisos mínimos:
