@@ -27,3 +27,6 @@ self.addEventListener('fetch', event => {
     return cached || fetch(event.request);
   })());
 });
+
+self.addEventListener('push',event=>{let d={};try{d=event.data?.json()||{};}catch{}const ruta=typeof d.url==='string'&&['/comunidad/#mis-citas','/#hoy'].includes(d.url)?d.url:'/';event.waitUntil(self.registration.showNotification('Agendappx',{body:'Hay una novedad en tu agenda. Abre la app para verla.',tag:typeof d.etiqueta==='string'?d.etiqueta:'agendappx',icon:'/iconos/icono-192.png',data:{url:ruta}}));});
+self.addEventListener('notificationclick',event=>{event.notification.close();const ruta=event.notification.data?.url;const url=new URL(['/comunidad/#mis-citas','/#hoy'].includes(ruta)?ruta:'/',self.location.origin).href;event.waitUntil((async()=>{const ventanas=await self.clients.matchAll({type:'window',includeUncontrolled:true});const actual=ventanas.find(c=>new URL(c.url).origin===self.location.origin);if(actual){await actual.navigate(url);return actual.focus();}return self.clients.openWindow(url);})());});

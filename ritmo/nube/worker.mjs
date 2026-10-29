@@ -10,6 +10,8 @@ import { WhatsApp } from '../servidor/src/whatsapp.ts';
 import { ProveedorEvolution } from '../servidor/src/whatsapp-evolution/proveedor.ts';
 import { VinculacionWhatsApp } from '../servidor/src/whatsapp-evolution/vinculacion.ts';
 import { rutasVinculacion } from '../servidor/src/whatsapp-evolution/http.ts';
+import {rutasPush,enviarPush} from '../servidor/src/social/push.ts';
+import {rutasSocial} from '../servidor/src/social/http.ts';
 import { rutasRegistro } from '../servidor/src/cuentas/registro.ts';
 import { rutasAcceso } from '../servidor/src/cuentas/acceso.ts';
 import { rutasCuentas } from '../servidor/src/cuentas/http.ts';
@@ -53,6 +55,8 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
   cuentas: rutasCuentas(pool, jwt, {
     habilitado: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true', supabaseURL: env.SUPABASE_URL,
     registro:{habilitado:env.AGENDAPPX_REGISTRO_HABILITADO==='true',turnstileSiteKey:env.TURNSTILE_SITE_KEY||''},
+    rutasPush:rutasPush(pool,jwt,{origen:env.PUBLIC_URL,publica:env.PUSH_VAPID_PUBLICA,privada:env.PUSH_VAPID_PRIVADA}),
+    rutasSocial:rutasSocial(pool,jwt,{origen:env.PUBLIC_URL,key:env.ACCESO_HMAC_KEY,turnstileKey:env.TURNSTILE_SECRET_KEY,ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     rutasRegistro:rutasRegistro(pool,jwt,{habilitado:env.AGENDAPPX_REGISTRO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,operacionKey:env.REGISTRO_OPERACION_KEY,turnstileKey:env.TURNSTILE_SECRET_KEY,turnstileSiteKey:env.TURNSTILE_SITE_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     acceso:{whatsapp:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true'},
     rutasAcceso:rutasAcceso(pool,jwt,{registro:env.AGENDAPPX_REGISTRO_HABILITADO==='true',recuperacionHash:env.ACCESO_RECUPERACION_HASH,recuperacionUsuario:env.MIGRACION_USUARIO_ID,habilitado:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,salones:new Set(String(env.WHATSAPP_SALONES_HABILITADOS||'').split(',').filter(Boolean)),ip:req=>String(req.headers['cf-connecting-ip']||'')}),
@@ -67,9 +71,11 @@ export default {
     if (path === '/salud' || path.startsWith('/api/') || path.startsWith('/calendario/') || path.startsWith('/webhooks/')) {
       return api.fetch(request, bindings, context);
     }
+    if(/^\/[a-z0-9][a-z0-9-]{2,59}\/?$/.test(path)&&!['/planes','/comunidad','/unirse'].includes(path.replace(/\/$/,''))){const u=new URL(request.url);u.pathname='/comunidad/index.html';return bindings.ASSETS.fetch(new Request(u,request));}
     return bindings.ASSETS.fetch(request);
   },
   async scheduled(_controller, _bindings, context) {
+    context.waitUntil(enviarPush(pool,{origen:env.PUBLIC_URL,publica:env.PUSH_VAPID_PUBLICA,privada:env.PUSH_VAPID_PRIVADA}));
     // La misma cola oficial y gratuita; no hay proceso permanente ni mensajes sin Meta configurado.
     if (usaMeta(env.WHATSAPP_REMITENTE) && env.WHATSAPP_PROVEEDOR !== 'evolution' && whatsapp.configurado) {
       context.waitUntil(whatsapp.procesar());

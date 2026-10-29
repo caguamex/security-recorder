@@ -1,0 +1,10 @@
+(function(g){'use strict';
+async function cuenta(ambito){const s=await(ambito==='negocio'?g.AgendappxCuentas.sesion():g.AgendappxCuentas.sesionCliente());if(!s||s.sinConexion)throw new Error('Entra con tu WhatsApp y conéctate a internet.');return s;}
+async function api(ruta,d,s){const r=await fetch('/api/avisos/'+ruta,{method:d?'POST':'GET',headers:{...(d?{'Content-Type':'application/json'}:{}),...(s?{Authorization:'Bearer '+s.accessToken}:{})},...(d?{body:JSON.stringify(d)}:{}),cache:'no-store',signal:AbortSignal.timeout(12000)});const b=await r.json();if(!r.ok)throw new Error(b.error||'No se pudo activar el aviso.');return b;}
+async function activar(ambito='cliente'){
+ if(!('serviceWorker'in navigator)||!('PushManager'in g)||!('Notification'in g))throw new Error('En iPhone, abre la app desde su icono de inicio: Safari → Compartir → Agregar a inicio. Después vuelve a activar los avisos.');
+ const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();if(permiso!=='granted')throw new Error('Puedes activar los avisos desde los ajustes de notificaciones de tu dispositivo.');const s=await cuenta(ambito),d=await api('config');if(!d.habilitado)throw new Error('Los avisos están pendientes de configuración.');const reg=await navigator.serviceWorker.register('/sw.js',{scope:'/',updateViaCache:'none'});await navigator.serviceWorker.ready;const bytes=Uint8Array.from(atob(d.llavePublica.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));const sub=await reg.pushManager.getSubscription()||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:bytes});await api('suscribir',{ambito,negocioId:ambito==='negocio'?s.negocioId:null,suscripcion:sub.toJSON()},s);return 'Avisos activados en este dispositivo.';
+}
+async function desactivar(ambito='cliente'){const s=await cuenta(ambito),reg=await navigator.serviceWorker.getRegistration('/'),sub=await reg?.pushManager.getSubscription();if(sub){await api('quitar',{endpoint:sub.endpoint},s);await sub.unsubscribe();}return 'Avisos desactivados en este dispositivo.';}
+g.AgendappxAvisos=Object.freeze({activar,desactivar});
+})(window);

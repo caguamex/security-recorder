@@ -30,6 +30,8 @@ bel = bel.replace('<script src="core.js"></script>', () => `<script>\n${readFile
   .replace('<script src="cuentas.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'cuentas.js'), 'utf8')}</script>`)
   .replace('<script src="whatsapp-vinculacion.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'whatsapp-vinculacion.js'), 'utf8')}</script>`)
   .replace('<script src="planes.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'planes.js'), 'utf8')}</script>`)
+  .replace('<script src="avisos-pwa.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'avisos-pwa.js'), 'utf8')}</script>`)
+  .replace('<script src="social.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'social.js'), 'utf8')}</script>`)
   .replace('<script src="negocio.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'negocio.js'), 'utf8')}</script>`)
   .replace('<script src="belleza.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'belleza.js'), 'utf8')}</script>`);
 // El documento de un solo archivo también conserva las fotos sin conexión.
@@ -41,10 +43,11 @@ console.log('Listo: ritmo/dist/belleza.html');
 // Publicación PWA: documento completo, recursos locales y caché versionada por contenido.
 const fuente = join(raiz, 'belleza'), pwa = join(raiz, 'dist', 'pwa');
 mkdirSync(pwa, { recursive: true });
-for (const recurso of ['estilo-neutro-ios.css', 'planes.js', 'planes', 'negocio.js', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
+for (const recurso of ['estilo-neutro-ios.css', 'planes.js', 'planes', 'avisos-pwa.js', 'social.js', 'negocio.js', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
   cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
 }
 cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));
+mkdirSync(join(pwa,'comunidad'),{recursive:true});for(const n of ['index.html','real.css','real.mjs','manifest.webmanifest'])cpSync(join(raiz,'comunidad',n),join(pwa,'comunidad',n));
 let cuerpo = readFileSync(join(fuente, 'index.html'), 'utf8')
   .replace(/<link[^>]+https:\/\/fonts\.[^>]+>\s*/g, '');
 const metadatos = `<link rel="manifest" href="./manifest.webmanifest">

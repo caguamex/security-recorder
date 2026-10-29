@@ -3,7 +3,7 @@ import { readFile, realpath } from 'node:fs/promises';
 import { resolve, sep, extname } from 'node:path';
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2',
+  '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2',
   '.ttf': 'font/ttf', '.txt': 'text/plain; charset=utf-8',
   '.webmanifest': 'application/manifest+json; charset=utf-8' };
 export async function estatico(req, res, root) {
@@ -12,7 +12,7 @@ export async function estatico(req, res, root) {
     const path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
     if (path.includes('\\') || path.split('/').some(p => p.startsWith('.'))) throw new Error();
     const base = await realpath(root);
-    const file = await realpath(resolve(base, '.' + (path === '/' ? '/index.html' : path)));
+    const file = await realpath(resolve(base, '.' + (path.endsWith('/') ? path+'index.html' : path)));
     if (!file.startsWith(base + sep) || !MIME[extname(file)]) throw new Error();
     const data = await readFile(file);
     res.writeHead(200, { 'Content-Type': MIME[extname(file)], 'Content-Length': data.length,

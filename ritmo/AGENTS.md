@@ -183,3 +183,8 @@ Rama codex/agendappx-planes-etapa3 desde aaf60f4, PR nuevo por etapa. Leer docs/
 ### Planes — etapa 3 publicada
 
 Autorización específica «Sí, respalda y aplica Planes». Migración 20261029221042 registrada; siete tablas originales idénticas al respaldo. Worker 4a622a3e-ca59-4864-843f-d154acf77105, aplicación ccf4775, PR #14. Ver docs/PLANES-ETAPA3.md. Acceso existente legado sin nueva caducidad; nuevos salones treinta días. No hay cobros ni cambios de Railway. Etapa 4 continúa preparada por separado y exige su propia autorización de migración.
+
+
+## Explorar y Social — etapa 4 preparada
+
+Rama codex/agendappx-explorar-social-etapa4 sobre Planes / PR #14. Leer docs/EXPLORAR-SOCIAL-ETAPA4.md, EXPLORAR.md y SOCIAL.md. Directorio, reservas solicitadas, registro de clientas con WhatsApp, publicaciones, reseñas, interacciones, moderación y avisos PWA voluntarios preparados y verificados localmente. No son demostraciones dentro del código nuevo, pero todavía NO están publicados ni migrados en producción. La migración 20261029223451 requiere su propia confirmación y respaldo; las autorizaciones de horarios y Planes no la cubren. Publicación incluida en «Publica todas las etapas». No activar cobros, envíos/vinculación de WhatsApp, servicios nuevos o FiNeCi. Los negocios existentes quedan ocultos hasta que Admin publique su perfil. No colocar VAPID privadas ni datos de prueba en Git.

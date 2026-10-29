@@ -22,10 +22,10 @@ export class RegistroWhatsApp {
  async crear(d:any,ip:string){
   if(d.consentimiento!==true||typeof d.nombre!=='string'||!d.nombre.trim()||d.nombre.length>200)throw new ErrorAPI(400,'Escribe tu nombre y acepta recibir el código solicitado.');
   if(!ip||ip.length>200)throw new ErrorAPI(503,'No se pudo verificar la conexión.');
-  const destino=telefonoMX(d.telefono),tipo=d.invitacion?'invitacion':'salon';let inv:any;
+  const destino=telefonoMX(d.telefono),tipo=d.invitacion?'invitacion':d.tipo==='cliente'?'cliente':'salon';let inv:any;
   const perfil:any={nombre:d.nombre.trim()};
   if(tipo==='invitacion')inv=await this.invitacion(d.invitacion,ip);
-  else {if(typeof d.salon!=='string'||!d.salon.trim()||d.salon.length>200||typeof d.slug!=='string'||!/^([a-z0-9][a-z0-9-]{2,59})$/.test(d.slug)||['comunidad','api','calendario','salud','webhooks','unirse'].includes(d.slug))throw new ErrorAPI(400,'Revisa el nombre y el enlace de tu salón.');perfil.salon=d.salon.trim();perfil.slug=d.slug;if(d.plan!==undefined){if(!['solo','salon','pro'].includes(d.plan))throw new ErrorAPI(400,'Elige un plan disponible.');perfil.plan=d.plan;}}
+  else if(tipo==='salon'){if(typeof d.salon!=='string'||!d.salon.trim()||d.salon.length>200||typeof d.slug!=='string'||!/^([a-z0-9][a-z0-9-]{2,59})$/.test(d.slug)||['comunidad','api','calendario','salud','webhooks','unirse','planes','assets'].includes(d.slug))throw new ErrorAPI(400,'Revisa el nombre y el enlace de tu salón.');perfil.salon=d.salon.trim();perfil.slug=d.slug;if(d.plan!==undefined){if(!['solo','salon','pro'].includes(d.plan))throw new ErrorAPI(400,'Elige un plan disponible.');perfil.plan=d.plan;}}
   if(typeof d.captchaToken!=='string'||!d.captchaToken||d.captchaToken.length>4096)throw new ErrorAPI(400,'Completa la verificación de seguridad.');
   let captcha:any;try{const r=await this.red('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:this.config.turnstileKey,response:d.captchaToken,remoteip:ip}),signal:AbortSignal.timeout(8000)});if(!r.ok)throw new Error();captcha=await r.json();}catch{throw new ErrorAPI(503,'No se pudo comprobar la seguridad. Intenta de nuevo.');}
   if(!captcha.success||captcha.hostname!==new URL(this.config.origen).hostname||captcha.action!=='registro')throw new ErrorAPI(400,'Vuelve a completar la verificación de seguridad.');
@@ -42,7 +42,7 @@ export class RegistroWhatsApp {
   const raw=JSON.stringify({id,phone:'+'+destino}),ts=String(Math.floor(this.ahora()/1000));
   const firma=createHmac('sha256',Buffer.from(this.config.operacionKey,'base64')).update('alta-whatsapp-v1\0'+ts+'\0'+raw).digest('hex');
   try{const r=await this.red(this.config.supabaseURL+'/functions/v1/agendappx-registro',{method:'POST',headers:{'Content-Type':'application/json','x-registro-fecha':ts,'x-registro-firma':firma},body:raw,signal:AbortSignal.timeout(12000)});if(!r.ok)throw new Error();}catch{throw new ErrorAPI(503,'No se pudo preparar la cuenta. Intenta más tarde.');}
-  return {id,prueba,rol:inv?.rol||'admin',tipo};
+  return {id,prueba,rol:inv?.rol||(tipo==='cliente'?'cliente':'admin'),tipo};
  }
  async verificar(i:IdentidadFirmada,token:string,d:any){const r=await this.ticket(d.id,d.prueba);let usuario:any;
   try{const res=await this.red(this.config.supabaseURL+'/auth/v1/user',{headers:{apikey:this.config.llavePublica,Authorization:'Bearer '+token},signal:AbortSignal.timeout(8000)});if(!res.ok)throw new Error();usuario=await res.json();}catch{throw new ErrorAPI(401,'Verifica tu código de WhatsApp primero.');}

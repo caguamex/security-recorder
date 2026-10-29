@@ -12,6 +12,7 @@ export function tramosDia(fecha:string,horario:Horario,abre='10:00',cierra='20:0
  const dia=DIAS[new Date(fecha+'T12:00:00Z').getUTCDay()];
  let base=Object.hasOwn(horario,dia)?horario[dia]:[abre,cierra];
  if(especial?.tipo==='libre')base=null;
+ if(especial?.tipo==='horario'&&especial.desde&&especial.hasta)base=[especial.desde,especial.hasta];
  if(!base)return [];
  let a=Math.max(minutos(base[0]),minutos(abre)),b=Math.min(minutos(base[1]),minutos(cierra));
  if(especial?.tipo==='horario'&&especial.desde&&especial.hasta){a=Math.max(minutos(especial.desde),minutos(abre));b=Math.min(minutos(especial.hasta),minutos(cierra));}

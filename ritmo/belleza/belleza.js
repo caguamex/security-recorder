@@ -1056,6 +1056,7 @@
   }
 
   const Planes=window.AgendappxPlanes.crear({Store,openSheet,closeSheet,navSheet,toast});window.AgendappxPlanes.abrir=()=>Planes.abrir();
+  const Social=window.AgendappxSocial.crear({Store,list,openSheet,closeSheet,navSheet,toast,esc,money});Object.assign(window.AgendappxSocial,Social);
   const Negocio=window.AgendappxNegocio.crear({Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita,fecha:()=>S.day,tab:t=>{S.tab=t;render();scrollTo({top:0});if(t==='servicios')void cargarEquipoServicios();},servicio:sheetServicio,equipo:sheetAccesoAdmin,whatsapp:()=>sheetConexion('whatsapp'),promo:()=>sheetPromo(null)});
   // ---------- Eventos ----------
   document.addEventListener('click', e => {

@@ -43,7 +43,8 @@ import {createClient} from '@supabase/supabase-js';
  const {data:a}=await cliente.auth.mfa.getAuthenticatorAssuranceLevel();
  return {usuarioId:s.user.id,negocioId:m.negocioId,rol:m.rol,aal:a.currentLevel,recuperarLegado:actual.recuperarLegado===true,accessToken:s.access_token};
  }
- async function montar(root){await listo;if(!root.isConnected)return;
+ async function sesionCliente(){await listo;if(!cliente||!navigator.onLine)return null;const {data}=await cliente.auth.getSession();if(!data.session)return null;const r=await fetch('/api/cliente/contexto',{headers:{Authorization:'Bearer '+data.session.access_token},cache:'no-store',signal:AbortSignal.timeout(12000)});if(!r.ok)return null;return {...await r.json(),accessToken:data.session.access_token};}
+ async function montar(root,opciones={}){await listo;if(!root.isConnected)return;
  if(!cliente){root.innerHTML='<p class="foot">El acceso de cuentas todavía no está activado. '+esc(error)+'</p>';return;}
  root.innerHTML=`${config.acceso?.whatsapp?`<section id="auth-otp"><h2 style="margin:20px 16px 8px">Entra a Agendappx</h2><p class="foot">Te mandamos un código a tu WhatsApp. Sin contraseñas.</p>
  <form id="auth-form"><div class="group"><label class="cell" for="auth-destino"><span class="l" id="auth-etiqueta">WhatsApp +52</span><input class="in" id="auth-destino" type="tel" inputmode="tel" autocomplete="tel-national" maxlength="24" placeholder="10 dígitos" required style="min-width:0;max-width:180px"></label></div><button class="btn fill" type="submit" id="auth-pedir" style="display:block;width:calc(100% - 32px);margin:16px">Enviar código por WhatsApp</button></form>
@@ -61,10 +62,11 @@ import {createClient} from '@supabase/supabase-js';
  else {tokenVinculacion='';({error:e}=await cliente.auth.signInWithOtp({... (canal==='whatsapp'?{phone:'+52'+destino.replace(/\D/g,'').slice(-10)}:{email:destino}),options:{shouldCreateUser:false}}));}
  if(e){clearTimeout(espera);ofrecerCorreo();throw e;}reenviarEn=Date.now()+60000;$('#auth-otp-code').hidden=false;$('#auth-otp-texto').textContent='Si tu cuenta está registrada, recibirás un código de seis dígitos. Vence en diez minutos.';$('#auth-otp-valor').focus();$('#auth-status').textContent='Revisa tu '+(canal==='whatsapp'?'WhatsApp.':'correo.');}
  $('#auth-form')?.addEventListener('submit',async ev=>{ev.preventDefault();if(ocupado)return;ocupado=true;$('#auth-pedir').disabled=true;$('#auth-status').textContent='Enviando código…';try{await pedir();}catch(e){$('#auth-status').textContent=e.message||'No se pudo enviar.';}finally{ocupado=false;$('#auth-pedir').disabled=false;}});
- const registro=montarRegistro(root,{config,cliente,sesion,aviso,limpiarContexto:()=>{contexto=null;},solicitar:()=>{canal='whatsapp';vincular=false;tokenVinculacion='';return pedir();}});
+ const registro=montarRegistro(root,{config,cliente,sesion,aviso,modoCliente:opciones.cliente===true,limpiarContexto:()=>{contexto=null;},solicitar:()=>{canal='whatsapp';vincular=false;tokenVinculacion='';return pedir();}});
  if($('#auth-correo'))$('#auth-correo').hidden=!config.acceso?.correo;
  $('#auth-link').value=pendiente;pendiente='';
  async function preparar(){const {data}=await cliente.auth.getSession();$('#auth-salir').hidden=!data.session;if(!data.session)return;const rolRegistro=registro.pendiente()?await registro.verificar():null;if(rolRegistro&&rolRegistro!=='admin'){await registro.finalizar();}
+ if(opciones.cliente===true){const actual=await sesionCliente();if(!actual)throw new Error('Verifica tu WhatsApp para continuar.');if($('#auth-otp'))$('#auth-otp').hidden=true;$('#auth-recuperacion').hidden=true;$('#auth-status').textContent='Acceso verificado. Pulsa Listo para continuar.';aviso();return;}
  const vigente=await sesion();if(!registro.pendiente()&&vigente&&vigente.rol!=='admin'){if($('#auth-otp'))$('#auth-otp').hidden=true;$('#auth-status').textContent='Acceso verificado.';aviso();return;}const {data:a,error:e}=await cliente.auth.mfa.getAuthenticatorAssuranceLevel();if(e)throw e;
  if(a.currentLevel==='aal2'){if(registro.pendiente())await registro.finalizar();if($('#auth-otp')){$('#auth-otp').hidden=true;$('#auth-vincular-numero').hidden=!!data.session.user.phone;}contexto=null;const cuenta=await sesion();if(!cuenta)throw new Error('Esta cuenta todavía no tiene acceso al salón.');$('#auth-status').textContent='Acceso verificado. Pulsa Listo para abrir tu agenda.';await registro.equipo();aviso();return;}
  const {data:f,error:fe}=await cliente.auth.mfa.listFactors();if(fe)throw fe;factor=f.totp.find(x=>x.status==='verified')?.id;
@@ -85,5 +87,5 @@ import {createClient} from '@supabase/supabase-js';
  void listo.then(()=>{if(pendiente||abrirRegistro||globalThis.__agendappxInvitacion)document.dispatchEvent(new Event('agendappx:abrir-acceso'));});
  async function modo(){await listo;return config?.habilitado===true||localStorage.getItem('agendappx.cuentas.activas')==='si';}
  async function salir(){await listo;if(cliente)await cliente.auth.signOut();contexto=null;localStorage.removeItem('agendappx.contexto');aviso();}
- global.AgendappxCuentas=Object.freeze({sesion,montar,modo,listo,salir});
+ global.AgendappxCuentas=Object.freeze({sesion,sesionCliente,montar,modo,listo,salir});
 })(window);
