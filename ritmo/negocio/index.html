@@ -169,12 +169,37 @@ textarea.in { min-height: 80px; resize: vertical; }
 .big { width: 100%; min-height: 50px; border: 0; border-radius: 999px; color: #fff; font-weight: 700; font-size: 16px; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 4px 0 var(--rosaEdge), 0 12px 22px rgba(224, 69, 123, .3), inset 0 1px 0 rgba(255, 255, 255, .35); }
 .soft { width: 100%; min-height: 46px; border: 0; border-radius: 999px; font-weight: 700; font-size: 15px; background: var(--card); box-shadow: var(--soft3); display: flex; align-items: center; justify-content: center; gap: 8px; }
 .prev { border-radius: 18px; overflow: hidden; height: 240px; } .prev img { width: 100%; height: 100%; object-fit: cover; }
+/* Diseño «Neutro»: sin rosa (negro, blanco y grises), relieve mínimo, líneas finas y sombras suaves. */
+.dis { display: inline-flex; gap: 4px; margin-left: 6px; vertical-align: middle; }
+.dis button { padding: 3px 10px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; background: none; color: inherit; font-size: 12px; font-weight: 600; }
+.dis button[aria-pressed="true"] { background: #F5F5F7; color: #0B0B0F; }
+html[data-diseno="neutro"] { --rosa: var(--ink); --rosaSoft: var(--tile); --soft3: 0 0 0 1px var(--line), 0 1px 2px rgba(0, 0, 0, .04); --acInk: #FFFFFF; }
+@media (prefers-color-scheme: dark) { html[data-diseno="neutro"]:not([data-theme="light"]) { --acInk: #0B0B0F; --soft3: 0 0 0 1px var(--line); } }
+html[data-diseno="neutro"][data-theme="dark"] { --acInk: #0B0B0F; --soft3: 0 0 0 1px var(--line); }
+html[data-diseno="neutro"] .b3.p, html[data-diseno="neutro"] .wd[aria-pressed="true"], html[data-diseno="neutro"] .plus, html[data-diseno="neutro"] .big, html[data-diseno="neutro"] .slot[aria-pressed="true"], html[data-diseno="neutro"] .chip[aria-pressed="true"] { background: var(--ink) !important; color: var(--acInk) !important; box-shadow: none !important; }
+html[data-diseno="neutro"] .wd[aria-pressed="true"] b { color: var(--acInk) !important; } html[data-diseno="neutro"] .wd[aria-pressed="true"] i { background: var(--acInk) !important; }
+html[data-diseno="neutro"] .plus { border-radius: 50%; width: 46px; height: 46px; }
+html[data-diseno="neutro"] .logo { background: var(--ink); color: var(--acInk); box-shadow: none; }
+html[data-diseno="neutro"] .kpi .ic, html[data-diseno="neutro"] .tile .ic { color: var(--ink2); }
+html[data-diseno="neutro"] .kpi .bd, html[data-diseno="neutro"] .ibtn .dot, html[data-diseno="neutro"] .tab .bd { background: var(--ink); color: var(--acInk); }
+html[data-diseno="neutro"] .src { background: var(--tile); color: var(--ink2); }
+html[data-diseno="neutro"] .tab[aria-selected="true"] { color: var(--ink); }
+html[data-diseno="neutro"] .gh button, html[data-diseno="neutro"] .back, html[data-diseno="neutro"] .sh-nav button { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+html[data-diseno="neutro"] .blk { box-shadow: none; background: color-mix(in srgb, var(--c) 9%, var(--card)); }
+html[data-diseno="neutro"] .bars i { background: var(--ink); box-shadow: none; }
+html[data-diseno="neutro"] .act .q { background: var(--tile); color: var(--ink); box-shadow: none; }
+html[data-diseno="neutro"] .cover, html[data-diseno="neutro"] .tile, html[data-diseno="neutro"] .card, html[data-diseno="neutro"] .kpi, html[data-diseno="neutro"] .svc, html[data-diseno="neutro"] .pk { border-radius: 16px; }
+html[data-diseno="neutro"] .cover { border-radius: 0; }
+html[data-diseno="neutro"] .tile.ph::after { background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, .6)); }
+html[data-diseno="neutro"] .av { box-shadow: none; }
+html[data-diseno="neutro"] .sw[aria-checked="true"] { background: var(--ink); }
+html[data-diseno="neutro"] .ver path:first-child { fill: var(--ink); } html[data-diseno="neutro"] .ver path:last-child { stroke: var(--bg); }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
 
 <div class="phone">
-  <div class="note">Demostración del modo negocio · datos de ejemplo de AB' Beauty Room · fotos de Pexels</div>
+  <div class="note">Demostración · datos de ejemplo · Diseño: <span class="dis" role="group" aria-label="Diseño"><button type="button" data-dis="rosa">Rosa 3D</button><button type="button" data-dis="neutro">Neutro</button></span></div>
   <main id="screen" aria-live="polite"></main>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
@@ -433,6 +458,12 @@ textarea.in { min-height: 80px; resize: vertical; }
       case 'copiar': { try { navigator.clipboard.writeText('https://agendappx.app/ab-beauty-room').then(() => toast('Link copiado'), () => toast('Selecciona el link para copiarlo')); } catch (err) { toast('Selecciona el link para copiarlo'); } break; }
     }
   });
+  // Diseño de la demostración (se recuerda en este navegador).
+  const diseno = v => { if (v === 'neutro') document.documentElement.dataset.diseno = 'neutro'; else delete document.documentElement.dataset.diseno;
+    document.querySelectorAll('[data-dis]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.dis === v))); };
+  let dv = 'neutro'; try { dv = localStorage.getItem('negocio.diseno') || 'neutro'; } catch (e) {}
+  diseno(dv);
+  document.querySelector('.dis').addEventListener('click', e => { const b = e.target.closest('[data-dis]'); if (!b) return; diseno(b.dataset.dis); try { localStorage.setItem('negocio.diseno', b.dataset.dis); } catch (err) {} });
   render();
 })();
 </script>
