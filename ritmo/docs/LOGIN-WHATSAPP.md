@@ -128,3 +128,123 @@ Seguimiento: el despliegue avanzó a DEPLOYING y creó la instancia 9fcb8d5b-a88
 Antonio reiteró implementar y publicar el acceso manual con códigos de seis dígitos, diez minutos, copiar y abrir WhatsApp para entrega humana. Se preparó un nuevo magic link oficial de Supabase para el UUID del propietario existente, sin crear otra cuenta ni enviar correo. Se registró su huella en el secreto ACCESO_RECUPERACION_HASH del Worker publicado (versión 80a1b379-9f38-4abc-8807-5914b23a763b, actualización de secreto). El enlace solo está en el archivo privado local ENTRAR-PROPIETARIO-MANUAL.md; no copiarlo a Git ni mostrarlo a otros usuarios. Se pidió al propietario abrirlo y completar su TOTP personalmente. El código no se consumió para verificarlo.
 
 Esto habilita únicamente la recuperación inicial existente: NO implementa todavía el panel manual, registro nuevo ni entrega de OTP. Permanecen pendientes código, pruebas y publicación coordinada de esas funciones. No declarar disponible el modo manual. Conservar las dos capturas modificadas por otra tarea y los datos del salón.
+
+
+## Vinculación física y prefijo mexicano — 29 de octubre de 2026
+
+Antonio autorizó continuar la vinculación del número de plataforma y confirmó que WhatsApp lo muestra vinculado en su teléfono. No repetir ni registrar en Git el código efímero. La consulta dentro de la instancia activa confirmó credenciales cifradas guardadas, registered=true e identidad firmada presente; los códigos y avisos reales siguen apagados.
+
+Agendappx aún respondió estado=revisar, verificado=false, motivo=numero_no_coincide y freno=true. El diagnóstico de solo lectura comprobó que la identidad del SDK tiene el prefijo mexicano histórico 521, dominio s.whatsapp.net y exactamente los diez dígitos del número de plataforma autorizado; coincide al normalizar 521 a 52. No es un número ajeno y no se deben borrar sus credenciales ni solicitar otra vinculación para resolver la comparación.
+
+Corrección local en codex/agendappx-sesion-vinculada: normalizar únicamente una identidad mexicana completa de dominio s.whatsapp.net, con dispositivo numérico opcional. Mantener el requisito registered, la comparación exacta con esperado y el bloqueo de números ajenos, dominios desconocidos y LID. No modificar la identidad cifrada ni sus claves Signal. Tres regresiones nuevas cubren equivalencia 52/521, reinicio sin código conservando claves y rechazo de otra línea o identidad provisional. La interfaz, Cloudflare y Comunidad no cambian.
+
+Pendiente de autorización específica: publicar esta nueva corrección solamente en el servicio Railway existente y recuperar la sesión. El freno previo NO se quita automáticamente al arrancar ni como parte del diagnóstico. Tras aprobación, verificar otra vez dentro del contenedor la identidad cifrada y que corresponde al número autorizado; retirar solo el falso bloqueo numero_no_coincide de plataforma, con sesión registrada, motivo sin cambios, sin cierre manual y sin custodia activa. Conservar cualquier otro freno de seguridad. Después esperar reconexión y comprobar conectado/verificado; no prometerlo antes de esa verificación. No habilitar códigos de acceso ni avisos reales. El primer mensaje sigue requiriendo destinatario y confirmación separados.
+
+El despliegue 41bd9daa-8129-405b-946c-4e1e0f0590f3 ya aparece SUCCESS y su instancia 9fcb8d5b-a886-48b2-b594-b054228ec9b7 RUNNING. La sesión se conserva allí hasta autorizar la corrección. No reiniciar el seguimiento de consumo del 27 de octubre ni cambiar recursos de Railway. Conservar el acceso SSH temporal hasta verificar la recuperación y retirarlo al concluir la operación.
+
+Verificación de esta corrección: npm test --prefix ritmo/servidor compiló y regeneró los archivos locales; **201 pruebas aprobadas, cero fallos**. La compilación no produjo cambios de interfaz ni archivos generados distintos. No se publicó la corrección, no se retiró el freno y no se enviaron mensajes.
+
+
+### Corrección publicada y sesión recuperada — 29 de octubre de 2026
+
+Antonio aprobó expresamente publicar la reparación y recuperar la conexión manteniendo códigos y mensajes apagados. Se publicó exclusivamente el commit 6195fce en Railway, despliegue **08bf6c18-2094-450f-aedd-8eb6097e058e**, SUCCESS, instancia **a8601dee-3134-48b4-9f1d-17168efb450b**, RUNNING. Se subió una copia del commit que contiene solo el servidor y WhatsApp; no se incluyeron archivos ajenos, secretos ni la interfaz de Comunidad. Se conservaron una réplica, 0.1 vCPU y 500 MB; no cambiaron infraestructura, planes, cuotas ni FiNeCi.
+
+Dentro de esa instancia se verificaron nuevamente las credenciales cifradas, registro, mismo número tras normalizar el prefijo y ambas firmas de identidad con las utilidades/protobuf del SDK. Los campos binarios de account se serializan como base64 por protobuf; se convirtieron con ADVSignedDeviceIdentity.fromObject para comprobar firmas y longitudes, sin reescribir las credenciales. La primera comprobación, que esperaba Buffer directamente, revirtió íntegramente su transacción y no modificó datos.
+
+La recuperación aprobada bloqueó la fila de plataforma y comprobó estado=revisar, motivo=numero_no_coincide, freno=true, manual=false y ausencia de custodia activa. Retiró únicamente ese falso bloqueo, sin borrar ni sustituir claves. La reconexión automática llegó a conectado a las **2026-10-29T06:53:57.324Z**. Una consulta posterior al proceso confirmó **estado=conectado, verificado=true** para la línea autorizada, y /salud respondió 200, estado=listo. El número esperado coincide en la base y freno=false.
+
+**WA_CODIGOS_HABILITADOS=false y WA_ENVIOS_HABILITADOS=false**: no se enviaron códigos ni mensajes reales. No se habilitaron otras sesiones. Se retiró correctamente de Railway el registro SSH temporal agendappx-operacion-temporal al finalizar; no volver a asumir que esa llave conserva acceso. No se reinició el calendario del informe semanal: el servicio sigue contando desde el 27 de octubre a las 19:11:09 UTC. Validación previa: 201 pruebas aprobadas. PR #9: https://github.com/caguamex/security-recorder/pull/9.
+
+Siguiente etapa requiere autorización específica para el primer código de acceso, indicando destinatario y alcance; no habilitar toda la cola de avisos ni prometer disponibilidad del login hasta probar ese flujo real. La observación breve de conexión no garantiza que WhatsApp nunca desvincule el dispositivo.
+
+
+### Prueba del primer código autorizada; activación personal pendiente — 29 de octubre
+
+Antonio autorizó probar un único código de acceso al número propio, manteniendo apagados los avisos del salón. La consulta de solo lectura confirmó que la cuenta Admin original todavía no tiene teléfono asociado, cambio de teléfono pendiente ni factor MFA verificado. No asignar ni confirmar el teléfono mediante cambios directos en auth.users o atajos que eviten la verificación personal: usar la sesión del mismo propietario, MFA y phone_change del flujo publicado.
+
+Se preparó un nuevo enlace oficial de recuperación para el mismo UUID, sin consumirlo ni enviar correo. Antonio autorizó expresamente mostrar ese nuevo enlace privado en este chat; el valor permanece únicamente en el archivo privado acceso-admin-prueba-whatsapp-20261029.json y se entrega solo a él. No copiarlo a Git. Se registró su huella en el secreto existente ACCESO_RECUPERACION_HASH y en la configuración privada local, conservando el Worker y todos sus archivos: versión por cambio de secreto b490022c-ff4a-44d9-a53c-7de562bebc6c. /salud y /comunidad/ siguen respondiendo 200.
+
+Paso humano pendiente: abrir el enlace en su teléfono, pulsar Usar enlace de acceso y completar la verificación TOTP personalmente; no pedir su clave ni códigos en el chat. Después vincular el teléfono al mismo UUID y ejecutar solo la prueba autorizada. Aún NO se envió el primer código, no se activaron las banderas de envío de Railway y no se declaró operativo el login. Antes de habilitar, delimitar el único destinatario y la única solicitud de prueba; el consentimiento actual no permite abrir envíos generales.
+
+
+## Primer código aceptado, no recibido — 29 de octubre de 2026
+
+La consulta oficial confirmó que Antonio completó MFA TOTP sin revelar códigos ni claves. Para la única prueba autorizada se activó temporalmente WA_CODIGOS_HABILITADOS=true, conservando las otras tres banderas apagadas; despliegue 46d8ce73-8a1e-49c1-a3d7-5a454f301b18, SUCCESS. Se comprobó que solo existe el mismo propietario y no hay otras cuentas ni teléfonos asociados. El proceso recuperó conectado con custodia activa, mismo número y sin freno.
+
+Antonio solicitó desde su sesión con MFA la asociación del teléfono por phone_change. El ticket acbb3f0c-9c42-423d-bfd8-0b2285359ee1 se creó a las 2026-10-29T07:17:18.483Z, con vencimiento diez minutos después; hook firmado recibido y estado=enviado, cero intentos de verificación al consultar. Esto acredita aceptación de sendMessage, NO entrega física. Antonio confirmó que no recibió el código. No se leyó ni guardó su valor en claro y no se mandó otro código. Auth conserva el cambio pendiente sin confirmar; no se cambió el UUID, membresía ni factor MFA.
+
+Al cerrar la prueba, la revisión automática rechazó devolver WA_CODIGOS_VINCULAR=true: esa opción reabriría generación de códigos de dispositivo fuera del alcance. Se eligió la alternativa restrictiva: **las cuatro banderas quedan false**, despliegue dff291d1-51e0-41dc-89e3-806dec6be01b, SUCCESS. Se conservan las credenciales cifradas y el dispositivo de WhatsApp; con la versión anterior, ambas banderas de plataforma apagadas dejan de mantener el socket. No declarar una conexión verificada a partir del texto conectado que pudiera permanecer en la base sin custodia activa.
+
+### Corrección local adicional; publicación y otro código pendientes de aprobación
+
+- En el chat propio se usa el JID telefónico real del SDK, quitando solo el identificador numérico del dispositivo. Los permisos continúan comparando 52/521 de forma canónica. La implementación anterior enviaba a 52 aunque la cuenta se identificaba como 521; areJidsSameUser del SDK los compara literalmente. Es una discrepancia comprobable que puede explicar la falta de entrega, todavía pendiente de verificación física tras publicar.
+- Se separa mantener una sesión ya guardada de permitir códigos o vínculos nuevos: el proceso recupera la sesión de plataforma sin reabrir el puerto privado de operación cuando WA_CODIGOS_VINCULAR=false y sin habilitar el hook emisor cuando WA_CODIGOS_HABILITADOS=false. No crea otro servicio, socket de salón ni dispositivo, no lee mensajes y no borra la sesión.
+- Habilitar un código exige ahora WA_CODIGOS_PRUEBA_USUARIO y fechas ISO WA_CODIGOS_PRUEBA_DESDE/HASTA, separadas como máximo diez minutos. Destino fijo: el número de plataforma autorizado. Solo admite phone_change autenticado del mismo propietario, con solicitud creada dentro del periodo. Un bloqueo transaccional y los estados persistentes limitan toda la ventana a una emisión, incluido resultado incierto, reintento y reinicio. No admite otro usuario/destino, login normal ni una ventana vencida. Tras el plazo deja de enviar aunque quedara la bandera activa.
+
+Validación local: **206 pruebas aprobadas, cero fallos**, compilación/regeneración sin diferencias de interfaz. Nuevas regresiones de dirección propia, destinos ajenos, configuración, destinatario/usuario/plazo, una sola emisión tras reinicio y no repetición tras incertidumbre. Se conserva la prueba de sesión restaurada con generación de vínculo y hook emisor apagados. Código real no recibido: prueba física NO aprobada. Antes de publicar esta corrección y pedir otro código se requiere una nueva confirmación específica de Antonio. No migrar datos ni cambiar recursos, límites o FiNeCi.
+
+
+## Corrección del chat propio publicada y nueva prueba autorizada — 29 de octubre
+
+Antonio autorizó expresamente publicar el commit 13e8c93 y probar un único código nuevo al mismo número. Se publicó únicamente Railway: **05e6f752-5cb4-41b9-a62c-4ab0afa9acd1**, SUCCESS. Con las cuatro banderas en false, la sesión de plataforma se recuperó a conectado, sin freno y con custodia activa, ultima_conexion=2026-10-29T07:33:54.738Z. Salud 200. Así se verificó que mantener la sesión ya no exige reabrir generación de vínculos o mensajes. No se cambió Cloudflare, la agenda, planes, recursos ni FiNeCi.
+
+Se habilitó la nueva prueba con WA_CODIGOS_PRUEBA_USUARIO fijado al propietario original, destino fijo de plataforma, desde **2026-10-29T07:34:54Z** hasta **2026-10-29T07:44:54Z** (01:34:54–01:44:54 CDMX). Máximo una emisión por periodo, solo phone_change autenticado; al terminar el periodo se rechazan nuevos envíos aunque la bandera quedara activa. WA_CODIGOS_HABILITADOS=true únicamente para esa prueba; las otras tres banderas permanecen false. Configuración publicada en **e9e9a7c4-1fc3-4554-ac21-6f7e646be7bd**, SUCCESS, instancia cd5e4260-4027-495b-84c3-b1c3a63cabdc. Antes de pedir el código, confirmar de nuevo que esta instancia recuperó la conexión con custodia activa, ya que un cambio de configuración reinicia el proceso.
+
+No dar por entregado un código a partir de estado=enviado: pedir confirmación física y comprobar la asociación mediante el flujo normal, sin leer OTP ni usar el factor TOTP del propietario. No emitir ni solicitar el código mediante herramientas del operador; debe pedirlo Antonio desde su sesión. Después de la única emisión, apagar WA_CODIGOS_HABILITADOS conservando las otras tres banderas false; esta versión mantiene la sesión. Si no hay solicitud dentro del periodo, no declarar prueba realizada. Recibo operativo privado: prueba-chat-propio-20261029.json. Las 206 pruebas locales siguen siendo la validación del código; el resultado físico de este segundo intento todavía está pendiente.
+
+
+### Segunda ventana cerrada sin emitir código; diferencia de contexto en iPhone
+
+Las capturas de Antonio muestran ahora la app instalada, mientras que el QR/MFA se configuró en una ventana con barra de navegador. El formulario visible es el login normal y no contiene el botón de asociación; no insistir en buscar un botón ausente. Se confirmó una sesión de Auth aal2 vigente del mismo propietario, MFA verificado, teléfono todavía sin asociar y phone_change pendiente. La hipótesis operativa es que la app instalada no reconoce la sesión guardada en el navegador; confirmar en el dispositivo en lugar de atribuirlo al usuario.
+
+Se registraron tres solicitudes nuevas tipo sms fallidas, no phone_change: 07:39:07.183Z, 07:39:11.410Z y 07:39:37.207Z. No se emitió otro código en esta ventana y no hay entrega física confirmada de la corrección. No repetir solicitudes ni borrar contadores: el límite de tres por quince minutos permite como pronto revisar un nuevo intento después de 07:54:08Z / 01:54:08 CDMX. La autorización del segundo código sigue sin consumirse; no usarla para múltiples emisiones ni para un destino distinto.
+
+Se cerró la prueba devolviendo las cuatro banderas a false, sin volver a habilitar vinculación. Esta versión conserva la sesión guardada independientemente de esas banderas. Paso humano: abrir la URL normal de Agendappx desde el mismo chat/navegador donde se completó MFA, sin usar el icono instalado, y confirmar que reconoce la cuenta. No reutilizar ni volver a consumir un enlace privado ya usado. Si ese contexto tampoco reconoce la cuenta, diagnosticar recuperación antes de habilitar otra ventana. No pedir códigos TOTP ni OTP en el chat. La prueba real continúa pendiente.
+
+
+### Botón de asociación encontrado; periodo preparado tras el límite normal
+
+Antonio confirmó que en el navegador ya aparece «Vincular mi WhatsApp a esta cuenta». Consulta previa: sesión de plataforma conectada, sin freno y con custodia activa; tres solicitudes en los últimos quince minutos y **cero emisiones de la segunda prueba**. No se reiniciaron ni borraron contadores. El primer intento vuelve a admitirse después de 07:54:07.183Z; se indicó al propietario esperar hasta **01:55 CDMX** antes de pulsar Enviar una sola vez.
+
+Dentro de la autorización vigente del único código todavía no emitido, se preparó una ventana nueva **2026-10-29T07:54:15Z–08:04:15Z** (01:54:15–02:04:15 CDMX), conservando el mismo propietario, destino fijo, phone_change, máximo una emisión y vencimiento automático. Despliegue de configuración **99e7f5e0-1436-41f4-a07e-671c4feffaa0**, SUCCESS, instancia 6cb1d756-de7b-43b5-b633-3f04c7a8a868 RUNNING; mismo código 13e8c93 y mismos recursos. Solo WA_CODIGOS_HABILITADOS=true en modo restringido; las otras tres banderas false. No se pidió un código mediante herramientas ni se modificó el límite de intentos. Confirmar custodia activa después del reinicio antes de dar la prueba por lista. Entrega física y confirmación del teléfono siguen pendientes del propietario.
+
+
+## Código real verificado; corrección del cierre de asociación preparada
+
+La prueba de chat propio sí se completó: ticket **52d5be0f-c547-48fa-bdfa-9ac2d5208885**, phone_change del mismo propietario, creado 2026-10-29T07:55:19.265Z. Consulta oficial: **estado=usado**, un intento, hook y huella de código recibidos; Auth confirma teléfono asociado/confirmado y cambio pendiente vacío. No se leyó, imprimió ni conservó OTP en claro. Esto demuestra entrega y verificación reales del único código de la prueba; no declarar fallida esa entrega por el atasco posterior de la pantalla.
+
+Después de usarlo se cerró la prueba con las cuatro banderas en false; despliegue **1d6e9fcc-4d6f-4871-9b8a-1310631d8cd6**, SUCCESS. Se confirmó que la sesión WhatsApp sigue conectada con custodia activa después del cierre, sin activar avisos ni nuevos vínculos.
+
+Antonio informó «Comprobando…». Se comprobó el defecto: Auth emitió una sesión aal1 nueva a las 07:55:45.689Z al verificar phone_change. La ruta validaba el UUID pero devolvía al SDK todos esos tokens, por lo que sustituía la sesión aal2 anterior por una secundaria no admitida en acceso_sesiones. La cuenta y el teléfono sí quedaron confirmados; no atribuir el atasco a falta de entrega ni enviar otro código.
+
+Corrección local:
+- Verificar la identidad de cualquier token devuelto por Auth y rechazar una identidad ajena. Para phone_change, devolver solo el usuario confirmado: no sustituir tokens ni admitir la sesión secundaria.
+- Refrescar desde el SDK la propia sesión que autorizó el cambio para obtener su teléfono actualizado conservando el mismo UUID, sesión admitida y MFA.
+- Cuando realmente se requiere el segundo factor, mostrar la instrucción de la app autenticadora en lugar de dejar «Comprobando…». No cambiar composición, colores, navegación ni áreas seguras.
+
+**209 pruebas aprobadas**, compilación y navegador local con SDK real: proveedor simulado devuelve una sesión nueva en phone_change, la app conserva la anterior aal2, actualiza el teléfono y termina la pantalla. Se rechazan tokens de otra cuenta. White/Dark a 390/768/1440; no hay mensajes reales en las pruebas. Cloudflare dry-run correcto.
+
+La sesión secundaria ya emitida al celular no se corrige insertándola manualmente en tablas. Se preparó, sin consumir ni mostrar, un enlace oficial nuevo del mismo propietario en **acceso-admin-sesion-confirmada-20261029.json**, privado fuera de Git. Falta autorización para publicarlo en Cloudflare, registrar su huella de recuperación y mostrarlo aquí; no compartir el enlace en Git ni pedir TOTP al usuario. El usuario abrirá ese enlace personalmente y verificará el factor ya configurado, sin crear otra cuenta ni recibir otro código de WhatsApp.
+
+Preparación de publicación privada: **preparacion-sesion-verificada-20261029.json** contiene la ruta de assets, con PWA corregida y Comunidad recuperada exactamente del commit 27e4ae7. SHA-256 de index.html, app.mjs, estilos.css y barberia.png coincide con la versión pública de Comunidad. Usar esa carpeta con wrangler --assets y --keep-vars; NO ejecutar el deploy normal que omite Comunidad ni cargar archivos viejos de secretos. No se necesita desplegar Railway para esta corrección de la API del Worker y su cliente. Aún sin publicar esta ampliación; la aprobación anterior cubría solo 13e8c93 y su prueba única.
+
+
+### Corrección de sesión publicada y entrada personal autorizada — 29 de octubre
+
+Antonio aprobó publicar esta ampliación en Cloudflare y mostrar aquí su entrada personal nueva. Código **8776a16** publicado como **5e4ed039-2a37-4565-978f-2b8d5932ebc7**, con --keep-vars y los assets preparados: solo cuentas.js y sw.js cambiaron; Comunidad permanece idéntica. Página, salud, JavaScript y fotos de Comunidad respondieron 200 con SHA-256 esperado, y el contexto sin identidad conserva 401. No se desplegó Railway ni se modificaron datos, MFA, recursos, límites o FiNeCi.
+
+Se registró la huella de recuperación del mismo propietario. Un error local de codificación de salida ocurrió después del primer secret put; se verificó el cambio b2d03cfb-584a-40de-a07f-25b13f3d8976 antes de continuar, sin repetirlo. El enlace preparado llevaba más de diez minutos al terminar las verificaciones: para entregarlo con vigencia fresca se generó otro oficial, sin consumirlo ni enviar correo/SMS/WhatsApp, y se actualizó solo su huella. **Archivo vigente: acceso-admin-sesion-confirmada-entrega-20261029.json**; descartar los enlaces anteriores para esta entrega. La versión final por cambio de secreto es 33dc7678-f2c3-4f3c-ae48-30f8907e9fe5. No copiar el enlace ni claves a Git.
+
+Los hashes de cuentas.js y Comunidad se verificaron otra vez después del último cambio de secreto. El cliente debe abrir personalmente el enlace desde el chat/navegador, pulsar Usar enlace de acceso y completar su factor TOTP existente. Si aparece Actualizar ahora antes de entrar, actualizar y volver a abrir el mismo enlace todavía no usado. No se requiere otro código WhatsApp. Falta confirmar el acceso real recuperado en su dispositivo; no afirmar que ese paso humano ya ocurrió. Validación previa: 209 pruebas y navegador con SDK real. Metadatos de publicación y assets en preparacion-sesion-verificada-20261029.json privado.
+
+
+### Enlace personal renovado a petición del propietario — 29 de octubre, 17:14 UTC
+
+Antonio pidió nuevamente su enlace privado. Se generó otro oficial para el mismo UUID/correo, sin consumirlo ni enviar correo, SMS o WhatsApp; MFA y permisos se conservan. Archivo vigente privado: acceso-admin-reenvio-20261029T171458Z.json. Se añadió únicamente un parámetro público de navegación para recargar el documento y volver a rellenar el campo de recuperación; el secreto continúa solo en el fragmento. Se registró su huella en el Worker existente, versión 1f118fc1-543a-4025-9d33-6c65e41ebffd. Entrada, salud y Comunidad siguen en 200. No se modificó código, infraestructura, roles ni datos. El usuario debe desplegar «Tengo un enlace privado de recuperación», pulsar «Usar enlace de acceso» y completar el TOTP existente si se solicita. No guardar el enlace ni códigos en Git ni afirmar que el acceso personal se completó sin comprobarlo.
+
+
+## Recuperación del propietario completada — 29 de octubre, 17:24 UTC
+
+Antonio mostró en su iPhone «Acceso verificado». La consulta oficial confirmó para la sesión creada a las **2026-10-29T17:18:24.554527Z**: **aal2, admitida=true y Admin activo=true**, con el mismo UUID original. Su teléfono permanece confirmado y la sesión WhatsApp de plataforma está conectada, sin freno y con custodia activa. No se pidieron ni leyeron sus códigos de autenticación.
+
+Las cuatro banderas de Railway se consultaron y siguen **false**. La recuperación habilita su acceso en ese navegador; no equivale a habilitar códigos generales de login para otros dispositivos, avisos a clientas, equipo o registro público. El vínculo físico WhatsApp y la prueba real de asociación del teléfono sí están comprobados; conservar la fecha de encendido del 27 de octubre para el informe semanal. No fue necesaria otra migración, cambio de roles, aumento de recursos ni intervención en FiNeCi. El propietario puede pulsar Listo para cerrar la hoja y continuar con su agenda en el mismo navegador.

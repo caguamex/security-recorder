@@ -76,9 +76,21 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
    let i:IdentidadFirmada|undefined;if(s.tipo==='phone_change'){i=await jwt.verificar(token);if(i.usuarioId!==s.usuario_id||i.aal!=='aal2'){await solicitudes.resultado(s.id,false);throw new ErrorAPI(403,'Conserva la sesión que inició la vinculación.');}}
    let r;try{r=await auth('verify',{...(s.canal==='whatsapp'?{phone:'+'+destino}:{email:destino}),token:d.codigo,type:s.tipo},i?token:undefined);}catch(e){await solicitudes.resultado(s.id,false,true);throw e;}
    if(!r.ok){await solicitudes.resultado(s.id,false);throw new ErrorAPI(400,'Código inválido o vencido.');}
-   if(i){if(r.data.user?.id!==i.usuarioId&&r.data.id!==i.usuarioId){await solicitudes.resultado(s.id,false,true);throw new ErrorAPI(403,'No se pudo conservar tu cuenta.');}}
+   let respuesta=r.data;
+   if(i){
+    const usuario=r.data.user||r.data;
+    if(usuario.id!==i.usuarioId){await solicitudes.resultado(s.id,false,true);throw new ErrorAPI(403,'No se pudo conservar tu cuenta.');}
+    if(r.data.access_token){
+     try{const nueva=await jwt.verificar(r.data.access_token);if(nueva.usuarioId!==i.usuarioId)throw new Error();}
+     catch{await solicitudes.resultado(s.id,false,true);throw new ErrorAPI(403,'No se pudo conservar tu cuenta.');}
+    }
+    // Auth puede emitir una sesión aal1 al verificar phone_change. No reemplazar
+    // la sesión aal2 que autorizó el cambio ni admitir esa sesión secundaria.
+    // El navegador refresca su propia sesión vigente para actualizar el teléfono.
+    respuesta={user:usuario};
+   }
    else {const identidad=await jwt.verificar(r.data.access_token);if(s.usuario_id&&s.usuario_id!==identidad.usuarioId)throw new ErrorAPI(403,'Cuenta distinta.');await solicitudes.admitir(identidad);}
-   await solicitudes.resultado(s.id,true);responder(res,200,r.data);return true;
+   await solicitudes.resultado(s.id,true);responder(res,200,respuesta);return true;
   }
   // Mantener el acceso de recuperación ya existente, verificándolo siempre con Auth.
   if(url.pathname==='/api/acceso/privado'){

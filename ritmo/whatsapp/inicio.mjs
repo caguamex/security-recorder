@@ -14,7 +14,9 @@ try{
  await verificarRol(pool);
  const remitente=new BaileysSoloEnvios(new (await import('../servidor/build/whatsapp-vinculado/db.js')).BaseWhatsApp(pool),config.key,{vincular:config.politica.vincular});
  const basePlataforma=new BasePlataforma(pool);
- const plataforma=(config.codigos.habilitado||config.codigos.vincular)?new BaileysSoloEnvios(basePlataforma,config.key,{vincular:config.codigos.vincular}):undefined;
+ // Recuperar una sesión ya guardada es independiente de permitir códigos o vínculos nuevos.
+ // recuperar() no pide códigos y se detiene si no hay credenciales guardadas.
+ const plataforma=new BaileysSoloEnvios(basePlataforma,config.key,{vincular:config.codigos.vincular});
  const codigos=plataforma?new CodigosWhatsApp(basePlataforma,plataforma,config.codigos):undefined;
  app=crearAplicacion({pool,remitente,codigos,plataforma,jwt:new VerificadorJWT(config.supabase),config});
  operacion=plataforma?operacionCodigos(plataforma,basePlataforma,{vincular:config.codigos.vincular,key:process.env.WA_CODIGOS_OPERACION_KEY}):null;
