@@ -26,6 +26,12 @@ Navegador con JWT/MFA/RLS reales y proveedores simulados: Mi plan, precios mensu
 
 Cloudflare dry-run: 89 archivos, mismo Worker, bindings y secretos. No requiere publicar Railway; el núcleo de mensajería no cambió desde la etapa 2. No crear recursos de pago ni cambiar el límite compartido de 10 USD.
 
-## Operación pendiente
+## Publicación verificada — 29 de octubre de 2026
 
-Confirmar migración de etapa 3, respaldar, aplicar, comparar huellas, revisar RLS/asesores y registrar versión. Después publicar en Cloudflare con keep-vars, verificar precios/cupos/configuración y cierre de rutas privadas. Etapa 4 (Explorar/Social reales) todavía no está implementada. No afirmar que Comunidad ya recibe reservas reales.
+Antonio confirmó «Sí, respalda y aplica Planes». Respaldo privado fuera de Git: respaldo-planes-etapa3-20261029.json, SHA256 de999962c22ffce70f3a8f72b3e4fa1bfae0ecacdef20f55fceda6036344f812. Las siete tablas respaldadas coinciden exactamente antes y después: negocios 1, miembros 1, estado 1, objetos 23, mutaciones 42, bitácora 0 y días especiales 0. No se copiaron secretos de Auth ni sesiones de WhatsApp.
+
+Migración 20261029221042 / planes_etapa3 aplicada y registrada en Supabase. El propietario conserva estado legado, prueba_inicio/prueba_fin nulos y su acceso anterior. Contador real: un cupo asignado, diecinueve disponibles. Ambas tablas nuevas tienen RLS forzada y carecen de lectura directa para anon, authenticated o el mensajero. Asesor de seguridad: fundadoras_control sin políticas es intencional (tabla cerrada, solo función privada de agregado); los dos avisos informativos anteriores y protección de contraseñas sin activar siguen igual. No se activa un plan de pago para resolverlos.
+
+Cloudflare publicado desde ccf4775, Worker 4a622a3e-ca59-4864-843f-d154acf77105, 89 archivos y keep-vars. Salud y página /planes/ responden 200; catálogo responde con precios reales, 19 cupos y cobrosHabilitados=false. planes.js publicado coincide en SHA256 con el compilado. Contexto y plan privado sin sesión responden 401. Registro y acceso conservados. Railway no se publicó ni modificó: códigos habilitados y envíos/vinculación apagados como en etapa 2.
+
+URL: https://ritmo-belleza.antonio-t-22.workers.dev/planes/. PR #14 encadenado al #13. Etapa 4 (Explorar/Social reales) continúa en otra rama; Comunidad sigue siendo demostración hasta su propia migración y publicación.

@@ -178,3 +178,8 @@ PR #13, aplicación 2e8ee48, Worker ffdfd164-e182-43d0-b50b-b9569412925c y Railw
 ## Planes — etapa 3 preparada
 
 Rama codex/agendappx-planes-etapa3 desde aaf60f4, PR nuevo por etapa. Leer docs/PLANES-ETAPA3.md. Precios aprobados, 30 días exactos para nuevas altas, límites en SQL, contador real de fundadoras y Mi plan privado. Cuentas existentes conservadas como legado. No hay cobros, tarjeta ni pasarela. La publicación de la etapa está autorizada, pero la migración de planes requiere respuesta específica a la pregunta pendiente; no reutilizar la autorización de horarios. La etapa 4 aún falta.
+
+
+### Planes — etapa 3 publicada
+
+Autorización específica «Sí, respalda y aplica Planes». Migración 20261029221042 registrada; siete tablas originales idénticas al respaldo. Worker 4a622a3e-ca59-4864-843f-d154acf77105, aplicación ccf4775, PR #14. Ver docs/PLANES-ETAPA3.md. Acceso existente legado sin nueva caducidad; nuevos salones treinta días. No hay cobros ni cambios de Railway. Etapa 4 continúa preparada por separado y exige su propia autorización de migración.
