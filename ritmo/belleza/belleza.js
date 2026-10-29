@@ -299,7 +299,7 @@
     if(cuenta.rol==='admin'&&cuenta.aal==='aal2'&&navigator.onLine){equipoAgenda.enCurso=true;try{const r=await fetch('/api/negocios/'+cuenta.negocioId+'/miembros',{headers:{Authorization:'Bearer '+cuenta.accessToken},cache:'no-store',signal:AbortSignal.timeout(8000)});if(r.ok){const d=await r.json();if(equipoAgenda.clave!==clave)return;equipoAgenda.personas=d.miembros.map(p=>({id:p.id,nombre:p.nombre}));try{localStorage.setItem('agendappx.agenda.equipo.'+clave,JSON.stringify(equipoAgenda.personas));}catch{}}}catch{}finally{if(equipoAgenda.clave===clave)equipoAgenda.enCurso=false;}}
     if(S.tab==='agenda')render();
   }
-  function hora24(v,atributos,label,opciones){let hs=opciones||Array.from({length:96},(_,i)=>C.fromMin(i*15));hs=[...hs];if(v&&!hs.includes(v))hs.push(v),hs.sort();return `<select class="time24" ${atributos} aria-label="${esc(label)}">${!v?'<option value="">Elegir hora</option>':''}${hs.map(h=>`<option value="${h}" ${h===v?'selected':''}>${h}</option>`).join('')}</select>`;}
+  function hora24(v,atributos,label,opciones){let hs=opciones||Array.from({length:96},(_,i)=>C.fromMin(i*15));hs=[...hs];if(v&&!hs.includes(v))hs.push(v),hs.sort();return `<select class="time24" ${atributos} aria-label="${esc(label)}">${!v?'<option value="">Elegir hora</option>':''}${hs.map(h=>`<option value="${esc(h)}" ${h===v?'selected':''}>${esc(h)}</option>`).join('')}</select>`;}
   // Agenda
   let lastScrollDay = null;
   function viewAgenda() {
