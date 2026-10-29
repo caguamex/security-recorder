@@ -12,7 +12,7 @@ export function verificarFirma(raw,headers,secreto,ahora=Date.now()){
  if(!ok)throw fallo(401,'Firma inválida.');return createHash('sha256').update(id).digest('hex');
 }
 export class CodigosWhatsApp {
- constructor(db,remitente,{habilitado=false,hookSecret,key,ahora=Date.now}={}){this.db=db;this.remitente=remitente;this.habilitado=habilitado;this.hookSecret=hookSecret;this.key=key;this.ahora=ahora;this.pendientes=0;this.cola=Promise.resolve();if(habilitado&&(!/^[A-Za-z0-9+/]{43}=$/.test(key||'')||!/^(?:v1,)?whsec_[A-Za-z0-9+/]{43}=$/.test(hookSecret||'')))throw new Error('Faltan llaves seguras para los códigos.');}
+ constructor(db,remitente,{habilitado=false,hookSecret,key,ahora=Date.now,prueba}={}){this.db=db;this.remitente=remitente;this.habilitado=habilitado;this.hookSecret=hookSecret;this.key=key;this.ahora=ahora;this.prueba=prueba;this.pendientes=0;this.cola=Promise.resolve();if(habilitado&&(!/^[A-Za-z0-9+/]{43}=$/.test(key||'')||!/^(?:v1,)?whsec_[A-Za-z0-9+/]{43}=$/.test(hookSecret||'')))throw new Error('Faltan llaves seguras para los códigos.');}
  async entregar(raw,headers){
   if(this.ocupado)throw fallo(503,'Solicita nuevamente tu código en unos segundos.');this.ocupado=true;this.pendientes++;
   try{return await this.procesar(raw,headers);}finally{this.ocupado=false;this.pendientes--;}
@@ -25,11 +25,19 @@ export class CodigosWhatsApp {
   // Versiones recientes incluyen sms.phone; las anteriores usan user.phone.
   // phone_change solo procede con el ticket autenticado de ese mismo usuario.
   const tel=telefonoMX(d.sms.phone||d.user.phone_change||d.user.phone),dest=huella(this.key,'destino',tel),payload=createHash('sha256').update(raw).digest('hex');
+  const prueba=this.prueba;
+  if(prueba&&(d.user.id!==prueba.usuario||tel!==prueba.destino||this.ahora()<prueba.desde||this.ahora()>=prueba.hasta))throw fallo(403,'La prueba solo admite el destinatario y horario autorizados.');
   const s=await this.db.tx(async c=>{
+   if(prueba)await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['agendappx-codigo-prueba']);
    const previa=(await c.query('SELECT * FROM ritmo.acceso_solicitudes WHERE hook_hash=$1 FOR UPDATE',[hook])).rows[0];
    if(previa){if(previa.payload_hash!==payload)throw fallo(401,'Evento cambiado.');if(['enviado','verificando','usado'].includes(previa.estado))return null;throw fallo(503,'Entrega pendiente de revisión; no se repitió.');}
    const f=(await c.query("SELECT * FROM ritmo.acceso_solicitudes WHERE destino_hash=$1 AND canal='whatsapp' AND estado='pendiente' AND creado_en>$2 AND vence_en>$3 ORDER BY creado_en DESC LIMIT 1 FOR UPDATE",[dest,new Date(this.ahora()-20000),new Date(this.ahora())])).rows[0];
    if(!f||f.usuario_id&&f.usuario_id!==d.user.id)throw fallo(403,'Falta una solicitud de acceso válida.');
+   if(prueba){
+    if(f.tipo!=='phone_change'||f.usuario_id!==prueba.usuario||new Date(f.creado_en).getTime()<prueba.desde)throw fallo(403,'La prueba necesita vincular el número desde la cuenta autorizada.');
+    const usada=(await c.query("SELECT id FROM ritmo.acceso_solicitudes WHERE usuario_id=$1 AND destino_hash=$2 AND creado_en>=$3 AND creado_en<$4 AND estado IN('enviando','enviado','incierto','verificando','usado') LIMIT 1",[prueba.usuario,dest,new Date(prueba.desde),new Date(prueba.hasta)])).rows[0];
+    if(usada)throw fallo(403,'El único código de esta prueba ya fue emitido; no se repite.');
+   }
    await c.query("UPDATE ritmo.acceso_solicitudes SET hook_hash=$2,payload_hash=$3,usuario_id=$4,codigo_hash=$5,estado='enviando' WHERE id=$1",[f.id,hook,payload,d.user.id,huella(this.key,'otp',f.id+':'+d.sms.otp)]);return f;
   });if(!s)return;
   const op=this.cola.then(async()=>{

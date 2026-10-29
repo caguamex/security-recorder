@@ -54,7 +54,7 @@ test('rol del salón no lee sesión de plataforma; emisor no concede sesiones de
 test('plataforma conserva claves cifradas y recupera sin tocar conexiones de salón',async t=>{
  const e=await entorno(t),key=randomBytes(32).toString('base64'),fabrica=o=>{const ev=new EventEmitter();setTimeout(()=>ev.emit('connection.update',{qr:'solo-señal-local'}),0);return {ev,user:{id:NUMERO_CODIGOS+'@s.whatsapp.net'},ws:{isOpen:true},async requestPairingCode(){return 'ABCD1234';},end(){},async sendMessage(_n,_m,op){return {key:{id:op.messageId}};}};};
  const a=new BaileysSoloEnvios(e.plataformaDB,key,{fabrica,vincular:true});t.after(()=>a.cerrar());assert.equal(await a.codigo(PLATAFORMA,NUMERO_CODIGOS),'ABCD1234');const x=a.conexiones.get(PLATAFORMA);x.auth.creds.registered=true;x.auth.creds.me={id:NUMERO_CODIGOS+'@s.whatsapp.net'};await x.store.guardar('credenciales','principal',x.auth.creds);await a.cambio(PLATAFORMA,x,{connection:'open'});assert.equal((await a.estado(PLATAFORMA)).verificado,true);await a.cerrar();
- const b=new BaileysSoloEnvios(e.plataformaDB,key,{fabrica});t.after(()=>b.cerrar());await b.restaurar(PLATAFORMA);assert.equal(b.conexiones.get(PLATAFORMA).auth.creds.registered,true);assert.equal((await e.db.usar(c=>c.query('SELECT * FROM ritmo.whatsapp_sesiones'))).rows.length,0);
+ const b=new BaileysSoloEnvios(e.plataformaDB,key,{fabrica});t.after(()=>b.cerrar());await b.restaurar(PLATAFORMA);assert.equal(b.conexiones.get(PLATAFORMA).auth.creds.registered,true);await assert.rejects(()=>b.codigo(PLATAFORMA,NUMERO_CODIGOS),err=>err.status===503);const apagado=new CodigosWhatsApp(e.plataformaDB,b,{habilitado:false});await assert.rejects(()=>apagado.entregar('{}',{}),err=>err.status===503);assert.equal((await e.db.usar(c=>c.query('SELECT * FROM ritmo.whatsapp_sesiones'))).rows.length,0);
 });
 
 test('los códigos tienen prioridad sobre citas antes y después de escribir, sin consumir su cuota',async t=>{
@@ -76,4 +76,26 @@ test('API rechaza origen ajeno, recuperación no registrada y altas abiertas; us
  assert.equal((await pedir('solicitar',{canal:'correo',destino:'admin@example.test'})).status,503);
  const r=await pedir('solicitar',{canal:'whatsapp',destino:'5511111111',create_user:true,rol:'admin'});assert.equal(r.status,200);assert.equal(llamadas.length,1);const d=JSON.parse(llamadas[0].init.body);assert.equal(d.create_user,false);assert.equal(d.rol,undefined);assert.equal(llamadas[0].init.headers.apikey,'sb_publishable_pruebas');assert.equal(llamadas[0].init.headers.Authorization,undefined);
  assert.throws(()=>rutasAcceso(e.poolAPI,jwt,{...config,llavePublica:'sb_secret_prohibida'}));
+});
+
+
+test('prueba de un solo código: mismo usuario, phone_change, plazo y bloqueo durable incluso tras reiniciar',async t=>{
+ const e=await entorno(t),tel='525511111111',prueba={usuario:ids.admin,destino:tel,desde:e.now()-1,hasta:e.now()+600000};
+ const crear=()=>new CodigosWhatsApp(e.plataformaDB,e.remoto,{habilitado:true,hookSecret:'v1,whsec_'+e.hookKey,key:e.key,ahora:e.now,prueba});
+ await e.solicitudes.crear('whatsapp',tel,'ip-prueba',ids.admin);const v=e.evento(tel);const a=crear();await a.entregar(v.raw,v.headers);await a.entregar(v.raw,v.headers);assert.equal(e.envios.length,1);
+ await e.solicitudes.crear('whatsapp',tel,'ip-segunda',ids.admin);const otro=e.evento(tel);await assert.rejects(()=>crear().entregar(otro.raw,otro.headers),err=>err.status===403);assert.equal(e.envios.length,1);
+});
+
+test('prueba restringida rechaza otro destino, otro usuario, login normal y horario vencido antes de enviar',async t=>{
+ const e=await entorno(t),tel='525511111111',prueba={usuario:ids.admin,destino:tel,desde:e.now()-1,hasta:e.now()+600000};
+ const a=new CodigosWhatsApp(e.plataformaDB,e.remoto,{habilitado:true,hookSecret:'v1,whsec_'+e.hookKey,key:e.key,ahora:e.now,prueba});
+ for(const v of [e.evento('525522222222'),e.evento(tel,'482913',{user:{id:ids.especialista,phone:tel}})])await assert.rejects(()=>a.entregar(v.raw,v.headers),err=>err.status===403);
+ await e.solicitudes.crear('whatsapp',tel,'ip-login-normal');const v=e.evento(tel);await assert.rejects(()=>a.entregar(v.raw,v.headers),err=>err.status===403);e.avanzar(600001);const vencido=e.evento(tel);await assert.rejects(()=>a.entregar(vencido.raw,vencido.headers),err=>err.status===403);assert.equal(e.envios.length,0);
+});
+
+test('prueba incierta no permite un segundo envío ni reutiliza solicitudes anteriores a la autorización',async t=>{
+ const e=await entorno(t),tel='525511111111';await e.solicitudes.crear('whatsapp',tel,'ip-antes',ids.admin);e.avanzar(1);const prueba={usuario:ids.admin,destino:tel,desde:e.now(),hasta:e.now()+600000};
+ const crear=()=>new CodigosWhatsApp(e.plataformaDB,e.remoto,{habilitado:true,hookSecret:'v1,whsec_'+e.hookKey,key:e.key,ahora:e.now,prueba});const anterior=e.evento(tel);await assert.rejects(()=>crear().entregar(anterior.raw,anterior.headers),err=>err.status===403);
+ e.avanzar(1);await e.solicitudes.crear('whatsapp',tel,'ip-actual',ids.admin);e.remoto.enviar=async()=>{e.envios.push('incierto');throw new Error('respuesta perdida');};const v=e.evento(tel);await assert.rejects(()=>crear().entregar(v.raw,v.headers),err=>err.status===503);
+ e.avanzar(1);await e.solicitudes.crear('whatsapp',tel,'ip-segunda',ids.admin);const segundo=e.evento(tel);await assert.rejects(()=>crear().entregar(segundo.raw,segundo.headers),err=>err.status===403);assert.equal(e.envios.length,1);
 });
