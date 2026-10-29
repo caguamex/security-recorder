@@ -1,6 +1,6 @@
 # Comunidad de Agendappx — primera entrega
 
-Antonio aprobó las muestras de celular y computadora y pidió empezar el 28 de octubre de 2026. Se inició en codex/agendappx-comunidad, desde codex/agendappx-siguiente-version. PR de la primera entrega: https://github.com/caguamex/security-recorder/pull/8 (borrador, base codex/agendappx-siguiente-version). La petición autoriza esta implementación; la publicación nueva y las migraciones conservan sus confirmaciones separadas. No se crearon servicios, no se modificaron bases ni se publicaron cambios.
+Antonio aprobó las muestras de celular y computadora y pidió empezar el 28 de octubre de 2026. Se inició en codex/agendappx-comunidad, desde codex/agendappx-siguiente-version. PR de la primera entrega: https://github.com/caguamex/security-recorder/pull/8 (borrador, base codex/agendappx-siguiente-version). La petición autoriza esta implementación; la publicación nueva y las migraciones conservan sus confirmaciones separadas. No se crearon servicios ni se modificaron bases. La demostración se publicó después de la autorización específica de Antonio para probar desde iPhone; ver registro final.
 
 ## Lo que ya se puede probar
 
@@ -37,3 +37,16 @@ Diseño: skill design-taste-frontend, Accent ladder, seed 914761682, conservando
 6. **Lanzamiento gradual.** Comprobar dos negocios y dos clientes sin cruces, reservar simultáneamente un mismo espacio, cancelar/reasignar, uso sin conexión y reconciliación, consentimiento de medios y borrado, rendimiento con fotos y costo real. Pedir la confirmación de migración y de publicación correspondientes antes de habilitar producción.
 
 Restricciones vigentes: conservar el presupuesto compartido de Railway de 10 USD/ciclo, no ampliar servicios, no renombrar infraestructura ni comprar dominios, no tocar FiNeCi. No afirmar costo cero para una comunidad pública a escala sin medir uso y almacenamiento. Las autorizaciones anteriores de publicación del login no cubren esta comunidad.
+
+
+## Demostración publicada para iPhone — autorización del 28 de octubre
+
+Antonio confirmó «Sí, hazlo» a publicar únicamente la demostración. Dirección: https://ritmo-belleza.antonio-t-22.workers.dev/comunidad/. Cloudflare versión 7a8a8787-4270-4550-a26b-fe320f25e395, código de preparación 6991d86, PR #8. El modo manual de acceso, registro nuevo y reservas reales siguen pendientes y no se activaron por esta publicación.
+
+Se añadió preparar-comunidad-cloudflare.mjs y los comandos build:comunidad/deploy:comunidad de ritmo/nube. Copian los archivos existentes de dist/pwa a una carpeta de preparación ignorada y agregan comunidad como subdirectorio. No reconstruyen la agenda, no agregan la demostración a la lista de precaché de su service worker y no cambian API ni esquema. El despliegue conserva las variables con --keep-vars y los secretos vigentes, incluido el hash de recuperación del propietario. No usar --secrets-file antiguo, que podría reemplazar ese hash con otro vencido.
+
+Verificación: 61 archivos de la agenda conservados idénticos antes del despliegue. Después, las huellas públicas de index.html, belleza.js, cuentas.js, sincronizacion.js y sw.js siguieron exactamente iguales. /comunidad/, su módulo/fotografía y /salud respondieron 200. El Worker y las rutas de archivos existentes se conservaron. Los recursos de comunidad se sirven como archivos estáticos sin nuevos bindings, procesos o planes. Referencia de facturación: https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/.
+
+Prueba del enlace publicado: comunidad-publicada.mjs, contexto aislado Chromium móvil de 390px, sin sesiones reales. Fotos visibles, búsqueda, guardados al recargar, foto propia con consentimiento, reserva local y convivencia con el service worker raíz correctos; cero llamadas a APIs, cero errores de JavaScript. Las fotografías fuera de la pantalla se comprueban al cargarse, pues usan carga diferida. WebKit no estaba instalado: no declarar validación de Safari físico hasta la confirmación de Antonio. Las acciones de prueba se guardaron solo en el contexto descartado del navegador.
+
+Para conservar esta ruta en futuras publicaciones, preparar primero la versión aprobada de la agenda y después usar deploy:comunidad desde la rama que incluya estos recursos. El despliegue regular anterior no incorpora automáticamente comunidad. La autorización de esta demostración no publica ni termina el backend de la comunidad.
