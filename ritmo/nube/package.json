@@ -5,9 +5,17 @@
   "scripts": {
     "build": "node ../herramientas/empaquetar.mjs && node empaquetar.mjs && wrangler deploy --dry-run --outdir build",
     "deploy": "node ../herramientas/empaquetar.mjs && node empaquetar.mjs && wrangler deploy",
-    "dev": "wrangler dev"
+    "dev": "wrangler dev",
+    "build:comunidad": "node ../herramientas/preparar-comunidad-cloudflare.mjs && wrangler deploy --assets build/comunidad-publicacion/assets --dry-run --outdir build/comunidad-publicacion/worker",
+    "deploy:comunidad": "node ../herramientas/preparar-comunidad-cloudflare.mjs && wrangler deploy --assets build/comunidad-publicacion/assets --keep-vars --message \"Demostración de Comunidad autorizada por Antonio\""
   },
-  "dependencies": { "pg": "8.23.1" },
-  "devDependencies": { "wrangler": "4.153.0" },
-  "engines": { "node": ">=22" }
+  "dependencies": {
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "wrangler": "4.153.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
 }
