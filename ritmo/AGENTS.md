@@ -163,3 +163,8 @@ El diseño aprobado del PR #11 sustituye al candado 3D histórico en Agendappx. 
 ### Publicación de Neutro y continuación por etapas — 29 de octubre
 
 Antonio autorizó «Publica todas las etapas». Etapa 1 publicada, Worker ccc3d5d0-1d8c-4906-9e35-ffdb3e84e40b, detalle en docs/NEUTRO-IOS-ETAPA1.md. La vista de GitHub Pages también fue actualizada y verificada. Esta aprobación cubre publicar las etapas 2–4 aprobadas conforme se completen y verifiquen; no repetir la pregunta de despliegue dentro de ese alcance. Mantener PRs independientes encadenados. Las migraciones conservan su confirmación separada previa; no aplicar SQL de nuevas etapas sin aprobación concreta. No activar cobros, envíos de citas/promociones, vinculaciones ni recursos adicionales.
+
+
+## Modo negocio — etapa 2, 29 de octubre
+
+Leer docs/NEGOCIO-ETAPA2.md. Hoy y Mi negocio funcionales, menú Crear, turnos/descanso/comida/días especiales, asignaciones de servicios y calendario Apple por cita. Migración de horarios autorizada y aplicada con respaldo verificado; versión 20261029204424, no repetirla. Stages 3–4 aún no implementadas. La publicación está autorizada por «Publica todas las etapas», pero registrar su resultado antes de decir que quedó publicada. Mantener cobros, nuevos dispositivos y envíos automáticos apagados.

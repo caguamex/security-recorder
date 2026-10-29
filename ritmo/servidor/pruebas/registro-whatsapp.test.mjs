@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHmac,randomBytes,randomUUID} from 'node:crypto';
 import {entornoLogin,ids,sesiones} from './login-whatsapp-entorno.mjs';
-import {RegistroWhatsApp} from '../build/cuentas/registro.js';
+import {RegistroWhatsApp,rutasRegistro} from '../build/cuentas/registro.js';
 import {Invitaciones} from '../build/cuentas/invitaciones.js';
 import {enTransaccion} from '../build/cuentas/contexto.js';
 import {RepositorioConCuentas} from '../build/cuentas/repositorio.js';
@@ -89,4 +89,14 @@ test('tablas y funciones de registro no están expuestas a anon/authenticated ni
 
 test('registro: una sesión antigua o recuperada no sustituye el código nuevo del registro',async t=>{
  const e=await entorno(t),ticket=await e.registro.crear(e.datos,'ip');await assert.rejects(()=>e.registro.verificar(identidad(),'token',ticket),x=>x.status===403);assert.equal((await e.sql('SELECT count(*) AS n FROM ritmo.miembros WHERE usuario_id=$1',[ids.nueva])).rows[0].n,0);
+});
+
+
+test('Asignaciones de equipo: solo Admin con MFA, servicios del salón y revocación inmediata',async t=>{
+ const e=await entorno(t);await new RepositorioConCuentas(e.poolAPI,identidad('admin'),ids.salon).cambiar({id:'cejas-asignada',baseVersion:0,mutationId:randomUUID(),data:{id:'cejas-asignada',kind:'servicio',nombre:'Cejas',precio:300,duracion:30}});
+ let actor=identidad('admin');const rutas=rutasRegistro(e.poolAPI,{verificar:async()=>actor},e.config);
+ async function cambiar(data,persona=ids.especialista,n=ids.salon){const req={method:'PATCH',headers:{origin:origen,authorization:'Bearer prueba','content-type':'application/json'},async *[Symbol.asyncIterator](){yield Buffer.from(JSON.stringify(data));}},res={writeHead(){return this;},end(){}};await rutas(req,res,new URL('/api/negocios/'+n+'/miembros/'+persona,origen));}
+ await cambiar({servicios:['cejas-asignada'],verTodas:true});assert.deepEqual((await e.sql('SELECT servicios,ver_todas FROM ritmo.miembros WHERE negocio_id=$1 AND usuario_id=$2',[ids.salon,ids.especialista])).rows[0],{servicios:['cejas-asignada'],ver_todas:true});
+ await assert.rejects(()=>cambiar({servicios:['otro-salon'],verTodas:false}),x=>x.status===400);await assert.rejects(()=>cambiar({servicios:[],verTodas:false,rol:'admin'}),x=>x.status===400);
+ actor=identidad('recepcion','aal1');await assert.rejects(()=>cambiar({servicios:[],verTodas:false}),x=>x.status===403);actor=identidad('especialista','aal2');await assert.rejects(()=>cambiar({servicios:[],verTodas:false}),x=>x.status===403);actor=identidad('ajena');await assert.rejects(()=>cambiar({servicios:[],verTodas:false}),x=>x.status===403);
 });

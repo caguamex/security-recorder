@@ -21,10 +21,10 @@ export class Mensajero {
    if(configCambio)await c.query("UPDATE ritmo.whatsapp_envios SET estado='cancelado',motivo='configuracion_modificada' WHERE negocio_id=$1 AND cita_id=$2 AND estado='pendiente' AND tipo IN ('dia','antes')",[n,v.id]);
    const calc=anticipo(v,objetos.get(v.servicio)||{},a,creada);
    await c.query(`INSERT INTO ritmo.whatsapp_anticipos(negocio_id,cita_id,monto,estado,limite) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,[n,v.id,calc.monto,calc.estado,calc.limite]);
-   await c.query(`UPDATE ritmo.whatsapp_envios SET estado='cancelado',motivo='cita_modificada' WHERE negocio_id=$1 AND cita_id=$2 AND estado='pendiente' AND (huella<>$3 OR $4) AND tipo<>'anticipo'`,[n,v.id,h,['cancelada','completada'].includes(v.estado)]);
+   await c.query(`UPDATE ritmo.whatsapp_envios SET estado='cancelado',motivo='cita_modificada' WHERE negocio_id=$1 AND cita_id=$2 AND estado='pendiente' AND (huella<>$3 OR $4) AND tipo<>'anticipo'`,[n,v.id,h,['cancelada','completada','solicitada'].includes(v.estado)]);
    await c.query("UPDATE ritmo.whatsapp_envios SET huella=$3 WHERE negocio_id=$1 AND cita_id=$2 AND tipo='anticipo' AND estado='pendiente' AND intento_en IS NULL",[n,v.id,h]);
-   if(['cancelada','completada'].includes(v.estado)){await c.query("UPDATE ritmo.whatsapp_envios SET estado='cancelado',motivo='cita_inactiva' WHERE negocio_id=$1 AND cita_id=$2 AND estado='pendiente'",[n,v.id]);continue;}
-   if(a.habilitado)for(const p of plan(v,a,creada,!m,movida,ahora))await this.insertar(c,n,v,p.tipo,h,g,p.debido);
+   if(['cancelada','completada','solicitada'].includes(v.estado)){await c.query("UPDATE ritmo.whatsapp_envios SET estado='cancelado',motivo='cita_inactiva' WHERE negocio_id=$1 AND cita_id=$2 AND estado='pendiente'",[n,v.id]);continue;}
+   if(a.habilitado)for(const p of plan(v,a,creada,!m||m.huella===huella({...v,estado:'solicitada'}),movida,ahora))await this.insertar(c,n,v,p.tipo,h,g,p.debido);
   }
   for(const m of previas)if(objetos.get(m.cita_id)?.kind!=='cita')await c.query("UPDATE ritmo.whatsapp_envios SET estado='cancelado',motivo='cita_eliminada' WHERE negocio_id=$1 AND cita_id=$2 AND estado='pendiente'",[n,m.cita_id]);
   const vencidos=(await c.query("UPDATE ritmo.whatsapp_anticipos SET estado='vencido' WHERE negocio_id=$1 AND estado='pendiente' AND limite<=$2 RETURNING cita_id",[n,fecha(ahora)])).rows;
@@ -44,7 +44,7 @@ export class Mensajero {
    const pendientes=(await c.query("SELECT * FROM ritmo.whatsapp_envios WHERE negocio_id=$1 AND estado='pendiente' AND debido<=$2 ORDER BY debido,id FOR UPDATE SKIP LOCKED LIMIT 50",[n,fecha(ahora)])).rows;
    for(const f of pendientes){
     const d=await this.datos(c,n,f.cita_id);let razon='';
-    if(!d||['cancelada','completada'].includes(d.cita.estado)||d&&huella(d.cita)!==f.huella)razon='cita_inactiva_o_modificada';
+    if(!d||['cancelada','completada','solicitada'].includes(d.cita.estado)||d&&huella(d.cita)!==f.huella)razon='cita_inactiva_o_modificada';
     else if(d.clienta.whatsappOptIn!==true)razon='sin_consentimiento';
     else if(inicio(d.cita)<=ahora)razon='cita_ya_iniciada';
     else if(f.tipo==='antes'&&!a.direccion.trim())razon='falta_direccion';
@@ -68,7 +68,7 @@ export class Mensajero {
    await this.remitente.escribir(n,f.tel);await this.dormir(2000+Math.floor(this.azar()*3001));
    // Se vuelve a comprobar justo después de la pausa, antes de emitir el texto.
    const actual=await this.db.usar(c=>this.datos(c,n,f.cita_id)),a=await this.db.config(n),ahora=this.db.ahora();
-   if(!actual||actual.clienta.whatsappOptIn!==true||numero(actual.clienta.telefono)!==f.tel||huella(actual.cita)!==f.huella||['cancelada','completada'].includes(actual.cita.estado)||inicio(actual.cita)<=ahora||!a.habilitado){await this.finalizar(f.id,n,'cancelado','cita_o_permiso_cambio');return true;}
+   if(!actual||actual.clienta.whatsappOptIn!==true||numero(actual.clienta.telefono)!==f.tel||huella(actual.cita)!==f.huella||['cancelada','completada','solicitada'].includes(actual.cita.estado)||inicio(actual.cita)<=ahora||!a.habilitado){await this.finalizar(f.id,n,'cancelado','cita_o_permiso_cambio');return true;}
    const con=await this.db.usar(async c=>(await c.query('SELECT * FROM ritmo.whatsapp_conexiones WHERE negocio_id=$1',[n])).rows[0]);
    const remoto=await this.remitente.estado(n);
    if(con?.freno||con?.manual||remoto.estado!=='conectado'||!remoto.verificado){await this.finalizar(f.id,n,'pendiente','conexion_pendiente');return true;}

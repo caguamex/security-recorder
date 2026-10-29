@@ -1,3 +1,4 @@
+import {rutasNegocio} from '../negocio/http.js';
 import {randomBytes,createHash} from 'node:crypto';
 import {calendario} from '../integraciones.js';
 import type {Repositorio} from '../repositorio.js';
@@ -9,6 +10,7 @@ import {RepositorioConCuentas} from './repositorio.js';
 import type {IdentidadFirmada} from './jwt.js';
 const json=(r:ServerResponse,data:unknown)=>{r.writeHead(200,{'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Authorization','Referrer-Policy':'no-referrer'}).end(JSON.stringify(data));};
 export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:{habilitado:boolean;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;origen:string;migracionUsuarioId?:string;acceso?:{whatsapp:boolean;correo:boolean};registro?:{habilitado:boolean;turnstileSiteKey:string};rutasRegistro?:(req:IncomingMessage,res:ServerResponse,url:URL)=>Promise<boolean>;rutasAcceso?:(req:IncomingMessage,res:ServerResponse,url:URL)=>Promise<boolean>}){
+ const negocio=rutasNegocio(pool,jwt,config.origen);
  return async(req:IncomingMessage,res:ServerResponse,url:URL)=>{
  if(url.pathname==='/api/cuentas/config'&&req.method==='GET'){
   // Una clave publicable no autoriza consultas privadas; la base exige JWT, sesión y RLS.
@@ -16,6 +18,8 @@ export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise
   json(res,config.habilitado?{habilitado:true,supabaseURL:config.supabaseURL,llavePublica:config.llavePublica,...(config.acceso?{acceso:config.acceso}:{}),...(config.registro?{registro:{habilitado:config.registro.habilitado,turnstileSiteKey:config.registro.turnstileSiteKey}}:{})}:{habilitado:false});return true;
  }
  if(!config.habilitado)return false;
+ const gestion=/^\/api\/negocios\/([a-f0-9-]{36})\/gestion\//.exec(url.pathname);if(gestion&&!config.registro?.habilitado&&!config.salones.has(gestion[1]))throw new ErrorAPI(403,'Salón no disponible.');
+ if(await negocio(req,res,url))return true;
  if(config.rutasRegistro&&await config.rutasRegistro(req,res,url))return true;
  if(config.rutasAcceso&&await config.rutasAcceso(req,res,url))return true;
  const feed=/^\/calendario\/(?:cuentas\/)?([a-f0-9]{64})\.ics$/.exec(url.pathname);
