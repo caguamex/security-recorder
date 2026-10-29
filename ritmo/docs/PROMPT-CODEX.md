@@ -1,29 +1,42 @@
-# Prompt para Codex: cuentas, equipo y WhatsApp de Agendappx
+# Prompt para Codex: cuentas, WhatsApp, diseño Neutro, modo negocio, Explorar y Social
 
 Pégalo completo en el chat de Codex.
 
 ```
 Hola Codex. Este es el encargo completo para la siguiente versión de Agendappx.
-Reemplaza a todos los mensajes anteriores sobre cuentas y WhatsApp.
+Reemplaza a todos los mensajes anteriores sobre cuentas, WhatsApp y diseño.
 
 TODO ESTÁ EN LA RAMA claude/es-posible-esto-tjimmb (usa su último commit):
 - ritmo/docs/CUENTAS.md: cuentas, roles, equipo, bienvenida, perfil público,
   dos Admin y «Mi horario»
 - ritmo/docs/WHATSAPP-AUTOMATICO.md: WhatsApp vinculado, anticipo,
   mensajes automáticos, contactos y promociones
+- ritmo/docs/DISENO.md: el diseño NUEVO de toda la app («Neutro»)
+- ritmo/docs/NEGOCIO.md: modo negocio (la app del salón con el diseño nuevo)
+- ritmo/docs/EXPLORAR.md y ritmo/docs/SOCIAL.md: la parte para clientas
 - Prototipo aprobado: ritmo/cuentas/index.html
   (vista navegable: https://claude.ai/artifact/BV5xqvaHhdosQnkvcQ7i8i;
   usa la franja «Demostración» de arriba para recorrerlo)
+- Prototipos aprobados del diseño nuevo: ritmo/negocio/index.html
+  (https://claude.ai/artifact/BhVjiu8kMXAayrvJNrZwC3), ritmo/explorar/index.html
+  (https://claude.ai/artifact/S49D6yZYTok5ALoJKBX2sM) y ritmo/social/index.html
+  (https://claude.ai/artifact/CwLqaGfWK5E43xbFtuf7VQ). Abren en Neutro; el
+  selector «Diseño» de la franja de arriba es solo para comparar y NO va en
+  la app.
 - Capturas en ritmo/imagenes/: registro-whatsapp.png, cuentas-equipo.png,
-  bienvenida-perfil-publico.png, buscador-servicios.png, whatsapp-anticipo.png
-  y whatsapp-vincular.png
-Lee los dos documentos completos antes de empezar. Si algo de este mensaje
+  bienvenida-perfil-publico.png, buscador-servicios.png, whatsapp-anticipo.png,
+  whatsapp-vincular.png, modo-negocio-neutro.png, explorar-social-neutro.png
+  y app-iphone-android.png
+Lee todos los documentos completos antes de empezar. Si algo de este mensaje
 no coincide con ellos, mandan los documentos.
 
 REGLAS GENERALES
 - Nombre visible: Agendappx. No renombres infraestructura ni compres dominios.
-- Conserva el diseño publicado (3D, barra minimal, White/Dark) y todo lo que
-  ya funciona: sin conexión, fotos, sincronización, calendario.
+- DISEÑO NUEVO: «Neutro» (DISENO.md). Reemplaza al 3D con rosa en toda la
+  app: blanco, negro y gris, relieve mínimo, íconos de línea sin emojis,
+  White/Dark desde Ajustes. Las pantallas nuevas de las partes 1 y 2 ya
+  van en Neutro. Conserva todo lo que ya funciona: sin conexión, fotos,
+  sincronización, calendario y grupos de Facebook.
 - Trabaja en una rama y un PR nuevos, por etapas.
 - Secretos solo en Cloudflare, Railway o Supabase, nunca en Git.
 - Pídeme confirmación antes de migrar mis datos, antes de cada despliegue
@@ -121,6 +134,35 @@ AGENTS.md y BELLEZA.md. Si FiNeCi ya usa una librería para esto, usa la misma.
     entre 21:00 y 8:00, los recordatorios siempre antes que las promociones,
     y pausa automática de todo si WhatsApp rechaza mensajes.
 
+PARTE 3 · DISEÑO NEUTRO Y MODO NEGOCIO (DISENO.md y NEGOCIO.md)
+18. Cambia la apariencia de la app del salón al diseño Neutro con los
+    colores y componentes de DISENO.md, en White y Dark. Ícono de la app
+    (PWA): cuadro negro con el calendario blanco (ver app-movil.html).
+19. Barra de abajo: Hoy · Agenda · ＋ · Clientas · Mi negocio (NEGOCIO.md).
+    - Hoy (nuevo): cifras del día, «Solicitudes desde la app» con Aceptar /
+      Proponer otra hora, «Siguen hoy» y la semana.
+    - Agenda, Nueva cita, Clientas y promociones: lo que ya funciona, con
+      el diseño nuevo, más Google/Apple Calendar en cada cita.
+    - ＋: Nueva cita, Publicar trabajo y Nueva promoción (Facebook uno por
+      uno, como ya funciona, y WhatsApp a clientas con permiso).
+    - Mi negocio: portada, Ver como cliente, Servicios con buscador, Fotos,
+      Estadísticas (solo Admin), Reseñas con «Responder», Equipo, Horarios,
+      WhatsApp, Conexiones y Apariencia.
+    Sin migración de datos por el cambio de diseño.
+
+PARTE 4 · EXPLORAR Y SOCIAL PARA CLIENTAS (EXPLORAR.md y SOCIAL.md)
+20. Explorar: buscador, categorías como tarjetas con foto, salones
+    «mejor calificados cerca» (fórmula de EXPLORAR.md), perfil con
+    Precios, Fotos, Disponibles y Reseñas, y «Agendar» que crea una cita
+    `solicitada` en la agenda del salón. «Mostrar mi salón» se puede apagar.
+21. Social: feed de trabajos con «Agendar» sobre la foto, buscar
+    («Locales que hacen cortes»), perfil del negocio, seguir, me gusta y
+    guardar, y «Publicar trabajo» ligado a un servicio con su precio.
+22. Reseñas solo de citas completadas; reportes y moderación los reviso yo.
+    Fotos comprimidas y sin datos de ubicación.
+    Las fotos de ejemplo de Pexels (ritmo/fotos/) son solo para los
+    prototipos; en la app cada negocio sube las suyas.
+
 ORDEN SUGERIDO
 1) Servicio de WhatsApp en Railway y vinculación (lo necesita el login).
 2) Cuentas con login por WhatsApp, roles, equipo y migración de mis datos
@@ -128,10 +170,14 @@ ORDEN SUGERIDO
 3) Dos Admin con avisos, Mi horario, bienvenida, perfil público y buscador.
 4) Mensajes automáticos y anticipo.
 5) Contactos y promociones.
+6) Diseño Neutro y modo negocio (se puede adelantar si te conviene: es solo
+   la apariencia y la pantalla Hoy; avísame).
+7) Explorar y Social.
 Despliega cada etapa por separado, con mi confirmación.
 
 PRUEBAS
-Corre las «Pruebas mínimas» de CUENTAS.md y de WHATSAPP-AUTOMATICO.md, más
+Corre las «Pruebas mínimas» de CUENTAS.md, WHATSAPP-AUTOMATICO.md,
+EXPLORAR.md y SOCIAL.md, más
 las que ya existen, y revisa todo a 390 px en White y Dark.
 
 Antes de empezar, dime el plan por etapas, cuánto crees que tarda cada

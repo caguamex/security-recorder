@@ -286,6 +286,20 @@ html[data-estilo="min"][data-prof="3d"] .ver path:first-child { fill: #1D9BF0; }
 html[data-estilo="min"][data-prof="3d"] .banner { background: linear-gradient(135deg, var(--rosaSoft), var(--card) 70%); }
 html[data-estilo="min"][data-prof="3d"] .banner button { background: linear-gradient(180deg, color-mix(in srgb, var(--rosa) 75%, #fff), var(--rosa) 55%); color: #fff; box-shadow: 0 3px 0 var(--rosaEdge); }
 html[data-estilo="min"][data-prof="3d"] .logo { background: radial-gradient(circle at 32% 28%, #FF9CC0, var(--rosa) 55%, var(--rosaEdge)); box-shadow: 0 4px 0 var(--rosaEdge), 0 10px 20px color-mix(in srgb, var(--rosa) 35%, transparent), inset 0 2px 2px rgba(255, 255, 255, .35); }
+/* Neutro: el minimalista en blanco, negro y gris, sin rosa y con relieve mínimo (línea fina y sombra muy suave). */
+html[data-diseno="neutro"] { --soft3: 0 0 0 1px var(--line), 0 1px 2px rgba(0, 0, 0, .04); }
+@media (prefers-color-scheme: dark) { html[data-diseno="neutro"]:not([data-theme="light"]) { --soft3: 0 0 0 1px var(--line); --card: #0E0E10; } }
+html[data-diseno="neutro"][data-theme="dark"] { --soft3: 0 0 0 1px var(--line); --card: #0E0E10; }
+html[data-diseno="neutro"] .search { border: 0; background: var(--card); box-shadow: var(--soft3); }
+html[data-diseno="neutro"] .search:focus-within { box-shadow: 0 0 0 1.5px var(--ink); }
+html[data-diseno="neutro"] .cat.foto { border-radius: 16px !important; box-shadow: none !important; }
+html[data-diseno="neutro"] .cover { border-radius: 16px; }
+html[data-diseno="neutro"] .chip, html[data-diseno="neutro"] .day, html[data-diseno="neutro"] .slot, html[data-diseno="neutro"] .btn.soft, html[data-diseno="neutro"] .cell .go { border: 0; background: var(--card); box-shadow: var(--soft3); }
+html[data-diseno="neutro"] .chip[aria-pressed="true"], html[data-diseno="neutro"] .day[aria-pressed="true"], html[data-diseno="neutro"] .slot[aria-pressed="true"], html[data-diseno="neutro"] .btn.fill, html[data-diseno="neutro"] .banner button { background: var(--ink); color: var(--bg); box-shadow: none; border: 0; }
+html[data-diseno="neutro"] .day[aria-pressed="true"] b { color: var(--bg); }
+html[data-diseno="neutro"] .group, html[data-diseno="neutro"] .banner { border: 0; border-radius: 16px; background: var(--card); box-shadow: var(--soft3); }
+html[data-diseno="neutro"] .cell { padding-left: 14px; padding-right: 14px; }
+html[data-diseno="neutro"] .rate .s { color: var(--ink); }
 .ph.foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .ph.foto small { z-index: 1; color: #fff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, .6) !important; }
 .cats:has(.foto) { gap: 10px !important; border: 0 !important; }
@@ -300,7 +314,7 @@ html[data-estilo="min"][data-prof="3d"] .logo { background: radial-gradient(circ
 </style>
 
 <div class="phone">
-  <div class="note">Demostración · fotos de Pexels · Estilo: <span class="estilo" role="group" aria-label="Estilo"><button type="button" data-estilo="base">Actual</button><button type="button" data-estilo="min">Minimalista</button><button type="button" data-estilo="min3d">Minimalista 3D</button></span></div>
+  <div class="note">Demostración · fotos de Pexels · Diseño: <span class="estilo" role="group" aria-label="Diseño"><button type="button" data-estilo="min3d">Rosa 3D</button><button type="button" data-estilo="neutro">Neutro</button></span></div>
   <main id="screen" aria-live="polite"></main>
 </div>
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones"></nav>
@@ -525,11 +539,11 @@ html[data-estilo="min"][data-prof="3d"] .logo { background: radial-gradient(circ
     }
   });
   // Estilo de la demostración (se recuerda en este navegador).
-  const estilo = v => { const r = document.documentElement.dataset; if (v === 'base') delete r.estilo; else r.estilo = 'min'; if (v === 'min3d') r.prof = '3d'; else delete r.prof;
+  const estilo = v => { const r = document.documentElement.dataset; r.estilo = 'min'; if (v === 'min3d') r.prof = '3d'; else delete r.prof; if (v === 'neutro') r.diseno = 'neutro'; else delete r.diseno;
     document.querySelectorAll('[data-estilo]').forEach(b => b.matches('button') && b.setAttribute('aria-pressed', String(b.dataset.estilo === v))); };
-  let ev = 'min3d'; try { ev = localStorage.getItem('explorar.estilo') || 'min3d'; } catch (e) {}
+  let ev = 'neutro'; try { ev = localStorage.getItem('explorar.diseno') || 'neutro'; } catch (e) {}
   estilo(ev);
-  document.querySelector('.estilo').addEventListener('click', e => { const b = e.target.closest('[data-estilo]'); if (!b) return; estilo(b.dataset.estilo); try { localStorage.setItem('explorar.estilo', b.dataset.estilo); } catch (err) {} });
+  document.querySelector('.estilo').addEventListener('click', e => { const b = e.target.closest('[data-estilo]'); if (!b) return; estilo(b.dataset.estilo); try { localStorage.setItem('explorar.diseno', b.dataset.estilo); } catch (err) {} });
   render();
 })();
 </script>

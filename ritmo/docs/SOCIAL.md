@@ -1,8 +1,8 @@
 # Agendappx Social: red de trabajos de belleza
 
-Estado: propuesta, pendiente de que Antonio la apruebe.
+Estado: aprobado por Antonio, con el diseño **Neutro** (`DISENO.md`).
 - Prototipo: `ritmo/social/index.html` (publicado como «Agendappx Social»).
-- Captura: `ritmo/imagenes/social-belleza.png`.
+- Captura: `ritmo/imagenes/explorar-social-neutro.png`.
 
 Idea: un «Facebook» o «Instagram» para salones de belleza, barberías, uñas, cejas y pestañas. Los negocios que usan la agenda de Agendappx **publican fotos de sus trabajos**. La gente sigue negocios, busca («cortes», «barberías», «uñas»…), ve los locales que hacen eso y **agenda desde la misma foto**. Extiende `EXPLORAR.md`: Explorar es el buscador y Social es el feed.
 

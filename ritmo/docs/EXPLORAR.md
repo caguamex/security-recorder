@@ -1,8 +1,8 @@
 # Explorar: directorio de salones para clientas
 
-Estado: propuesta para Agendappx, pendiente de que Antonio la apruebe.
+Estado: aprobado por Antonio, con el diseño **Neutro** (`DISENO.md`).
 - Prototipo: `ritmo/explorar/index.html` (publicado como «Agendappx Explorar»).
-- Captura: `ritmo/imagenes/explorar-salones.png`.
+- Captura: `ritmo/imagenes/explorar-social-neutro.png`. Las categorías van como tarjetas con foto.
 
 Idea: un «Facebook» de salones. Cualquier persona entra, busca lo que necesita (cejas, pestañas, depilación…) y ve los salones registrados en Agendappx, **mejor calificados y más cercanos primero**. De ahí entra al salón: fotos de trabajos, precios, citas disponibles y reseñas. Puede pedir cita sin cuenta.
 

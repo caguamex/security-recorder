@@ -33,18 +33,18 @@ h1 { font-size: 44px; font-weight: 800; text-align: center; letter-spacing: -.02
 .gest.w { background: #fff; }
 
 /* Ícono de la app */
-.appic { width: 60px; height: 60px; border-radius: 15px; display: grid; place-items: center; background: linear-gradient(160deg, #FF8DB5, #E0457B 55%, #B8285F); box-shadow: inset 0 2px 1px rgba(255, 255, 255, .45), inset 0 -3px 4px rgba(0, 0, 0, .18), 0 6px 14px rgba(224, 69, 123, .35); }
+.appic { width: 60px; height: 60px; border-radius: 15px; display: grid; place-items: center; background: #0B0B0F; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 4px 10px rgba(0, 0, 0, .18); }
 .and .appic { border-radius: 50%; }
 .appic svg { width: 58%; height: 58%; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
 
 /* Pantalla de inicio del celular */
-.wall { position: absolute; inset: 0; background: radial-gradient(120% 70% at 20% 10%, #FFD1E2, transparent 60%), radial-gradient(120% 80% at 90% 90%, #C9C2FF, transparent 55%), linear-gradient(160deg, #F7C6D9, #B9B4F5); }
+.wall { position: absolute; inset: 0; background: radial-gradient(120% 70% at 20% 10%, #D9DCE3, transparent 60%), radial-gradient(120% 80% at 90% 90%, #8E939E, transparent 55%), linear-gradient(160deg, #C4C8D0, #6E737E); }
 .grid { position: absolute; top: 74px; left: 22px; right: 22px; display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 20px; justify-items: center; }
 .slot { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
 .slot .ph { width: 60px; height: 60px; border-radius: 15px; background: rgba(255, 255, 255, .42); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
 .and .slot .ph { border-radius: 50%; }
 .slot.me { font-weight: 700; }
-.slot.me .appic { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), inset 0 2px 1px rgba(255, 255, 255, .45), 0 8px 18px rgba(224, 69, 123, .45); }
+.slot.me .appic { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), 0 8px 18px rgba(0, 0, 0, .3); }
 .dock { position: absolute; left: 14px; right: 14px; bottom: 22px; height: 86px; border-radius: 30px; display: flex; align-items: center; justify-content: space-around; background: rgba(255, 255, 255, .35); backdrop-filter: blur(12px); }
 .dock .ph { width: 58px; height: 58px; border-radius: 15px; background: rgba(255, 255, 255, .5); }
 .and .dock { border-radius: 0; background: none; bottom: 22px; height: 70px; }
@@ -56,23 +56,24 @@ h1 { font-size: 44px; font-weight: 800; text-align: center; letter-spacing: -.02
 .splash .appic { width: 104px; height: 104px; border-radius: 26px; }
 .and .splash .appic { border-radius: 50%; width: 120px; height: 120px; }
 .wm { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
-.wm b { color: #E0457B; }
+.wm b { color: #8A8A8E; }
 .tag { color: #8A8A8E; font-size: 14px; }
 .load { position: absolute; bottom: 70px; display: flex; gap: 6px; }
-.load i { width: 7px; height: 7px; border-radius: 50%; background: #E0457B; opacity: .3; } .load i:first-child { opacity: 1; } .load i:nth-child(2) { opacity: .6; }
+.load i { width: 7px; height: 7px; border-radius: 50%; background: #0B0B0F; opacity: .3; } .load i:first-child { opacity: 1; } .load i:nth-child(2) { opacity: .6; }
 
 /* Bienvenida */
 .wel { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 58px 22px 30px; background: #FFFFFF; }
 .and .wel { padding-top: 46px; }
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; }
-.brand .appic { width: 30px; height: 30px; border-radius: 9px; box-shadow: inset 0 1px 1px rgba(255, 255, 255, .45), 0 3px 6px rgba(224, 69, 123, .3); }
+.brand .appic { width: 30px; height: 30px; border-radius: 9px; box-shadow: none; }
 .and .brand .appic { border-radius: 50%; }
 .brand span.sk { margin-left: auto; color: #8A8A8E; font-weight: 600; font-size: 14px; }
 .mos { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 100px 100px; gap: 10px; margin: 18px 0 20px; }
 .tile { border-radius: 22px; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 13px; background: linear-gradient(160deg, color-mix(in srgb, var(--pt) 55%, #fff), var(--pt)); box-shadow: 0 1px 0 #fff inset, 0 4px 0 color-mix(in srgb, var(--pi) 22%, #E8E8E8), 0 10px 20px color-mix(in srgb, var(--pi) 14%, transparent); color: var(--pi); }
 .tile svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--pi) 25%, transparent)); }
 .tile b { font-size: 14px; color: #0B0B0F; } .tile small { display: block; color: #6A6A70; font-size: 11.5px; font-weight: 600; }
-.t1 { --pt: #EDE4FF; --pi: #7C5CD6; } .t2 { --pt: #FFE3EE; --pi: #D63C78; } .t3 { --pt: #E0F0FF; --pi: #2F7BD6; } .t4 { --pt: #DDF6EC; --pi: #1E9E6A; }
+.t1, .t2, .t3, .t4 { --pt: #F2F2F4; --pi: #0B0B0F; }
+.tile { background: #F4F4F5 !important; box-shadow: 0 0 0 1px #EAEAEC !important; } .tile svg { filter: none !important; }
 .wel h2 { font-size: 29px; line-height: 1.08; font-weight: 800; letter-spacing: -.03em; }
 .and .wel h2 { font-weight: 700; letter-spacing: -.01em; }
 .wel p { margin-top: 8px; color: #55555C; font-size: 14.5px; line-height: 1.4; }
@@ -80,10 +81,10 @@ h1 { font-size: 44px; font-weight: 800; text-align: center; letter-spacing: -.02
 .stats span { display: flex; align-items: center; gap: 4px; } .stats .st { color: #F5A623; }
 .cta { margin-top: auto; display: grid; gap: 10px; }
 .b1, .b2 { height: 52px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 16px; }
-.b1 { color: #fff; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 4px 0 #9E2453, 0 12px 22px rgba(224, 69, 123, .35), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.b1 { color: #fff; background: #0B0B0F; box-shadow: none; }
 .b2 { background: #fff; box-shadow: 0 1px 0 #fff inset, 0 3px 0 #E2E2E2, 0 10px 20px rgba(0, 0, 0, .06); border: 1px solid #F0F0F0; }
 .and .b1, .and .b2 { height: 50px; font-weight: 500; letter-spacing: .02em; }
-.lk { text-align: center; font-size: 13.5px; color: #6A6A70; margin-top: 4px; } .lk b { color: #E0457B; }
+.lk { text-align: center; font-size: 13.5px; color: #6A6A70; margin-top: 4px; } .lk b { color: #0B0B0F; text-decoration: underline; text-underline-offset: 3px; }
 .b1 svg, .b2 svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ios .wel h2 { font-size: 26px; } .ios .mos { grid-template-rows: 90px 90px; margin: 14px 0 16px; } .ios .wel { padding-bottom: 34px; } .ios .wel p { font-size: 14px; }
 .foot { text-align: center; color: #5A6070; font-size: 15px; margin-top: 4px; }
@@ -91,7 +92,7 @@ h1 { font-size: 44px; font-weight: 800; text-align: center; letter-spacing: -.02
 </head>
 <body>
 <h1>Agendappx como app en iPhone y Android</h1>
-<p class="sub">Estilo minimalista 3D con color · lo primero que ve una persona al instalarla</p>
+<p class="sub">Diseño Neutro · lo primero que ve una persona al instalarla</p>
 <div id="filas"></div>
 <p class="foot">Misma app para los dos: en Android se adapta a sus íconos redondos, su letra (Roboto) y su barra de gestos.</p>
 <script>

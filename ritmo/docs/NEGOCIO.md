@@ -1,10 +1,10 @@
 # Modo negocio de Agendappx
 
-Estado: propuesta de diseño, pendiente de que Antonio la apruebe.
+Estado: aprobado por Antonio, con el diseño **Neutro** (`DISENO.md`).
 - Prototipo: `ritmo/negocio/index.html` (publicado como «Agendappx Negocio»).
-- Capturas: `ritmo/imagenes/modo-negocio.png` y `modo-negocio-dark.png`.
+- Captura: `ritmo/imagenes/modo-negocio-neutro.png`. Las de Rosa 3D (`modo-negocio.png` y `modo-negocio-dark.png`) quedan solo de referencia.
 
-Es la misma app, en el modo del dueño de un salón o barbería. Usa el estilo de Explorar y Social: minimalista 3D con acento rosa, fotos reales y White/Dark. **Sustituye la apariencia de la app actual del salón, pero conserva todo lo que ya funciona** y agrega lo ya especificado en `CUENTAS.md`, `WHATSAPP-AUTOMATICO.md`, `EXPLORAR.md` y `SOCIAL.md`.
+Es la misma app, en el modo del dueño de un salón o barbería. Usa el mismo diseño Neutro que Explorar y Social: blanco, negro y gris, relieve mínimo, fotos reales y White/Dark. **Sustituye la apariencia de la app actual del salón, pero conserva todo lo que ya funciona** y agrega lo ya especificado en `CUENTAS.md`, `WHATSAPP-AUTOMATICO.md`, `EXPLORAR.md` y `SOCIAL.md`.
 
 ## Barra de abajo
 
@@ -28,7 +28,7 @@ Es la misma app, en el modo del dueño de un salón o barbería. Usa el estilo d
    - **Ver como cliente** (su perfil público) y **Modo cliente** (para buscar en otros negocios);
    - tarjetas: **Servicios y precios** (con fotos y buscador), **Fotos de trabajos**, **Estadísticas**, **Reseñas** (con «Responder»), **Equipo**, **Horarios**, **WhatsApp** y **Conexiones**;
    - Conexiones: Google y Apple Calendar, grupos de Facebook, WhatsApp vinculado y el link para clientas;
-   - **Apariencia**: White/Dark y los 5 temas.
+   - **Apariencia**: White/Dark y los 5 temas; Neutro es el diseño por defecto.
 
 ## Notas para implementar
 
