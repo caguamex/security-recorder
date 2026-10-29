@@ -1,6 +1,6 @@
 # Siguiente encargo de Agendappx: WhatsApp vinculado, solo envíos
 
-Actualizado el 29 de octubre de 2026. La sesión independiente de plataforma está físicamente vinculada, el propietario verificó su número mediante un código real y recuperó su acceso Admin con MFA. Los códigos generales, avisos del salón y vinculaciones nuevas siguen apagados. Antonio priorizó terminar el registro automático e incluyó a nuevas dueñas: implementación local en `codex/agendappx-registro-whatsapp`, pendiente de aprobar migración/publicación y activar sus códigos. Ver `REGISTRO-WHATSAPP.md` y la última entrada de `LOGIN-WHATSAPP.md`; las secciones anteriores conservan el historial y no acreditan una activación actual.
+Actualizado el 29 de octubre de 2026, 18:52 UTC. La publicación del registro automático fue autorizada y ejecutada desde e3ecda7 (PR #10); los códigos normales de cuentas existentes están activos en Railway (modo cuentas) y la sesión de plataforma sigue conectada. Los avisos de citas/promociones y nuevas vinculaciones continúan apagados. El registro de salones nuevos permanece cerrado hasta que Antonio guarde REGISTRO_OPERACION_KEY en Supabase Edge Function Secrets; el navegador integrado aún informa desactivado. No regenerar la llave ni volver a migrar. Ver el cierre operativo de REGISTRO-WHATSAPP.md; las secciones anteriores son históricas.
 
 ## Fuente y autorización
 
