@@ -1,0 +1,59 @@
+// Registro y equipo reutilizan las hojas y controles existentes; no guardan códigos ni tokens de Auth.
+export function montarRegistro(root,{config,cliente,sesion,aviso,limpiarContexto,solicitar}){
+ const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const $=s=>root.querySelector(s);let invitacion=globalThis.__agendappxInvitacion||'',ticket=null,widget=null,captcha='',ocupado=false;
+ try{ticket=JSON.parse(sessionStorage.getItem('agendappx.registro'));}catch{}
+ const guardar=()=>{if(ticket)sessionStorage.setItem('agendappx.registro',JSON.stringify(ticket));else sessionStorage.removeItem('agendappx.registro');};
+ async function llamada(path,datos,metodo='POST'){const {data}=await cliente.auth.getSession();const r=await fetch(path,{method:metodo,headers:{'Content-Type':'application/json',...(data.session?{Authorization:'Bearer '+data.session.access_token}:{})},...(metodo==='POST'?{body:JSON.stringify(datos)}:{}),cache:'no-store',signal:AbortSignal.timeout(25000)});const d=await r.json();if(!r.ok)throw new Error(d.error||'No se pudo continuar. Intenta de nuevo.');return d;}
+ const contenedor=document.createElement('section');contenedor.innerHTML=`<button class="cell" type="button" id="registro-abrir">Crear mi cuenta y mi salón</button>
+ <section id="registro-formulario" hidden><h2 style="margin:20px 16px 8px">${invitacion?'Unirme al equipo':'Crear mi salón'}</h2><p class="foot" id="registro-explicacion">Tu WhatsApp será tu acceso. La agenda de tu salón empieza vacía.</p>
+ <form id="registro-form"><div class="group"><label class="cell"><span class="l">Tu nombre</span><input class="in" id="registro-nombre" autocomplete="name" maxlength="200" required style="max-width:60%;min-width:0"></label>
+ <label class="cell"><span class="l">WhatsApp +52</span><input class="in" id="registro-telefono" inputmode="tel" autocomplete="tel-national" maxlength="24" placeholder="10 dígitos" required style="max-width:60%;min-width:0"></label>
+ <label class="cell registro-salon"><span class="l">Tu salón</span><input class="in" id="registro-salon" maxlength="200" required style="max-width:60%;min-width:0"></label>
+ <label class="cell registro-salon"><span class="l">Enlace del salón</span><input class="in" id="registro-slug" placeholder="mi-salon" pattern="[a-z0-9][a-z0-9-]{2,59}" minlength="3" maxlength="60" required style="max-width:60%;min-width:0"></label></div>
+ <p class="foot registro-salon">Elige un nombre corto para identificar tu salón. Esto no publica todavía una página para clientas.</p>
+ <label class="cell" style="gap:12px;align-items:flex-start"><input id="registro-consentimiento" type="checkbox" required><span style="white-space:normal">Acepto recibir por WhatsApp los códigos que solicite para crear mi cuenta y entrar.</span></label>
+ <div id="registro-captcha" style="margin:16px;max-width:100%"></div><button class="btn fill" id="registro-crear" type="submit" style="display:block;width:calc(100% - 32px);margin:16px">Recibir código por WhatsApp</button></form>
+ <button class="cell" id="registro-volver" type="button">Volver a iniciar sesión</button></section>
+ <section id="registro-equipo" hidden><p class="gh">Tu salón y equipo</p><div class="group"><label class="cell"><span class="l">Salón activo</span><select class="in" id="registro-negocio" aria-label="Salón activo" style="max-width:65%;min-width:0"></select></label></div><div class="group" id="registro-miembros"></div><p class="foot">Cada persona entra con su WhatsApp. Comparte la misma agenda, servicios y promociones según su rol.</p>
+ <form id="registro-invitacion-form"><div class="group"><label class="cell"><span class="l">Nombre</span><input class="in" id="registro-invitada" required maxlength="200" placeholder="Persona invitada" style="max-width:60%;min-width:0"></label><label class="cell"><span class="l">Permisos</span><select class="in" id="registro-rol" style="max-width:60%;min-width:0"><option value="admin">Administradora</option><option value="recepcion">Recepción</option><option value="especialista">Especialista</option></select></label></div><button class="cell" type="submit" id="registro-invitar">Crear enlace de invitación</button></form>
+ <div class="group" id="registro-enlace-panel" hidden><label class="cell" style="display:block">Enlace privado<textarea class="in" id="registro-enlace" readonly aria-label="Enlace de invitación" style="width:100%;min-height:80px;overflow-wrap:anywhere"></textarea></label><button class="cell" id="registro-copiar" type="button">Copiar enlace</button><p class="foot">Compártelo solo con la persona invitada. Vence en 48 horas y se usa una sola vez.</p></div></section>`;
+ root.appendChild(contenedor);
+ const status=t=>{$('#auth-status').textContent=t;};
+ async function prepararCaptcha(){
+  if(widget!==null){window.turnstile?.reset(widget);captcha='';return;}
+  if(!window.turnstile)await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('No se pudo cargar la verificación. Revisa tu conexión.')),10000);const listo=()=>{clearTimeout(timer);resolve();};const fallo=()=>{clearTimeout(timer);reject(new Error('No se pudo cargar la verificación. Revisa tu conexión.'));};let script=document.querySelector('script[data-registro-captcha]');if(script){script.addEventListener('load',listo,{once:true});script.addEventListener('error',fallo,{once:true});return;}script=document.createElement('script');script.dataset.registroCaptcha='si';script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.onload=listo;script.onerror=fallo;document.head.appendChild(script);});
+  if(!root.isConnected)return;widget=window.turnstile.render($('#registro-captcha'),{sitekey:config.registro.turnstileSiteKey,action:'registro',size:'flexible',callback:t=>{captcha=t;},'expired-callback':()=>{captcha='';},'error-callback':()=>{captcha='';}});
+ }
+ async function abrir(){
+  const {data}=await cliente.auth.getSession();if(data.session)throw new Error('Para registrar otra cuenta usa una ventana privada. Tu sesión actual se conserva.');
+  if(!config.registro?.habilitado||!config.registro.turnstileSiteKey)throw new Error('El registro está pendiente de activación.');
+  $('#auth-salir').hidden=true;$('#registro-formulario').hidden=false;$('#registro-abrir').hidden=true;$('#auth-otp').hidden=true;$('#auth-recuperacion').hidden=true;
+  if(invitacion){const v=await llamada('/api/registro/invitacion',{codigo:invitacion});$('#registro-explicacion').textContent='Invitación a '+v.salon+' · '+({admin:'Administradora',recepcion:'Recepción',especialista:'Especialista'}[v.rol]||'Equipo')+'. Entrarás a su misma agenda.';$('#registro-nombre').value=v.nombre||'';for(const x of root.querySelectorAll('.registro-salon'))x.hidden=true;$('#registro-salon').required=false;$('#registro-slug').required=false;}
+  await prepararCaptcha();
+ }
+ $('#registro-salon').addEventListener('input',()=>{if(!$('#registro-slug').dataset.editado)$('#registro-slug').value=$('#registro-salon').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60);});$('#registro-slug').addEventListener('input',()=>{$('#registro-slug').dataset.editado='si';});
+ $('#registro-form').addEventListener('submit',async ev=>{ev.preventDefault();if(ocupado)return;ocupado=true;$('#registro-crear').disabled=true;status('Preparando tu cuenta…');try{
+  if(!captcha)throw new Error('Completa la verificación de seguridad.');
+  const numero=$('#registro-telefono').value.trim();ticket=await llamada('/api/registro/crear',{nombre:$('#registro-nombre').value.trim(),telefono:numero,salon:$('#registro-salon').value.trim(),slug:$('#registro-slug').value.trim(),consentimiento:$('#registro-consentimiento').checked,captchaToken:captcha,...(invitacion?{invitacion}:{})});guardar();captcha='';
+  $('#registro-formulario').hidden=true;$('#auth-otp').hidden=false;$('#auth-destino').value=numero;await solicitar();
+ }catch(e){status(e.message||'No se pudo registrar.');if(widget!==null)window.turnstile?.reset(widget);captcha='';}finally{ocupado=false;$('#registro-crear').disabled=false;}});
+ async function equipo(){const actual=await sesion();$('#registro-equipo').hidden=!(config.registro?.habilitado&&actual?.rol==='admin'&&actual.aal==='aal2');if($('#registro-equipo').hidden)return;
+  const contexto=await llamada('/api/cuentas/contexto',null,'GET');$('#registro-negocio').innerHTML=contexto.miembros.map(m=>`<option value="${esc(m.negocioId)}">${esc(m.nombre||'Mi salón')}</option>`).join('');$('#registro-negocio').value=actual.negocioId;
+  const d=await llamada('/api/negocios/'+actual.negocioId+'/miembros',null,'GET');$('#registro-miembros').innerHTML=d.miembros.map(m=>`<div class="cell"><span class="l">${esc(m.nombre)}<small>${esc(m.rol)}${m.propia?' · Tú':''}</small></span>${m.propia?'':`<button class="btn" type="button" data-registro-quitar="${esc(m.id)}">Quitar acceso</button>`}</div>`).join('');
+ }
+ $('#registro-negocio').addEventListener('change',async()=>{const s=await sesion();if(!s)return;localStorage.setItem('agendappx.negocio.'+s.usuarioId,$('#registro-negocio').value);limpiarContexto();aviso();await equipo();status('Salón seleccionado. Pulsa Listo.');});
+ $('#registro-invitacion-form').addEventListener('submit',async ev=>{ev.preventDefault();if(ocupado)return;ocupado=true;try{const s=await sesion();if(!s)throw new Error('Inicia sesión.');const d=await llamada('/api/negocios/'+s.negocioId+'/invitaciones',{nombre:$('#registro-invitada').value.trim(),rol:$('#registro-rol').value});$('#registro-enlace').value=d.enlace;$('#registro-enlace-panel').hidden=false;status('Invitación creada. Compártela solo con la persona elegida.');}catch(e){status(e.message);}finally{ocupado=false;}});
+ contenedor.addEventListener('click',async ev=>{const b=ev.target.closest('button');if(!b||ocupado)return;try{
+  if(b.id==='registro-abrir')await abrir();
+  if(b.id==='registro-volver'){ticket=null;guardar();$('#registro-formulario').hidden=true;$('#registro-abrir').hidden=false;$('#auth-otp').hidden=false;$('#auth-recuperacion').hidden=false;status('Escribe tu WhatsApp para entrar.');}
+  if(b.id==='registro-copiar'){await navigator.clipboard.writeText($('#registro-enlace').value);status('Enlace copiado.');}
+  if(b.dataset.registroQuitar&&confirm('Esta persona perderá el acceso al salón. ¿Continuar?')){ocupado=true;const s=await sesion();await llamada('/api/negocios/'+s.negocioId+'/miembros/'+b.dataset.registroQuitar,null,'DELETE');await equipo();status('Acceso retirado.');}
+ }catch(e){status(e.message);}finally{ocupado=false;}});
+ const pendiente=()=>!!ticket;
+ async function verificar(){if(!ticket)return null;await llamada('/api/registro/verificado',{id:ticket.id,prueba:ticket.prueba});return ticket.rol;}
+ async function finalizar(){if(!ticket)return;const d=await llamada('/api/registro/finalizar',{id:ticket.id,prueba:ticket.prueba});const {data}=await cliente.auth.getSession();localStorage.setItem('agendappx.negocio.'+data.session.user.id,d.negocioId);ticket=null;guardar();invitacion='';delete globalThis.__agendappxInvitacion;limpiarContexto();}
+ if(!config.registro?.habilitado)contenedor.hidden=true;
+ if(invitacion&&config.registro?.habilitado)void abrir().catch(e=>status(e.message));
+ return {pendiente,verificar,finalizar,equipo,abrir,limpiar(){ticket=null;guardar();$('#registro-enlace').value='';$('#registro-equipo').hidden=true;}};
+}

@@ -22,6 +22,19 @@ export function destinatarioWhatsApp(x,tel){
  const propio=x.socket.user?.id||x.auth.creds.me?.id;
  return numeroIdentidadWhatsApp(propio)===tel?propio.replace(/:[0-9]+(?=@)/,''):tel+'@s.whatsapp.net';
 }
+// Resuelve solo el teléfono que pidió el código; no sincroniza ni conserva contactos.
+// México puede devolver 52 o 521. Nunca sustituir la identidad por otra línea o un LID.
+export async function destinatarioCodigo(x,tel){
+ const directo=destinatarioWhatsApp(x,tel),propio=x.socket.user?.id||x.auth.creds.me?.id;
+ if(numeroIdentidadWhatsApp(propio)===tel)return directo;
+ if(typeof x.socket.onWhatsApp!=='function')throw new Error('No se pudo comprobar el destinatario del código.');
+ let timer;try{
+  const resultado=await Promise.race([x.socket.onWhatsApp(tel),new Promise((_,rechazar)=>{timer=setTimeout(()=>rechazar(new Error('No se pudo comprobar el destinatario a tiempo.')),1000);timer.unref?.();})]);
+  const coincidencias=(Array.isArray(resultado)?resultado:[]).filter(v=>v.exists===true&&numeroIdentidadWhatsApp(v.jid)===tel);
+  if(coincidencias.length!==1)throw new Error('No se pudo comprobar ese número de WhatsApp.');
+  return coincidencias[0].jid.replace(/:[0-9]+(?=@)/,'');
+ }finally{clearTimeout(timer);}
+}
 export class SesionesCifradas {
  constructor(db,key,negocio,propietario,cerca){this.db=db;this.tablas=tablas(db);this.cifrado=new CifradoSesion(key);this.n=negocio;this.propietario=propietario;this.cerca=cerca;this.pendiente=Promise.resolve();}
  async leer(tipo,id){const llave=this.cifrado.id(this.n,tipo,id);return this.db.usar(async c=>{const f=(await c.query(`SELECT cifrado FROM ${this.tablas.sesiones} WHERE negocio_id=$1 AND llave=$2`,[this.n,llave])).rows[0];return f?JSON.parse(this.cifrado.abrir(this.n,llave,f.cifrado),BufferJSON.reviver):null;});}
@@ -78,7 +91,7 @@ export class BaileysSoloEnvios {
  async recuperar(n){await this.restaurar(n);}
  async estado(n){const x=this.conexiones.get(n),f=await this.db.usar(async c=>(await c.query(`SELECT estado,numero,esperado FROM ${this.tablas.conexiones} WHERE negocio_id=$1`,[n])).rows[0]);const verificado=!!x?.abierta&&!x.cerrada&&f?.numero===f?.esperado&&await this.db.renovar(n,this.propietario,x.cerca);return {estado:verificado?'conectado':f?.estado==='conectado'?'reconectando':f?.estado||'sin_vincular',numero:verificado?f.numero:undefined,verificado};}
  async escribir(n,tel){const x=await this.verificar(n);await x.socket.sendPresenceUpdate('composing',destinatarioWhatsApp(x,tel));}
- async enviar(n,tel,texto,id){const x=await this.verificar(n);const r=await x.socket.sendMessage(destinatarioWhatsApp(x,tel),{text:texto},{messageId:'AG'+id.slice(0,30).toUpperCase()});if(!r?.key?.id)throw new Error('No se obtuvo aceptación del envío.');return r.key.id;}
+ async enviar(n,tel,texto,id){const x=await this.verificar(n);const destino=this.db.plataforma===true?await destinatarioCodigo(x,tel):destinatarioWhatsApp(x,tel);const r=await x.socket.sendMessage(destino,{text:texto},{messageId:'AG'+id.slice(0,30).toUpperCase()});if(!r?.key?.id)throw new Error('No se obtuvo aceptación del envío.');return r.key.id;}
  async verificar(n){const s=await this.estado(n);if(s.estado!=='conectado'||!s.verificado)throw new Error('WhatsApp no está conectado.');return this.conexiones.get(n);}
  async salir(n){clearTimeout(this.reintentos.get(n));this.reintentos.delete(n);let x=this.conexiones.get(n);if(!x){const f=await this.db.usar(async c=>(await c.query(`SELECT negocio_id FROM ${this.tablas.sesiones} WHERE negocio_id=$1 LIMIT 1`,[n])).rows[0]);if(f)throw Object.assign(new Error('La sesión está sin conexión y los envíos quedaron detenidos. Cierra el dispositivo de Agendappx desde WhatsApp → Dispositivos vinculados; después confirma aquí para quitar la sesión guardada.'),{status:409});}if(x)await x.socket.logout();await this.detener(n,'cierre_manual');}
  async olvidar(n){clearTimeout(this.reintentos.get(n));this.reintentos.delete(n);await this.detener(n,'cerrado_en_telefono');}

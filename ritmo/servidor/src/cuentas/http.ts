@@ -8,14 +8,15 @@ import {enTransaccion,miembroVigente} from './contexto.js';
 import {RepositorioConCuentas} from './repositorio.js';
 import type {IdentidadFirmada} from './jwt.js';
 const json=(r:ServerResponse,data:unknown)=>{r.writeHead(200,{'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Authorization','Referrer-Policy':'no-referrer'}).end(JSON.stringify(data));};
-export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:{habilitado:boolean;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;origen:string;migracionUsuarioId?:string;acceso?:{whatsapp:boolean;correo:boolean};rutasAcceso?:(req:IncomingMessage,res:ServerResponse,url:URL)=>Promise<boolean>}){
+export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:{habilitado:boolean;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;origen:string;migracionUsuarioId?:string;acceso?:{whatsapp:boolean;correo:boolean};registro?:{habilitado:boolean;turnstileSiteKey:string};rutasRegistro?:(req:IncomingMessage,res:ServerResponse,url:URL)=>Promise<boolean>;rutasAcceso?:(req:IncomingMessage,res:ServerResponse,url:URL)=>Promise<boolean>}){
  return async(req:IncomingMessage,res:ServerResponse,url:URL)=>{
  if(url.pathname==='/api/cuentas/config'&&req.method==='GET'){
   // Una clave publicable no autoriza consultas privadas; la base exige JWT, sesión y RLS.
   if(config.habilitado){let publica=/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.llavePublica||'');if(!publica)try{publica=JSON.parse(Buffer.from(config.llavePublica.split('.')[1],'base64url').toString()).role==='anon';}catch{}if(!publica)throw new ErrorAPI(503,'Falta configurar la llave publicable de acceso.');}
-  json(res,config.habilitado?{habilitado:true,supabaseURL:config.supabaseURL,llavePublica:config.llavePublica,...(config.acceso?{acceso:config.acceso}:{})}:{habilitado:false});return true;
+  json(res,config.habilitado?{habilitado:true,supabaseURL:config.supabaseURL,llavePublica:config.llavePublica,...(config.acceso?{acceso:config.acceso}:{}),...(config.registro?{registro:{habilitado:config.registro.habilitado,turnstileSiteKey:config.registro.turnstileSiteKey}}:{})}:{habilitado:false});return true;
  }
  if(!config.habilitado)return false;
+ if(config.rutasRegistro&&await config.rutasRegistro(req,res,url))return true;
  if(config.rutasAcceso&&await config.rutasAcceso(req,res,url))return true;
  const feed=/^\/calendario\/(?:cuentas\/)?([a-f0-9]{64})\.ics$/.exec(url.pathname);
  if(feed&&req.method==='GET'){
@@ -32,10 +33,10 @@ export function rutasCuentas(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise
  const i=await jwt.verificar(req.headers.authorization?.startsWith('Bearer ')?req.headers.authorization.slice(7):'');
  if(url.pathname==='/api/cuentas/contexto'){
   if(req.method!=='GET'||url.search)throw new ErrorAPI(405,'Método no permitido.');
-  const miembros=[];for(const n of config.salones){const m=await enTransaccion(pool,i,n,async c=>(await c.query('SELECT negocio_id,rol FROM ritmo.miembros WHERE negocio_id=$1 AND usuario_id=$2 AND activo',[n,i.usuarioId])).rows[0]);if(m)miembros.push({negocioId:m.negocio_id,rol:m.rol});}
+  const miembros=config.registro?.habilitado?await enTransaccion(pool,i,null,async c=>(await c.query('SELECT negocio_id AS \"negocioId\",rol,nombre FROM ritmo.mis_negocios()')).rows):[];if(!config.registro?.habilitado)for(const n of config.salones){const m=await enTransaccion(pool,i,n,async c=>(await c.query('SELECT negocio_id,rol FROM ritmo.miembros WHERE negocio_id=$1 AND usuario_id=$2 AND activo',[n,i.usuarioId])).rows[0]);if(m)miembros.push({negocioId:m.negocio_id,rol:m.rol});}
   json(res,{usuarioId:i.usuarioId,aal:i.aal,miembros,recuperarLegado:i.usuarioId===config.migracionUsuarioId&&i.aal==='aal2'&&miembros.some(m=>m.rol==='admin')});return true;
  }
- const n=m![1];if(!config.salones.has(n))throw new ErrorAPI(403,'Salón no disponible.');
+ const n=m![1];if(!config.salones.has(n)&&!config.registro?.habilitado)throw new ErrorAPI(403,'Salón no disponible.');
  const repo=new RepositorioConCuentas(pool,i,n);
  if(m![2]==='prestadores'&&req.method==='GET'){
   const equipo=await enTransaccion(pool,i,n,async c=>{await miembroVigente(c,n,i.usuarioId);

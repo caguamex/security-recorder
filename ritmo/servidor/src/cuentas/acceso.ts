@@ -34,17 +34,17 @@ export class SolicitudesAcceso {
   });if(!salida)throw new ErrorAPI(400,'Código inválido, vencido o sin intentos. Pide uno nuevo.');return salida;
  }
  async resultado(id:string,ok:boolean,incierto=false){await this.usar(c=>c.query("UPDATE ritmo.acceso_solicitudes SET estado=$2 WHERE id=$1 AND estado='verificando'",[id,ok?'usado':incierto?'incierto':'enviado']));}
- async admitir(i:IdentidadFirmada){await this.usar(c=>c.query('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[i.sesionId,i.usuarioId]));}
+ async admitir(i:IdentidadFirmada,solicitudOtp?:string){await this.usar(c=>solicitudOtp?c.query('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id,solicitud_otp) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',[i.sesionId,i.usuarioId,solicitudOtp]):c.query('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[i.sesionId,i.usuarioId]));}
 }
-async function cuerpo(req:IncomingMessage){if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ErrorAPI(415,'Usa application/json.');const partes=[];let tam=0;for await(const b of req){tam+=b.length;if(tam>4096)throw new ErrorAPI(413,'Solicitud demasiado grande.');partes.push(b);}try{return JSON.parse(Buffer.concat(partes).toString());}catch{throw new ErrorAPI(400,'Solicitud inválida.');}}
+async function cuerpo(req:IncomingMessage){if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ErrorAPI(415,'Usa application/json.');const partes=[];let tam=0;for await(const b of req){tam+=b.length;if(tam>4096)throw new ErrorAPI(413,'Solicitud demasiado grande.');partes.push(b);}try{const d=JSON.parse(Buffer.concat(partes).toString());if(!d||typeof d!=='object'||Array.isArray(d))throw new Error();return d;}catch{throw new ErrorAPI(400,'Solicitud inválida.');}}
 const responder=(res:ServerResponse,status:number,d:unknown)=>res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}).end(JSON.stringify(d));
-type Config={recuperacionHash?:string;recuperacionUsuario?:string;habilitado:boolean;correo:boolean;key:string;origen:string;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;ip:(req:IncomingMessage)=>string;fetch?:typeof fetch};
+type Config={registro?:boolean;recuperacionHash?:string;recuperacionUsuario?:string;habilitado:boolean;correo:boolean;key:string;origen:string;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;ip:(req:IncomingMessage)=>string;fetch?:typeof fetch};
 export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:Config){
  if(config.habilitado&&(config.supabaseURL!=='https://zkqwephmuflbuagevvxj.supabase.co'||!/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.llavePublica)))throw new Error('Usa exclusivamente el proyecto y la llave publicable de Agendappx.');
  const solicitudes=config.habilitado?new SolicitudesAcceso(pool,config.key):null;
  const red=config.fetch||fetch;
  async function auth(path:string,d:unknown,token?:string,metodo='POST'){
-  let r;try{r=await red(config.supabaseURL+'/auth/v1/'+path,{method:metodo,headers:{apikey:config.llavePublica,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(d),signal:AbortSignal.timeout(18000)});}catch{throw new ErrorAPI(503,'WhatsApp tardó demasiado. Puedes usar tu correo de respaldo.');}
+  let r;try{r=await red(config.supabaseURL+'/auth/v1/'+path,{method:metodo,headers:{apikey:config.llavePublica,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(d),signal:AbortSignal.timeout(18000)});}catch{throw new ErrorAPI(503,config.correo?'WhatsApp tardó demasiado. Puedes usar tu correo de respaldo.':'WhatsApp tardó demasiado. Intenta más tarde.');}
   let data:any;try{data=await r.json();}catch{throw new ErrorAPI(503,'No se pudo verificar el acceso.');}return {ok:r.ok,data};
  }
  return async(req:IncomingMessage,res:ServerResponse,url:URL)=>{
@@ -66,7 +66,7 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
    const s=await solicitudes.crear(canal,destino,config.ip(req),usuarioId);
    const payload=usuarioId?{phone:'+'+destino,channel:'sms'}:{...(canal==='whatsapp'?{phone:'+'+destino,channel:'sms'}:{email:destino}),create_user:false,...(d.captchaToken?{gotrue_meta_security:{captcha_token:String(d.captchaToken).slice(0,4096)}}:{})};
    let r;try{r=await auth(usuarioId?'user':'otp',payload,usuarioId?token:undefined,usuarioId?'PUT':'POST');}catch(e){await solicitudes.fallar(s.id);throw e;}
-   if(!r.ok){await solicitudes.fallar(s.id);if(['user_not_found','otp_disabled','signup_disabled'].includes(r.data?.code||r.data?.error_code)){responder(res,200,s);return true;}throw new ErrorAPI(String(r.data?.code||r.data?.error_code||'').includes('rate_limit')?429:503,'No se pudo enviar el código. Usa tu correo de respaldo o intenta más tarde.');}
+   if(!r.ok){await solicitudes.fallar(s.id);if(['user_not_found','otp_disabled','signup_disabled'].includes(r.data?.code||r.data?.error_code)){responder(res,200,s);return true;}throw new ErrorAPI(String(r.data?.code||r.data?.error_code||'').includes('rate_limit')?429:503,config.correo?'No se pudo enviar el código. Usa tu correo de respaldo o intenta más tarde.':'No se pudo enviar el código. Intenta más tarde.');}
    responder(res,200,{...s,...(usuarioId?{usuario:r.data}:{})});return true;
   }
   if(url.pathname==='/api/acceso/verificar'){
@@ -89,7 +89,7 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
     // El navegador refresca su propia sesión vigente para actualizar el teléfono.
     respuesta={user:usuario};
    }
-   else {const identidad=await jwt.verificar(r.data.access_token);if(s.usuario_id&&s.usuario_id!==identidad.usuarioId)throw new ErrorAPI(403,'Cuenta distinta.');await solicitudes.admitir(identidad);}
+   else {const identidad=await jwt.verificar(r.data.access_token);if(s.usuario_id&&s.usuario_id!==identidad.usuarioId)throw new ErrorAPI(403,'Cuenta distinta.');await solicitudes.admitir(identidad,config.registro?s.id:undefined);}
    await solicitudes.resultado(s.id,true);responder(res,200,respuesta);return true;
   }
   // Mantener el acceso de recuperación ya existente, verificándolo siempre con Auth.

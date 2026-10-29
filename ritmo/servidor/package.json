@@ -15,7 +15,8 @@
     "test:actualizacion": "npm run build && node pruebas/actualizacion-navegador.mjs",
     "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs",
     "test:whatsapp": "npm run build && node --test pruebas/whatsapp-*.test.mjs && node pruebas/whatsapp-solo-envios-navegador.mjs && node pruebas/whatsapp-vinculacion-navegador.mjs",
-    "test:calendario": "npm run build && node --test pruebas/dispositivos.test.mjs && node pruebas/calendario-navegador.mjs && node pruebas/calendario-pendientes-navegador.mjs"
+    "test:calendario": "npm run build && node --test pruebas/dispositivos.test.mjs && node pruebas/calendario-navegador.mjs && node pruebas/calendario-pendientes-navegador.mjs",
+    "test:registro": "npm run build && node --test pruebas/registro-whatsapp.test.mjs && node pruebas/registro-whatsapp-navegador.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",

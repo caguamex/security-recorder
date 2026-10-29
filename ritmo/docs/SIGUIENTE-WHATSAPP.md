@@ -1,6 +1,6 @@
 # Siguiente encargo de Agendappx: WhatsApp vinculado, solo envíos
 
-Actualizado el 27 de octubre de 2026. **Antonio priorizó terminar WhatsApp antes del resto de cuentas.** La implementación local incluye un acceso mínimo seguro de Admin por enlace privado y TOTP, sin SMS de Brevo. La migración y publicación autorizadas con «okey, hazlo» terminaron. Cloudflare y el servicio separado de Railway están publicados y sanos. No hay teléfono vinculado ni mensajes reales; sus dos interruptores siguen apagados.
+Actualizado el 29 de octubre de 2026. La sesión independiente de plataforma está físicamente vinculada, el propietario verificó su número mediante un código real y recuperó su acceso Admin con MFA. Los códigos generales, avisos del salón y vinculaciones nuevas siguen apagados. Antonio priorizó terminar el registro automático e incluyó a nuevas dueñas: implementación local en `codex/agendappx-registro-whatsapp`, pendiente de aprobar migración/publicación y activar sus códigos. Ver `REGISTRO-WHATSAPP.md` y la última entrada de `LOGIN-WHATSAPP.md`; las secciones anteriores conservan el historial y no acreditan una activación actual.
 
 ## Fuente y autorización
 
@@ -101,3 +101,8 @@ La pantalla está publicada; los códigos aún NO funcionan: external.phone=fals
 Vinculación de plataforma: primer intento rechazado sin llegar a conectado. Reparación local del saludo de registro y conservación del intento pasó 196 pruebas. Antonio autorizó explícitamente publicar la reparación y generar otro código; ver última entrada de LOGIN-WHATSAPP.md. No habilitar envíos reales ni borrar credenciales.
 
 La comprobación pasiva detectó rechazo 405 de la versión de protocolo incluida; la actual sí preparó el registro. Reparación ampliada dentro de la aprobación vigente: consulta acotada y caché de versión; 198 pruebas aprobadas. Ver LOGIN-WHATSAPP.md. Pendiente publicar este ajuste y entregar código físicamente válido, sin habilitar mensajes.
+
+
+## Registro automático ampliado — preparación del 29 de octubre
+
+Antonio pidió terminar códigos automáticos y confirmó incluir salones nuevos, además de su equipo por invitación. Rama codex/agendappx-registro-whatsapp; detalle, seguridad y activación en REGISTRO-WHATSAPP.md. Implementación local: acceso normal, creación de un salón vacío y equipo con OTP/MFA. El intermediario de alta aislado en Supabase mantiene cerrado el registro abierto y no entrega la llave Admin al Worker o mensajero. No se aplicó la migración nueva, publicó ni enviaron códigos reales. Brevo sigue pendiente por decisión de Antonio. Antes de publicar y activar códigos se requiere su confirmación para este conjunto. No reiniciar el contador semanal ni vincular nuevamente el número.

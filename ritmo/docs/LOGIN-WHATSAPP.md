@@ -1,5 +1,8 @@
 # Login por WhatsApp — implementación preparada, 28 de octubre de 2026
 
+**Estado al 29 de octubre:** propietario con teléfono confirmado y Admin/MFA recuperado; sesión WhatsApp vinculada. Códigos generales apagados. El registro automático ampliado a salones nuevos e invitaciones está preparado localmente, sin migrar ni publicar: ver REGISTRO-WHATSAPP.md. Brevo queda pendiente por decisión de Antonio. Las entradas fechadas siguientes son el historial de la implementación.
+
+
 Rama codex/agendappx-siguiente-version, PR #7. Fuente CUENTAS.md y WHATSAPP-AUTOMATICO.md, f743ccf; Antonio pidió «implementa el login por whats app». Implementación local terminada y verificada. No se aplicó esta migración, no se publicó esta etapa, no se vinculó ningún número y no se envió ningún mensaje real.
 
 ## Comportamiento entregado
@@ -248,3 +251,8 @@ Antonio pidió nuevamente su enlace privado. Se generó otro oficial para el mis
 Antonio mostró en su iPhone «Acceso verificado». La consulta oficial confirmó para la sesión creada a las **2026-10-29T17:18:24.554527Z**: **aal2, admitida=true y Admin activo=true**, con el mismo UUID original. Su teléfono permanece confirmado y la sesión WhatsApp de plataforma está conectada, sin freno y con custodia activa. No se pidieron ni leyeron sus códigos de autenticación.
 
 Las cuatro banderas de Railway se consultaron y siguen **false**. La recuperación habilita su acceso en ese navegador; no equivale a habilitar códigos generales de login para otros dispositivos, avisos a clientas, equipo o registro público. El vínculo físico WhatsApp y la prueba real de asociación del teléfono sí están comprobados; conservar la fecha de encendido del 27 de octubre para el informe semanal. No fue necesaria otra migración, cambio de roles, aumento de recursos ni intervención en FiNeCi. El propietario puede pulsar Listo para cerrar la hoja y continuar con su agenda en el mismo navegador.
+
+
+## Registro automático ampliado — preparación del 29 de octubre
+
+Antonio pidió terminar códigos automáticos y confirmó incluir salones nuevos, además de su equipo por invitación. Rama codex/agendappx-registro-whatsapp; detalle, seguridad y activación en REGISTRO-WHATSAPP.md. Implementación local: acceso normal, creación de un salón vacío y equipo con OTP/MFA. El intermediario de alta aislado en Supabase mantiene cerrado el registro abierto y no entrega la llave Admin al Worker o mensajero. No se aplicó la migración nueva, publicó ni enviaron códigos reales. Brevo sigue pendiente por decisión de Antonio. Antes de publicar y activar códigos se requiere su confirmación para este conjunto. No reiniciar el contador semanal ni vincular nuevamente el número.
