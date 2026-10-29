@@ -10,6 +10,7 @@ import { WhatsApp } from '../servidor/src/whatsapp.ts';
 import { ProveedorEvolution } from '../servidor/src/whatsapp-evolution/proveedor.ts';
 import { VinculacionWhatsApp } from '../servidor/src/whatsapp-evolution/vinculacion.ts';
 import { rutasVinculacion } from '../servidor/src/whatsapp-evolution/http.ts';
+import { rutasRegistro } from '../servidor/src/cuentas/registro.ts';
 import { rutasAcceso } from '../servidor/src/cuentas/acceso.ts';
 import { rutasCuentas } from '../servidor/src/cuentas/http.ts';
 import { proxyWhatsApp, usaMeta } from '../servidor/src/whatsapp-vinculado/proxy.ts';
@@ -51,8 +52,10 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
   migracion: {soloLectura: env.MIGRATION_READ_ONLY === 'true', exportar: async () => null},
   cuentas: rutasCuentas(pool, jwt, {
     habilitado: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true', supabaseURL: env.SUPABASE_URL,
+    registro:{habilitado:env.AGENDAPPX_REGISTRO_HABILITADO==='true',turnstileSiteKey:env.TURNSTILE_SITE_KEY||''},
+    rutasRegistro:rutasRegistro(pool,jwt,{habilitado:env.AGENDAPPX_REGISTRO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,operacionKey:env.REGISTRO_OPERACION_KEY,turnstileKey:env.TURNSTILE_SECRET_KEY,turnstileSiteKey:env.TURNSTILE_SITE_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     acceso:{whatsapp:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true'},
-    rutasAcceso:rutasAcceso(pool,jwt,{recuperacionHash:env.ACCESO_RECUPERACION_HASH,recuperacionUsuario:env.MIGRACION_USUARIO_ID,habilitado:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,salones:new Set(String(env.WHATSAPP_SALONES_HABILITADOS||'').split(',').filter(Boolean)),ip:req=>String(req.headers['cf-connecting-ip']||'')}),
+    rutasAcceso:rutasAcceso(pool,jwt,{registro:env.AGENDAPPX_REGISTRO_HABILITADO==='true',recuperacionHash:env.ACCESO_RECUPERACION_HASH,recuperacionUsuario:env.MIGRACION_USUARIO_ID,habilitado:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,salones:new Set(String(env.WHATSAPP_SALONES_HABILITADOS||'').split(',').filter(Boolean)),ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL, migracionUsuarioId: env.MIGRACION_USUARIO_ID,
     salones: new Set(String(env.WHATSAPP_SALONES_HABILITADOS || '').split(',').map(v=>v.trim()).filter(Boolean)),
   }), integraciones, whatsapp, vinculacion, metaHabilitado: usaMeta(env.WHATSAPP_REMITENTE), dispositivos: env.AGENDAPPX_CUENTAS_HABILITADAS === 'true' ? undefined : new Dispositivos(pool, env.APP_TOKEN || ''), tz: env.TZ, publicURL: env.PUBLIC_URL,

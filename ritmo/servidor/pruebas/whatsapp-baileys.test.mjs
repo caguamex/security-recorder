@@ -4,7 +4,7 @@ import {EventEmitter} from 'node:events';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {preparar,ids} from './whatsapp-solo-envios-entorno.mjs';
-import {BaileysSoloEnvios,SesionesCifradas,OPCIONES_PRIVADAS,numeroIdentidadWhatsApp,destinatarioWhatsApp} from '../../whatsapp/baileys.mjs';
+import {BaileysSoloEnvios,SesionesCifradas,OPCIONES_PRIVADAS,numeroIdentidadWhatsApp,destinatarioWhatsApp,destinatarioCodigo} from '../../whatsapp/baileys.mjs';
 import {configurar} from '../../whatsapp/config.mjs';
 import {crearResolverVersion} from '../../whatsapp/version.mjs';
 const n=ids.salon,esperar=()=>new Promise(r=>setTimeout(r,5));
@@ -101,4 +101,14 @@ test('habilitar códigos exige prueba con usuario y plazo máximo de diez minuto
  const env={WA_ACTIVAR_SERVICIO:'true',SUPABASE_URL:'https://zkqwephmuflbuagevvxj.supabase.co',PUBLIC_URL:'https://agendappx.local/',DATABASE_URL:'postgresql://agendappx_whatsapp:clave@db.zkqwephmuflbuagevvxj.supabase.co/postgres',WHATSAPP_SALONES_HABILITADOS:n,WA_NUMERO_CODIGOS:'528661241483',WA_CODIGOS_HABILITADOS:'true',WA_CODIGOS_HOOK_SECRET:'secreto-local',ACCESO_HMAC_KEY:'llave-local'};
  assert.throws(()=>configurar(env),/único código/);const prueba={WA_CODIGOS_PRUEBA_USUARIO:ids.admin,WA_CODIGOS_PRUEBA_DESDE:'2026-11-09T10:00:00Z',WA_CODIGOS_PRUEBA_HASTA:'2026-11-09T10:10:00Z'};const c=configurar({...env,...prueba});assert.equal(c.codigos.prueba.usuario,ids.admin);assert.equal(c.codigos.prueba.destino,'528661241483');assert.equal(c.codigos.vincular,false);assert.equal(c.politica.envios,false);
  for(const patch of [{WA_CODIGOS_PRUEBA_USUARIO:'ajena'},{WA_CODIGOS_PRUEBA_DESDE:'invalida'},{WA_CODIGOS_PRUEBA_HASTA:'2026-11-09T10:11:00Z'},{WA_CODIGOS_PRUEBA_HASTA:prueba.WA_CODIGOS_PRUEBA_DESDE}])assert.throws(()=>configurar({...env,...prueba,...patch}));assert.equal(configurar({...env,WA_CODIGOS_HABILITADOS:'false'}).codigos.habilitado,false);
+});
+
+test('códigos a otra línea: resuelve solo ese teléfono y conserva su JID mexicano real',async()=>{
+ const consultas=[],x={socket:{user:{id:'5218661241483:2@s.whatsapp.net'},onWhatsApp:async tel=>{consultas.push(tel);return [{exists:true,jid:'5215511111111@s.whatsapp.net'}];}},auth:{creds:{}}};
+ assert.equal(await destinatarioCodigo(x,'525511111111'),'5215511111111@s.whatsapp.net');assert.deepEqual(consultas,['525511111111']);assert.equal(await destinatarioCodigo(x,'528661241483'),'5218661241483@s.whatsapp.net');assert.equal(consultas.length,1);
+});
+test('códigos: no entrega a otra línea, un LID, un número inexistente ni una respuesta ambigua',async()=>{
+ for(const respuesta of [[{exists:true,jid:'5215511111112@s.whatsapp.net'}],[{exists:true,jid:'5215511111111@lid'}],[{exists:false,jid:'5215511111111@s.whatsapp.net'}],[],[{exists:true,jid:'5215511111111@s.whatsapp.net'},{exists:true,jid:'525511111111@s.whatsapp.net'}]]){
+  const x={socket:{user:{id:'5218661241483@s.whatsapp.net'},onWhatsApp:async()=>respuesta},auth:{creds:{}}};await assert.rejects(()=>destinatarioCodigo(x,'525511111111'));
+ }
 });
