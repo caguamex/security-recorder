@@ -199,7 +199,7 @@ html[data-diseno="neutro"] .ver path:first-child { fill: var(--ink); } html[data
 </style>
 
 <div class="phone">
-  <div class="note">Demostración · datos de ejemplo · Diseño: <span class="dis" role="group" aria-label="Diseño"><button type="button" data-dis="rosa">Rosa 3D</button><button type="button" data-dis="neutro">Neutro</button></span></div>
+  <div class="note">Demostración · datos de ejemplo · Diseño: <span class="dis" role="group" aria-label="Diseño"><button type="button" data-dis="rosa">Rosa 3D</button><button type="button" data-dis="neutro">Neutro</button></span> · Tema: <span class="dis tem" role="group" aria-label="Tema"><button type="button" data-tema="light">White</button><button type="button" data-tema="dark">Dark</button></span></div>
   <main id="screen" aria-live="polite"></main>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
@@ -453,7 +453,7 @@ html[data-diseno="neutro"] .ver path:first-child { fill: var(--ink); } html[data
       case 'equipo': toast('Equipo: invitaciones, roles y quién ve qué (ya diseñado)'); break;
       case 'horario': toast('Horario por persona, comida y días especiales (ya diseñado)'); break;
       case 'whatsapp': toast('Mensajes automáticos, anticipo y promociones (ya diseñado)'); break;
-      case 'tema': { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark'; toast(r.dataset.theme === 'dark' ? 'Modo Dark' : 'Modo White'); break; }
+      case 'tema': { const r = document.documentElement; tema(r.dataset.theme === 'dark' ? 'light' : 'dark'); try { localStorage.setItem('negocio.tema', r.dataset.theme); } catch (err) {} toast(r.dataset.theme === 'dark' ? 'Modo Dark' : 'Modo White'); break; }
       case 'nuevo-servicio': toast('Nombre, categoría, duración, precio y foto'); break;
       case 'copiar': { try { navigator.clipboard.writeText('https://agendappx.app/ab-beauty-room').then(() => toast('Link copiado'), () => toast('Selecciona el link para copiarlo')); } catch (err) { toast('Selecciona el link para copiarlo'); } break; }
     }
@@ -464,6 +464,10 @@ html[data-diseno="neutro"] .ver path:first-child { fill: var(--ink); } html[data
   let dv = 'neutro'; try { dv = localStorage.getItem('negocio.diseno') || 'neutro'; } catch (e) {}
   diseno(dv);
   document.querySelector('.dis').addEventListener('click', e => { const b = e.target.closest('[data-dis]'); if (!b) return; diseno(b.dataset.dis); try { localStorage.setItem('negocio.diseno', b.dataset.dis); } catch (err) {} });
+  const tema = v => { document.documentElement.dataset.theme = v; document.querySelectorAll('[data-tema]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tema === v))); };
+  let tv = 'light'; try { tv = localStorage.getItem('negocio.tema') || 'light'; } catch (e) {}
+  tema(tv);
+  document.querySelector('.tem').addEventListener('click', e => { const b = e.target.closest('[data-tema]'); if (!b) return; tema(b.dataset.tema); try { localStorage.setItem('negocio.tema', b.dataset.tema); } catch (err) {} });
   render();
 })();
 </script>

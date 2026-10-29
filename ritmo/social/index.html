@@ -170,7 +170,7 @@ html[data-diseno="neutro"] .ver path:first-child { fill: var(--ink); } html[data
 </style>
 
 <div class="phone">
-  <div class="note">Demostración · fotos de Pexels · Diseño: <span class="dis" role="group" aria-label="Diseño"><button type="button" data-dis="rosa">Rosa 3D</button><button type="button" data-dis="neutro">Neutro</button></span></div>
+  <div class="note">Demostración · fotos de Pexels · Diseño: <span class="dis" role="group" aria-label="Diseño"><button type="button" data-dis="rosa">Rosa 3D</button><button type="button" data-dis="neutro">Neutro</button></span> · Tema: <span class="dis tem" role="group" aria-label="Tema"><button type="button" data-tema="light">White</button><button type="button" data-tema="dark">Dark</button></span></div>
   <main id="screen" aria-live="polite"></main>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
@@ -453,6 +453,10 @@ html[data-diseno="neutro"] .ver path:first-child { fill: var(--ink); } html[data
   let dv = 'neutro'; try { dv = localStorage.getItem('social.diseno') || 'neutro'; } catch (e) {}
   diseno(dv);
   document.querySelector('.dis').addEventListener('click', e => { const b = e.target.closest('[data-dis]'); if (!b) return; diseno(b.dataset.dis); try { localStorage.setItem('social.diseno', b.dataset.dis); } catch (err) {} });
+  const tema = v => { document.documentElement.dataset.theme = v; document.querySelectorAll('[data-tema]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tema === v))); };
+  let tv = 'light'; try { tv = localStorage.getItem('social.tema') || 'light'; } catch (e) {}
+  tema(tv);
+  document.querySelector('.tem').addEventListener('click', e => { const b = e.target.closest('[data-tema]'); if (!b) return; tema(b.dataset.tema); try { localStorage.setItem('social.tema', b.dataset.tema); } catch (err) {} });
   render();
 })();
 </script>

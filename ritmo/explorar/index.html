@@ -314,7 +314,7 @@ html[data-diseno="neutro"] .rate .s { color: var(--ink); }
 </style>
 
 <div class="phone">
-  <div class="note">Demostración · fotos de Pexels · Diseño: <span class="estilo" role="group" aria-label="Diseño"><button type="button" data-estilo="min3d">Rosa 3D</button><button type="button" data-estilo="neutro">Neutro</button></span></div>
+  <div class="note">Demostración · fotos de Pexels · Diseño: <span class="estilo" role="group" aria-label="Diseño"><button type="button" data-estilo="min3d">Rosa 3D</button><button type="button" data-estilo="neutro">Neutro</button></span> · Tema: <span class="estilo tem" role="group" aria-label="Tema"><button type="button" data-tema="light">White</button><button type="button" data-tema="dark">Dark</button></span></div>
   <main id="screen" aria-live="polite"></main>
 </div>
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones"></nav>
@@ -544,6 +544,10 @@ html[data-diseno="neutro"] .rate .s { color: var(--ink); }
   let ev = 'neutro'; try { ev = localStorage.getItem('explorar.diseno') || 'neutro'; } catch (e) {}
   estilo(ev);
   document.querySelector('.estilo').addEventListener('click', e => { const b = e.target.closest('[data-estilo]'); if (!b) return; estilo(b.dataset.estilo); try { localStorage.setItem('explorar.diseno', b.dataset.estilo); } catch (err) {} });
+  const tema = v => { document.documentElement.dataset.theme = v; document.querySelectorAll('[data-tema]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tema === v))); };
+  let tv = 'light'; try { tv = localStorage.getItem('explorar.tema') || 'light'; } catch (e) {}
+  tema(tv);
+  document.querySelector('.tem').addEventListener('click', e => { const b = e.target.closest('[data-tema]'); if (!b) return; tema(b.dataset.tema); try { localStorage.setItem('explorar.tema', b.dataset.tema); } catch (err) {} });
   render();
 })();
 </script>
