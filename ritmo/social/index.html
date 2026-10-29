@@ -59,6 +59,7 @@ main { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 .follow.on { color: var(--ink3); }
 .media { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; max-width: 100%; border: 0; padding: 0; overflow: hidden; background: var(--tile); }
 .media svg.art { width: 100%; height: 100%; display: block; }
+img.art { width: 100%; height: 100%; display: block; object-fit: cover; }
 .media .chipimg { position: absolute; left: 12px; top: 12px; padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, .92); color: #0B0B0F; font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
 .media .ilus { position: absolute; right: 10px; top: 12px; padding: 3px 8px; border-radius: 6px; background: rgba(0, 0, 0, .45); color: #fff; font-size: 10.5px; font-weight: 600; }
 .book { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 10px; padding: 9px 9px 9px 14px; border-radius: 18px; background: rgba(255, 255, 255, .94); color: #0B0B0F; box-shadow: 0 8px 22px rgba(0, 0, 0, .18); backdrop-filter: blur(10px); }
@@ -152,7 +153,7 @@ textarea.in { min-height: 84px; resize: vertical; }
 </style>
 
 <div class="phone">
-  <div class="note">Demostración · negocios y publicaciones de ejemplo; las ilustraciones van donde irán las fotos reales</div>
+  <div class="note">Demostración · negocios de ejemplo con fotos de Pexels (licencia libre)</div>
   <main id="screen" aria-live="polite"></main>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
@@ -271,7 +272,7 @@ textarea.in { min-height: 84px; resize: vertical; }
       cejas: { skin, skin2, brow: ['#3A2A1E', '#2B2018', '#5A3E2B'][i % 3], iris: ['#6B4B2A', '#3E6B4F', '#4B5E7A'][i % 3] },
       pestanas: { skin, skin2, brow: '#3A2A1E', len: 26 + (i % 3) * 6, lid: ['#E0457B', '#9B7BFF', '#C68C62'][i % 3] },
       color: { bg1: ['#FBEFE6', '#EDE4FF'][i % 2], bg2: ['#EAD3C2', '#D6C6FF'][i % 2], h1: ['#3A2A1E', '#2B2018'][i % 2], h2: ['#8A5A3B', '#7A4E35'][i % 2], h3: ['#E8C08A', '#F0D3A8'][i % 2], cape: '#0B0B0F' } })[tipo]; };
-  const arte = p => ART[p.tipo](v(p.tipo, p.var));
+  const arte = p => p.foto ? `<img class="art" src="fotos/${p.foto}.jpg" alt="${esc(p.srv)}, foto de ejemplo" loading="lazy">` : ART[p.tipo](v(p.tipo, p.var));
 
   /* ---------- Datos de ejemplo ---------- */
   const CATS = [['cortes', 'Cortes', 'scissors', '#D9702B', ['fade']], ['barberia', 'Barbería', 'barber', '#8A6A45', ['fade', 'barba']], ['unas', 'Uñas', 'unas', '#D63C78', ['unas']],
@@ -290,27 +291,34 @@ textarea.in { min-height: 84px; resize: vertical; }
     glam: { n: 'Glam House', u: 'glamhouse', ini: 'GH', av: 'linear-gradient(150deg,#FCD34D,#D97706)', tipo: 'Salón de belleza', km: 0.8, r: 4.6, rev: 203, seg: 2210, ver: true,
       serv: [['Balayage', 150, 1450], ['Tinte completo', 120, 850], ['Corte y peinado', 60, 330]] },
   };
+  // Fotos de ejemplo de Pexels (licencia libre); en la app real cada negocio sube las suyas.
   let POSTS = [
-    { id: 1, neg: 'chuy', tipo: 'fade', var: 0, srv: 'Fade con diseño', txt: 'Fade bajo con línea de diseño. Agenda el tuyo desde aquí.', tags: ['fade', 'barberia', 'cortes'], likes: 412, com: 38, t: 'hace 2 h' },
-    { id: 2, neg: 'ab', tipo: 'unas', var: 0, srv: 'Uñas acrílicas', txt: 'Acrílicas rosa con brillo para esta semana de fiesta.', tags: ['unas', 'acrilicas'], likes: 268, com: 21, t: 'hace 3 h' },
-    { id: 3, neg: 'lash', tipo: 'pestanas', var: 2, srv: 'Extensiones de volumen', txt: 'Volumen ruso, natural y ligero.', tags: ['pestanas', 'extensiones'], likes: 530, com: 44, t: 'hace 5 h' },
-    { id: 4, neg: 'fade', tipo: 'barba', var: 0, srv: 'Barba con toalla caliente', txt: 'Perfilado de barba con toalla caliente.', tags: ['barba', 'barberia'], likes: 198, com: 12, t: 'hace 6 h' },
-    { id: 5, neg: 'glam', tipo: 'color', var: 0, srv: 'Balayage', txt: 'Balayage miel sobre castaño. Antes y después en historias.', tags: ['color', 'balayage', 'cabello'], likes: 721, com: 63, t: 'hace 8 h' },
-    { id: 6, neg: 'ab', tipo: 'cejas', var: 1, srv: 'Diseño de cejas', txt: 'Diseño con hilo y tinte. Cejas que enmarcan.', tags: ['cejas', 'diseno'], likes: 233, com: 17, t: 'ayer' },
-    { id: 7, neg: 'bella', tipo: 'unas', var: 1, srv: 'Uñas en gel', txt: 'Gel lila con puntitos.', tags: ['unas', 'gel'], likes: 305, com: 19, t: 'ayer' },
-    { id: 8, neg: 'fade', tipo: 'fade', var: 1, srv: 'Fade bajo', txt: 'Mid fade clásico.', tags: ['fade', 'cortes', 'barberia'], likes: 287, com: 15, t: 'ayer' },
-    { id: 9, neg: 'lash', tipo: 'cejas', var: 0, srv: 'Laminado de cejas', txt: 'Laminado: cejas peinadas hasta 6 semanas.', tags: ['cejas', 'laminado'], likes: 389, com: 29, t: 'hace 2 días' },
-    { id: 10, neg: 'ab', tipo: 'pestanas', var: 0, srv: 'Lifting de pestañas', txt: 'Lifting + tinte, sin extensiones.', tags: ['pestanas', 'lifting'], likes: 344, com: 26, t: 'hace 2 días' },
-    { id: 11, neg: 'chuy', tipo: 'barba', var: 1, srv: 'Corte y barba', txt: 'Corte y barba completo, como debe ser.', tags: ['barba', 'cortes', 'barberia'], likes: 256, com: 14, t: 'hace 3 días' },
-    { id: 12, neg: 'bella', tipo: 'unas', var: 3, srv: 'Gelish en pies', txt: 'Pedicure con gelish naranja.', tags: ['unas', 'pies'], likes: 141, com: 8, t: 'hace 3 días' },
-    { id: 13, neg: 'glam', tipo: 'color', var: 1, srv: 'Tinte completo', txt: 'Rubio cenizo con matiz.', tags: ['color', 'cabello'], likes: 402, com: 31, t: 'hace 4 días' },
-    { id: 14, neg: 'chuy', tipo: 'fade', var: 2, srv: 'Corte de cabello', txt: 'Corte clásico con tijera.', tags: ['cortes', 'barberia'], likes: 176, com: 9, t: 'hace 5 días' },
-    { id: 15, neg: 'ab', tipo: 'unas', var: 2, srv: 'Gelish en manos', txt: 'Gelish azul cielo.', tags: ['unas', 'gelish'], likes: 212, com: 11, t: 'hace 6 días' },
+    { id: 1, neg: 'chuy', foto: 12464838, srv: 'Fade con diseño', txt: 'Fade bajo con línea a navaja. Agenda el tuyo desde aquí.', tags: ['fade', 'barberia', 'cortes'], likes: 412, com: 38, t: 'hace 2 h' },
+    { id: 2, neg: 'ab', foto: 939835, srv: 'Uñas acrílicas', txt: 'Acrílicas rosa con brillo para esta semana de fiesta.', tags: ['unas', 'acrilicas'], likes: 268, com: 21, t: 'hace 3 h' },
+    { id: 3, neg: 'lash', foto: 8554941, srv: 'Extensiones de volumen', txt: 'Volumen ruso, natural y ligero.', tags: ['pestanas', 'extensiones'], likes: 530, com: 44, t: 'hace 5 h' },
+    { id: 4, neg: 'fade', foto: 897262, srv: 'Barba con toalla caliente', txt: 'Perfilado de barba con navaja.', tags: ['barba', 'barberia'], likes: 198, com: 12, t: 'hace 6 h' },
+    { id: 5, neg: 'glam', foto: 8468127, srv: 'Balayage', txt: 'Balayage con papel aluminio. Antes y después en historias.', tags: ['color', 'balayage', 'cabello'], likes: 721, com: 63, t: 'hace 8 h' },
+    { id: 6, neg: 'ab', foto: 5177994, srv: 'Diseño de cejas', txt: 'Diseño de cejas con pinza. Cejas que enmarcan.', tags: ['cejas', 'diseno'], likes: 233, com: 17, t: 'ayer' },
+    { id: 7, neg: 'bella', foto: 939836, srv: 'Uñas en gel', txt: 'Gel lila con un dedo de brillo.', tags: ['unas', 'gel'], likes: 305, com: 19, t: 'ayer' },
+    { id: 8, neg: 'fade', foto: 12706272, srv: 'Fade bajo', txt: 'Mid fade clásico con raya marcada.', tags: ['fade', 'cortes', 'barberia'], likes: 287, com: 15, t: 'ayer' },
+    { id: 9, neg: 'lash', foto: 5128220, srv: 'Lifting de pestañas', txt: 'Lifting: pestañas hacia arriba hasta 8 semanas.', tags: ['pestanas', 'lifting'], likes: 389, com: 29, t: 'hace 2 días' },
+    { id: 10, neg: 'ab', foto: 17471377, srv: 'Uñas acrílicas', txt: 'Francés difuminado con detalle floral.', tags: ['unas', 'acrilicas'], likes: 344, com: 26, t: 'hace 2 días' },
+    { id: 11, neg: 'chuy', foto: 10024234, srv: 'Arreglo de barba', txt: 'Barba larga, solo perfilado y forma.', tags: ['barba', 'barberia'], likes: 256, com: 14, t: 'hace 3 días' },
+    { id: 12, neg: 'bella', foto: 7066258, srv: 'Uñas en gel', txt: 'Gel de colores con puntitos.', tags: ['unas', 'gel'], likes: 141, com: 8, t: 'hace 3 días' },
+    { id: 13, neg: 'glam', foto: 3356211, srv: 'Tinte completo', txt: 'Cobrizo intenso, liso y con brillo.', tags: ['color', 'cabello'], likes: 402, com: 31, t: 'hace 4 días' },
+    { id: 14, neg: 'chuy', foto: 4625615, srv: 'Corte y barba', txt: 'Corte y barba con máquina, como debe ser.', tags: ['cortes', 'barba', 'barberia'], likes: 176, com: 9, t: 'hace 5 días' },
+    { id: 15, neg: 'ab', foto: 16363470, srv: 'Gelish en manos', txt: 'Gelish nude con brillo dorado.', tags: ['unas', 'gelish'], likes: 212, com: 11, t: 'hace 6 días' },
+    { id: 16, neg: 'fade', foto: 7697441, srv: 'Barba con toalla caliente', txt: 'Afeitado clásico con navaja.', tags: ['barba', 'barberia'], likes: 164, com: 7, t: 'hace 6 días' },
+    { id: 17, neg: 'glam', foto: 3993312, srv: 'Tinte completo', txt: 'Tinte castaño, aplicación con brocha.', tags: ['color', 'cabello'], likes: 133, com: 6, t: 'hace 1 semana' },
+    { id: 18, neg: 'bella', foto: 35031996, srv: 'Uñas acrílicas', txt: 'Almendradas con efecto mármol.', tags: ['unas', 'acrilicas'], likes: 289, com: 16, t: 'hace 1 semana' },
   ];
+  const TIPO_FOTO = { 12464838: 'fade', 12706272: 'fade', 4625615: 'barba', 897262: 'barba', 10024234: 'barba', 7697441: 'barba', 939835: 'unas', 939836: 'unas', 17471377: 'unas', 16363470: 'unas', 7066258: 'unas', 35031996: 'unas',
+    8554941: 'pestanas', 5128220: 'pestanas', 5177994: 'cejas', 8468127: 'color', 3356211: 'color', 3993312: 'color' };
+  POSTS.forEach(p => { p.tipo = TIPO_FOTO[p.foto]; });
   const precio = p => (NEG[p.neg].serv.find(s => s.srv === p.srv || s[0] === p.srv) || [])[2];
   const minutos = p => (NEG[p.neg].serv.find(s => s[0] === p.srv) || [])[1];
 
-  const S = { tab: 'inicio', q: '', cat: null, neg: null, ptab: 'trabajos', likes: new Set([2]), saves: new Set(), sigo: new Set(['ab', 'chuy']), citas: [], pub: { tipo: 'unas', var: 1, srv: null } };
+  const S = { tab: 'inicio', q: '', cat: null, neg: null, ptab: 'trabajos', likes: new Set([2]), saves: new Set(), sigo: new Set(['ab', 'chuy']), citas: [], pub: { foto: 17471377, srv: null } };
   let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2600); };
   const sheet = h => { $('#sheetCard').innerHTML = h; $('#sheet').hidden = false; };
   const cerrar = () => { $('#sheet').hidden = true; };
@@ -321,7 +329,7 @@ textarea.in { min-height: 84px; resize: vertical; }
     return `<article class="post"><div class="ph pad" style="padding-left:16px;padding-right:16px"><button type="button" class="av" style="--av:${n.av}" data-neg="${p.neg}" aria-label="${esc(n.n)}">${n.ini}</button>
       <button type="button" class="who" data-neg="${p.neg}"><b>${esc(n.n)}</b> ${n.ver ? VER : ''}<small>${n.tipo} · ${n.km.toFixed(1)} km</small></button>
       <button type="button" class="follow ${S.sigo.has(p.neg) ? 'on' : ''}" data-seguir="${p.neg}">${S.sigo.has(p.neg) ? 'Siguiendo' : 'Seguir'}</button></div>
-      <div class="media"><button type="button" data-ver="${p.id}" style="all:unset;display:block;width:100%;height:100%;cursor:pointer" aria-label="Ver publicación">${arte(p)}</button><span class="ilus">Ilustración</span>
+      <div class="media"><button type="button" data-ver="${p.id}" style="all:unset;display:block;width:100%;height:100%;cursor:pointer" aria-label="Ver publicación">${arte(p)}</button><span class="ilus">Foto: Pexels</span>
         <div class="book"><span class="l"><b>${esc(p.srv)}</b><small>${pr ? money(pr) : ''} · ${minutos(p) || 45} min · ${esc(n.n)}</small></span><button type="button" class="btnr" data-agendar="${p.id}">Agendar</button></div></div>
       <div class="acts"><button type="button" class="${lk ? 'liked' : ''}" data-like="${p.id}" aria-label="Me gusta">${I('heart')}${k(p.likes + (lk ? 1 : 0))}</button><button type="button" data-ver="${p.id}" aria-label="Comentarios">${I('chat')}${p.com}</button>
         <button type="button" data-act="compartir" aria-label="Compartir">${I('send')}</button><span class="sp"></span><button type="button" class="${sv ? 'saved' : ''}" data-save="${p.id}" aria-label="Guardar">${I('save')}</button></div>
@@ -371,10 +379,10 @@ textarea.in { min-height: 84px; resize: vertical; }
       <label class="t" for="tel">Tu WhatsApp</label><input class="in" id="tel" type="tel" inputmode="numeric" placeholder="55 1234 5678" autocomplete="tel-national">
       <div id="out" style="margin-top:14px"><button type="button" class="big" data-act="pedir" data-n="${neg}" data-s="${esc(s[0])}">Pedir cita · ${money(s[2])}</button><p class="foot">El negocio la confirma por WhatsApp. Sin crear cuenta.</p></div>`); };
   const publicar = () => { const n = NEG.ab, pb = S.pub; if (!pb.srv) pb.srv = n.serv[0][0];
-    const OP = [['unas', 1], ['unas', 3], ['pestanas', 1], ['cejas', 2], ['color', 0], ['unas', 0], ['cejas', 0], ['pestanas', 2]];
+    const OP = [939835, 17471377, 16363470, 939836, 35031996, 5128220, 8554941, 5177994];
     sheet(`<div class="sh-nav"><button type="button" data-act="cerrar">Cancelar</button><b>Nuevo trabajo</b><button type="button" data-act="publicar" style="font-weight:700">Publicar</button></div>
-      <div class="prev">${ART[pb.tipo](v(pb.tipo, pb.var))}</div>
-      <label class="t">Elige la foto (en la app: cámara o galería)</label><div class="picks">${OP.map(([t, i]) => `<button type="button" data-pick="${t}:${i}" aria-pressed="${pb.tipo === t && pb.var === i}">${ART[t](v(t, i))}</button>`).join('')}</div>
+      <div class="prev">${arte({ foto: pb.foto, srv: pb.srv })}</div>
+      <label class="t">Elige la foto (en la app: cámara o galería)</label><div class="picks">${OP.map(f => `<button type="button" data-pick="${f}" aria-pressed="${pb.foto === f}">${arte({ foto: f, srv: 'Foto' })}</button>`).join('')}</div>
       <label class="t">¿Qué servicio es?</label><div class="chips" style="flex-wrap:wrap;margin:0;padding:0">${n.serv.map(([s, m, p]) => `<button type="button" class="chip" data-psrv="${esc(s)}" aria-pressed="${pb.srv === s}">${esc(s)} · ${money(p)}</button>`).join('')}</div>
       <label class="t" for="ptxt">Descripción</label><textarea class="in" id="ptxt" placeholder="Cuéntales qué hiciste: colores, técnica, duración…">Acrílicas con brillo, listas para el fin de semana.</textarea>
       <p class="foot">Con el servicio ligado, la gente puede agendar exactamente esto desde la foto. Aparece en tu perfil, en el inicio de tus seguidores y en las búsquedas.</p>`); };
@@ -404,7 +412,7 @@ textarea.in { min-height: 84px; resize: vertical; }
     if (d.agendarneg) { agendar(d.agendarneg); return; }
     if (d.agendarsrv) { agendar(S.neg, d.agendarsrv); return; }
     if (d.hora) { b.parentElement.querySelectorAll('.slot').forEach(x => x.setAttribute('aria-pressed', String(x === b))); return; }
-    if (d.pick) { const [t, i] = d.pick.split(':'); S.pub.tipo = t; S.pub.var = +i; const txt = $('#ptxt').value; publicar(); $('#ptxt').value = txt; return; }
+    if (d.pick) { S.pub.foto = +d.pick; const txt = $('#ptxt').value; publicar(); $('#ptxt').value = txt; return; }
     if (d.psrv) { S.pub.srv = d.psrv; const txt = $('#ptxt').value; publicar(); $('#ptxt').value = txt; return; }
     switch (d.act) {
       case 'cerrar': cerrar(); break;
@@ -412,7 +420,7 @@ textarea.in { min-height: 84px; resize: vertical; }
       case 'limpiar': ir({ q: '', cat: null }); break;
       case 'nuevo': publicar(); break;
       case 'publicar': { const t = $('#ptxt').value.trim() || 'Nuevo trabajo.'; const pb = S.pub;
-        POSTS.unshift({ id: Date.now(), neg: 'ab', tipo: pb.tipo, var: pb.var, srv: pb.srv, txt: t, tags: [pb.tipo === 'color' ? 'color' : pb.tipo, 'abbeautyroom'], likes: 0, com: 0, t: 'ahora' });
+        POSTS.unshift({ id: Date.now(), neg: 'ab', foto: pb.foto, tipo: TIPO_FOTO[pb.foto], srv: pb.srv, txt: t, tags: [TIPO_FOTO[pb.foto], 'abbeautyroom'], likes: 0, com: 0, t: 'ahora' });
         cerrar(); ir({ tab: 'inicio', neg: null }); toast('Publicado en tu perfil y en el inicio de tus seguidores'); break; }
       case 'pedir': { const t = $('#tel').value.replace(/\D/g, ''); if (t.length !== 10) { toast('Escribe tu WhatsApp a 10 dígitos'); $('#tel').focus(); break; }
         const h = $('#sheetCard .slot[aria-pressed="true"]').dataset.hora; S.citas.unshift({ neg: d.n, srv: d.s, dia: 'jue 30', h });
