@@ -143,3 +143,16 @@ Pendiente de autorización específica: publicar esta nueva corrección solament
 El despliegue 41bd9daa-8129-405b-946c-4e1e0f0590f3 ya aparece SUCCESS y su instancia 9fcb8d5b-a886-48b2-b594-b054228ec9b7 RUNNING. La sesión se conserva allí hasta autorizar la corrección. No reiniciar el seguimiento de consumo del 27 de octubre ni cambiar recursos de Railway. Conservar el acceso SSH temporal hasta verificar la recuperación y retirarlo al concluir la operación.
 
 Verificación de esta corrección: npm test --prefix ritmo/servidor compiló y regeneró los archivos locales; **201 pruebas aprobadas, cero fallos**. La compilación no produjo cambios de interfaz ni archivos generados distintos. No se publicó la corrección, no se retiró el freno y no se enviaron mensajes.
+
+
+### Corrección publicada y sesión recuperada — 29 de octubre de 2026
+
+Antonio aprobó expresamente publicar la reparación y recuperar la conexión manteniendo códigos y mensajes apagados. Se publicó exclusivamente el commit 6195fce en Railway, despliegue **08bf6c18-2094-450f-aedd-8eb6097e058e**, SUCCESS, instancia **a8601dee-3134-48b4-9f1d-17168efb450b**, RUNNING. Se subió una copia del commit que contiene solo el servidor y WhatsApp; no se incluyeron archivos ajenos, secretos ni la interfaz de Comunidad. Se conservaron una réplica, 0.1 vCPU y 500 MB; no cambiaron infraestructura, planes, cuotas ni FiNeCi.
+
+Dentro de esa instancia se verificaron nuevamente las credenciales cifradas, registro, mismo número tras normalizar el prefijo y ambas firmas de identidad con las utilidades/protobuf del SDK. Los campos binarios de account se serializan como base64 por protobuf; se convirtieron con ADVSignedDeviceIdentity.fromObject para comprobar firmas y longitudes, sin reescribir las credenciales. La primera comprobación, que esperaba Buffer directamente, revirtió íntegramente su transacción y no modificó datos.
+
+La recuperación aprobada bloqueó la fila de plataforma y comprobó estado=revisar, motivo=numero_no_coincide, freno=true, manual=false y ausencia de custodia activa. Retiró únicamente ese falso bloqueo, sin borrar ni sustituir claves. La reconexión automática llegó a conectado a las **2026-10-29T06:53:57.324Z**. Una consulta posterior al proceso confirmó **estado=conectado, verificado=true** para la línea autorizada, y /salud respondió 200, estado=listo. El número esperado coincide en la base y freno=false.
+
+**WA_CODIGOS_HABILITADOS=false y WA_ENVIOS_HABILITADOS=false**: no se enviaron códigos ni mensajes reales. No se habilitaron otras sesiones. Se retiró correctamente de Railway el registro SSH temporal agendappx-operacion-temporal al finalizar; no volver a asumir que esa llave conserva acceso. No se reinició el calendario del informe semanal: el servicio sigue contando desde el 27 de octubre a las 19:11:09 UTC. Validación previa: 201 pruebas aprobadas. PR #9: https://github.com/caguamex/security-recorder/pull/9.
+
+Siguiente etapa requiere autorización específica para el primer código de acceso, indicando destinatario y alcance; no habilitar toda la cola de avisos ni prometer disponibilidad del login hasta probar ese flujo real. La observación breve de conexión no garantiza que WhatsApp nunca desvincule el dispositivo.
