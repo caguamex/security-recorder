@@ -1,0 +1,247 @@
+<title>Agendappx Planes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Planes y precios de Agendappx para negocios, con el diseño Neutro (docs/DISENO.md). Dos vistas:
+   «Planes» (lo que ve un salón antes de registrarse) y «Mi plan» (dentro de Mi negocio). Una columna de iPhone (máx. 430 px). */
+:root {
+  --stage: #ECEEF3; --bg: #F6F6F8; --card: #FFFFFF; --ink: #0B0B0F; --ink2: #3C3C43; --ink3: #8A8A8E; --line: #EAEAEE; --tile: #F1F1F4;
+  --acInk: #FFFFFF; --ok: #1E9E4A; --soft3: 0 0 0 1px var(--line), 0 1px 2px rgba(0, 0, 0, .04); --scrim: rgba(0, 0, 0, .35); --demo: #1B1B20; --demoInk: #F5F5F7;
+  --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --stage: #000000; --bg: #000000; --card: #111114; --ink: #F5F5F7; --ink2: #C7C7CC; --ink3: #8A8A90; --line: #1F1F23; --tile: #17171B;
+  --acInk: #0B0B0F; --ok: #34C759; --soft3: 0 0 0 1px var(--line); --scrim: rgba(0, 0, 0, .6); --demo: #1C1C22; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --stage: #000000; --bg: #000000; --card: #111114; --ink: #F5F5F7; --ink2: #C7C7CC; --ink3: #8A8A90; --line: #1F1F23; --tile: #17171B;
+  --acInk: #0B0B0F; --ok: #34C759; --soft3: 0 0 0 1px var(--line); --scrim: rgba(0, 0, 0, .6); --demo: #1C1C22; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--stage); color: var(--ink); font: 400 15px/1.4 var(--ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2.5px solid var(--ink); outline-offset: 2px; }
+.phone { position: relative; max-width: 430px; min-height: 100vh; margin: 0 auto; background: var(--bg); }
+.note { padding-block: 7px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--demo); color: var(--demoInk); font-size: 12px; text-align: center; }
+.dis { display: inline-flex; gap: 4px; margin-left: 6px; vertical-align: middle; }
+.dis button { padding: 3px 10px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; background: none; color: inherit; font-size: 12px; font-weight: 600; }
+.dis button[aria-pressed="true"] { background: #F5F5F7; color: #0B0B0F; }
+main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+h2 { margin: 28px 0 10px; font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
+.brand { display: flex; align-items: center; gap: 8px; padding: 16px 0 18px; font-weight: 800; font-size: 17px; }
+.brand .mk { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--ink); color: var(--acInk); }
+.brand .mk .ic { width: 18px; height: 18px; }
+.brand small { margin-left: auto; color: var(--ink3); font-weight: 600; font-size: 13px; }
+.sub { margin: 8px 0 0; color: var(--ink2); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 18px; padding: 4px; border-radius: 999px; background: var(--card); box-shadow: var(--soft3); }
+.seg button { min-height: 38px; border: 0; border-radius: 999px; background: none; font-weight: 600; font-size: 14px; color: var(--ink2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--acInk); }
+.seg small { font-weight: 500; opacity: .75; }
+.funda { display: flex; gap: 12px; align-items: center; margin-top: 14px; padding: 14px; border-radius: 16px; background: var(--card); box-shadow: var(--soft3); }
+.funda .q { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--tile); }
+.funda b { display: block; font-size: 15px; } .funda span { color: var(--ink2); font-size: 13px; }
+.funda .meter { height: 4px; margin-top: 8px; border-radius: 2px; background: var(--tile); overflow: hidden; } .funda .meter i { display: block; height: 100%; background: var(--ink); }
+.plans { display: grid; gap: 12px; margin-top: 16px; }
+.plan { position: relative; display: block; width: 100%; padding: 18px; border: 0; border-radius: 18px; background: var(--card); box-shadow: var(--soft3); text-align: left; }
+.plan[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+.plan .hd { display: flex; align-items: center; gap: 8px; }
+.plan .hd b { font-size: 18px; font-weight: 800; }
+.plan .tag { margin-left: auto; padding: 3px 9px; border-radius: 999px; background: var(--ink); color: var(--acInk); font-size: 11.5px; font-weight: 700; }
+.plan .rad { margin-left: auto; width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--line); }
+.plan .tag + .rad { margin-left: 0; }
+.plan[aria-pressed="true"] .rad { box-shadow: inset 0 0 0 7px var(--ink); }
+.plan .for { margin-top: 2px; color: var(--ink3); font-size: 13.5px; }
+.price { display: flex; align-items: baseline; gap: 6px; margin-top: 12px; font-variant-numeric: tabular-nums; }
+.price b { font-size: 34px; font-weight: 800; letter-spacing: -.03em; } .price span { color: var(--ink3); font-size: 14px; }
+.price s { color: var(--ink3); font-size: 15px; }
+.plan .yr { min-height: 18px; color: var(--ink2); font-size: 13px; }
+.plan ul { margin: 12px 0 0; padding: 12px 0 0; list-style: none; border-top: 1px solid var(--line); display: grid; gap: 7px; }
+.plan li { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--ink2); } .plan li .ic { width: 18px; height: 18px; margin-top: 1px; color: var(--ink); }
+.plan li b { color: var(--ink); font-weight: 600; }
+.prom { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.prom div { padding: 14px 10px; border-radius: 16px; background: var(--card); box-shadow: var(--soft3); text-align: center; font-size: 12.5px; color: var(--ink2); }
+.prom .ic { width: 24px; height: 24px; margin: 0 auto 6px; display: block; color: var(--ink); }
+.prom b { display: block; color: var(--ink); font-size: 13.5px; }
+.tbl { border-radius: 16px; background: var(--card); box-shadow: var(--soft3); overflow: hidden; }
+.tbl table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th, .tbl td { padding: 10px 6px; border-bottom: 1px solid var(--line); text-align: center; }
+.tbl th:first-child, .tbl td:first-child { text-align: left; padding-left: 14px; color: var(--ink2); }
+.tbl thead th { font-size: 12.5px; font-weight: 700; color: var(--ink); background: var(--tile); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .ic { width: 17px; height: 17px; vertical-align: -3px; } .tbl .no { color: var(--ink3); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { display: flex; justify-content: space-between; gap: 10px; padding: 14px 2px; font-weight: 600; cursor: pointer; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--ink3); font-weight: 400; font-size: 20px; line-height: 1; }
+.faq details[open] summary::after { content: "–"; }
+.faq p { margin: 0 2px 14px; color: var(--ink2); font-size: 14px; }
+.cta { position: fixed; z-index: 10; left: 0; right: 0; bottom: 0; max-width: 430px; margin: 0 auto; padding: 12px max(16px, env(safe-area-inset-left, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)); background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(16px); border-top: 1px solid var(--line); }
+.big { width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: var(--ink); color: var(--acInk); font-weight: 700; font-size: 16px; }
+.cta small { display: block; margin-top: 6px; text-align: center; color: var(--ink3); font-size: 12px; }
+/* Mi plan */
+.back { display: inline-flex; align-items: center; gap: 4px; padding: 16px 0 6px; border: 0; background: none; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); font-weight: 600; }
+.card { margin-top: 12px; padding: 16px; border-radius: 16px; background: var(--card); box-shadow: var(--soft3); }
+.row { display: flex; align-items: center; gap: 10px; }
+.pill { padding: 3px 9px; border-radius: 999px; background: var(--tile); font-size: 12px; font-weight: 700; color: var(--ink2); }
+.pill.dark { background: var(--ink); color: var(--acInk); }
+.trial { margin-top: 12px; } .trial .meter { height: 6px; border-radius: 3px; background: var(--tile); overflow: hidden; } .trial .meter i { display: block; height: 100%; background: var(--ink); }
+.trial small { display: flex; justify-content: space-between; margin-top: 6px; color: var(--ink3); font-size: 12.5px; }
+.use { display: grid; gap: 12px; }
+.use .row span { flex: 1; color: var(--ink2); font-size: 14px; } .use .row b { font-size: 14px; font-variant-numeric: tabular-nums; }
+.use .ok { color: var(--ok); }
+.list { margin-top: 12px; border-radius: 16px; background: var(--card); box-shadow: var(--soft3); overflow: hidden; }
+.list button, .list div.it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 10px 14px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; }
+.list > :last-child { border-bottom: 0 !important; }
+.list .l { flex: 1; min-width: 0; } .list small { display: block; color: var(--ink3); font-size: 12.5px; }
+.list .go { color: var(--ink3); }
+.list .p { font-weight: 700; font-variant-numeric: tabular-nums; }
+.danger { color: var(--ink3); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+.btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.btn2 { min-height: 42px; border: 0; border-radius: 999px; background: var(--card); box-shadow: var(--soft3); font-weight: 600; font-size: 14px; }
+.btn2.fill { background: var(--ink); color: var(--acInk); box-shadow: none; }
+.toast { position: fixed; z-index: 50; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--acInk); font-size: 14px; font-weight: 600; }
+</style>
+
+<div class="phone">
+  <div class="note">Demostración · precios propuestos · Vista: <span class="dis vis" role="group" aria-label="Vista"><button type="button" data-vis="planes">Planes</button><button type="button" data-vis="miplan">Mi plan</button></span> · Tema: <span class="dis tem" role="group" aria-label="Tema"><button type="button" data-tema="light">White</button><button type="button" data-tema="dark">Dark</button></span></div>
+  <main id="screen" aria-live="polite"></main>
+  <div id="cta"></div>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script>
+(() => {
+  const P = {
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    x: '<path d="M7 7l10 10M17 7L7 17"/>',
+    star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z"/>',
+    wa: '<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-1.8-1.8l.8-1-1-2z"/>',
+    pct: '<path d="M6 18L18 6"/><circle cx="7.5" cy="7.5" r="2"/><circle cx="16.5" cy="16.5" r="2"/>',
+    lock: '<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
+    card: '<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/>',
+    doc: '<path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10.5A.5.5 0 0 1 6.5 20V4a.5.5 0 0 1 .5-.5z"/><path d="M14 3.5V8h4M9.5 12.5h5M9.5 16h5"/>',
+    swap: '<path d="M7 7h12l-3-3M17 17H5l3 3"/>',
+    chev: '<path d="M9 6l6 6-6 6"/>',
+    left: '<path d="M15 6l-6 6 6 6"/>',
+    gift: '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M12 9v11M4 13h16M12 9c-1.5-3-5-3.5-5-1.2C7 9 9 9 12 9zM12 9c1.5-3 5-3.5 5-1.2C17 9 15 9 12 9z"/>',
+  };
+  const I = k => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
+  const $ = s => document.querySelector(s);
+  const money = n => '$' + n.toLocaleString('es-MX');
+
+  const PLANES = [
+    { id: 'solo', n: 'Solo', para: 'Para 1 persona: manicurista, cejas, pestañas o barbero', m: 249,
+      f: ['Agenda, clientas y servicios con fotos', 'Tu perfil en Explorar y Social', 'Link para que te agenden', '<b>WhatsApp automático</b>: confirmación, anticipo y recordatorios'] },
+    { id: 'salon', n: 'Salón', para: 'Para salones y barberías con equipo', m: 449, rec: true,
+      f: ['Todo lo de Solo', '<b>Hasta 5 personas</b>, cada una con su horario', '<b>2 Admin</b> con avisos al momento', 'Promociones por WhatsApp a tus clientas', 'Estadísticas y reseñas'] },
+    { id: 'pro', n: 'Pro', para: 'Para negocios grandes o con sucursales', m: 799,
+      f: ['Todo lo de Salón', '<b>Personas ilimitadas</b>', 'Varias sucursales en una cuenta', 'Estadísticas completas por persona', 'Ayuda prioritaria por WhatsApp'] },
+  ];
+  const TABLA = [
+    ['Personas', '1', '5', 'Ilimitadas'],
+    ['Admin', '1', '2', 'Ilimitados'],
+    ['WhatsApp automático', 1, 1, 1],
+    ['Explorar y Social', 1, 1, 1],
+    ['Promociones por WhatsApp', 0, 1, 1],
+    ['Estadísticas', 'Básicas', 1, 'Completas'],
+    ['Sucursales', '1', '1', 'Varias'],
+    ['Comisión por cita', 'Ninguna', 'Ninguna', 'Ninguna'],
+  ];
+  const FAQ = [
+    ['¿Qué pasa al terminar los 30 días?', 'Te avisamos por WhatsApp 3 días antes. Si no eliges un plan, tu cuenta queda en pausa con tus datos guardados; no se borra nada.'],
+    ['¿Cobran comisión por cada cita?', 'No. Pagas solo tu plan. Lo que agendas por Agendappx, Explorar o Social es 100 % tuyo.'],
+    ['¿Los mensajes de WhatsApp cuestan aparte?', 'No. Salen de tu propio WhatsApp vinculado y están incluidos en el plan.'],
+    ['¿Puedo cambiar de plan o cancelar?', 'Sí, cuando quieras desde Mi negocio → Mi plan. Si cancelas, sigues usando la app hasta el fin del periodo pagado.'],
+    ['¿Dan factura?', 'Sí. Agrega tus datos fiscales en Mi plan y te llega la factura de cada pago por correo.'],
+    ['¿Cómo pago?', 'Con tarjeta de débito o crédito, con cargo automático cada mes o cada año.'],
+  ];
+  const FUNDA = { quedan: 13, total: 20, precio: 199 };
+  const S = { vista: 'planes', anual: false, plan: 'salon' };
+
+  const precio = p => S.anual ? Math.round(p.m * 10 / 12) : p.m;
+  const tarjeta = p => `<button type="button" class="plan" data-plan="${p.id}" aria-pressed="${S.plan === p.id}">
+      <div class="hd"><b>${p.n}</b>${p.rec ? '<span class="tag">Recomendado</span>' : ''}<span class="rad" aria-hidden="true"></span></div>
+      <div class="for">${p.para}</div>
+      <div class="price">${S.anual ? `<s>${money(p.m)}</s>` : ''}<b>${money(precio(p))}</b><span>MXN al mes</span></div>
+      <div class="yr">${S.anual ? `Pagas ${money(p.m * 10)} al año: 2 meses gratis` : 'IVA incluido · sin plazo forzoso'}</div>
+      <ul>${p.f.map(x => `<li>${I('check')}<span>${x}</span></li>`).join('')}</ul>
+    </button>`;
+  const celda = v => v === 1 ? I('check') : v === 0 ? `<span class="no">${I('x')}</span>` : v;
+
+  const planes = () => `
+    <div class="brand"><span class="mk">${I('cal')}</span>Agendappx<small>para negocios</small></div>
+    <h1>Elige tu plan</h1>
+    <p class="sub">Prueba gratis 30 días, sin tarjeta. Sin comisiones por cita.</p>
+    <div class="seg" role="group" aria-label="Forma de pago"><button type="button" data-anual="0" aria-pressed="${!S.anual}">Mensual</button><button type="button" data-anual="1" aria-pressed="${S.anual}">Anual <small>· 2 meses gratis</small></button></div>
+    <div class="funda"><span class="q">${I('gift')}</span><div style="flex:1"><b>Precio de fundadora: ${money(FUNDA.precio)} al mes</b><span>Plan Salón de por vida para los primeros ${FUNDA.total} negocios · quedan ${FUNDA.quedan}</span><div class="meter"><i style="width:${(FUNDA.total - FUNDA.quedan) / FUNDA.total * 100}%"></i></div></div></div>
+    <div class="plans">${PLANES.map(tarjeta).join('')}</div>
+    <h2>Siempre incluido</h2>
+    <div class="prom"><div>${I('pct')}<b>0 % comisión</b>Lo que agendas es tuyo</div><div>${I('wa')}<b>WhatsApp</b>Sin costo por mensaje</div><div>${I('lock')}<b>Tus datos</b>Descárgalos cuando quieras</div></div>
+    <h2>Compara los planes</h2>
+    <div class="tbl"><table><thead><tr><th></th><th>Solo</th><th>Salón</th><th>Pro</th></tr></thead>
+      <tbody>${TABLA.map(([n, ...v]) => `<tr><td>${n}</td>${v.map(x => `<td>${celda(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <h2>Preguntas frecuentes</h2>
+    <div class="faq">${FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>`;
+
+  const miplan = () => `
+    <button type="button" class="back" data-act="volver">${I('left')}Mi negocio</button>
+    <h1>Mi plan</h1>
+    <div class="card">
+      <div class="row"><b style="font-size:18px">Plan Salón</b><span class="pill dark">Fundadora</span><span style="margin-left:auto" class="pill">Prueba gratis</span></div>
+      <div class="price" style="margin-top:8px"><s>${money(449)}</s><b>${money(199)}</b><span>MXN al mes, de por vida</span></div>
+      <div class="trial"><div class="meter"><i style="width:40%"></i></div><small><span>Día 12 de 30</span><span>Quedan 18 días</span></small></div>
+      <div class="btnrow"><button type="button" class="btn2 fill" data-act="cambiar">Cambiar de plan</button><button type="button" class="btn2" data-act="pagar">Agregar tarjeta</button></div>
+    </div>
+    <h2>Lo que estás usando</h2>
+    <div class="card use">
+      <div class="row"><span>Personas en el equipo</span><b>3 de 5</b></div>
+      <div class="row"><span>Admin</span><b>2 de 2</b></div>
+      <div class="row"><span>WhatsApp vinculado</span><b class="ok">Activo</b></div>
+      <div class="row"><span>Mensajes enviados este mes</span><b>412 · incluidos</b></div>
+      <div class="row"><span>Citas desde Explorar y Social</span><b>27 · sin comisión</b></div>
+    </div>
+    <h2>Pagos y facturas</h2>
+    <div class="list">
+      <div class="it">${I('cal')}<div class="l">Primer cobro<small>9 de noviembre, al terminar la prueba</small></div><span class="p">${money(199)}</span></div>
+      <button type="button" data-act="pagar">${I('card')}<div class="l">Método de pago<small>Aún no agregas una tarjeta</small></div><span class="go">${I('chev')}</span></button>
+      <button type="button" data-act="fiscal">${I('doc')}<div class="l">Datos para factura<small>RFC, razón social y correo</small></div><span class="go">${I('chev')}</span></button>
+      <button type="button" data-act="anual">${I('swap')}<div class="l">Cambiar a pago anual<small>${money(1990)} al año · 2 meses gratis</small></div><span class="go">${I('chev')}</span></button>
+    </div>
+    <p style="margin:18px 2px 0;font-size:13.5px;color:var(--ink3)">Puedes cancelar cuando quieras. Tus datos se guardan 90 días por si regresas. <button type="button" data-act="cancelar" class="danger" style="border:0;background:none;padding:0;font:inherit">Cancelar plan</button></p>`;
+
+  const render = () => {
+    $('#screen').innerHTML = S.vista === 'planes' ? planes() : miplan();
+    const p = PLANES.find(x => x.id === S.plan);
+    $('#cta').innerHTML = S.vista === 'planes' ? `<div class="cta"><button type="button" class="big" data-act="probar">Probar 30 días gratis · ${p.n}</button><small>Después ${S.plan === 'salon' ? `${money(FUNDA.precio)} al mes con precio de fundadora` : `${money(precio(p))} al mes${S.anual ? ', pago anual' : ''}`} · cancela cuando quieras</small></div>` : '';
+    document.querySelectorAll('[data-vis]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.vis === S.vista)));
+  };
+  let tt;
+  const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => { t.hidden = true; }, 2400); };
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const d = b.dataset;
+    if (d.vis) { S.vista = d.vis; render(); scrollTo(0, 0); return; }
+    if (d.plan) { S.plan = d.plan; render(); return; }
+    if (d.anual) { S.anual = d.anual === '1'; render(); return; }
+    switch (d.act) {
+      case 'probar': toast('Lleva a «Escribe tu número de WhatsApp» y a crear tu salón'); break;
+      case 'volver': toast('Regresa a Mi negocio'); break;
+      case 'cambiar': S.vista = 'planes'; render(); scrollTo(0, 0); break;
+      case 'pagar': toast('Abre el pago seguro con tarjeta (Mercado Pago o Stripe)'); break;
+      case 'fiscal': toast('Formulario de RFC, razón social, régimen y correo'); break;
+      case 'anual': toast('Simulado: cambiarías a pago anual'); break;
+      case 'cancelar': toast('Pregunta el motivo y confirma; tus datos se guardan 90 días'); break;
+    }
+  });
+
+  const tema = v => { document.documentElement.dataset.theme = v; document.querySelectorAll('[data-tema]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tema === v))); };
+  let tv = 'light'; try { tv = localStorage.getItem('planes.tema') || 'light'; } catch (e) {}
+  tema(tv);
+  document.querySelector('.tem').addEventListener('click', e => { const b = e.target.closest('[data-tema]'); if (!b) return; tema(b.dataset.tema); try { localStorage.setItem('planes.tema', b.dataset.tema); } catch (err) {} });
+  render();
+})();
+</script>
