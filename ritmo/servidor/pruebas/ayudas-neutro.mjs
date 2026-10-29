@@ -1,0 +1,3 @@
+// La navegación aprobada mueve las preferencias a Mi negocio → Apariencia.
+export async function elegirModo(p,modo){await p.locator('#tabbar').getByRole('tab',{name:'Negocio',exact:true}).click();await p.getByRole('button',{name:/^Apariencia/}).click();await p.getByRole('tab',{name:modo,exact:true}).click();await p.locator('#tabbar').getByRole('tab',{name:'Negocio',exact:true}).click();}
+export async function elegirTema(p,tema){await p.locator('#tabbar').getByRole('tab',{name:'Negocio',exact:true}).click();await p.getByRole('button',{name:/^Apariencia/}).click();await p.getByRole('radio',{name:tema,exact:true}).click();await p.locator('#tabbar').getByRole('tab',{name:'Negocio',exact:true}).click();}

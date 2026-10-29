@@ -1,3 +1,4 @@
+import {elegirModo,elegirTema} from './ayudas-neutro.mjs';
 // Navegador real, SDK de Supabase real, JWT firmado localmente y PostgreSQL con RLS.
 // El transporte de WhatsApp es simulado y no se conecta a teléfonos.
 import {chromium} from 'playwright';
@@ -29,7 +30,7 @@ async function contexto(u='admin'){
  await c.route(supabase+'/**',route=>route.fulfill({status:503,contentType:'application/json',body:'{"error":"Prueba local sin red externa"}'}));
  return c;
 }
-async function abrir(page){await page.getByRole('tab',{name:'Ajustes',exact:true}).click();await page.getByRole('button',{name:/Mensajes de WhatsApp/}).click();await page.locator('#wa-habilitado').waitFor();}
+async function abrir(page){await page.getByRole('tab',{name:'Negocio',exact:true}).click();await page.getByRole('button',{name:/Mensajes de WhatsApp/}).click();await page.locator('#wa-habilitado').waitFor();}
 try{
  // Primer acceso desde enlace: el SDK intercambia OTP, configura TOTP y sube a aal2.
  const nuevo=await browser.newContext({viewport:{width:390,height:844}}),hash='a'.repeat(64),factor='ffffffff-1111-4111-8111-111111111111';let factorVerificado=false,verificaciones=0;
@@ -50,7 +51,7 @@ try{
  await login.locator('#auth-code').fill('123456');await login.locator('#auth-verificar').click();await login.waitForFunction(async()=>(await window.AgendappxCuentas.sesion())?.aal==='aal2');assert.equal(verificaciones,1);assert.equal(await login.locator('#auth-secret').textContent(),'');await nuevo.close();
  const context=await contexto(),page=await context.newPage();page.on('pageerror',x=>errores.push(x.message));await page.goto(base);await page.waitForFunction(()=>window.AgendappxCuentas?.sesion);await page.waitForFunction(async()=>!!(await window.AgendappxCuentas.sesion()));
  await page.evaluate(()=>localStorage.setItem('belleza.v1.sync',JSON.stringify({records:[],pending:[{id:'cejas',baseVersion:0,mutationId:'original_del_celular_12345',data:{id:'cejas',kind:'servicio',nombre:'Cejas anteriores',precio:999,duracion:60}}],conflicts:[]})));
- await page.getByRole('tab',{name:'Ajustes',exact:true}).click();await page.getByRole('button',{name:/Sincronización/}).click();await page.locator('#sync-legado').waitFor();page.once('dialog',d=>d.accept());await page.locator('#sync-legado').click();await page.getByText('Conservar el servidor',{exact:true}).waitFor();assert.equal((await e.db.fuente(ids.salon,'cejas')).data.precio,500);assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('belleza.v1.sync')).pending.length),1);await page.getByText('Conservar el servidor',{exact:true}).click();await page.getByRole('button',{name:'Listo',exact:true}).click();
+ await page.getByRole('tab',{name:'Negocio',exact:true}).click();await page.getByRole('button',{name:/Sincronización/}).click();await page.locator('#sync-legado').waitFor();page.once('dialog',d=>d.accept());await page.locator('#sync-legado').click();await page.getByText('Conservar el servidor',{exact:true}).waitFor();assert.equal((await e.db.fuente(ids.salon,'cejas')).data.precio,500);assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('belleza.v1.sync')).pending.length),1);await page.getByText('Conservar el servidor',{exact:true}).click();await page.getByRole('button',{name:'Listo',exact:true}).click();
  await abrir(page);await page.locator('#wa-direccion').fill('Dirección de prueba 123');await page.locator('#wa-anticipoActivo').check();await page.locator('#wa-banco').fill('Banco de prueba');
  const prefijo='01218000000000000',digito=(10-[...prefijo].reduce((a,d,i)=>a+(Number(d)*[3,7,1][i%3])%10,0)%10)%10;
  await page.locator('#wa-clabe').fill(prefijo+digito);await page.locator('#wa-titular').fill('Titular de prueba');await page.locator('#wa-guardar-ajustes').click();await page.waitForFunction(()=>!document.querySelector('#wa-generar').disabled);
@@ -64,7 +65,7 @@ try{
  await page.locator('#wa-recibido').click();await page.locator('#wa-pago-si').click();await page.getByText('Confirmada: anticipo recibido',{exact:false}).waitFor();assert.equal((await e.control.cita(e.ident(),ids.salon,'cita-nueva')).anticipo.estado,'recibido');
  await page.locator('#wa-recibo').setInputFiles(fileURLToPath(new URL('../../belleza/trabajos/lifting-cejas.jpg',import.meta.url)));await page.locator('#wa-recibo-guardar').waitFor({state:'visible'});await page.locator('#wa-recibo-guardar').click();await page.getByText('Guardado.',{exact:true}).waitFor();assert.ok((await e.control.cita(e.ident(),ids.salon,'cita-nueva')).anticipo.comprobante.startsWith('data:image/jpeg;'));
  await page.screenshot({path:imagenes+'anticipo.png',animations:'disabled'});
- await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.getByRole('tab',{name:'Ajustes',exact:true}).click();await page.getByRole('tab',{name:/Dark/}).click();await abrir(page);await page.screenshot({path:imagenes+'configuracion-dark.png',animations:'disabled'});
+ await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.getByRole('tab',{name:'Negocio',exact:true}).click();await elegirModo(page,/Dark/);await abrir(page);await page.screenshot({path:imagenes+'configuracion-dark.png',animations:'disabled'});
  await context.close();
  const staff=await contexto('especialista'),p=await staff.newPage();await p.goto(base);await p.waitForFunction(async()=>!!(await window.AgendappxCuentas?.sesion()));assert.equal(await p.evaluate(()=>Object.values(localStorage).some(v=>v.includes('5511111111'))),false);await staff.close();
  assert.deepEqual(errores,[]);console.log('WhatsApp: SDK real, acceso Admin MFA, RLS, configuración, código, pago único, foto y White/Dark 390/768/1440 verificados sin teléfono.');
