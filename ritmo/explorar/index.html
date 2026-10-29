@@ -288,6 +288,13 @@ html[data-estilo="min"][data-prof="3d"] .banner button { background: linear-grad
 html[data-estilo="min"][data-prof="3d"] .logo { background: radial-gradient(circle at 32% 28%, #FF9CC0, var(--rosa) 55%, var(--rosaEdge)); box-shadow: 0 4px 0 var(--rosaEdge), 0 10px 20px color-mix(in srgb, var(--rosa) 35%, transparent), inset 0 2px 2px rgba(255, 255, 255, .35); }
 .ph.foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .ph.foto small { z-index: 1; color: #fff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, .6) !important; }
+.cats:has(.foto) { gap: 10px !important; border: 0 !important; }
+.cat.foto { position: relative !important; display: block !important; height: 112px !important; padding: 0 !important; border: 0 !important; border-radius: 18px !important; overflow: hidden !important; background: var(--tile, #EEE) !important;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .12), 0 10px 20px rgba(0, 0, 0, .14) !important; transition: transform .12s; }
+.cat.foto:active { transform: translateY(2px); }
+.cat.foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cat.foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, .72)); }
+.cat.foto b { position: absolute; z-index: 1; left: 10px; right: 6px; bottom: 8px; color: #fff; font-size: 13.5px; font-weight: 700; text-align: left; text-shadow: 0 1px 3px rgba(0, 0, 0, .4); }
 .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
   padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
 </style>
@@ -369,6 +376,7 @@ html[data-estilo="min"][data-prof="3d"] .logo { background: radial-gradient(circ
     return out; };
   const proxima = s => { for (let d = 0; d < 7; d++) { const l = libres(s, d); if (l.length) return (d === 0 ? 'Hoy' : d === 1 ? 'Mañana' : DIAS[d][0] + ' ' + DIAS[d][1]) + ' ' + l[0]; } return 'Sin lugares esta semana'; };
   // Fotos de ejemplo de Pexels (licencia libre) por categoría; en la app real cada salón sube las suyas.
+  const CATFOTO = { cejas: 5177994, pestanas: 8554941, unas: 939835, depilacion: 'cera', cabello: 3356211, maquillaje: 3813896, facial: 3985329, barberia: 12706272 };
   const FOTOS = { barberia: [12706272, 12464838, 10024234, 897262, 4625615, 7697441, 6007400, 1319461, 7697316], unas: [939835, 17471377, 16363470, 939836, 35031996, 7066258],
     pestanas: [8554941, 5128220], cejas: [5177994], cabello: [8468127, 3356211, 3993311, 3993312] };
   const fotos = s => { const off = SALONES.indexOf(s), out = [], q = consulta(), con = s.cats.filter(c => FOTOS[c]).sort((a, b) => q ? q.cats.includes(b) - q.cats.includes(a) : 0), sin = s.cats.filter(c => !FOTOS[c]);
@@ -410,7 +418,7 @@ html[data-estilo="min"][data-prof="3d"] .logo { background: radial-gradient(circ
       return `<div class="top"><button type="button" class="loc" data-act="ubicacion">${I('pin')}Cerca de ti · Centro ▾</button><button type="button" data-tab="perfil">Entrar</button></div>
         <h1>¿Qué te quieres hacer hoy?</h1>${buscador}
         <div class="gh"><b>Buscar por servicio</b></div>
-        <div class="cats">${CATS.map(([k, n, e]) => `<button type="button" class="cat" data-cat="${k}"><span class="cic">${I(e)}</span>${n}</button>`).join('')}</div>
+        <div class="cats">${CATS.map(([k, n, e]) => `<button type="button" class="cat foto" data-cat="${k}"><img src="fotos/${CATFOTO[k]}.jpg" alt="" loading="lazy"><b>${n}</b></button>`).join('')}</div>
         <div class="gh"><b>Mejor calificados cerca de ti</b><span>${SALONES.length} salones</span></div>
         <div id="res">${top.map(tarjeta).join('')}</div>
         <div class="banner"><span class="bic">${I('store')}</span><span style="flex:1;min-width:0"><b>¿Tienes un salón?</b><small>Aparece aquí y recibe citas. Es gratis.</small></span><button type="button" data-act="registrar">Súmate</button></div>`; }
