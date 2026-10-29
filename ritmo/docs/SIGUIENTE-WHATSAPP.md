@@ -1,6 +1,6 @@
 # Siguiente encargo de Agendappx: WhatsApp vinculado, solo envíos
 
-Actualizado el 29 de octubre de 2026, 18:52 UTC. La publicación del registro automático fue autorizada y ejecutada desde e3ecda7 (PR #10); los códigos normales de cuentas existentes están activos en Railway (modo cuentas) y la sesión de plataforma sigue conectada. Los avisos de citas/promociones y nuevas vinculaciones continúan apagados. El registro de salones nuevos permanece cerrado hasta que Antonio guarde REGISTRO_OPERACION_KEY en Supabase Edge Function Secrets; el navegador integrado aún informa desactivado. No regenerar la llave ni volver a migrar. Ver el cierre operativo de REGISTRO-WHATSAPP.md; las secciones anteriores son históricas.
+Actualizado el 29 de octubre de 2026, 19:06 UTC. Publicación y migración aprobadas completadas; Antonio guardó la llave de Supabase y se verificó su firma. Registro de salones nuevos e invitaciones habilitado en Cloudflare (versión 850612e6-24c1-48c3-bd05-e49a8fa82f75). Railway mantiene códigos normales en modo cuentas y plataforma conectada; citas/promociones y nuevas vinculaciones siguen apagadas. Falta la prueba física del recorrido completo y recepción del OTP, que debe solicitar la persona desde su app. No volver a migrar ni generar llaves. Ver el cierre de REGISTRO-WHATSAPP.md; las secciones anteriores conservan el historial.
 
 ## Fuente y autorización
 

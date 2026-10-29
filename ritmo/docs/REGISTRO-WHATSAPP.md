@@ -1,6 +1,6 @@
-# Registro automático por WhatsApp — preparación del 29 de octubre de 2026
+# Registro automático por WhatsApp — publicado el 29 de octubre de 2026
 
-Estado al 29 de octubre de 2026, 18:52 UTC: publicación y migración autorizadas y ejecutadas; códigos normales activos para cuentas existentes. El alta de salones nuevos permanece cerrada hasta guardar la llave interna de la función de Supabase y verificarla. Antonio pidió terminar el registro automático y confirmó incluir también a las dueñas de salones nuevos. El modo manual de copiar/entregar códigos no se implementa ni es necesario para este recorrido. El enlace de recuperación del propietario se conserva como salida de emergencia hasta tener un respaldo operativo.
+Estado al 29 de octubre de 2026, 19:06 UTC: migración y publicación autorizadas completadas. Antonio guardó la llave interna en Supabase; firma y configuración verificadas. Registro de salones nuevos e invitaciones habilitado, códigos normales activos, plataforma WhatsApp conectada. Falta la primera prueba física de este registro completo y la entrega de su código, solicitada por la persona desde su propia app; no se acredita con pruebas simuladas ni con la salud del servicio.
 
 ## Recorridos
 
@@ -23,7 +23,7 @@ Railway añade el modo explícito `WA_CODIGOS_MODO=cuentas`. El predeterminado s
 
 Correo de respaldo sigue apagado a petición de Antonio, aunque Brevo ya validó la cuenta. La interfaz no ofrece enviarlo hasta configurarlo.
 
-## Configuración pendiente, después de aprobar publicación y migración
+## Checklist de la preparación original (histórico; resultado vigente al final)
 
 1. Confirmar Supabase Free y Railway dentro del presupuesto compartido vigente de 10 USD; no activar planes, réplicas, dominios ni recursos nuevos. Respaldar agenda, cuentas y configuración privada; comparar cantidades/huellas antes y después. La migración es aditiva: no vuelve a asignar los datos heredados ni modifica el propietario.
 2. Crear o reutilizar exclusivamente un widget Turnstile gratuito para el hostname actual. La autorización anterior de Wrangler no incluía `challenge-widgets.write`; verificar el permiso y pedir la intervención concreta si sigue faltando. No alterar widgets de otros proyectos. `TURNSTILE_SITE_KEY` es pública; `TURNSTILE_SECRET_KEY` va solo en el Worker. No activar registro sin validación real del CAPTCHA.
@@ -51,7 +51,7 @@ Referencias: https://supabase.com/docs/reference/javascript/auth-admin-createuse
 
 Las pruebas de navegador utilizan SDK real y PostgreSQL local con RLS; Auth, Turnstile y entrega WhatsApp están simulados. No son una prueba física de registro nuevo en producción. Incluyen White/Dark a 390/768/1440, dos números/identidades, salón vacío, Admin MFA, invitación al mismo salón y acceso existente. Pruebas automáticas cubren alteración de firmas, límites, caducidad, consentimiento, número ajeno, sesión no admitida, invitación revocada, carrera de slug sin registros huérfanos, aislamiento, promociones compartidas y revocación inmediata.
 
-Capturas locales revisadas: imagenes/registro-whatsapp/. Producción permanece en la versión anterior, sin migración ni mensajes nuevos. La publicación y la primera prueba real siguen pendientes de aprobación específica.
+Capturas locales revisadas durante la preparación: imagenes/registro-whatsapp/. La migración y publicación se autorizaron y ejecutaron después; ver el cierre operativo al final. La primera prueba física del registro completo sigue pendiente.
 
 
 ## Publicación autorizada y verificada — 29 de octubre de 2026
@@ -65,8 +65,19 @@ Antonio confirmó «publicalo» y autorizó añadir a Wrangler únicamente la ad
 - Railway publicó la imagen aprobada y activó WA_CODIGOS_HABILITADOS=true, WA_CODIGOS_MODO=cuentas. Despliegue final 38fb23cb-76af-439a-8bca-89aa16809c6f, 2026-10-29T18:47:00.053Z, SUCCESS. Mantiene una réplica, 0.1 vCPU, 500 MB, sin volumen nuevo. WA_CODIGOS_VINCULAR, WA_ENVIOS_HABILITADOS y WA_VINCULACION_HABILITADA continúan false. Salud 200 y sesión de plataforma conectada, número correcto, custodia activa y sin freno. No se solicitó ni envió un código real desde herramientas durante esta publicación.
 - Uso compartido Railway consultado: 1.5467340500143212 USD, ciclo 14 de octubre–14 de noviembre; Hobby, límite duro 10 USD, aviso 5 USD, sin cambios. Es consumo acumulado, no factura ni proyección mensual. No sumar dos veces los 5 USD incluidos. El inicio del seguimiento semanal conserva el 27 de octubre a las 19:11:09 UTC.
 
-### Único paso externo pendiente y cierre
+### Paso externo pendiente a las 18:52 UTC (resuelto posteriormente)
 
 El control del navegador integrado sigue respondiendo «Local browser use is disabled in Work settings», aun después de reiniciar la conexión. No usar control nativo de Edge/ChatGPT para saltarlo. Antonio debe copiar localmente la única línea de REGISTRO-SUPABASE.txt o .env, ambos fuera de Git en su carpeta privada de configuración, a Supabase → Edge Function Secrets (Bulk paste). No publicar la línea en el chat. La entrada y guardado del secreto se dejan a Antonio.
 
 Después: comprobar 401 sin firma y 400 con firma válida/cuerpo incompleto, sin crear usuarios; activar AGENDAPPX_REGISTRO_HABILITADO=true conservando los demás secretos; verificar configuración pública y hashes. Antonio hará la primera prueba real desde la app y escribirá OTP/MFA solo allí. No afirmar registro nuevo listo ni entrega física confirmada antes de completar estos pasos. No modificar FiNeCi, dominios, límites ni planes.
+
+
+## Cierre de publicación — 29 de octubre de 2026, 19:06 UTC
+
+Antonio confirmó «listo» tras guardar REGISTRO_OPERACION_KEY en Supabase. El intermediario rechazó petición sin firma con 401 y aceptó la firma de la misma llave hasta validar un cuerpo vacío, rechazándolo con 400. Estas comprobaciones no crearon usuarios ni solicitaron códigos. No se regeneraron llaves ni se volvió a aplicar la migración.
+
+Se habilitó únicamente AGENDAPPX_REGISTRO_HABILITADO=true en el Worker existente. Versión Cloudflare vigente: 850612e6-24c1-48c3-bd05-e49a8fa82f75, despliegue 680e1c29-ef9a-48d6-80c9-a369ee787646, 2026-10-29T19:04:05.369841Z. /api/cuentas/config responde 200 con registro habilitado, sitekey presente, WhatsApp true y correo false. /salud responde 200; /api/cuentas/contexto sin identidad devuelve 401. SHA-256 de cuentas.js, sw.js, comunidad/index.html, comunidad/app.mjs y comunidad/estilos.css coincide con el staging aprobado. La plataforma conserva estado conectado, número correcto, custodia activa y sin freno.
+
+La revisión automática rechazó una comprobación adicional que enviaría un formulario ficticio al registro de producción: si fallaba su protección podía crear una cuenta. No se ejecutó ni se intentó por otra vía. Se completaron verificaciones de lectura; las protecciones de alta permanecen cubiertas por las 221 pruebas locales previas. No se acredita una prueba física de alta completa ni de entrega de OTP con esos controles.
+
+Prueba humana pendiente: para Antonio, abrir la página principal y usar Iniciar sesión con su número existente (no crear un salón nuevo). Solicitar el código una sola vez y escribirlo junto con MFA únicamente en la app. Para una dueña nueva, abrir /#registro en una ventana privada si ya hay sesión; para equipo del mismo salón, utilizar la invitación creada por Admin. No pedir códigos, semillas ni enlaces privados en el chat. No activar avisos de citas/promociones ni vinculaciones nuevas como parte de esta prueba.
