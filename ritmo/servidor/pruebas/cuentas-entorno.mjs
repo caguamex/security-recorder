@@ -45,6 +45,8 @@ export async function cuentasEntorno() {
   // Esquema actual de horarios; siempre local y sin servicios externos.
   await db.exec("CREATE ROLE agendappx_whatsapp NOLOGIN NOSUPERUSER NOBYPASSRLS; SELECT set_config('ritmo.migracion_etapa2','aprobada',false)");
   await db.exec(await readFile(new URL('20261029204424_negocio_horarios_etapa2.sql',ruta),'utf8'));
+  await db.exec("SELECT set_config('ritmo.migracion_etapa3','aprobada',false)");
+  await db.exec(await readFile(new URL('20261029221042_planes_etapa3.sql',ruta),'utf8'));
 
   await db.query('INSERT INTO ritmo.negocios(id,nombre) VALUES ($1,$2)', [ids.otro, 'Otro salón']);
   await db.query('INSERT INTO ritmo.belleza_estado(negocio_id,revision) VALUES ($1,0)',[ids.otro]);

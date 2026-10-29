@@ -173,3 +173,13 @@ Leer docs/NEGOCIO-ETAPA2.md. Hoy y Mi negocio funcionales, menú Crear, turnos/d
 ### Etapa 2 publicada
 
 PR #13, aplicación 2e8ee48, Worker ffdfd164-e182-43d0-b50b-b9569412925c y Railway 4d3e6c3d-6d04-4326-b626-05d7e0bb347e SUCCESS. Ver docs/NEGOCIO-ETAPA2.md. Horarios migrados y siete tablas previas idénticas al respaldo. Código real de Hoy y Mi negocio publicado; Planes y Comunidad real pendientes de etapas 3–4. Se conserva código WhatsApp habilitado, vinculación y envíos automáticos apagados. La nueva rama de etapa 3 parte de esta rama.
+
+
+## Planes — etapa 3 preparada
+
+Rama codex/agendappx-planes-etapa3 desde aaf60f4, PR nuevo por etapa. Leer docs/PLANES-ETAPA3.md. Precios aprobados, 30 días exactos para nuevas altas, límites en SQL, contador real de fundadoras y Mi plan privado. Cuentas existentes conservadas como legado. No hay cobros, tarjeta ni pasarela. La publicación de la etapa está autorizada, pero la migración de planes requiere respuesta específica a la pregunta pendiente; no reutilizar la autorización de horarios. La etapa 4 aún falta.
+
+
+### Planes — etapa 3 publicada
+
+Autorización específica «Sí, respalda y aplica Planes». Migración 20261029221042 registrada; siete tablas originales idénticas al respaldo. Worker 4a622a3e-ca59-4864-843f-d154acf77105, aplicación ccf4775, PR #14. Ver docs/PLANES-ETAPA3.md. Acceso existente legado sin nueva caducidad; nuevos salones treinta días. No hay cobros ni cambios de Railway. Etapa 4 continúa preparada por separado y exige su propia autorización de migración.
