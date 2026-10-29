@@ -4,7 +4,7 @@ import {EventEmitter} from 'node:events';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {preparar,ids} from './whatsapp-solo-envios-entorno.mjs';
-import {BaileysSoloEnvios,SesionesCifradas,OPCIONES_PRIVADAS} from '../../whatsapp/baileys.mjs';
+import {BaileysSoloEnvios,SesionesCifradas,OPCIONES_PRIVADAS,numeroIdentidadWhatsApp} from '../../whatsapp/baileys.mjs';
 import {configurar} from '../../whatsapp/config.mjs';
 import {crearResolverVersion} from '../../whatsapp/version.mjs';
 const n=ids.salon,esperar=()=>new Promise(r=>setTimeout(r,5));
@@ -68,4 +68,23 @@ test('el saludo recibe la versión comprobada; si falla la consulta libera la cu
  await assert.rejects(()=>a.codigo(n,'525511111111'),/preparar la conexión/);assert.equal(f.sockets.length,0);
  const b=new BaileysSoloEnvios(e.db,key,{fabrica:f.fabrica,vincular:true,resolverVersion:async()=>[2,3000,1052053390]});t.after(()=>b.cerrar());
  assert.equal(await b.codigo(n,'525511111111'),'ABCD1234');assert.deepEqual(f.opciones[0].version,[2,3000,1052053390]);
+});
+
+
+test('identidad mexicana: 52 y 521 representan la misma línea; no acepta LID ni otros dominios',()=>{
+ for(const jid of ['525511111111@s.whatsapp.net','5215511111111@s.whatsapp.net','5215511111111:2@s.whatsapp.net'])assert.equal(numeroIdentidadWhatsApp(jid),'525511111111');
+ for(const jid of ['5511111111@s.whatsapp.net','15551111111@s.whatsapp.net','5215511111111@lid','5215511111111@otro.test','5215511111111:abc@s.whatsapp.net','52155111111111@s.whatsapp.net',undefined])assert.equal(numeroIdentidadWhatsApp(jid),'');
+});
+
+test('sesión vinculada con 521 se verifica, conserva sus claves y se recupera sin pedir otro código',async t=>{
+ const e=await entorno(t),key=randomBytes(32).toString('base64'),f=simular(),a=new BaileysSoloEnvios(e.db,key,{fabrica:f.fabrica,vincular:true});t.after(()=>a.cerrar());
+ await a.codigo(n,'525511111111');const x=a.conexiones.get(n);x.auth.creds.registered=true;x.auth.creds.me={id:'5215511111111@s.whatsapp.net'};x.socket.user={id:'5215511111111:2@s.whatsapp.net'};
+ await x.store.guardar('credenciales','principal',x.auth.creds);await x.auth.keys.set({'session':{'identidad-propia':{key:Buffer.from('clave conservada')}}});await a.cambio(n,x,{connection:'open'});
+ const estado=await a.estado(n);assert.equal(estado.verificado,true);assert.equal(estado.numero,'525511111111');assert.equal((await e.control.estado(e.ident(),n)).freno,false);await a.cerrar();
+ const g=simular(),b=new BaileysSoloEnvios(e.db,key,{fabrica:g.fabrica,vincular:false});t.after(()=>b.cerrar());await b.restaurar(n);const z=b.conexiones.get(n);assert.equal(z.auth.creds.me.id,'5215511111111@s.whatsapp.net');assert.equal((await z.auth.keys.get('session',['identidad-propia']))['identidad-propia'].key.toString(),'clave conservada');g.sockets[0].user={id:'5215511111111:2@s.whatsapp.net'};await b.cambio(n,z,{connection:'open'});assert.equal((await b.estado(n)).verificado,true);assert.equal(g.sockets.length,1);
+});
+
+test('normalizar el prefijo no autoriza otra línea ni una identidad provisional',async t=>{
+ const e=await entorno(t),f=simular(),a=new BaileysSoloEnvios(e.db,randomBytes(32).toString('base64'),{fabrica:f.fabrica,vincular:true});t.after(()=>a.cerrar());await a.codigo(n,'525511111111');const x=a.conexiones.get(n);x.auth.creds.registered=true;x.socket.user={id:'5215511111112:2@s.whatsapp.net'};await a.cambio(n,x,{connection:'open'});assert.equal((await a.estado(n)).verificado,false);assert.equal((await e.control.estado(e.ident(),n)).freno,true);
+ const otro=await entorno(t),g=simular(),b=new BaileysSoloEnvios(otro.db,randomBytes(32).toString('base64'),{fabrica:g.fabrica,vincular:true});t.after(()=>b.cerrar());await b.codigo(n,'525511111111');const z=b.conexiones.get(n);z.socket.user={id:'5215511111111@s.whatsapp.net'};assert.equal(z.auth.creds.registered,false);await b.cambio(n,z,{connection:'open'});assert.equal((await b.estado(n)).verificado,false);
 });

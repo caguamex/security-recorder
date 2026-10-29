@@ -8,6 +8,13 @@ const tablasPlataforma=Object.freeze({sesiones:'ritmo.plataforma_sesiones',conex
 const tablas=db=>db.plataforma===true?tablasPlataforma:tablasSalones;
 const silencio={trace(){},debug(){},info(){},warn(){},error(){},fatal(){},child(){return this;},level:'silent'};
 export const OPCIONES_PRIVADAS={logger:silencio,markOnlineOnConnect:false,syncFullHistory:false,emitOwnEvents:false,enableRecentMessageCache:false,shouldSyncHistoryMessage:()=>false,shouldIgnoreJid:()=>true,getMessage:async()=>undefined,generateHighQualityLinkPreview:false,connectTimeoutMs:15000,defaultQueryTimeoutMs:15000,retryRequestDelayMs:1000,maxMsgRetryCount:0,fireInitQueries:false,appStateMacVerification:{patch:true,snapshot:true}};
+// WhatsApp conserva 521 en algunas identidades mexicanas ya registradas.
+// Solo se admite la misma línea de diez dígitos, con dominio telefónico del SDK;
+// un LID, otro país o un número distinto nunca hereda la identidad autorizada.
+export function numeroIdentidadWhatsApp(jid){
+ const m=/^(52(?:1)?[0-9]{10})(?::[0-9]+)?@s\.whatsapp\.net$/.exec(String(jid||''));
+ return m?m[1].replace(/^521(?=[0-9]{10}$)/,'52'):'';
+}
 export class SesionesCifradas {
  constructor(db,key,negocio,propietario,cerca){this.db=db;this.tablas=tablas(db);this.cifrado=new CifradoSesion(key);this.n=negocio;this.propietario=propietario;this.cerca=cerca;this.pendiente=Promise.resolve();}
  async leer(tipo,id){const llave=this.cifrado.id(this.n,tipo,id);return this.db.usar(async c=>{const f=(await c.query(`SELECT cifrado FROM ${this.tablas.sesiones} WHERE negocio_id=$1 AND llave=$2`,[this.n,llave])).rows[0];return f?JSON.parse(this.cifrado.abrir(this.n,llave,f.cifrado),BufferJSON.reviver):null;});}
@@ -40,7 +47,7 @@ export class BaileysSoloEnvios {
   if(u.qr){x.listaParaVincular=true;for(const r of x.listos.splice(0))r.resolve();}
   if(u.connection==='open'){
    const esperado=await this.db.usar(async c=>(await c.query(`SELECT esperado FROM ${this.tablas.conexiones} WHERE negocio_id=$1`,[n])).rows[0]?.esperado);
-   const num=String(x.socket.user?.id||x.auth.creds.me?.id||'').split('@')[0].split(':')[0];
+   const num=numeroIdentidadWhatsApp(x.socket.user?.id||x.auth.creds.me?.id);
    if(!x.auth.creds.registered||num!==esperado){await this.meta(n,'revisar','numero_no_coincide',{cerca:x.cerca,freno:true});await this.detener(n,'numero_no_coincide');return;}
    await x.store.pendiente;await this.db.renovar(n,this.propietario,x.cerca);x.abierta=true;
    this.fallos.delete(n);clearTimeout(this.reintentos.get(n));this.reintentos.delete(n);await this.meta(n,'conectado','',{numero:num,cerca:x.cerca});await this.db.usar(c=>c.query(`UPDATE ${this.tablas.alertas} SET resuelta=true WHERE negocio_id=$1 AND tipo='whatsapp_desconectado'`,[n]));
