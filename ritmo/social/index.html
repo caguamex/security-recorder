@@ -1,0 +1,428 @@
+<title>Agendappx Social</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Red social de belleza: los negocios publican sus trabajos y la gente busca, sigue y agenda desde cada foto.
+   Estilo minimalista 3D con acento rosa; una columna de iPhone (máx. 430 px). */
+:root {
+  --stage: #ECEEF3; --bg: #FFFFFF; --card: #FFFFFF; --ink: #0B0B0F; --ink2: #3C3C43; --ink3: #8A8A8E; --line: #EDEDED;
+  --rosa: #E0457B; --rosaEdge: #9E2453; --rosaSoft: #FDEAF1; --edge: #E4E4E4; --tile: #F4F4F4; --star: #F5A623; --ok: #1E9E4A;
+  --soft3: 0 1px 0 #FFFFFF inset, 0 3px 0 var(--edge), 0 10px 22px rgba(0, 0, 0, .06); --scrim: rgba(0, 0, 0, .35); --demo: #1B1B20; --demoInk: #F5F5F7;
+  --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --stage: #000000; --bg: #000000; --card: #0E0E10; --ink: #F5F5F7; --ink2: #C7C7CC; --ink3: #8A8A90; --line: #1F1F23;
+  --rosa: #FF5C93; --rosaEdge: #A3204F; --rosaSoft: #3A1E2A; --edge: #000000; --tile: #121214; --star: #FFB940; --ok: #34C759;
+  --soft3: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 3px 0 #000000, 0 10px 22px rgba(0, 0, 0, .5); --scrim: rgba(0, 0, 0, .6); --demo: #1C1C22; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --stage: #000000; --bg: #000000; --card: #0E0E10; --ink: #F5F5F7; --ink2: #C7C7CC; --ink3: #8A8A90; --line: #1F1F23;
+  --rosa: #FF5C93; --rosaEdge: #A3204F; --rosaSoft: #3A1E2A; --edge: #000000; --tile: #121214; --star: #FFB940; --ok: #34C759;
+  --soft3: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 3px 0 #000000, 0 10px 22px rgba(0, 0, 0, .5); --scrim: rgba(0, 0, 0, .6); --demo: #1C1C22; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--stage); color: var(--ink); font: 400 15px/1.4 var(--ui); -webkit-font-smoothing: antialiased; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2.5px solid var(--rosa); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.phone { position: relative; max-width: 430px; min-height: 100vh; margin: 0 auto; background: var(--bg); }
+.note { padding-block: 7px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--demo); color: var(--demoInk); font-size: 12px; text-align: center; }
+main { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+.pad { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.ic { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.hdr { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; display: flex; align-items: center; justify-content: space-between; min-height: 54px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.logo { display: flex; align-items: center; gap: 8px; font-size: 21px; font-weight: 800; letter-spacing: -.03em; }
+.logo b { color: var(--rosa); }
+.mark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(160deg, #FF8DB5, #E0457B 55%, #B8285F); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .45), 0 3px 6px rgba(224, 69, 123, .3); }
+.mark .ic { width: 18px; height: 18px; stroke: #fff; stroke-width: 2.2; }
+.hbtn { position: relative; border: 0; background: none; padding: 6px; }
+.dot { position: absolute; top: 5px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--rosa); border: 2px solid var(--bg); }
+
+/* Historias */
+.stories { display: flex; gap: 14px; overflow-x: auto; padding: 12px 16px 14px; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.story { flex: none; width: 70px; display: flex; flex-direction: column; align-items: center; gap: 5px; border: 0; background: none; padding: 0; font-size: 11.5px; color: var(--ink2); }
+.ring { width: 66px; height: 66px; border-radius: 50%; padding: 2.5px; background: conic-gradient(from 200deg, #FF8DB5, #E0457B, #FFB37A, #FF8DB5); }
+.ring.seen { background: var(--line); }
+.ring > span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--bg); color: #fff; font-weight: 800; font-size: 18px; background: var(--av); }
+.story span.n { max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Publicación */
+.post { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.ph { display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+.av { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 13px; background: var(--av); border: 0; }
+.ph .who { flex: 1; min-width: 0; text-align: left; border: 0; background: none; padding: 0; }
+.ph .who b { font-size: 14.5px; } .ph .who small { display: block; color: var(--ink3); font-size: 12.5px; }
+.ver { width: 15px; height: 15px; vertical-align: -2px; }
+.follow { border: 0; padding: 7px 14px; border-radius: 999px; background: var(--card); box-shadow: var(--soft3); font-size: 13px; font-weight: 700; }
+.follow.on { color: var(--ink3); }
+.media { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; max-width: 100%; border: 0; padding: 0; overflow: hidden; background: var(--tile); }
+.media svg.art { width: 100%; height: 100%; display: block; }
+.media .chipimg { position: absolute; left: 12px; top: 12px; padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, .92); color: #0B0B0F; font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
+.media .ilus { position: absolute; right: 10px; top: 12px; padding: 3px 8px; border-radius: 6px; background: rgba(0, 0, 0, .45); color: #fff; font-size: 10.5px; font-weight: 600; }
+.book { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 10px; padding: 9px 9px 9px 14px; border-radius: 18px; background: rgba(255, 255, 255, .94); color: #0B0B0F; box-shadow: 0 8px 22px rgba(0, 0, 0, .18); backdrop-filter: blur(10px); }
+.book .l { flex: 1; min-width: 0; text-align: left; } .book .l b { display: block; font-size: 14px; } .book .l small { color: #6A6A70; font-size: 12.5px; }
+.btnr { flex: none; border: 0; padding: 10px 14px; border-radius: 999px; color: #fff; font-weight: 700; font-size: 13.5px; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 3px 0 #9E2453, 0 8px 16px rgba(224, 69, 123, .3), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.acts { display: flex; align-items: center; gap: 14px; padding: 10px 16px 4px; }
+.acts button { border: 0; background: none; padding: 0; display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; }
+.acts .sp { flex: 1; }
+.liked { color: var(--rosa); } .liked .ic { fill: currentColor; }
+.saved .ic { fill: currentColor; }
+.cap { padding: 4px 16px 0; font-size: 14.5px; } .cap b { font-weight: 700; }
+.tags { padding: 4px 16px 0; color: var(--rosa); font-size: 13.5px; font-weight: 600; }
+.when { padding: 4px 16px 0; color: var(--ink3); font-size: 12px; }
+
+/* Buscar */
+.search { display: flex; align-items: center; gap: 8px; min-height: 46px; margin-top: 12px; padding: 0 14px; border-radius: 999px; background: var(--card); box-shadow: var(--soft3); }
+.search input { flex: 1; min-width: 0; border: 0; background: none; font-size: 16px; outline: none; }
+.search input::-webkit-search-cancel-button { display: none; }
+.search .x { border: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--ink3); color: var(--bg); font-size: 11px; font-weight: 800; }
+.chips { display: flex; gap: 8px; overflow-x: auto; margin: 12px -16px 4px; padding: 2px 16px 8px; scrollbar-width: none; }
+.chip { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border: 0; border-radius: 999px; background: var(--card); box-shadow: var(--soft3); font-size: 13.5px; font-weight: 600; }
+.chip .ic { width: 16px; height: 16px; color: var(--pi, var(--ink)); }
+.chip[aria-pressed="true"] { color: #fff; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 3px 0 var(--rosaEdge); } .chip[aria-pressed="true"] .ic { color: #fff; }
+.gh { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 10px; } .gh b { font-size: 17px; font-weight: 700; } .gh span { color: var(--ink3); font-size: 13px; }
+.locs { display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 10px; scrollbar-width: none; }
+.loc { flex: none; width: 210px; display: flex; gap: 10px; align-items: center; padding: 10px; border: 0; border-radius: 18px; background: var(--card); box-shadow: var(--soft3); text-align: left; }
+.loc .av { width: 46px; height: 46px; font-size: 15px; }
+.loc .l { min-width: 0; } .loc b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .loc small { display: block; color: var(--ink3); font-size: 12px; }
+.loc .st { color: var(--star); }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 0 -16px; }
+.grid button { position: relative; aspect-ratio: 1; max-width: 100%; border: 0; padding: 0; overflow: hidden; background: var(--tile); }
+.grid svg.art { width: 100%; height: 100%; display: block; }
+.grid .pr { position: absolute; left: 6px; bottom: 6px; padding: 2px 7px; border-radius: 6px; background: rgba(0, 0, 0, .55); color: #fff; font-size: 11px; font-weight: 700; }
+.grid .lk { position: absolute; right: 6px; bottom: 6px; display: flex; align-items: center; gap: 3px; color: #fff; font-size: 11px; font-weight: 700; text-shadow: 0 1px 3px rgba(0, 0, 0, .5); } .grid .lk .ic { width: 13px; height: 13px; fill: #fff; stroke: #fff; }
+
+/* Perfil del negocio */
+.prof { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+.prof .av { width: 84px; height: 84px; font-size: 26px; box-shadow: 0 4px 0 rgba(0, 0, 0, .15), 0 10px 20px rgba(0, 0, 0, .15); }
+.nums { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+.nums b { display: block; font-size: 18px; } .nums small { color: var(--ink3); font-size: 12px; }
+.bio { margin-top: 12px; font-size: 14px; } .bio b { font-size: 16px; } .bio .k { color: var(--ink3); }
+.bio .r { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; color: var(--ink2); font-size: 13px; } .bio .r .st { color: var(--star); }
+.pbtns { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-top: 12px; }
+.pbtns button { min-height: 40px; border: 0; border-radius: 12px; font-weight: 700; font-size: 14px; background: var(--card); box-shadow: var(--soft3); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 12px; }
+.pbtns .main { color: #fff; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 3px 0 var(--rosaEdge), 0 8px 16px rgba(224, 69, 123, .25); }
+.pbtns .ic { width: 18px; height: 18px; }
+.hls { display: flex; gap: 14px; overflow-x: auto; margin: 16px -16px 0; padding: 0 16px 6px; scrollbar-width: none; }
+.hl { flex: none; display: flex; flex-direction: column; align-items: center; gap: 5px; border: 0; background: none; padding: 0; font-size: 11.5px; }
+.hl span.c { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: var(--card); box-shadow: var(--soft3); color: var(--pi); }
+.ptabs { display: grid; grid-template-columns: repeat(3, 1fr); margin: 14px -16px 2px; border-bottom: 1px solid var(--line); }
+.ptabs button { border: 0; background: none; padding: 10px 0; display: flex; justify-content: center; color: var(--ink3); }
+.ptabs button[aria-selected="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+.svl { margin-top: 10px; border-radius: 18px; background: var(--card); box-shadow: var(--soft3); overflow: hidden; }
+.svl div { display: flex; align-items: center; gap: 10px; padding: 12px 14px; } .svl div + div { border-top: 1px solid var(--line); }
+.svl .l { flex: 1; } .svl small { display: block; color: var(--ink3); font-size: 12.5px; } .svl b.p { font-size: 15px; }
+.svl button { border: 0; padding: 6px 12px; border-radius: 999px; background: var(--card); box-shadow: var(--soft3); color: var(--rosa); font-weight: 700; font-size: 13px; }
+
+/* Barra de abajo */
+.tabbar { position: fixed; z-index: 20; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100%, 430px); display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
+  padding: 8px max(6px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); background: var(--bg); border-top: 1px solid var(--line); }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 0; background: none; color: var(--ink3); font-size: 10.5px; font-weight: 600; }
+.tab[aria-selected="true"] { color: var(--rosa); } .tab[aria-selected="true"] .ic { stroke-width: 2.2; }
+.plus { justify-self: center; width: 48px; height: 40px; border: 0; border-radius: 14px; display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 3px 0 var(--rosaEdge), 0 8px 16px rgba(224, 69, 123, .3), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.plus .ic { stroke-width: 2.4; }
+
+/* Hojas */
+.sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; background: var(--scrim); }
+.sheet-card { width: min(100%, 430px); max-height: 92vh; overflow-y: auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); border-radius: 20px 20px 0 0; background: var(--bg); animation: up .22s ease-out; }
+@keyframes up { from { transform: translateY(40px); opacity: .6; } }
+@media (prefers-reduced-motion: reduce) { .sheet-card { animation: none; } }
+.sh-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sh-nav button { border: 0; background: none; color: var(--rosa); font-size: 16px; font-weight: 600; padding: 4px 0; }
+label.t { display: block; margin: 14px 2px 6px; color: var(--ink3); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.in { width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); font-size: 15px; }
+textarea.in { min-height: 84px; resize: vertical; }
+.picks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.picks button { aspect-ratio: 1; max-width: 100%; border: 0; padding: 0; border-radius: 12px; overflow: hidden; background: var(--tile); box-shadow: 0 0 0 0 var(--rosa); }
+.picks button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--rosa); }
+.picks svg.art { width: 100%; height: 100%; display: block; }
+.prev { border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 5; max-width: 100%; max-height: 300px; margin: 0 auto; }
+.prev svg.art { width: 100%; height: 100%; display: block; }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.slot { padding: 10px 0; border: 0; border-radius: 12px; background: var(--card); box-shadow: var(--soft3); font-weight: 700; font-variant-numeric: tabular-nums; }
+.slot[aria-pressed="true"] { color: #fff; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 3px 0 var(--rosaEdge); }
+.big { width: 100%; min-height: 50px; border: 0; border-radius: 999px; color: #fff; font-weight: 700; font-size: 16px; background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 4px 0 var(--rosaEdge), 0 12px 22px rgba(224, 69, 123, .3), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.done { padding: 14px; border-radius: 16px; background: color-mix(in srgb, var(--ok) 14%, var(--card)); font-size: 14.5px; }
+.foot { margin: 8px 2px 0; color: var(--ink3); font-size: 12.5px; }
+.empty { padding: 30px 16px; text-align: center; color: var(--ink2); }
+.toast { position: fixed; z-index: 50; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+  padding: 11px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
+</style>
+
+<div class="phone">
+  <div class="note">Demostración · negocios y publicaciones de ejemplo; las ilustraciones van donde irán las fotos reales</div>
+  <main id="screen" aria-live="polite"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
+<div class="sheet" id="sheet" hidden><div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const norm = t => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  const money = n => '$' + n.toLocaleString('es-MX');
+  const P = {
+    home: '<path d="M3.5 10.5L12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.4-6 8-6s6.8 2 8 6"/>',
+    heart: '<path d="M12 20s-7.5-4.6-9-9.4C1.8 6.8 4.6 4 7.6 4c1.9 0 3.4 1 4.4 2.6C13 5 14.5 4 16.4 4c3 0 5.8 2.8 4.6 6.6C19.5 15.4 12 20 12 20z"/>',
+    chat: '<path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 21 11.5z"/>',
+    send: '<path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/>',
+    save: '<path d="M6 3.5h12v17l-6-4.2-6 4.2z"/>',
+    bell: '<path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+    list: '<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>',
+    star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+    wa: '<path d="M4 20l1.3-4A8 8 0 1 1 8 18.8z"/><path d="M9 9.5c.3 2 2.3 4.2 4.5 4.8l1.2-1.2 1.8.8c-.2 1.3-1.3 1.8-2.3 1.6-3-.6-5.6-3.2-6-6.2-.1-1 .5-2 1.7-2.2l.8 1.8z"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+    scissors: '<circle cx="6" cy="17.5" r="3"/><circle cx="18" cy="17.5" r="3"/><path d="M8.2 15.3L19 3M15.8 15.3L5 3"/>',
+    barber: '<rect x="8" y="4" width="8" height="16" rx="2"/><path d="M8 8.5l8 4M8 13l8 4"/><path d="M6.5 4h11M6.5 20h11"/>',
+    unas: '<rect x="7" y="11" width="10" height="10" rx="2.5"/><path d="M9.5 11V8h5v3"/><path d="M10.5 8V3h3v5"/>',
+    cejas: '<path d="M3.5 10C6.5 6.5 13 5.8 20.5 8.5"/><path d="M4 15.5s3-3.5 8-3.5 8 3.5 8 3.5-3 3.5-8 3.5-8-3.5-8-3.5z"/><circle cx="12" cy="15.5" r="1.8"/>',
+    pestanas: '<path d="M3 13.5s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5z"/><circle cx="12" cy="13.5" r="2.4"/><path d="M12 4.5V7M7.3 5.6l1 2.2M16.7 5.6l-1 2.2M3.8 8.4l1.7 1.6M20.2 8.4l-1.7 1.6"/>',
+    color: '<path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5z"/><path d="M9.5 14.5A2.5 2.5 0 0 0 12 17"/>',
+  };
+  const I = (k, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
+  const VER = '<svg class="ver" viewBox="0 0 24 24" aria-label="Verificado" role="img"><path d="M12 2l2.4 1.8 3-.2 1 2.8 2.6 1.6-.8 2.9.8 2.9-2.6 1.6-1 2.8-3-.2L12 22l-2.4-1.8-3 .2-1-2.8-2.6-1.6.8-2.9-.8-2.9 2.6-1.6 1-2.8 3 .2z" fill="#1D9BF0"/><path d="M8.3 12.2l2.5 2.5 4.9-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  /* ---------- Ilustraciones (ocupan el lugar de las fotos reales) ---------- */
+  let uid = 0;
+  const ART = {
+    // Corte fade de perfil, con línea de diseño opcional.
+    fade: (o) => { const g = 'g' + uid++; return `<svg class="art" viewBox="0 0 200 250" role="img" aria-label="Ilustración de un corte fade">
+      <defs><linearGradient id="${g}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.bg1}"/><stop offset="1" stop-color="${o.bg2}"/></linearGradient>
+      <linearGradient id="${g}f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.hair}" stop-opacity=".9"/><stop offset="1" stop-color="${o.hair}" stop-opacity="0"/></linearGradient></defs>
+      <rect width="200" height="250" fill="url(#${g}b)"/>
+      <path d="M34 250c6-38 30-56 66-56s60 18 66 56z" fill="${o.cape}"/>
+      <rect x="83" y="152" width="34" height="46" rx="14" fill="${o.skin2}"/>
+      <ellipse cx="51" cy="122" rx="8" ry="13" fill="${o.skin2}"/><ellipse cx="149" cy="122" rx="8" ry="13" fill="${o.skin2}"/>
+      <ellipse cx="100" cy="122" rx="48" ry="58" fill="${o.skin}"/>
+      <path d="M52 112v-12h12v30c-6-4-10-10-12-18zM148 112v-12h-12v30c6-4 10-10 12-18z" fill="url(#${g}f)"/>
+      <path d="M52 102c-2-42 20-66 50-66 30 0 52 22 46 66-4-10-12-18-22-22-16-6-36-6-52 0-10 4-18 12-22 22z" fill="${o.hair}"/>
+      <path d="M66 54c14-12 40-14 58-2" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="5" stroke-linecap="round"/>
+      ${o.line ? '<path d="M53 108l7-5 6 6" fill="none" stroke="' + o.skin + '" stroke-width="2.4" stroke-linecap="round"/>' : ''}
+      <path d="M76 108h18M106 108h18" stroke="${o.hair}" stroke-width="4" stroke-linecap="round"/>
+      <ellipse cx="85" cy="120" rx="4" ry="3" fill="#2A1C14"/><ellipse cx="115" cy="120" rx="4" ry="3" fill="#2A1C14"/>
+      <path d="M100 124c-2 10-4 16 2 18" fill="none" stroke="${o.skin2}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M88 154c8 5 16 5 24 0" fill="none" stroke="#8A4B3A" stroke-width="3" stroke-linecap="round"/></svg>`; },
+    // Barba de frente.
+    barba: (o) => { const g = 'g' + uid++; return `<svg class="art" viewBox="0 0 200 250" role="img" aria-label="Ilustración de un arreglo de barba">
+      <defs><linearGradient id="${g}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${o.bg1}"/><stop offset="1" stop-color="${o.bg2}"/></linearGradient></defs>
+      <rect width="200" height="250" fill="url(#${g}b)"/>
+      <path d="M30 250c6-38 32-56 70-56s64 18 70 56z" fill="${o.cape}"/>
+      <rect x="82" y="150" width="36" height="46" rx="14" fill="${o.skin2}"/>
+      <ellipse cx="100" cy="112" rx="50" ry="62" fill="${o.skin}"/>
+      <ellipse cx="50" cy="116" rx="8" ry="14" fill="${o.skin2}"/><ellipse cx="150" cy="116" rx="8" ry="14" fill="${o.skin2}"/>
+      <path d="M50 96c0-36 20-52 50-52s50 16 50 52c-10-14-28-20-50-20s-40 6-50 20z" fill="${o.hair}"/>
+      <path d="M52 120c2 34 22 58 48 58s46-24 48-58c-6 14-14 22-22 24-6-8-16-10-26-10s-20 2-26 10c-8-2-16-10-22-24z" fill="${o.hair}"/>
+      <path d="M78 140c8-6 16-8 22-8s14 2 22 8c-8 2-14 2-22 2s-14 0-22-2z" fill="${o.hair}"/>
+      <ellipse cx="80" cy="112" rx="5" ry="3" fill="${o.hair}"/><ellipse cx="120" cy="112" rx="5" ry="3" fill="${o.hair}"/>
+      <path d="M70 100h20M110 100h20" stroke="${o.hair}" stroke-width="4" stroke-linecap="round"/></svg>`; },
+    // Mano con uñas.
+    unas: (o) => { const g = 'g' + uid++; const f = [[58, 70, 26], [82, 52, 28], [108, 50, 28], [134, 64, 26]];
+      return `<svg class="art" viewBox="0 0 200 250" role="img" aria-label="Ilustración de uñas decoradas">
+      <defs><linearGradient id="${g}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${o.bg1}"/><stop offset="1" stop-color="${o.bg2}"/></linearGradient>
+      <linearGradient id="${g}n" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${o.n1}"/><stop offset="1" stop-color="${o.n2}"/></linearGradient></defs>
+      <rect width="200" height="250" fill="url(#${g}b)"/>
+      <circle cx="160" cy="44" r="26" fill="rgba(255,255,255,.35)"/>
+      <path d="M50 250v-70c0-14 8-24 20-26h64c14 2 22 12 22 28v68z" fill="${o.skin}"/>
+      ${f.map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w - 4}" height="${180 - y}" rx="${(w - 4) / 2}" fill="${o.skin}"/><rect x="${x + 3}" y="${y + 3}" width="${w - 10}" height="30" rx="${(w - 10) / 2}" fill="url(#${g}n)"/><rect x="${x + 6}" y="${y + 7}" width="4" height="14" rx="2" fill="rgba(255,255,255,.55)"/>${o.dec ? `<circle cx="${x + (w - 4) / 2}" cy="${y + 22}" r="2.2" fill="${o.dec}"/>` : ''}`).join('')}
+      <path d="M50 196c-14-10-22-26-18-36 4-8 14-6 20 4l12 18z" fill="${o.skin}"/>
+      <path d="M36 158c2-4 8-6 12-2" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="3"/></svg>`; },
+    // Ojo abierto con ceja definida.
+    cejas: (o) => { const g = 'g' + uid++; return `<svg class="art" viewBox="0 0 200 250" role="img" aria-label="Ilustración de un diseño de cejas">
+      <defs><radialGradient id="${g}b" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="${o.skin}"/><stop offset="1" stop-color="${o.skin2}"/></radialGradient>
+      <linearGradient id="${g}c" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${o.brow}" stop-opacity=".55"/><stop offset=".4" stop-color="${o.brow}"/><stop offset="1" stop-color="${o.brow}"/></linearGradient></defs>
+      <rect width="200" height="250" fill="url(#${g}b)"/>
+      <path d="M30 96c22-26 92-36 146-14l-4 14c-48-16-102-12-136 10z" fill="url(#${g}c)"/>
+      <path d="M36 150s28-34 66-34 66 34 66 34-28 32-66 32-66-32-66-32z" fill="#FFFFFF"/>
+      <circle cx="102" cy="150" r="24" fill="${o.iris}"/><circle cx="102" cy="150" r="11" fill="#141414"/><circle cx="110" cy="142" r="5" fill="#fff" opacity=".9"/>
+      <path d="M36 150s28-34 66-34 66 34 66 34" fill="none" stroke="#2B1E16" stroke-width="4" stroke-linecap="round"/>
+      <path d="M40 158c22 16 42 22 62 22s40-6 62-22" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="2"/></svg>`; },
+    // Ojo cerrado con pestañas largas.
+    pestanas: (o) => { const g = 'g' + uid++; const L = Array.from({ length: 13 }, (_, i) => { const t = i / 12, x = 40 + t * 124, y = 130 + Math.sin(t * Math.PI) * 26, a = (t - .5) * 1.1; return `<path d="M${x} ${y}q${8 * Math.sin(a) + 2} ${18} ${18 * Math.sin(a) + 4} ${o.len}" fill="none" stroke="#141414" stroke-width="2.4" stroke-linecap="round"/>`; }).join('');
+      return `<svg class="art" viewBox="0 0 200 250" role="img" aria-label="Ilustración de pestañas">
+      <defs><radialGradient id="${g}b" cx=".5" cy=".45" r=".8"><stop offset="0" stop-color="${o.skin}"/><stop offset="1" stop-color="${o.skin2}"/></radialGradient></defs>
+      <rect width="200" height="250" fill="url(#${g}b)"/>
+      <path d="M34 86c26-22 90-28 134-8" fill="none" stroke="${o.brow}" stroke-width="12" stroke-linecap="round" opacity=".85"/>
+      <path d="M40 130c30 38 94 38 124 0" fill="none" stroke="#2B1E16" stroke-width="4" stroke-linecap="round"/>${L}
+      <ellipse cx="100" cy="112" rx="58" ry="14" fill="${o.lid}" opacity=".35"/></svg>`; },
+    // Cabello largo con balayage (de espaldas).
+    color: (o) => { const g = 'g' + uid++; return `<svg class="art" viewBox="0 0 200 250" role="img" aria-label="Ilustración de cabello con balayage">
+      <defs><linearGradient id="${g}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.bg1}"/><stop offset="1" stop-color="${o.bg2}"/></linearGradient>
+      <linearGradient id="${g}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.h1}"/><stop offset=".45" stop-color="${o.h2}"/><stop offset="1" stop-color="${o.h3}"/></linearGradient></defs>
+      <rect width="200" height="250" fill="url(#${g}b)"/>
+      <path d="M44 250c4-30 22-44 56-44s52 14 56 44z" fill="${o.cape}"/>
+      <path d="M52 92c0-38 20-58 48-58s48 20 48 58c0 52 10 92 16 158H36c6-66 16-106 16-158z" fill="url(#${g}h)"/>
+      ${[66, 84, 102, 120, 138].map((x, i) => `<path d="M${x} 60c${i % 2 ? 6 : -4} 60 ${i % 2 ? -6 : 8} 120 ${i % 2 ? 2 : -2} 190" fill="none" stroke="${o.h3}" stroke-width="5" stroke-linecap="round" opacity=".45"/>`).join('')}
+      <path d="M72 56c10-10 30-12 44-4" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="5" stroke-linecap="round"/></svg>`; },
+  };
+  const PIEL = [['#F1C7A5', '#E2AE88'], ['#D9A57C', '#C68C62'], ['#B57A52', '#9C653F'], ['#8A5A3B', '#74492E']];
+  const v = (tipo, i) => { const [skin, skin2] = PIEL[i % 4];
+    return ({ fade: { bg1: ['#E9EEF5', '#F4E6D8', '#E3F1EC'][i % 3], bg2: ['#C9D3E2', '#E2CDB6', '#C7E3D7'][i % 3], hair: ['#1E1712', '#2B2018', '#3A2A1E'][i % 3], cape: ['#0B0B0F', '#2F3A4D', '#7A1F3D'][i % 3], skin, skin2, line: i % 2 === 0 },
+      barba: { bg1: ['#F2E9DD', '#E4ECF4'][i % 2], bg2: ['#D8C6AE', '#BFCCDB'][i % 2], hair: ['#1E1712', '#3A2A1E'][i % 2], cape: '#1F2933', skin, skin2 },
+      unas: { bg1: ['#FFE3EE', '#EDE4FF', '#E0F0FF', '#FFF1D6'][i % 4], bg2: ['#FFC3D8', '#D6C6FF', '#BFDDFB', '#FFDDA0'][i % 4], n1: ['#FF6FA3', '#9B7BFF', '#5FA8FF', '#FFB13D'][i % 4], n2: ['#D63C78', '#6B4BD6', '#2F7BD6', '#E0861B'][i % 4], skin, dec: i % 2 ? '#FFFFFF' : null },
+      cejas: { skin, skin2, brow: ['#3A2A1E', '#2B2018', '#5A3E2B'][i % 3], iris: ['#6B4B2A', '#3E6B4F', '#4B5E7A'][i % 3] },
+      pestanas: { skin, skin2, brow: '#3A2A1E', len: 26 + (i % 3) * 6, lid: ['#E0457B', '#9B7BFF', '#C68C62'][i % 3] },
+      color: { bg1: ['#FBEFE6', '#EDE4FF'][i % 2], bg2: ['#EAD3C2', '#D6C6FF'][i % 2], h1: ['#3A2A1E', '#2B2018'][i % 2], h2: ['#8A5A3B', '#7A4E35'][i % 2], h3: ['#E8C08A', '#F0D3A8'][i % 2], cape: '#0B0B0F' } })[tipo]; };
+  const arte = p => ART[p.tipo](v(p.tipo, p.var));
+
+  /* ---------- Datos de ejemplo ---------- */
+  const CATS = [['cortes', 'Cortes', 'scissors', '#D9702B', ['fade']], ['barberia', 'Barbería', 'barber', '#8A6A45', ['fade', 'barba']], ['unas', 'Uñas', 'unas', '#D63C78', ['unas']],
+    ['cejas', 'Cejas', 'cejas', '#7C5CD6', ['cejas']], ['pestanas', 'Pestañas', 'pestanas', '#2F7BD6', ['pestanas']], ['color', 'Color', 'color', '#C97A2B', ['color']]];
+  const NEG = {
+    chuy: { n: 'Barbería Don Chuy', u: 'barberiadonchuy', ini: 'DC', av: 'linear-gradient(150deg,#57534E,#1C1917)', tipo: 'Barbería', km: 2.2, r: 4.8, rev: 310, seg: 2840, ver: true,
+      serv: [['Corte de cabello', 40, 180], ['Fade con diseño', 50, 220], ['Corte y barba', 60, 280], ['Arreglo de barba', 30, 150]] },
+    fade: { n: 'The Fade Club', u: 'thefadeclub', ini: 'FC', av: 'linear-gradient(150deg,#2F3A4D,#0B0B0F)', tipo: 'Barbería', km: 1.4, r: 4.7, rev: 188, seg: 1920, ver: true,
+      serv: [['Fade bajo', 45, 200], ['Fade con diseño', 50, 240], ['Barba con toalla caliente', 35, 170]] },
+    ab: { n: "AB' Beauty Room", u: 'abbeautyroom', ini: 'AB', av: 'linear-gradient(150deg,#FF8DB5,#E0457B 55%,#8B5CF6)', tipo: 'Salón de belleza', km: 1.2, r: 4.9, rev: 128, seg: 1650, ver: true,
+      serv: [['Uñas acrílicas', 90, 650], ['Gelish en manos', 45, 300], ['Lifting de pestañas', 60, 550], ['Diseño de cejas', 45, 250], ['Balayage', 150, 1500]] },
+    bella: { n: 'Bella Uñas', u: 'bellaunas', ini: 'BU', av: 'linear-gradient(150deg,#F9A8D4,#DB2777)', tipo: 'Uñas', km: 3.0, r: 4.7, rev: 152, seg: 980, ver: true,
+      serv: [['Uñas acrílicas', 90, 590], ['Uñas en gel', 75, 450], ['Gelish en pies', 45, 280]] },
+    lash: { n: 'Lash & Brow Studio', u: 'lashbrowstudio', ini: 'LB', av: 'linear-gradient(150deg,#6EE7B7,#0E8C89)', tipo: 'Pestañas y cejas', km: 4.1, r: 4.95, rev: 41, seg: 760, ver: false,
+      serv: [['Lifting de pestañas', 60, 650], ['Extensiones de volumen', 150, 1300], ['Laminado de cejas', 45, 420], ['Diseño de cejas', 45, 300]] },
+    glam: { n: 'Glam House', u: 'glamhouse', ini: 'GH', av: 'linear-gradient(150deg,#FCD34D,#D97706)', tipo: 'Salón de belleza', km: 0.8, r: 4.6, rev: 203, seg: 2210, ver: true,
+      serv: [['Balayage', 150, 1450], ['Tinte completo', 120, 850], ['Corte y peinado', 60, 330]] },
+  };
+  let POSTS = [
+    { id: 1, neg: 'chuy', tipo: 'fade', var: 0, srv: 'Fade con diseño', txt: 'Fade bajo con línea de diseño. Agenda el tuyo desde aquí.', tags: ['fade', 'barberia', 'cortes'], likes: 412, com: 38, t: 'hace 2 h' },
+    { id: 2, neg: 'ab', tipo: 'unas', var: 0, srv: 'Uñas acrílicas', txt: 'Acrílicas rosa con brillo para esta semana de fiesta.', tags: ['unas', 'acrilicas'], likes: 268, com: 21, t: 'hace 3 h' },
+    { id: 3, neg: 'lash', tipo: 'pestanas', var: 2, srv: 'Extensiones de volumen', txt: 'Volumen ruso, natural y ligero.', tags: ['pestanas', 'extensiones'], likes: 530, com: 44, t: 'hace 5 h' },
+    { id: 4, neg: 'fade', tipo: 'barba', var: 0, srv: 'Barba con toalla caliente', txt: 'Perfilado de barba con toalla caliente.', tags: ['barba', 'barberia'], likes: 198, com: 12, t: 'hace 6 h' },
+    { id: 5, neg: 'glam', tipo: 'color', var: 0, srv: 'Balayage', txt: 'Balayage miel sobre castaño. Antes y después en historias.', tags: ['color', 'balayage', 'cabello'], likes: 721, com: 63, t: 'hace 8 h' },
+    { id: 6, neg: 'ab', tipo: 'cejas', var: 1, srv: 'Diseño de cejas', txt: 'Diseño con hilo y tinte. Cejas que enmarcan.', tags: ['cejas', 'diseno'], likes: 233, com: 17, t: 'ayer' },
+    { id: 7, neg: 'bella', tipo: 'unas', var: 1, srv: 'Uñas en gel', txt: 'Gel lila con puntitos.', tags: ['unas', 'gel'], likes: 305, com: 19, t: 'ayer' },
+    { id: 8, neg: 'fade', tipo: 'fade', var: 1, srv: 'Fade bajo', txt: 'Mid fade clásico.', tags: ['fade', 'cortes', 'barberia'], likes: 287, com: 15, t: 'ayer' },
+    { id: 9, neg: 'lash', tipo: 'cejas', var: 0, srv: 'Laminado de cejas', txt: 'Laminado: cejas peinadas hasta 6 semanas.', tags: ['cejas', 'laminado'], likes: 389, com: 29, t: 'hace 2 días' },
+    { id: 10, neg: 'ab', tipo: 'pestanas', var: 0, srv: 'Lifting de pestañas', txt: 'Lifting + tinte, sin extensiones.', tags: ['pestanas', 'lifting'], likes: 344, com: 26, t: 'hace 2 días' },
+    { id: 11, neg: 'chuy', tipo: 'barba', var: 1, srv: 'Corte y barba', txt: 'Corte y barba completo, como debe ser.', tags: ['barba', 'cortes', 'barberia'], likes: 256, com: 14, t: 'hace 3 días' },
+    { id: 12, neg: 'bella', tipo: 'unas', var: 3, srv: 'Gelish en pies', txt: 'Pedicure con gelish naranja.', tags: ['unas', 'pies'], likes: 141, com: 8, t: 'hace 3 días' },
+    { id: 13, neg: 'glam', tipo: 'color', var: 1, srv: 'Tinte completo', txt: 'Rubio cenizo con matiz.', tags: ['color', 'cabello'], likes: 402, com: 31, t: 'hace 4 días' },
+    { id: 14, neg: 'chuy', tipo: 'fade', var: 2, srv: 'Corte de cabello', txt: 'Corte clásico con tijera.', tags: ['cortes', 'barberia'], likes: 176, com: 9, t: 'hace 5 días' },
+    { id: 15, neg: 'ab', tipo: 'unas', var: 2, srv: 'Gelish en manos', txt: 'Gelish azul cielo.', tags: ['unas', 'gelish'], likes: 212, com: 11, t: 'hace 6 días' },
+  ];
+  const precio = p => (NEG[p.neg].serv.find(s => s.srv === p.srv || s[0] === p.srv) || [])[2];
+  const minutos = p => (NEG[p.neg].serv.find(s => s[0] === p.srv) || [])[1];
+
+  const S = { tab: 'inicio', q: '', cat: null, neg: null, ptab: 'trabajos', likes: new Set([2]), saves: new Set(), sigo: new Set(['ab', 'chuy']), citas: [], pub: { tipo: 'unas', var: 1, srv: null } };
+  let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2600); };
+  const sheet = h => { $('#sheetCard').innerHTML = h; $('#sheet').hidden = false; };
+  const cerrar = () => { $('#sheet').hidden = true; };
+  const k = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.0', '') + ' mil' : String(n);
+
+  /* ---------- Piezas ---------- */
+  const post = p => { const n = NEG[p.neg], lk = S.likes.has(p.id), sv = S.saves.has(p.id), pr = precio(p);
+    return `<article class="post"><div class="ph pad" style="padding-left:16px;padding-right:16px"><button type="button" class="av" style="--av:${n.av}" data-neg="${p.neg}" aria-label="${esc(n.n)}">${n.ini}</button>
+      <button type="button" class="who" data-neg="${p.neg}"><b>${esc(n.n)}</b> ${n.ver ? VER : ''}<small>${n.tipo} · ${n.km.toFixed(1)} km</small></button>
+      <button type="button" class="follow ${S.sigo.has(p.neg) ? 'on' : ''}" data-seguir="${p.neg}">${S.sigo.has(p.neg) ? 'Siguiendo' : 'Seguir'}</button></div>
+      <div class="media"><button type="button" data-ver="${p.id}" style="all:unset;display:block;width:100%;height:100%;cursor:pointer" aria-label="Ver publicación">${arte(p)}</button><span class="ilus">Ilustración</span>
+        <div class="book"><span class="l"><b>${esc(p.srv)}</b><small>${pr ? money(pr) : ''} · ${minutos(p) || 45} min · ${esc(n.n)}</small></span><button type="button" class="btnr" data-agendar="${p.id}">Agendar</button></div></div>
+      <div class="acts"><button type="button" class="${lk ? 'liked' : ''}" data-like="${p.id}" aria-label="Me gusta">${I('heart')}${k(p.likes + (lk ? 1 : 0))}</button><button type="button" data-ver="${p.id}" aria-label="Comentarios">${I('chat')}${p.com}</button>
+        <button type="button" data-act="compartir" aria-label="Compartir">${I('send')}</button><span class="sp"></span><button type="button" class="${sv ? 'saved' : ''}" data-save="${p.id}" aria-label="Guardar">${I('save')}</button></div>
+      <p class="cap" style="margin:0"><b>${esc(n.u)}</b> ${esc(p.txt)}</p><p class="tags" style="margin:0">${p.tags.map(t => '#' + t).join(' ')}</p><p class="when" style="margin:0">${p.t}</p></article>`; };
+  const celda = p => `<button type="button" data-ver="${p.id}" aria-label="${esc(p.srv)} en ${esc(NEG[p.neg].n)}">${arte(p)}<span class="pr">${precio(p) ? money(precio(p)) : ''}</span><span class="lk">${I('heart')}${k(p.likes)}</span></button>`;
+
+  /* ---------- Pantallas ---------- */
+  const inicio = () => { const hist = Object.entries(NEG);
+    return `<div class="hdr pad"><span class="logo"><span class="mark">${I('cal')}</span><span>Agend<b>app</b>x</span></span><span><button type="button" class="hbtn" data-act="avisos" aria-label="Avisos">${I('bell')}<span class="dot"></span></button><button type="button" class="hbtn" data-tab="citas" aria-label="Mis citas">${I('cal')}</button></span></div>
+      <div class="stories">${hist.map(([id, n], i) => `<button type="button" class="story" data-neg="${id}"><span class="ring ${i > 3 ? 'seen' : ''}"><span style="--av:${n.av}">${n.ini}</span></span><span class="n">${esc(n.u)}</span></button>`).join('')}</div>
+      ${POSTS.slice(0, 6).map(post).join('')}`; };
+  const buscar = () => { const cat = CATS.find(c => c[0] === S.cat), q = norm(S.q).replace(/s\b/g, '');
+    const tipos = cat ? cat[4] : null;
+    let lista = POSTS.filter(p => (!tipos || tipos.includes(p.tipo) || (cat && p.tags.includes(cat[0]))) && (!q || norm(p.srv + ' ' + p.txt + ' ' + p.tags.join(' ') + ' ' + NEG[p.neg].n + ' ' + NEG[p.neg].tipo).includes(q)));
+    const negs = [...new Set(lista.map(p => p.neg))].map(id => [id, NEG[id]]).sort((a, b) => b[1].r - a[1].r || a[1].km - b[1].km);
+    const titulo = cat ? cat[1] : S.q.trim();
+    return `<div class="pad"><label class="sr" for="q">Buscar</label><div class="search">${I('search')}<input id="q" type="search" placeholder="Cortes, barberías, uñas, cejas…" value="${esc(S.q)}" autocomplete="off">${S.q || S.cat ? '<button type="button" class="x" data-act="limpiar" aria-label="Borrar">✕</button>' : ''}</div>
+      <div class="chips">${CATS.map(([id, n, icn, col]) => `<button type="button" class="chip" style="--pi:${col}" data-cat="${id}" aria-pressed="${S.cat === id}">${I(icn)}${n}</button>`).join('')}</div>
+      ${titulo ? `<div class="gh"><b>Locales que hacen ${esc(titulo.toLowerCase())}</b><span>${negs.length}</span></div>
+        <div class="locs">${negs.map(([id, n]) => `<button type="button" class="loc" data-neg="${id}"><span class="av" style="--av:${n.av}">${n.ini}</span><span class="l"><b>${esc(n.n)}</b><small><span class="st">★</span> ${n.r} (${n.rev}) · ${n.km.toFixed(1)} km</small><small>${n.tipo}</small></span></button>`).join('') || '<p class="foot">Ningún local con eso todavía.</p>'}</div>
+        <div class="gh"><b>Trabajos</b><span>${lista.length} fotos</span></div>` : '<div class="gh"><b>Descubre trabajos cerca de ti</b><span>Ordenado por popularidad</span></div>'}
+      <div class="grid">${(titulo ? lista : POSTS.slice().sort((a, b) => b.likes - a.likes)).map(celda).join('') || ''}</div>
+      ${titulo && !lista.length ? `<div class="empty">No encontramos trabajos de «${esc(titulo)}». Prueba con cortes, uñas o cejas.</div>` : ''}</div>`; };
+  const negocio = () => { const id = S.neg, n = NEG[id], suyos = POSTS.filter(p => p.neg === id), sigo = S.sigo.has(id);
+    const tipos = [...new Set(suyos.map(p => p.tipo))];
+    return `<div class="hdr pad"><button type="button" class="hbtn" data-act="atras" aria-label="Regresar"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b>${esc(n.u)}</b><button type="button" class="hbtn" data-act="compartir" aria-label="Compartir">${I('send')}</button></div>
+      <div class="pad"><div class="prof"><span class="av" style="--av:${n.av}">${n.ini}</span><div class="nums"><span><b>${suyos.length}</b><small>trabajos</small></span><span><b>${k(n.seg + (sigo ? 1 : 0))}</b><small>seguidores</small></span><span><b>${n.r}</b><small>${n.rev} reseñas</small></span></div></div>
+        <div class="bio"><b>${esc(n.n)}</b> ${n.ver ? VER : ''}<div class="k">${n.tipo}</div>
+          <div class="r"><span><span class="st">★</span> ${n.r} · ${n.rev} reseñas verificadas</span><span>${n.km.toFixed(1)} km · abierto hasta las 20:00</span></div></div>
+        <div class="pbtns"><button type="button" class="main" data-agendarneg="${id}">${I('cal')}Agendar</button><button type="button" data-seguir="${id}">${sigo ? 'Siguiendo' : 'Seguir'}</button><button type="button" data-act="wa" aria-label="WhatsApp">${I('wa')}</button></div>
+        <div class="hls">${tipos.map(t => { const c = CATS.find(x => x[4].includes(t)); return `<button type="button" class="hl" data-cat2="${c[0]}"><span class="c" style="--pi:${c[3]}">${I(c[2])}</span>${c[1]}</button>`; }).join('')}<button type="button" class="hl" data-ptab="servicios"><span class="c" style="--pi:var(--rosa)">${I('list')}</span>Precios</button></div>
+        <div class="ptabs" role="tablist"><button type="button" role="tab" data-ptab="trabajos" aria-selected="${S.ptab === 'trabajos'}" aria-label="Trabajos">${I('grid')}</button><button type="button" role="tab" data-ptab="servicios" aria-selected="${S.ptab === 'servicios'}" aria-label="Servicios y precios">${I('list')}</button><button type="button" role="tab" data-ptab="resenas" aria-selected="${S.ptab === 'resenas'}" aria-label="Reseñas">${I('star')}</button></div>
+        ${S.ptab === 'trabajos' ? `<div class="grid">${suyos.map(celda).join('')}</div>` : S.ptab === 'servicios'
+          ? `<div class="svl">${n.serv.map(([s, m, p]) => `<div><span class="l">${esc(s)}<small>${m} min</small></span><b class="p">${money(p)}</b><button type="button" data-agendarsrv="${esc(s)}">Agendar</button></div>`).join('')}</div>`
+          : `<div class="svl">${[['Mariana R.', 'Me encantó, súper puntual y muy limpio.', 'hace 3 días'], ['Luis G.', 'El mejor fade que me han hecho.', 'hace 1 semana'], ['Sofía L.', 'Agendé desde la foto y fue igualito.', 'hace 2 semanas']].map(([w, t, c]) => `<div><span class="l"><b>${w}</b> <span style="color:var(--star)">★★★★★</span><small>${t}</small><small style="color:var(--ok)">✔︎ Cita verificada · ${c}</small></span></div>`).join('')}</div>`}</div>`; };
+  const citas = () => `<div class="hdr pad"><b style="font-size:20px">Mis citas</b><span></span></div><div class="pad">${S.citas.length ? `<div class="svl">${S.citas.map(c => `<div><span class="av" style="--av:${NEG[c.neg].av}">${NEG[c.neg].ini}</span><span class="l"><b>${esc(c.srv)}</b><small>${esc(NEG[c.neg].n)} · ${c.dia} ${c.h}</small></span><small style="color:var(--rosa);font-weight:700">Por confirmar</small></div>`).join('')}</div><p class="foot">El negocio te confirma por WhatsApp.</p>` : '<div class="empty">Aún no tienes citas. Toca «Agendar» en cualquier foto.</div>'}</div>`;
+  const perfil = () => `<div class="hdr pad"><b style="font-size:20px">Tu perfil</b><span></span></div><div class="pad"><div class="svl" style="padding:14px"><b>Entra con tu WhatsApp</b><p style="margin:6px 0 12px;color:var(--ink2);font-size:14px">Para seguir negocios, guardar fotos y ver tus citas en cualquier celular.</p><button type="button" class="big" data-act="entrar">Entrar con WhatsApp</button></div>
+    <div class="gh"><b>Guardados</b><span>${S.saves.size}</span></div><div class="grid">${POSTS.filter(p => S.saves.has(p.id)).map(celda).join('')}</div>${S.saves.size ? '' : '<p class="foot">Toca el marcador de una foto para guardarla aquí.</p>'}</div>`;
+
+  /* ---------- Hojas ---------- */
+  const verPost = id => { const p = POSTS.find(x => x.id === id); sheet(`<div class="sh-nav"><button type="button" data-act="cerrar">Cerrar</button><b>Publicación</b><span style="width:52px"></span></div><div style="margin:0 -16px">${post(p)}</div>
+    <div class="svl" style="margin-top:12px">${[['valeria.g', '¡Qué bonito! ¿Tienen lugar el sábado?'], [NEG[p.neg].u, 'Sí, agenda desde el botón de la foto 💗'.replace(' 💗', '')], ['luis_m', 'Quiero exactamente este.']].map(([u, t]) => `<div><span class="l"><b>${esc(u)}</b> ${esc(t)}</span></div>`).join('')}</div>`); };
+  const agendar = (neg, srv) => { const n = NEG[neg], s = n.serv.find(x => x[0] === srv) || n.serv[0];
+    sheet(`<div class="sh-nav"><button type="button" data-act="cerrar">Cancelar</button><b>Agendar</b><span style="width:60px"></span></div>
+      <div class="svl"><div><span class="av" style="--av:${n.av}">${n.ini}</span><span class="l"><b>${esc(s[0])}</b><small>${esc(n.n)} · ${s[1]} min</small></span><b class="p">${money(s[2])}</b></div></div>
+      <label class="t">Mañana, jueves 30</label><div class="slots">${['10:00', '11:30', '13:00', '15:30', '16:30', '18:00'].map((h, i) => `<button type="button" class="slot" data-hora="${h}" aria-pressed="${i === 1}">${h}</button>`).join('')}</div>
+      <label class="t" for="tel">Tu WhatsApp</label><input class="in" id="tel" type="tel" inputmode="numeric" placeholder="55 1234 5678" autocomplete="tel-national">
+      <div id="out" style="margin-top:14px"><button type="button" class="big" data-act="pedir" data-n="${neg}" data-s="${esc(s[0])}">Pedir cita · ${money(s[2])}</button><p class="foot">El negocio la confirma por WhatsApp. Sin crear cuenta.</p></div>`); };
+  const publicar = () => { const n = NEG.ab, pb = S.pub; if (!pb.srv) pb.srv = n.serv[0][0];
+    const OP = [['unas', 1], ['unas', 3], ['pestanas', 1], ['cejas', 2], ['color', 0], ['unas', 0], ['cejas', 0], ['pestanas', 2]];
+    sheet(`<div class="sh-nav"><button type="button" data-act="cerrar">Cancelar</button><b>Nuevo trabajo</b><button type="button" data-act="publicar" style="font-weight:700">Publicar</button></div>
+      <div class="prev">${ART[pb.tipo](v(pb.tipo, pb.var))}</div>
+      <label class="t">Elige la foto (en la app: cámara o galería)</label><div class="picks">${OP.map(([t, i]) => `<button type="button" data-pick="${t}:${i}" aria-pressed="${pb.tipo === t && pb.var === i}">${ART[t](v(t, i))}</button>`).join('')}</div>
+      <label class="t">¿Qué servicio es?</label><div class="chips" style="flex-wrap:wrap;margin:0;padding:0">${n.serv.map(([s, m, p]) => `<button type="button" class="chip" data-psrv="${esc(s)}" aria-pressed="${pb.srv === s}">${esc(s)} · ${money(p)}</button>`).join('')}</div>
+      <label class="t" for="ptxt">Descripción</label><textarea class="in" id="ptxt" placeholder="Cuéntales qué hiciste: colores, técnica, duración…">Acrílicas con brillo, listas para el fin de semana.</textarea>
+      <p class="foot">Con el servicio ligado, la gente puede agendar exactamente esto desde la foto. Aparece en tu perfil, en el inicio de tus seguidores y en las búsquedas.</p>`); };
+
+  /* ---------- Pintar ---------- */
+  const TABS = [['inicio', 'home', 'Inicio'], ['buscar', 'search', 'Buscar'], null, ['citas', 'cal', 'Citas'], ['perfil', 'user', 'Perfil']];
+  const render = () => {
+    $('#tabbar').innerHTML = TABS.map(t => t ? `<button type="button" class="tab" data-tab="${t[0]}" aria-selected="${S.tab === t[0] && !S.neg}">${I(t[1])}${t[2]}</button>` : `<button type="button" class="plus" data-act="nuevo" aria-label="Publicar trabajo">${I('plus')}</button>`).join('');
+    $('#screen').innerHTML = S.neg ? negocio() : { inicio, buscar, citas, perfil }[S.tab]();
+  };
+  const ir = o => { Object.assign(S, o); render(); scrollTo(0, 0); };
+
+  document.addEventListener('input', e => { if (e.target.id !== 'q') return; S.q = e.target.value; S.cat = null; const pos = e.target.selectionStart; render(); const q = $('#q'); q.focus(); q.setSelectionRange(pos, pos); });
+  document.addEventListener('click', e => {
+    if (e.target.id === 'sheet') { cerrar(); return; }
+    const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+    if (d.tab) { cerrar(); ir({ tab: d.tab, neg: null }); return; }
+    if (d.neg) { cerrar(); ir({ neg: d.neg, ptab: 'trabajos' }); return; }
+    if (d.cat) { ir({ cat: S.cat === d.cat ? null : d.cat, q: '' }); return; }
+    if (d.cat2) { ir({ tab: 'buscar', neg: null, cat: d.cat2, q: '' }); return; }
+    if (d.ptab) { S.ptab = d.ptab; render(); return; }
+    if (d.ver) { verPost(+d.ver); return; }
+    if (d.like) { const id = +d.like; S.likes.has(id) ? S.likes.delete(id) : S.likes.add(id); const enHoja = !$('#sheet').hidden; render(); if (enHoja) verPost(id); return; }
+    if (d.save) { const id = +d.save; S.saves.has(id) ? S.saves.delete(id) : S.saves.add(id); toast(S.saves.has(id) ? 'Guardado en tu perfil' : 'Quitado de guardados'); const enHoja = !$('#sheet').hidden; render(); if (enHoja) verPost(id); return; }
+    if (d.seguir) { S.sigo.has(d.seguir) ? S.sigo.delete(d.seguir) : S.sigo.add(d.seguir); toast(S.sigo.has(d.seguir) ? 'Ahora sigues a ' + NEG[d.seguir].n : 'Dejaste de seguir a ' + NEG[d.seguir].n); render(); return; }
+    if (d.agendar) { const p = POSTS.find(x => x.id === +d.agendar); agendar(p.neg, p.srv); return; }
+    if (d.agendarneg) { agendar(d.agendarneg); return; }
+    if (d.agendarsrv) { agendar(S.neg, d.agendarsrv); return; }
+    if (d.hora) { b.parentElement.querySelectorAll('.slot').forEach(x => x.setAttribute('aria-pressed', String(x === b))); return; }
+    if (d.pick) { const [t, i] = d.pick.split(':'); S.pub.tipo = t; S.pub.var = +i; const txt = $('#ptxt').value; publicar(); $('#ptxt').value = txt; return; }
+    if (d.psrv) { S.pub.srv = d.psrv; const txt = $('#ptxt').value; publicar(); $('#ptxt').value = txt; return; }
+    switch (d.act) {
+      case 'cerrar': cerrar(); break;
+      case 'atras': ir({ neg: null }); break;
+      case 'limpiar': ir({ q: '', cat: null }); break;
+      case 'nuevo': publicar(); break;
+      case 'publicar': { const t = $('#ptxt').value.trim() || 'Nuevo trabajo.'; const pb = S.pub;
+        POSTS.unshift({ id: Date.now(), neg: 'ab', tipo: pb.tipo, var: pb.var, srv: pb.srv, txt: t, tags: [pb.tipo === 'color' ? 'color' : pb.tipo, 'abbeautyroom'], likes: 0, com: 0, t: 'ahora' });
+        cerrar(); ir({ tab: 'inicio', neg: null }); toast('Publicado en tu perfil y en el inicio de tus seguidores'); break; }
+      case 'pedir': { const t = $('#tel').value.replace(/\D/g, ''); if (t.length !== 10) { toast('Escribe tu WhatsApp a 10 dígitos'); $('#tel').focus(); break; }
+        const h = $('#sheetCard .slot[aria-pressed="true"]').dataset.hora; S.citas.unshift({ neg: d.n, srv: d.s, dia: 'jue 30', h });
+        $('#out').innerHTML = `<div class="done"><b>Simulado: ${esc(NEG[d.n].n)} recibió tu solicitud.</b><br>${esc(d.s)} · jueves 30 a las ${h}. Te confirman por WhatsApp.</div><button type="button" class="big" data-tab="citas" style="margin-top:10px">Ver mis citas</button>`; break; }
+      case 'compartir': toast('Comparte el enlace por WhatsApp, Instagram o Facebook'); break;
+      case 'wa': toast('Abriría el WhatsApp del negocio'); break;
+      case 'avisos': toast('Avisos: confirmaciones de citas y nuevos trabajos de quien sigues'); break;
+      case 'entrar': toast('Lleva a «Escribe tu número de WhatsApp» y el código'); break;
+    }
+  });
+  render();
+})();
+</script>
