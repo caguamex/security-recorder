@@ -1,3 +1,4 @@
+import {errorPlan} from './planes/catalogo.js';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { ErrorAPI, validarCambio } from './modelo.js';
@@ -145,6 +146,7 @@ export function crearServidor(repo: Repositorio, token: string, publicRoot: stri
       }
       throw new ErrorAPI(404, 'Ruta no encontrada.');
     } catch (e) {
+      const plan=errorPlan(e);if(plan){json(res,plan.status,{error:plan.mensaje});return;}
       if (e instanceof ErrorAPI) json(res, e.status, { error: e.message, ...(e.current ? { current: e.current } : {}) });
       else { console.error('La solicitud no pudo completarse.'); json(res, 503, { error: 'Servicio temporalmente no disponible. Tus cambios siguen en este dispositivo.' }); }
     }

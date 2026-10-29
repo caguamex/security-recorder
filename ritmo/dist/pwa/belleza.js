@@ -1055,6 +1055,7 @@
     clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, undo ? 6000 : 3000);
   }
 
+  const Planes=window.AgendappxPlanes.crear({Store,openSheet,closeSheet,navSheet,toast});window.AgendappxPlanes.abrir=()=>Planes.abrir();
   const Negocio=window.AgendappxNegocio.crear({Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita,fecha:()=>S.day,tab:t=>{S.tab=t;render();scrollTo({top:0});if(t==='servicios')void cargarEquipoServicios();},servicio:sheetServicio,equipo:sheetAccesoAdmin,whatsapp:()=>sheetConexion('whatsapp'),promo:()=>sheetPromo(null)});
   // ---------- Eventos ----------
   document.addEventListener('click', e => {
