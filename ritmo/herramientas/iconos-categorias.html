@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Opciones de íconos de categorías</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Lámina de 6 opciones para el bloque «Buscar por servicio», en Dark como la captura de Antonio. */
+* { box-sizing: border-box; margin: 0; }
+body { width: 1500px; padding: 44px 40px 46px; background: #0B0B0E; font-family: Inter, system-ui, sans-serif; color: #F5F5F7; }
+h1 { font-size: 42px; font-weight: 800; text-align: center; letter-spacing: -.02em; }
+.sub { text-align: center; color: #9A9AA3; font-size: 19px; margin: 8px 0 30px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+.op { padding: 22px 22px 18px; border-radius: 26px; background: #000; border: 1px solid #1F1F24; }
+.op h2 { font-size: 21px; font-weight: 800; } .op p { color: #9A9AA3; font-size: 14.5px; margin: 3px 0 16px; }
+.op h2 span { display: inline-block; margin-right: 8px; padding: 2px 9px; border-radius: 8px; background: #E0457B; color: #fff; font-size: 15px; vertical-align: 2px; }
+.ic { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.lab { font-size: 13.5px; font-weight: 600; text-align: center; }
+
+/* 1 · Fotos en círculo */
+.o1 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 10px; }
+.o1 div { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.o1 .c { width: 82px; height: 82px; border-radius: 50%; padding: 3px; background: conic-gradient(from 200deg, #FF8DB5, #E0457B, #FFB37A, #FF8DB5); }
+.o1 img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid #000; display: block; }
+
+/* 2 · Tarjetas con foto */
+.o2 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.o2 div { position: relative; height: 112px; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 0 #000, 0 10px 20px rgba(0, 0, 0, .5); }
+.o2 img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.o2 div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, .75)); }
+.o2 b { position: absolute; z-index: 1; left: 10px; bottom: 8px; font-size: 14px; }
+
+/* 3 · Ícono blanco sobre color (estilo app) */
+.o3 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 10px; }
+.o3 div { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.o3 .q { width: 66px; height: 66px; border-radius: 20px; display: grid; place-items: center; color: #fff; background: linear-gradient(160deg, color-mix(in srgb, var(--c) 70%, #fff), var(--c) 55%, color-mix(in srgb, var(--c) 75%, #000));
+  box-shadow: inset 0 2px 1px rgba(255, 255, 255, .35), inset 0 -3px 4px rgba(0, 0, 0, .2), 0 4px 0 color-mix(in srgb, var(--c) 45%, #000), 0 10px 18px color-mix(in srgb, var(--c) 35%, transparent); }
+.o3 .q svg { width: 32px; height: 32px; stroke-width: 2.1; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
+
+/* 4 · Lista con miniatura */
+.o4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.o4 div { display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 8px; border-radius: 16px; background: #141418; box-shadow: 0 1px 0 rgba(255, 255, 255, .05) inset, 0 3px 0 #000; }
+.o4 img { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
+.o4 b { flex: 1; font-size: 15px; } .o4 small { color: #8A8A90; font-size: 12.5px; display: block; font-weight: 500; }
+.o4 i { color: #6A6A72; font-style: normal; font-size: 20px; }
+
+/* 5 · Línea fina, sin fondo */
+.o5 { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #1F1F24; border-left: 1px solid #1F1F24; }
+.o5 div { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px 6px 16px; border-right: 1px solid #1F1F24; border-bottom: 1px solid #1F1F24; }
+.o5 svg { width: 34px; height: 34px; stroke-width: 1.3; color: #F5F5F7; }
+.o5 .lab { font-weight: 500; color: #C7C7CC; }
+
+/* 6 · Chips */
+.o6 { display: flex; flex-wrap: wrap; gap: 10px; }
+.o6 div { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 6px; border-radius: 999px; background: #141418; box-shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 3px 0 #000; font-weight: 600; font-size: 15px; }
+.o6 img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.o6 div.on { background: linear-gradient(180deg, #F27AA5, #E0457B 55%); box-shadow: 0 3px 0 #9E2453; }
+.foot { text-align: center; color: #8A8A90; font-size: 14px; margin-top: 22px; }
+</style>
+</head>
+<body>
+<h1>Opciones para «Buscar por servicio»</h1>
+<p class="sub">Las mismas 8 categorías en 6 estilos · mostradas en modo Dark</p>
+<div class="grid" id="g"></div>
+<p class="foot">Fotos de ejemplo de Pexels y Wikimedia Commons (licencias libres). En la app real se pueden usar fotos propias de Agendappx.</p>
+<script>
+const C = [['Cejas', 5177994, '#7C5CD6', '<path d="M3.5 10C6.5 6.5 13 5.8 20.5 8.5"/><path d="M4 15.5s3-3.5 8-3.5 8 3.5 8 3.5-3 3.5-8 3.5-8-3.5-8-3.5z"/><circle cx="12" cy="15.5" r="1.8"/>', 'desde $150'],
+  ['Pestañas', 8554941, '#2F7BD6', '<path d="M3 13.5s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5z"/><circle cx="12" cy="13.5" r="2.4"/><path d="M12 4.5V7M7.3 5.6l1 2.2M16.7 5.6l-1 2.2M3.8 8.4l1.7 1.6M20.2 8.4l-1.7 1.6"/>', 'desde $550'],
+  ['Uñas', 939835, '#D63C78', '<rect x="7" y="11" width="10" height="10" rx="2.5"/><path d="M9.5 11V8h5v3"/><path d="M10.5 8V3h3v5"/>', 'desde $280'],
+  ['Depilación', 'cera', '#1E9E6A', '<rect x="5" y="3" width="14" height="5" rx="1.5"/><path d="M8 8v2h8V8"/><path d="M12 10v11"/>', 'desde $100'],
+  ['Cabello', 3356211, '#D9702B', '<circle cx="6" cy="17.5" r="3"/><circle cx="18" cy="17.5" r="3"/><path d="M8.2 15.3L19 3M15.8 15.3L5 3"/>', 'desde $330'],
+  ['Maquillaje', 3813896, '#D23B3B', '<path d="M9 21h6v-8H9z"/><path d="M10 13V8.5L14 5v8"/><path d="M7.5 21h9"/>', 'desde $700'],
+  ['Facial', 3985329, '#1C93A8', '<path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5z"/><path d="M9.5 14.5A2.5 2.5 0 0 0 12 17"/>', 'desde $450'],
+  ['Barbería', 12706272, '#8A6A45', '<rect x="8" y="4" width="8" height="16" rx="2"/><path d="M8 8.5l8 4M8 13l8 4"/><path d="M6.5 4h11M6.5 20h11"/>', 'desde $180']];
+const img = id => `<img src="../fotos/${id}.jpg" alt="">`;
+const svg = p => `<svg class="ic" viewBox="0 0 24 24">${p}</svg>`;
+const O = [
+  ['1', 'Fotos en círculo', 'Como historias de Instagram: se entiende al instante', `<div class="o1">${C.map(([n, f]) => `<div><span class="c">${img(f)}</span><span class="lab">${n}</span></div>`).join('')}</div>`],
+  ['2', 'Tarjetas con foto', 'Foto grande con el nombre encima; la más llamativa', `<div class="o2">${C.map(([n, f]) => `<div>${img(f)}<b>${n}</b></div>`).join('')}</div>`],
+  ['3', 'Ícono blanco sobre color', 'Como íconos de app, con relieve 3D', `<div class="o3">${C.map(([n, f, c, p]) => `<div><span class="q" style="--c:${c}">${svg(p)}</span><span class="lab">${n}</span></div>`).join('')}</div>`],
+  ['4', 'Lista con miniatura', 'Foto pequeña, nombre y precio desde; muy clara', `<div class="o4">${C.map(([n, f, c, p, d]) => `<div>${img(f)}<b>${n}<small>${d}</small></b><i>›</i></div>`).join('')}</div>`],
+  ['5', 'Línea fina, sin fondo', 'Minimalista y elegante, en blanco', `<div class="o5">${C.map(([n, f, c, p]) => `<div>${svg(p)}<span class="lab">${n}</span></div>`).join('')}</div>`],
+  ['6', 'Chips con foto', 'Una fila que se desliza; ocupa poco espacio', `<div class="o6">${C.map(([n, f], i) => `<div class="${i === 0 ? 'on' : ''}">${img(f)}${n}</div>`).join('')}</div>`],
+];
+document.getElementById('g').innerHTML = O.map(([k, t, d, h]) => `<section class="op"><h2><span>${k}</span>${t}</h2><p>${d}</p>${h}</section>`).join('');
+</script>
+</body>
+</html>

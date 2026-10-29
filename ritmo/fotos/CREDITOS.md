@@ -28,3 +28,6 @@ Se recortaron a 600 × 750 px y se comprimieron.
 | 3356211.jpg | Color cobrizo | — | https://www.pexels.com/photo/3356211/ |
 | 3993311.jpg | Tinte en salón | — | https://www.pexels.com/photo/3993311/ |
 | 3993312.jpg | Aplicación de tinte | — | https://www.pexels.com/photo/3993312/ |
+| 3813896.jpg | Maquillaje | Talitha Gonçalves | https://www.pexels.com/photo/3813896/ |
+| 3985329.jpg | Facial | Gustavo Fring | https://www.pexels.com/photo/3985329/ |
+| cera.jpg | Depilación (insumos de cera) | Wikimedia Commons, «Waxing Supplies.jpg», CC0 (dominio público) | https://commons.wikimedia.org/wiki/File:Waxing_Supplies.jpg |
