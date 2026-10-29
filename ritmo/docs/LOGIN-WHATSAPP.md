@@ -241,3 +241,10 @@ Los hashes de cuentas.js y Comunidad se verificaron otra vez después del últim
 ### Enlace personal renovado a petición del propietario — 29 de octubre, 17:14 UTC
 
 Antonio pidió nuevamente su enlace privado. Se generó otro oficial para el mismo UUID/correo, sin consumirlo ni enviar correo, SMS o WhatsApp; MFA y permisos se conservan. Archivo vigente privado: acceso-admin-reenvio-20261029T171458Z.json. Se añadió únicamente un parámetro público de navegación para recargar el documento y volver a rellenar el campo de recuperación; el secreto continúa solo en el fragmento. Se registró su huella en el Worker existente, versión 1f118fc1-543a-4025-9d33-6c65e41ebffd. Entrada, salud y Comunidad siguen en 200. No se modificó código, infraestructura, roles ni datos. El usuario debe desplegar «Tengo un enlace privado de recuperación», pulsar «Usar enlace de acceso» y completar el TOTP existente si se solicita. No guardar el enlace ni códigos en Git ni afirmar que el acceso personal se completó sin comprobarlo.
+
+
+## Recuperación del propietario completada — 29 de octubre, 17:24 UTC
+
+Antonio mostró en su iPhone «Acceso verificado». La consulta oficial confirmó para la sesión creada a las **2026-10-29T17:18:24.554527Z**: **aal2, admitida=true y Admin activo=true**, con el mismo UUID original. Su teléfono permanece confirmado y la sesión WhatsApp de plataforma está conectada, sin freno y con custodia activa. No se pidieron ni leyeron sus códigos de autenticación.
+
+Las cuatro banderas de Railway se consultaron y siguen **false**. La recuperación habilita su acceso en ese navegador; no equivale a habilitar códigos generales de login para otros dispositivos, avisos a clientas, equipo o registro público. El vínculo físico WhatsApp y la prueba real de asociación del teléfono sí están comprobados; conservar la fecha de encendido del 27 de octubre para el informe semanal. No fue necesaria otra migración, cambio de roles, aumento de recursos ni intervención en FiNeCi. El propietario puede pulsar Listo para cerrar la hoja y continuar con su agenda en el mismo navegador.
