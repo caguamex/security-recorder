@@ -15,3 +15,8 @@ Ejecutar `node ritmo/herramientas/verificar-neutro-ios.mjs` con las dependencias
 ## Publicación de la propuesta
 
 Destino: subdirectorio neutro-ios/ del GitHub Pages público ya existente. La petición de un enlace para iPhone autoriza únicamente publicar esta propuesta separada. Confirmado Pages gratuito de repositorio público, fuente gh-pages, sin crear servicios ni activar planes. Se añaden exclusivamente los archivos de esa subcarpeta conservando el árbol del resto de gh-pages. Sin cambios de Cloudflare, Railway, Supabase, datos, WhatsApp o FiNeCi. El PR de etapa 1 permanece en borrador hasta implementar y verificar el cambio de apariencia en la app; no mezclar esta publicación de propuesta con autorización de despliegue de la app real.
+
+
+## Resultado de publicación — 29 de octubre de 2026
+
+Propuesta publicada y verificada: https://caguamex.github.io/security-recorder/neutro-ios/ . Fuente ae4655ea328a596af89103595262e7625deb57e7, PR #11 encadenado al #10. Commit de distribución de gh-pages 78e9a3ea26c6a22f1f9991359735f56f0ea7e4ee, construcción built sin errores. Los nueve archivos responden 200 y su huella de blob coincide exactamente con el commit fuente (incluida la normalización de líneas de Git). La URL sin parámetros responde 200; la salud de la aplicación de Cloudflare permanece 200. Pruebas aisladas: 24 vistas en dos modos, móvil/tablet/escritorio, cero errores y cero solicitudes externas. Capturas revisadas de Hoy, Agenda, Mi negocio, perfil y Nueva cita. La prueba física en Safari de Antonio queda pendiente. No se publicó el nuevo diseño en la aplicación real.
