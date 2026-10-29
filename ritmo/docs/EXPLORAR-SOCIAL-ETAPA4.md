@@ -44,7 +44,7 @@ Usa la tarea de Cloudflare que ya existía cada cinco minutos; no crea procesos,
 
 ## Migración y seguridad
 
-`supabase/migrations/20261029223451_explorar_social_etapa4.sql`: tablas privadas para perfiles, publicaciones/interacciones, reseñas/reportes, reservas/visitas y avisos, funciones acotadas y registro de clientas. RLS forzada; cero permisos directos de anon/authenticated o mensajero. Las tablas internas sin políticas están cerradas deliberadamente y solo se operan mediante funciones privadas con controles concretos. Todas fijan búsqueda, conservan las reglas de Auth/MFA y no confían en user_metadata.
+`supabase/migrations/20261029233337_explorar_social_etapa4.sql`: tablas privadas para perfiles, publicaciones/interacciones, reseñas/reportes, reservas/visitas y avisos, funciones acotadas y registro de clientas. RLS forzada; cero permisos directos de anon/authenticated o mensajero. Las tablas internas sin políticas están cerradas deliberadamente y solo se operan mediante funciones privadas con controles concretos. Todas fijan búsqueda, conservan las reglas de Auth/MFA y no confían en user_metadata.
 
 Guardias `ritmo.migracion_etapa4=aprobada` y `ritmo.moderador_aprobado=<UUID verificado>` impiden ejecución accidental. No poner un UUID generado en la migración; se proporciona únicamente al ejecutarla tras la aprobación. Respaldar y comparar datos existentes antes/después. No incluir credenciales, TOTP, sesiones de WhatsApp ni claves de notificaciones en respaldos de agenda o Git.
 
@@ -62,3 +62,13 @@ Capturas en `../imagenes/social-etapa4/`. Fotos y registros de esas capturas son
 ## Operación pendiente
 
 Solicitar confirmación independiente de esta migración; respaldar, aplicar, comparar, revisar asesores y registrar la versión. Configurar dos secretos VAPID nuevos sin revelar sus valores. Publicar el Worker existente con keep-vars, verificar APIs públicas/privadas, cero datos de prueba y banderas de WhatsApp conservadas. La aprobación de publicación ya existe; no volver a preguntarla dentro de este alcance. No tocar Railway ni FiNeCi.
+
+## Migración autorizada y aplicada — 29 de octubre de 2026
+
+Antonio confirmó «Sí, respalda y aplica Explorar/Social». Respaldo privado respaldo-social-etapa4-20261029.json, SHA256 449eb7ac753c45ea9bec7b4fc2a278d325a97e4797fb78a23f2330c7a6f26ba2. Diez tablas comparadas antes/después, idénticas: negocios 1, miembros 1, estado 1, objetos 23, mutaciones 42, bitácora 0, días especiales 0, planes 1, contador de fundadoras 1, enlaces 0.
+
+Aplicada con el conector oficial de Supabase, que volvió a funcionar; versión real registrada 20261029233337, nombre explorar_social_etapa4. El archivo local se renombra a esa versión para evitar una repetición de migración. Quince tablas nuevas con RLS forzada y sin lectura directa de anon/authenticated/mensajero. Cero perfiles visibles, trabajos, reservas, suscripciones o avisos de prueba. Un único moderador: Antonio, el UUID verificado aprobado en la ejecución.
+
+Asesores: sin nueva advertencia de seguridad; diez tablas internas adicionales sin políticas son deliberadamente inaccesibles de forma directa. Protección de contraseñas mantiene el aviso anterior (acceso sin contraseña). Rendimiento informa índices FK opcionales no cubiertos y nuevos índices aún no usados en tablas vacías; no se borran índices ni se cambian políticas antiguas para silenciar recomendaciones. La advertencia anterior de dos políticas de miembros se conserva. No se abre acceso público directo ni se contratan planes para estas recomendaciones.
+
+Dos claves VAPID propias guardadas únicamente en archivo privado y secretos PUSH_VAPID_PUBLICA/PUSH_VAPID_PRIVADA del Worker existente. No se pidió permiso de notificaciones al navegador del usuario ni se creó una suscripción real. Publicación de la interfaz aún por registrar abajo.
