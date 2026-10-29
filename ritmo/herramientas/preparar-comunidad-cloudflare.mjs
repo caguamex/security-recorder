@@ -7,5 +7,5 @@ const comunidad=new URL('comunidad/',destino);
 // Solo el subdirectorio generado de este build; nunca los archivos del usuario ni las fotos de ejemplo.
 if(!comunidad.pathname.endsWith('/nube/build/comunidad-publicacion/assets/comunidad/'))throw new Error('Destino de publicación inválido');
 await rm(comunidad,{recursive:true,force:true});await mkdir(comunidad,{recursive:true});
-for(const nombre of ['index.html','real.css','real.mjs','manifest.webmanifest'])await cp(new URL('../comunidad/'+nombre,import.meta.url),new URL(nombre,comunidad));
+for(const nombre of ['index.html','real.css','real.mjs','actualizacion.mjs','cuentas-cliente.js','manifest.webmanifest'])await cp(new URL('comunidad/'+nombre,pwa),new URL(nombre,comunidad));
 console.log('Publicación preparada: agenda existente + /comunidad/. Sin modificar API, base de datos o caché de la agenda.');

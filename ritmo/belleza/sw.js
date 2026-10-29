@@ -20,10 +20,14 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   // Los datos privados y las respuestas de autenticación nunca entran en CacheStorage.
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin ||
-      !ASSETS.includes(url.pathname.replace(new URL(self.registration.scope).pathname, './'))) return;
+  if(event.request.method!=='GET'||url.origin!==self.location.origin)return;
+  let recurso=url.pathname.replace(new URL(self.registration.scope).pathname,'./');
+  if(recurso.endsWith('/'))recurso+='index.html';
+  if(['./comunidad','./planes'].includes(recurso))recurso+='/index.html';
+  if(event.request.mode==='navigate'&&/^\.\/[a-z0-9][a-z0-9-]{2,59}\/?$/.test(recurso)&&!['./api','./salud','./webhooks','./calendario'].includes(recurso))recurso='./comunidad/index.html';
+  if(!ASSETS.includes(recurso))return;const cacheURL=new URL(recurso,self.registration.scope).href;
   event.respondWith((async () => {
-    const cached = await caches.match(event.request, { ignoreSearch: true });
+    const cached = await caches.match(cacheURL, { ignoreSearch: true });
     return cached || fetch(event.request);
   })());
 });

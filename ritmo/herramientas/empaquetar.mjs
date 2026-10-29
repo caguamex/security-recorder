@@ -47,7 +47,8 @@ for (const recurso of ['estilo-neutro-ios.css', 'planes.js', 'planes', 'avisos-p
   cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
 }
 cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));
-mkdirSync(join(pwa,'comunidad'),{recursive:true});for(const n of ['index.html','real.css','real.mjs','manifest.webmanifest'])cpSync(join(raiz,'comunidad',n),join(pwa,'comunidad',n));
+mkdirSync(join(pwa,'comunidad'),{recursive:true});for(const n of ['index.html','real.css','real.mjs','actualizacion.mjs','manifest.webmanifest'])cpSync(join(raiz,'comunidad',n),join(pwa,'comunidad',n));
+cpSync(join(fuente,'cuentas.js'),join(pwa,'comunidad','cuentas-cliente.js'));
 let cuerpo = readFileSync(join(fuente, 'index.html'), 'utf8')
   .replace(/<link[^>]+https:\/\/fonts\.[^>]+>\s*/g, '');
 const metadatos = `<link rel="manifest" href="./manifest.webmanifest">
