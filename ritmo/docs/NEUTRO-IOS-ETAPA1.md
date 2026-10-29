@@ -1,4 +1,4 @@
-# Neutro iOS — etapa 1, lista para revisión, sin desplegar
+# Neutro iOS — etapa 1 publicada
 
 Antonio aprobó la vista del PR #11 y pidió cuatro correcciones: horas siempre HH:mm con selectores en vez de input time; Nueva cita con carrusel de fotos, fecha/hora en pastillas y switch; Apariencia solo en Mi negocio/Perfil; chips de especialistas, lunes–domingo y simultáneas lado a lado. Se implementan en la propuesta y en la app real. Rama codex/agendappx-neutro-ios-etapa1, padre exacto 559c3a6bdae7510e0252f91f0115ecd315a19fb9 del PR #11. No actualizar gh-pages, Cloudflare, Railway o Supabase hasta recibir autorización de publicación de este conjunto.
 
@@ -29,3 +29,15 @@ Capturas actuales en ../imagenes/neutro-etapa1/ y galería NEUTRO-IOS-CAPTURAS.h
 ## Cómo revisar y publicar después
 
 Ver primero las capturas. La vista pública del PR #11 conserva aún la versión anterior. Si Antonio confirma expresamente, actualizar la carpeta neutro-ios/ de GitHub Pages desde vista-neutro-ios y publicar el paquete combinado en el Worker existente con keep-vars. No aplicar migraciones ni publicar Railway. Comprobar hashes, salud, bloqueo de datos sin identidad y que Comunidad conserve su naturaleza de demostración. Verificar el aviso de actualización desde la versión anterior con una sesión de prueba aislada; no pedir OTP/TOTP en el chat.
+
+
+## Publicación autorizada — 29 de octubre de 2026
+
+Antonio confirmó «Publica todas las etapas». Esta confirmación cubre la publicación del diseño revisado y las siguientes etapas conforme estén implementadas y verificadas; no elimina la confirmación separada anterior para migraciones ni autoriza nuevos costos.
+
+Etapa 1 publicada desde 7ae2e674a07c1867fad388421410aa39f7b3b055, Worker ccc3d5d0-1d8c-4906-9e35-ffdb3e84e40b. Paquete combinado de 83 archivos y keep-vars. Salud 200, configuración de cuentas/registro/WhatsApp habilitada y correo apagado, contexto sin identidad 401, CSS Neutro y /comunidad/ 200. Sin migración, cambios de datos, Railway ni banderas de envíos. La vista pública para iPhone se actualizó solo dentro de neutro-ios/, commit gh-pages 477e5797f7e6ec7969e866405643d87485c3bae2; los nueve archivos coinciden con sus blobs de origen.
+
+URL real: https://ritmo-belleza.antonio-t-22.workers.dev/
+Vista de diseño: https://caguamex.github.io/security-recorder/neutro-ios/
+
+Etapas 2, 3 y 4 siguen en desarrollo. No están publicadas por el hecho de haber recibido aprobación.
