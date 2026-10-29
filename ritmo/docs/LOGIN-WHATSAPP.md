@@ -207,3 +207,23 @@ Se cerró la prueba devolviendo las cuatro banderas a false, sin volver a habili
 Antonio confirmó que en el navegador ya aparece «Vincular mi WhatsApp a esta cuenta». Consulta previa: sesión de plataforma conectada, sin freno y con custodia activa; tres solicitudes en los últimos quince minutos y **cero emisiones de la segunda prueba**. No se reiniciaron ni borraron contadores. El primer intento vuelve a admitirse después de 07:54:07.183Z; se indicó al propietario esperar hasta **01:55 CDMX** antes de pulsar Enviar una sola vez.
 
 Dentro de la autorización vigente del único código todavía no emitido, se preparó una ventana nueva **2026-10-29T07:54:15Z–08:04:15Z** (01:54:15–02:04:15 CDMX), conservando el mismo propietario, destino fijo, phone_change, máximo una emisión y vencimiento automático. Despliegue de configuración **99e7f5e0-1436-41f4-a07e-671c4feffaa0**, SUCCESS, instancia 6cb1d756-de7b-43b5-b633-3f04c7a8a868 RUNNING; mismo código 13e8c93 y mismos recursos. Solo WA_CODIGOS_HABILITADOS=true en modo restringido; las otras tres banderas false. No se pidió un código mediante herramientas ni se modificó el límite de intentos. Confirmar custodia activa después del reinicio antes de dar la prueba por lista. Entrega física y confirmación del teléfono siguen pendientes del propietario.
+
+
+## Código real verificado; corrección del cierre de asociación preparada
+
+La prueba de chat propio sí se completó: ticket **52d5be0f-c547-48fa-bdfa-9ac2d5208885**, phone_change del mismo propietario, creado 2026-10-29T07:55:19.265Z. Consulta oficial: **estado=usado**, un intento, hook y huella de código recibidos; Auth confirma teléfono asociado/confirmado y cambio pendiente vacío. No se leyó, imprimió ni conservó OTP en claro. Esto demuestra entrega y verificación reales del único código de la prueba; no declarar fallida esa entrega por el atasco posterior de la pantalla.
+
+Después de usarlo se cerró la prueba con las cuatro banderas en false; despliegue **1d6e9fcc-4d6f-4871-9b8a-1310631d8cd6**, SUCCESS. Se confirmó que la sesión WhatsApp sigue conectada con custodia activa después del cierre, sin activar avisos ni nuevos vínculos.
+
+Antonio informó «Comprobando…». Se comprobó el defecto: Auth emitió una sesión aal1 nueva a las 07:55:45.689Z al verificar phone_change. La ruta validaba el UUID pero devolvía al SDK todos esos tokens, por lo que sustituía la sesión aal2 anterior por una secundaria no admitida en acceso_sesiones. La cuenta y el teléfono sí quedaron confirmados; no atribuir el atasco a falta de entrega ni enviar otro código.
+
+Corrección local:
+- Verificar la identidad de cualquier token devuelto por Auth y rechazar una identidad ajena. Para phone_change, devolver solo el usuario confirmado: no sustituir tokens ni admitir la sesión secundaria.
+- Refrescar desde el SDK la propia sesión que autorizó el cambio para obtener su teléfono actualizado conservando el mismo UUID, sesión admitida y MFA.
+- Cuando realmente se requiere el segundo factor, mostrar la instrucción de la app autenticadora en lugar de dejar «Comprobando…». No cambiar composición, colores, navegación ni áreas seguras.
+
+**209 pruebas aprobadas**, compilación y navegador local con SDK real: proveedor simulado devuelve una sesión nueva en phone_change, la app conserva la anterior aal2, actualiza el teléfono y termina la pantalla. Se rechazan tokens de otra cuenta. White/Dark a 390/768/1440; no hay mensajes reales en las pruebas. Cloudflare dry-run correcto.
+
+La sesión secundaria ya emitida al celular no se corrige insertándola manualmente en tablas. Se preparó, sin consumir ni mostrar, un enlace oficial nuevo del mismo propietario en **acceso-admin-sesion-confirmada-20261029.json**, privado fuera de Git. Falta autorización para publicarlo en Cloudflare, registrar su huella de recuperación y mostrarlo aquí; no compartir el enlace en Git ni pedir TOTP al usuario. El usuario abrirá ese enlace personalmente y verificará el factor ya configurado, sin crear otra cuenta ni recibir otro código de WhatsApp.
+
+Preparación de publicación privada: **preparacion-sesion-verificada-20261029.json** contiene la ruta de assets, con PWA corregida y Comunidad recuperada exactamente del commit 27e4ae7. SHA-256 de index.html, app.mjs, estilos.css y barberia.png coincide con la versión pública de Comunidad. Usar esa carpeta con wrangler --assets y --keep-vars; NO ejecutar el deploy normal que omite Comunidad ni cargar archivos viejos de secretos. No se necesita desplegar Railway para esta corrección de la API del Worker y su cliente. Aún sin publicar esta ampliación; la aprobación anterior cubría solo 13e8c93 y su prueba única.

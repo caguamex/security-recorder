@@ -99,3 +99,16 @@ test('prueba incierta no permite un segundo envío ni reutiliza solicitudes ante
  e.avanzar(1);await e.solicitudes.crear('whatsapp',tel,'ip-actual',ids.admin);e.remoto.enviar=async()=>{e.envios.push('incierto');throw new Error('respuesta perdida');};const v=e.evento(tel);await assert.rejects(()=>crear().entregar(v.raw,v.headers),err=>err.status===503);
  e.avanzar(1);await e.solicitudes.crear('whatsapp',tel,'ip-segunda',ids.admin);const segundo=e.evento(tel);await assert.rejects(()=>crear().entregar(segundo.raw,segundo.headers),err=>err.status===403);assert.equal(e.envios.length,1);
 });
+
+
+for(const formato of ['sesion_nueva','solo_usuario','sesion_ajena'])test('phone_change conserva sesión MFA y no sustituye tokens: '+formato,async t=>{
+ const e=await entorno(t),tel='525511111111',nueva=randomUUID();await e.pool.connect().then(async c=>{try{await c.query('INSERT INTO auth.sessions(id,user_id) VALUES($1,$2)',[nueva,ids.admin]);}finally{c.release();}});
+ const s=await e.solicitudes.crear('whatsapp',tel,'ip-phone-change',ids.admin),v=e.evento(tel);await e.codigos.entregar(v.raw,v.headers);
+ const jwt={verificar:async token=>token==='anterior'?{usuarioId:ids.admin,sesionId:sesiones.admin,aal:'aal2'}:{usuarioId:formato==='sesion_ajena'?ids.ajena:ids.admin,sesionId:nueva,aal:'aal1'}};
+ const config={habilitado:true,correo:false,key:e.key,origen:'https://agendappx.test',supabaseURL:'https://zkqwephmuflbuagevvxj.supabase.co',llavePublica:'sb_publishable_prueba_local',salones:new Set([ids.salon]),ip:()=> 'ip-local',fetch:async(url,init)=>{assert.match(url,/auth\/v1\/verify$/);assert.equal(init.headers.Authorization,'Bearer anterior');assert.equal(JSON.parse(init.body).type,'phone_change');return Response.json({user:{id:ids.admin,phone:tel},...(formato==='solo_usuario'?{}:{access_token:'nueva',refresh_token:'solo-transporte-simulado',expires_in:3600})});}};
+ const rutas=rutasAcceso(e.poolAPI,jwt,config),server=createServer(async(req,res)=>{try{await rutas(req,res,new URL(req.url,'http://localhost'));}catch(err){res.writeHead(err.status||503,{'Content-Type':'application/json'}).end(JSON.stringify({error:err.message}));}});server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>new Promise(r=>server.close(r)));
+ const response=await fetch('http://127.0.0.1:'+server.address().port+'/api/acceso/verificar',{method:'POST',headers:{Origin:config.origen,Authorization:'Bearer anterior','Content-Type':'application/json'},body:JSON.stringify({id:s.id,prueba:s.prueba,destino:tel,codigo:'482913'})}),body=await response.json();assert.equal(response.status,formato==='sesion_ajena'?403:200);
+ if(formato!=='sesion_ajena'){assert.equal(body.user.id,ids.admin);assert.equal(body.user.phone,tel);assert.equal(body.access_token,undefined);assert.equal(body.refresh_token,undefined);}
+ assert.equal(Number((await e.solicitudes.usar(c=>c.query('SELECT count(*) AS n FROM ritmo.acceso_sesiones WHERE sesion_id=$1',[nueva]))).rows[0].n),0);
+ assert.ok(await enTransaccion(e.poolAPI,{usuarioId:ids.admin,sesionId:sesiones.admin,aal:'aal2'},ids.salon,c=>c.query('SELECT 1')));
+});
