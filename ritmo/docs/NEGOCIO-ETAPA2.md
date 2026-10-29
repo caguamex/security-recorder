@@ -33,3 +33,12 @@ Capturas en ../imagenes/negocio-etapa2/. Las imágenes de fixtures no son datos 
 ## Publicación
 
 Autorizada por Antonio; registrar los identificadores y comprobaciones reales después de publicar. No declarar etapas 3–4 terminadas por haber preparado la etapa 2. No cambiar planes, límites ni servicios de FiNeCi.
+
+
+### Publicada y verificada
+
+Fuente 2e8ee48e6a897f45673f0dc3af05538a54f29f59, PR #13 (https://github.com/caguamex/security-recorder/pull/13), base PR #12. Worker ffdfd164-e182-43d0-b50b-b9569412925c; paquete combinado de 84 archivos con keep-vars. Salud/configuración/Comunidad 200, contexto y gestión de horarios sin identidad 401. SHA256 de negocio.js público idéntico al archivo construido. No se realizaron escrituras de prueba en la agenda real.
+
+Railway 4d3e6c3d-6d04-4326-b626-05d7e0bb347e SUCCESS en el servicio existente agendappx-whatsapp. Publicado desde una carpeta aislada de 46 archivos de código, sin secretos ni archivos de FiNeCi. Conserva una réplica, 0.1 vCPU y 500000000 bytes. Los códigos de acceso permanecen habilitados; las vinculaciones nuevas y los envíos automáticos siguen apagados. Presupuesto compartido consultado antes de publicar: 1.567831769012531 USD consumidos, Hobby, límite duro 10 USD, sin sobrepaso, ciclo 14 oct.–14 nov. de 2026. Consumo no equivale a factura: el mínimo Hobby incluye recursos, no sumarlo dos veces. No se aumentaron recursos ni límites.
+
+El inicio real del seguimiento semanal continúa siendo 2026-10-27T19:11:09.551883275Z. No reiniciar por este despliegue.

@@ -168,3 +168,8 @@ Antonio autorizó «Publica todas las etapas». Etapa 1 publicada, Worker ccc3d5
 ## Modo negocio — etapa 2, 29 de octubre
 
 Leer docs/NEGOCIO-ETAPA2.md. Hoy y Mi negocio funcionales, menú Crear, turnos/descanso/comida/días especiales, asignaciones de servicios y calendario Apple por cita. Migración de horarios autorizada y aplicada con respaldo verificado; versión 20261029204424, no repetirla. Stages 3–4 aún no implementadas. La publicación está autorizada por «Publica todas las etapas», pero registrar su resultado antes de decir que quedó publicada. Mantener cobros, nuevos dispositivos y envíos automáticos apagados.
+
+
+### Etapa 2 publicada
+
+PR #13, aplicación 2e8ee48, Worker ffdfd164-e182-43d0-b50b-b9569412925c y Railway 4d3e6c3d-6d04-4326-b626-05d7e0bb347e SUCCESS. Ver docs/NEGOCIO-ETAPA2.md. Horarios migrados y siete tablas previas idénticas al respaldo. Código real de Hoy y Mi negocio publicado; Planes y Comunidad real pendientes de etapas 3–4. Se conserva código WhatsApp habilitado, vinculación y envíos automáticos apagados. La nueva rama de etapa 3 parte de esta rama.
