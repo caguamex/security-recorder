@@ -193,3 +193,8 @@ Rama codex/agendappx-explorar-social-etapa4 sobre Planes / PR #14. Leer docs/EXP
 ### Migración de etapa 4 aplicada
 
 Antonio autorizó «Sí, respalda y aplica Explorar/Social». Versión real 20261029233337, aplicada mediante conector oficial. Diez tablas existentes idénticas al respaldo; quince tablas nuevas cerradas, un moderador aprobado y cero datos de prueba. Ver docs/EXPLORAR-SOCIAL-ETAPA4.md. No volver a aplicar ni pedir esa autorización. La publicación está autorizada y todavía falta registrar su resultado. VAPID solo en secretos/archivo privado.
+
+
+### Todas las etapas publicadas — 29 de octubre de 2026
+
+Etapas 1–4 publicadas, PRs #12, #13, #14 y #15 encadenados. Última aplicación ef8abee, Worker 36421810-c292-476b-8921-4f97578f1e48; migración final 20261029233337. Leer el cierre de docs/EXPLORAR-SOCIAL-ETAPA4.md. Diez tablas originales intactas y cero ejemplos en producción. Directorio real vacío hasta que Admin active su perfil; no activarlo por cuenta del propietario. Avisos PWA requieren permiso voluntario del dispositivo, sin suscripciones de prueba. Registro WhatsApp sigue habilitado; citas/promociones y nuevas vinculaciones siguen apagadas. No repetir migraciones, activar mensajes/cobros ni tocar FiNeCi/Railway al retomar.

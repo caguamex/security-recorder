@@ -76,3 +76,15 @@ Dos claves VAPID propias guardadas únicamente en archivo privado y secretos PUS
 ### Continuidad de actualización
 
 Comunidad carga una copia compilada del mismo SDK en /comunidad/cuentas-cliente.js: una PWA antigua no puede mezclar el archivo de acceso anterior con la pantalla nueva. El service worker comparte los recursos de agenda/Comunidad, resuelve /comunidad/ y perfiles al shell correcto y jamás guarda APIs privadas. Comunidad tiene el mismo aviso de actualizar con decisión del usuario; el botón también funciona encima de un diálogo y cancelar conserva el borrador. Una prueba específica instala la caché anterior, abre Comunidad nueva, cancela la actualización con un formulario, actualiza conservando la URL y vuelve a abrir sin conexión. No se borra almacenamiento ni se cierra sesión para corregir cachés.
+
+## Publicación final verificada
+
+Publicado desde ef8abee, Worker **36421810-c292-476b-8921-4f97578f1e48**, ochenta recursos, con keep-vars y los mismos bindings/cron. Reemplaza las versiones iniciales 74924342-c4f5-4edd-8941-f865424bd43f y c6d6535d-bf1e-46a7-98ee-d51eeda190a6 dentro de esta misma etapa. El perfil mantiene /<slug> al servir el shell; no redirige al directorio por la canonicalización de index.html del alojamiento.
+
+Comprobación real: salud, Comunidad, archivos de acceso/actualización y APIs públicas responden 200. Los archivos públicos coinciden en SHA256 con el build. Búsqueda de cejas, Social/cortes y directorio devuelven listas vacías reales: cero ejemplos publicados. Citas/contexto de clientas y administración/planes sin sesión responden 401; perfil del salón aún oculto responde 404 en su API. Precios conservan cobrosHabilitados=false y diecinueve cupos reales. Configuración de acceso conserva WhatsApp y registro habilitados, correo apagado. Navegador integrado confirma Perfil, Apariencia y Entrar/Crear mi cuenta, sin pedir ni enviar un código real.
+
+Las diez tablas anteriores coinciden exactamente con el respaldo tras migrar. Al terminar: cero trabajos, reservas, suscripciones o avisos de prueba, y cero perfiles visibles. No se activó la ubicación ni las notificaciones del usuario. Push queda técnicamente configurado, pero su entrega a un iPhone real requiere que la persona active el permiso en su dispositivo; las pruebas de envío fueron simuladas. No se publicó ni modificó Railway, no se habilitaron mensajes de citas/promociones ni nuevos dispositivos, no se tocó FiNeCi y no se contrataron servicios.
+
+PR #15: https://github.com/caguamex/security-recorder/pull/15, encadenado al #14. La rama de trabajo conserva código, migración real, pruebas y capturas. Todas las etapas 1–4 quedaron publicadas; las notas de «pendiente» anteriores son el historial de preparación.
+
+Para Antonio: abrir la app y aceptar Actualizar ahora. En Negocio → Ver como cliente, completar/guardar el perfil y activar Mostrar mi salón cuando decida aparecer públicamente. Subir trabajos propios desde el botón Crear → Publicar trabajo. El directorio /comunidad/ permanece vacío mientras no haya negocios que hayan publicado su perfil.
