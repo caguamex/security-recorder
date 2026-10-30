@@ -25,7 +25,7 @@ await sql("UPDATE auth.users SET phone='525522222222' WHERE id=$1",[ids.ajena]);
 await sql("INSERT INTO ritmo.negocios_planes(negocio_id,plan,estado,prueba_inicio,prueba_fin) VALUES($1,'salon','prueba',now()-interval '27 days',now()+interval '3 days') ON CONFLICT(negocio_id) DO UPDATE SET estado='prueba',plan='salon',prueba_inicio=EXCLUDED.prueba_inicio,prueba_fin=EXCLUDED.prueba_fin",[ids.otro]);
 await e.fuente({id:'__settings',negocio:'AB Beauty Room',abre:'10:00',cierra:'20:00',examplesOff:true});
 let base='';
-const cuentas={habilitado:true,supabaseURL:supabase,llavePublica:'sb_publishable_prueba_local',salones:new Set([ids.salon]),migracionUsuarioId:ids.admin,plataforma:{key:llave},get origen(){return base;}};
+const cuentas={habilitado:true,supabaseURL:supabase,llavePublica:'sb_publishable_prueba_local',salones:new Set([ids.salon]),migracionUsuarioId:ids.admin,acceso:{whatsapp:true,correo:false},plataforma:{key:llave},get origen(){return base;}};
 const server=crearServidor({salud:async()=>{},estado:async()=>[],snapshot:async()=>({records:[],cursor:0,full:true})},'a'.repeat(40),fileURLToPath(new URL('../../dist/pwa/',import.meta.url)),{cuentas:rutasCuentas(e.poolAPI,jwt,cuentas)});
 server.listen(0,'127.0.0.1');await once(server,'listening');base='http://127.0.0.1:'+server.address().port;
 const token=async(u,s)=>new SignJWT({session_id:s,aal:'aal2',role:'authenticated'}).setProtectedHeader({alg:'ES256',kid:'local'}).setSubject(u).setIssuer(supabase+'/auth/v1').setAudience('authenticated').setIssuedAt().setExpirationTime('1h').sign(par.privateKey);
@@ -56,7 +56,7 @@ try{
   for(const w of [768,1440]){await p.setViewportSize({width:w,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}await c.close();}
  {const {c,p}=await abrir('admin','dark');await p.locator('[data-salon]').first().waitFor();await p.screenshot({path:capturas+'03-panel-dark.png',animations:'disabled'});await c.close();}
  // Otra Admin de salón con MFA no ve el panel.
- {await sql('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[sesiones.ajena,ids.ajena]);const {c,p}=await abrir('ajena');await p.getByText(/solo para el administrador de Agendappx|Entra a Agendappx/).waitFor();assert.equal(await p.locator('[data-salon]').count(),0);await c.close();}
+ {await sql('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[sesiones.ajena,ids.ajena]);const {c,p}=await abrir('ajena');await p.getByText(/solo para el administrador de Agendappx|exclusivo del dueño/).waitFor();assert.equal(await p.locator('[data-salon]').count(),0);await c.close();}
  assert.deepEqual(errores,[]);
  console.log('Panel: resumen, salones, filtros, búsqueda, extender prueba, verificar, pausa y bitácora; otra Admin no lo ve. White/Dark 390/768/1440.');
 }finally{await browser.close();server.close();await e.cerrar();}

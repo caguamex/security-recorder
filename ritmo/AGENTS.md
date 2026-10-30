@@ -1,5 +1,9 @@
 # Ritmo: guía para continuar el trabajo
 
+## Dueño sin salón — preparación del 30 de octubre de 2026
+
+Antonio sustituyó su registro de salón por acceso directo de dueño a `/plataforma/`, sin negocio ni plan. Leer `docs/ACCESO-DUENO.md`. Rama `codex/agendappx-acceso-dueno`, desde el PR #20. SDK con sesión de plataforma independiente; servidor y SQL existentes conservan propietario reservado + sesión admitida + MFA, incluso sin membresías. 280 pruebas y tres recorridos de navegador aprobados; capturas en `imagenes/acceso-dueno/`. Publicación nueva aún pendiente de confirmación; no requiere migración ni Railway. La limpieza de los intentos vencidos **no se aplicó**: dos confirmaciones de Supabase caducaron. Respaldo privado guardado y verificado; revalidar inventario y completar esa confirmación antes de borrar, sin repetir el reinicio global. Conservar Auth/propiedad/WhatsApp de códigos y no tocar FiNeCi.
+
 ## Registro visual en revisión — 30 de octubre de 2026
 
 Antonio confirmó la recepción del OTP y pidió mejorar las ventanas. Rama `codex/agendappx-registro-visual`, PR #20, documento `docs/REGISTRO-VISUAL.md`. Cabecera Agendappx, avance en los cuatro pasos, campos amplios y presentación White/Dark; conservar el flujo real de código, contraseña y MFA. 279 pruebas y recorrido Edge aprobados, capturas ficticias en `imagenes/registro-neutro/`. Antonio aprobó publicar; código `7a7d854`, Worker **fe5c32f7-90e2-4bfa-aab8-0bc472746626**, --keep-vars. Archivos por SHA-256, registro White/Dark, inicio Comunidad, salud 200 y panel 401 verificados públicamente sin códigos ni cuentas de prueba. Sin migración, cambios en Railway ni permisos nuevos. El dueño reservado ya verificó el teléfono; falta comprobar que termine los datos del salón y MFA. No repetir el reinicio ni conceder propiedad a otro registro.

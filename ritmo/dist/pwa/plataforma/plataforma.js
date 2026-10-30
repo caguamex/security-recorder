@@ -4,9 +4,9 @@
  const fecha=v=>v?new Date(v).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}):'—';
  const hace=v=>{if(!v)return 'sin uso';const d=Math.floor((Date.now()-new Date(v))/86400000);return d<=0?'hoy':d===1?'ayer':'hace '+d+' días';};
  const PLANES={solo:'Solo',salon:'Salón',pro:'Pro'};
- let salones=[],resumen={},codigos=[],respaldo=false,filtro='todos',q='',actual=null,codigoActual=null,avisador;
+ let salones=[],resumen={},codigos=[],respaldo=false,filtro='todos',q='',actual=null,codigoActual=null,avisador,revision=0;
  const aviso=t=>{clearTimeout(avisador);$('#aviso').textContent=t;$('#aviso').hidden=false;avisador=setTimeout(()=>{$('#aviso').hidden=true;},3500);};
- async function api(ruta,datos){const s=await window.AgendappxCuentas?.sesion();if(!s?.accessToken)throw Object.assign(new Error('Entra a Agendappx con tu cuenta para ver el panel.'),{entrar:true});
+ async function api(ruta,datos){const s=await window.AgendappxCuentas?.sesionPlataforma();if(!s?.accessToken)throw Object.assign(new Error('Entra con tu cuenta de dueño para ver el panel.'),{entrar:true});
   const r=await fetch(ruta,{method:datos?'POST':'GET',headers:{Authorization:'Bearer '+s.accessToken,...(datos?{'Content-Type':'application/json'}:{})},...(datos?{body:JSON.stringify(datos)}:{}),cache:'no-store',signal:AbortSignal.timeout(20000)});
   let d={};try{d=await r.json();}catch{}if(!r.ok)throw new Error(d.error||'No se pudo cargar el panel.');return d;}
  function diasPrueba(s){if(s.estado!=='prueba'||!s.pruebaFin)return null;return Math.ceil((new Date(s.pruebaFin)-Date.now())/86400000);}
@@ -58,17 +58,18 @@
    <a class="btn p" href="${esc(d.whatsapp)}" target="_blank" rel="noopener" id="codigo-whatsapp">Enviar por WhatsApp</a><button type="button" class="btn" data-entregado="${esc(id)}">Ya lo envié</button>
    <p class="vacio" style="padding:12px 4px 0;text-align:left">Se abre tu WhatsApp con el mensaje listo para ese número. Vence a los 10 minutos de haberlo pedido; si venció, la persona puede pedir otro.</p>`;
   if(!$('#hoja').open)$('#hoja').showModal();}
- async function cargar(){try{const [r,s,c]=await Promise.all([api('/api/plataforma/resumen'),api('/api/plataforma/salones'),api('/api/plataforma/codigos').catch(()=>({codigos:[],activo:false}))]);resumen=r;salones=s.salones;codigos=c.codigos;respaldo=c.activo;pintar();}
-  catch(e){$('#contenido').innerHTML=`<p class="vacio">${esc(e.message)}</p>${e.entrar?'<a class="btn p" href="/#entrar">Entrar</a>':''}`;}}
+ async function cargar(){const turno=++revision;try{const [r,s,c]=await Promise.all([api('/api/plataforma/resumen'),api('/api/plataforma/salones'),api('/api/plataforma/codigos').catch(()=>({codigos:[],activo:false}))]);if(turno!==revision)return;resumen=r;salones=s.salones;codigos=c.codigos;respaldo=c.activo;$('#salir-dueno').hidden=false;$('#panel').classList.remove('entrada-dueno');pintar();}
+  catch(e){if(turno!==revision)return;if(e.entrar){$('#salir-dueno').hidden=true;if($('#acceso-plataforma'))return;$('#panel').classList.add('entrada-dueno');$('#contenido').innerHTML='<section class="acceso-dueno"><p class="etapa-dueno">DUEÑO DE AGENDAPPX</p><div id="acceso-plataforma"></div><p class="nota-dueno">Aquí administras los negocios registrados. No necesitas crear un salón ni elegir un plan.</p></section>';await window.AgendappxCuentas.montar($('#acceso-plataforma'),{plataforma:true,alVerificar:()=>{void cargar();}});}else $('#contenido').innerHTML=`<p class="vacio">${esc(e.message)}</p>`;}}
  async function accion(a,valor={}){await api('/api/plataforma/salones/'+actual.id,{accion:a,valor});aviso({verificar:'Listo.',extender_prueba:'Prueba extendida.',plan:'Plan cambiado.',suspender:'Salón en pausa.',reactivar:'Salón reactivado.',ocultar:'Ya no aparece en Explorar.'}[a]);
   const id=actual.id;await cargar();const s=salones.find(x=>x.id===id);if(s&&$('#hoja').open)hoja(s);}
  document.addEventListener('click',async ev=>{const b=ev.target.closest('button');if(!b)return;try{
   if(b.id==='recargar'){await cargar();aviso('Actualizado.');}
+  if(b.id==='salir-dueno'){revision++;salones=[];resumen={};codigos=[];actual=null;codigoActual=null;$('#contenido').textContent='Cerrando sesión…';if($('#hoja').open)$('#hoja').close();$('#hoja-cuerpo').replaceChildren();await window.AgendappxCuentas.salir();await cargar();return;}
   if(b.id==='hoja-cerrar')$('#hoja').close();
   if(b.dataset.filtro){filtro=b.dataset.filtro;pintar();}
   if(b.dataset.codigo){b.disabled=true;await verCodigo(b.dataset.codigo);return;}
   if(b.dataset.entregado){await api('/api/plataforma/codigos/'+b.dataset.entregado+'/entregado',{});$('#hoja').close();aviso('Listo. Quedó anotado.');await cargar();return;}
-  if(b.id==='avisos-celular'){await window.AgendappxAvisos.activar('negocio');aviso('Te avisaremos en este celular.');return;}
+  if(b.id==='avisos-celular'){await window.AgendappxAvisos.activar('plataforma');aviso('Te avisaremos en este celular.');return;}
   if(b.dataset.salon)hoja(salones.find(s=>s.id===b.dataset.salon));
   const a=b.dataset.accion;if(!a)return;b.disabled=true;
   if(a==='verificar')await accion(a,{si:!actual.verificado});
