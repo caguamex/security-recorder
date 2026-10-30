@@ -1,6 +1,15 @@
 // El empaquetador reemplaza la versión y la lista por el contenido de esta compilación.
 const CACHE = 'ritmo-belleza-__VERSION__';
 const ASSETS = __ASSETS__;
+// Cache.addAll sigue las redirecciones de /index.html a /. Safari no admite
+// devolver esa lista de redirecciones a una navegación controlada por el SW.
+// Recrear solo esas respuestas conserva el documento, sus encabezados y estado.
+function sinRedirecciones(response) {
+  if (!response.redirected) return response;
+  const headers = new Headers(response.headers);
+  for (const nombre of ['content-encoding', 'content-length', 'transfer-encoding']) headers.delete(nombre);
+  return new Response(response.body, {status: response.status, statusText: response.statusText, headers});
+}
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
 });
@@ -21,6 +30,8 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   // Los datos privados y las respuestas de autenticación nunca entran en CacheStorage.
   if(event.request.method!=='GET'||url.origin!==self.location.origin)return;
+  // La recuperación siempre llega a la red, incluso con una copia antigua instalada.
+  if(url.pathname.startsWith('/recuperar-acceso/'))return;
   let recurso=url.pathname.replace(new URL(self.registration.scope).pathname,'./');
   if(recurso.endsWith('/'))recurso+='index.html';
   if(['./comunidad','./planes'].includes(recurso))recurso+='/index.html';
@@ -28,7 +39,7 @@ self.addEventListener('fetch', event => {
   if(!ASSETS.includes(recurso))return;const cacheURL=new URL(recurso,self.registration.scope).href;
   event.respondWith((async () => {
     const cached = await caches.match(cacheURL, { ignoreSearch: true });
-    return cached || fetch(event.request);
+    return sinRedirecciones(cached || await fetch(event.request));
   })());
 });
 

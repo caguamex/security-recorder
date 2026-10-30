@@ -198,3 +198,7 @@ Antonio autorizó «Sí, respalda y aplica Explorar/Social». Versión real 2026
 ### Todas las etapas publicadas — 29 de octubre de 2026
 
 Etapas 1–4 publicadas, PRs #12, #13, #14 y #15 encadenados. Última aplicación ef8abee, Worker 36421810-c292-476b-8921-4f97578f1e48; migración final 20261029233337. Leer el cierre de docs/EXPLORAR-SOCIAL-ETAPA4.md. Diez tablas originales intactas y cero ejemplos en producción. Directorio real vacío hasta que Admin active su perfil; no activarlo por cuenta del propietario. Avisos PWA requieren permiso voluntario del dispositivo, sin suscripciones de prueba. Registro WhatsApp sigue habilitado; citas/promociones y nuevas vinculaciones siguen apagadas. No repetir migraciones, activar mensajes/cobros ni tocar FiNeCi/Railway al retomar.
+
+### Reparación posterior de Safari
+
+Leer docs/RECUPERACION-SAFARI.md. La canonicalización de index.html dejaba Response.redirected=true en caché y Safari rechazaba la navegación. El worker normaliza esas respuestas y /recuperar-acceso/ actualiza la copia instalada conservando sesión, cookies, IndexedDB y cola pendiente. La prueba nueva reproduce el fallo anterior con WebKit y redirecciones HTTP reales. No indicar borrar datos de Safari ni repetir migraciones para resolver este problema.

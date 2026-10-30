@@ -1,6 +1,15 @@
 // El empaquetador reemplaza la versión y la lista por el contenido de esta compilación.
-const CACHE = 'ritmo-belleza-38d88e6214cc650f';
-const ASSETS = ["./","./avisos-pwa.js","./belleza.js","./comunidad/actualizacion.mjs","./comunidad/cuentas-cliente.js","./comunidad/index.html","./comunidad/manifest.webmanifest","./comunidad/real.css","./comunidad/real.mjs","./core.js","./cuentas.js","./estilo-neutro-ios.css","./fuentes/Archivo-OFL.txt","./fuentes/Cormorant-Garamond-OFL.txt","./fuentes/DM-Serif-Display-OFL.txt","./fuentes/Inter-OFL.txt","./fuentes/Nunito-OFL.txt","./fuentes/fuente-0.ttf","./fuentes/fuente-1.ttf","./fuentes/fuente-10.ttf","./fuentes/fuente-11.ttf","./fuentes/fuente-12.ttf","./fuentes/fuente-13.ttf","./fuentes/fuente-14.ttf","./fuentes/fuente-15.ttf","./fuentes/fuente-16.ttf","./fuentes/fuente-17.ttf","./fuentes/fuente-18.ttf","./fuentes/fuente-19.ttf","./fuentes/fuente-2.ttf","./fuentes/fuente-20.ttf","./fuentes/fuente-21.ttf","./fuentes/fuente-22.ttf","./fuentes/fuente-23.ttf","./fuentes/fuente-24.ttf","./fuentes/fuente-25.ttf","./fuentes/fuente-26.ttf","./fuentes/fuente-27.ttf","./fuentes/fuente-28.ttf","./fuentes/fuente-29.ttf","./fuentes/fuente-3.ttf","./fuentes/fuente-30.ttf","./fuentes/fuente-31.ttf","./fuentes/fuente-32.ttf","./fuentes/fuente-33.ttf","./fuentes/fuente-34.ttf","./fuentes/fuente-35.ttf","./fuentes/fuente-36.ttf","./fuentes/fuente-4.ttf","./fuentes/fuente-5.ttf","./fuentes/fuente-6.ttf","./fuentes/fuente-7.ttf","./fuentes/fuente-8.ttf","./fuentes/fuente-9.ttf","./fuentes/fuentes.css","./iconos/icono-180.png","./iconos/icono-192.png","./iconos/icono-512.png","./index.html","./manifest.webmanifest","./negocio.js","./planes.js","./planes/index.html","./planes/inicio.js","./planes/planes.css","./pwa.js","./sincronizacion.js","./social.js","./trabajos/extensiones-1.jpg","./trabajos/extensiones-2.jpg","./trabajos/extensiones-3.jpg","./trabajos/lifting-cejas.jpg","./trabajos/logo-ab-beauty.jpg","./whatsapp-vinculacion.js"];
+const CACHE = 'ritmo-belleza-41fe48485bf7dba9';
+const ASSETS = ["./","./avisos-pwa.js","./belleza.js","./comunidad/actualizacion.mjs","./comunidad/cuentas-cliente.js","./comunidad/index.html","./comunidad/manifest.webmanifest","./comunidad/real.css","./comunidad/real.mjs","./core.js","./cuentas.js","./estilo-neutro-ios.css","./fuentes/Archivo-OFL.txt","./fuentes/Cormorant-Garamond-OFL.txt","./fuentes/DM-Serif-Display-OFL.txt","./fuentes/Inter-OFL.txt","./fuentes/Nunito-OFL.txt","./fuentes/fuente-0.ttf","./fuentes/fuente-1.ttf","./fuentes/fuente-10.ttf","./fuentes/fuente-11.ttf","./fuentes/fuente-12.ttf","./fuentes/fuente-13.ttf","./fuentes/fuente-14.ttf","./fuentes/fuente-15.ttf","./fuentes/fuente-16.ttf","./fuentes/fuente-17.ttf","./fuentes/fuente-18.ttf","./fuentes/fuente-19.ttf","./fuentes/fuente-2.ttf","./fuentes/fuente-20.ttf","./fuentes/fuente-21.ttf","./fuentes/fuente-22.ttf","./fuentes/fuente-23.ttf","./fuentes/fuente-24.ttf","./fuentes/fuente-25.ttf","./fuentes/fuente-26.ttf","./fuentes/fuente-27.ttf","./fuentes/fuente-28.ttf","./fuentes/fuente-29.ttf","./fuentes/fuente-3.ttf","./fuentes/fuente-30.ttf","./fuentes/fuente-31.ttf","./fuentes/fuente-32.ttf","./fuentes/fuente-33.ttf","./fuentes/fuente-34.ttf","./fuentes/fuente-35.ttf","./fuentes/fuente-36.ttf","./fuentes/fuente-4.ttf","./fuentes/fuente-5.ttf","./fuentes/fuente-6.ttf","./fuentes/fuente-7.ttf","./fuentes/fuente-8.ttf","./fuentes/fuente-9.ttf","./fuentes/fuentes.css","./iconos/icono-180.png","./iconos/icono-192.png","./iconos/icono-512.png","./index.html","./manifest.webmanifest","./negocio.js","./planes.js","./planes/index.html","./planes/inicio.js","./planes/planes.css","./pwa.js","./recuperar-acceso/index.html","./recuperar-acceso/recuperar.css","./recuperar-acceso/recuperar.js","./sincronizacion.js","./social.js","./trabajos/extensiones-1.jpg","./trabajos/extensiones-2.jpg","./trabajos/extensiones-3.jpg","./trabajos/lifting-cejas.jpg","./trabajos/logo-ab-beauty.jpg","./whatsapp-vinculacion.js"];
+// Cache.addAll sigue las redirecciones de /index.html a /. Safari no admite
+// devolver esa lista de redirecciones a una navegación controlada por el SW.
+// Recrear solo esas respuestas conserva el documento, sus encabezados y estado.
+function sinRedirecciones(response) {
+  if (!response.redirected) return response;
+  const headers = new Headers(response.headers);
+  for (const nombre of ['content-encoding', 'content-length', 'transfer-encoding']) headers.delete(nombre);
+  return new Response(response.body, {status: response.status, statusText: response.statusText, headers});
+}
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
 });
@@ -21,6 +30,8 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   // Los datos privados y las respuestas de autenticación nunca entran en CacheStorage.
   if(event.request.method!=='GET'||url.origin!==self.location.origin)return;
+  // La recuperación siempre llega a la red, incluso con una copia antigua instalada.
+  if(url.pathname.startsWith('/recuperar-acceso/'))return;
   let recurso=url.pathname.replace(new URL(self.registration.scope).pathname,'./');
   if(recurso.endsWith('/'))recurso+='index.html';
   if(['./comunidad','./planes'].includes(recurso))recurso+='/index.html';
@@ -28,7 +39,7 @@ self.addEventListener('fetch', event => {
   if(!ASSETS.includes(recurso))return;const cacheURL=new URL(recurso,self.registration.scope).href;
   event.respondWith((async () => {
     const cached = await caches.match(cacheURL, { ignoreSearch: true });
-    return cached || fetch(event.request);
+    return sinRedirecciones(cached || await fetch(event.request));
   })());
 });
 

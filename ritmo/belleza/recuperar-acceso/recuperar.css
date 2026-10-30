@@ -1,0 +1,11 @@
+:root {color-scheme:light dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;background:#f2f2f7;color:#17171b}
+* {box-sizing:border-box}
+body {margin:0;padding:max(32px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left))}
+main {max-width:440px;margin:8vh auto 0}
+.marca {font-weight:750;letter-spacing:-.04em;font-size:26px;margin:0 0 44px}
+h1 {font-size:34px;line-height:1.1;letter-spacing:-.035em;margin:0 0 22px}
+p {font-size:17px;line-height:1.5}
+button {display:block;width:100%;min-height:54px;border:0;border-radius:15px;margin-top:30px;padding:15px;background:#007aff;color:#fff;font-family:inherit;font-weight:600;font-size:17px;cursor:pointer}
+button:disabled {opacity:.65;cursor:wait}
+#estado {font-size:15px;color:#66666d;min-height:48px}
+@media(prefers-color-scheme:dark) {:root {background:#121214;color:#f5f5f7}#estado {color:#aaaab2}}
