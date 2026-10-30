@@ -1,6 +1,6 @@
 # Panel de Agendappx (solo para Antonio)
 
-Estado: **correcciones de Claude revisadas; 266 pruebas y ambos recorridos de navegador aprobados**. No publicado. Los permisos separados de cada paso siguen pendientes. El bloqueo histórico de abajo quedó resuelto por `ac61e25`, integrado como `509e575`.
+Estado: **publicado el 30 de octubre de 2026 en Cloudflare y Railway, con reinicio solicitado por Antonio**. Las autorizaciones separadas fueron recibidas y verificadas; ver el cierre de publicación y `REINICIO-PROPIETARIO.md`. El bloqueo histórico de abajo quedó resuelto por `ac61e25`, integrado como `509e575`.
 Rama: `claude/agendappx-registro-contrasena` (va junto con `CONTRASENA-EQUIPO.md`).
 
 ## Cómo se entra
@@ -157,3 +157,19 @@ Por instrucción nueva de Antonio se tomó únicamente `ac61e2565b80daf29934b75a
 - Revisión del cambio: se conservan el cifrado, el destinatario fijado por servidor, los permisos mínimos y la exclusión de código/teléfono del aviso. No se observó un bloqueo nuevo en este alcance. La aceptación del proveedor push no demuestra recepción en un iPhone; esa comprobación y la conservación del OTP por Supabase siguen pendientes de la prueba física autorizada.
 
 No hubo respaldo, migraciones, cambios de variables ni publicaciones en Cloudflare/Railway en esta revisión; no se mandaron códigos reales ni se desconectó WhatsApp. Continuar con confirmación **separada antes de cada punto**: respaldo; panel con `ritmo.plataforma_admin` en la misma sesión; códigos manuales; Worker `--keep-vars`; y Railway existente con `WA_CODIGOS_RESPALDO_MANUAL=true`. No habilitar citas/promociones, vinculaciones nuevas, inicio público ni tocar FiNeCi.
+
+## Publicación y reinicio autorizados — 30 de octubre de 2026
+
+Antonio autorizó el respaldo y pidió eliminar las cuentas para comenzar de cero, reservando para él el primer registro como dueño. Confirmó su nuevo número por el canal privado de operación. Después aprobó por separado las dos migraciones, Cloudflare con inicio público y Railway con el respaldo manual.
+
+- Respaldo privado de 43 tablas verificado, 232755 bytes, SHA-256 `0331db15d554757fbf8e018d0aade25a045a8fe81b72f40e5925f12acf870ae2`. Las 43 huellas permanecieron idénticas tras las migraciones, antes del reinicio expresamente solicitado.
+- Migración del archivo `20261030180000`: versión real **20261030185341**, `panel_plataforma_aprobado_20261030`. La misma sesión fijó `ritmo.plataforma_admin` al propietario de ese momento; tres tablas con RLS habilitada/forzada y sin lectura directa de anon/authenticated/ritmo_api.
+- Migración corregida del archivo `20261030190000`: versión real **20261030185533**, `codigos_manuales_aprobado_20261030`. Tabla cerrada; WhatsApp tiene INSERT, sin SELECT. No repetir los archivos bajo otro nombre.
+- Cloudflare **2be43b60-cf88-4f6c-869a-e376a68af5b7**, con `--keep-vars` y `AGENDAPPX_INICIO_PUBLICO=true`, aprobado explícitamente al publicar. URL conservada. Configuración pública, registro de cuatro pasos y panel protegido comprobados en Edge; las APIs del panel responden 401 sin sesión. Cuatro archivos publicados coinciden por SHA-256 con el paquete local.
+- Railway **97a5e4da-0c3b-45d2-84ec-f040ab4a8243**, SUCCESS; arranque nuevo `2026-10-30T19:10:07.681640078Z`. Mismo proyecto/servicio, una réplica y límites existentes. La revisión automática bloqueó inicialmente `railway up`; se informó a Antonio y este autorizó explícitamente ese despliegue concreto antes de ejecutarlo. No se eludió el bloqueo.
+- `WA_CODIGOS_RESPALDO_MANUAL=true` y estado anunciado en la base=true; WhatsApp de códigos continúa conectado. `WA_CODIGOS_HABILITADOS=true` existente. Citas/promociones y vinculaciones nuevas permanecen apagadas. Sin servicios nuevos, cambios de plan, mensajes de prueba ni modificaciones en FiNeCi.
+- Lectura de presupuesto: consumo compartido 1.6935 USD; proyección de consumo 3.3996 USD para el ciclo 14 de octubre–14 de noviembre, límite duro de cómputo 10 USD y aviso 5 USD, intactos. Estas cifras no son una factura final con mínimo Hobby e impuestos.
+- Reinicio: cuenta antigua eliminada por Auth Admin; cero salones, miembros, objetos, perfiles, registros y usuarios de acceso anteriores. Se reservó una única identidad nueva de Antonio, **sin contraseña, teléfono confirmado, sesión, MFA ni salón creados**; solo ese UUID recibe plataforma_admins y social_moderadores. Ver `REINICIO-PROPIETARIO.md`. La conexión/sesión cifrada del WhatsApp de códigos se conservó.
+- **268/268 pruebas**: las 266 anteriores más dos protecciones del reinicio. Ambas pruebas de navegador anteriores siguen aprobadas. Verificación final real sin alta ni OTP: raíz lleva a Comunidad, registro vacío, panel anónimo protegido, sin errores JS. Capturas y metadatos privados fuera de Git.
+
+Pendiente de la persona: Antonio debe completar su primer registro con el número reservado, elegir su contraseña y configurar MFA; entonces verá Mi negocio → Panel de Agendappx. No declarar hecha la prueba física de registro ni de entrega manual: esta última requiere permiso separado para desconectar y volver a probar el OTP real. La notificación PWA requiere que Antonio active los avisos en su dispositivo. Conservar el inicio original de Railway del 27 de octubre para el informe semanal; no reiniciar ese contador por esta actualización.
