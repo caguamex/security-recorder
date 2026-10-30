@@ -284,7 +284,8 @@
     const anterior=document.activeElement?.id==='buscar-servicios' ? {inicio:document.activeElement.selectionStart,fin:document.activeElement.selectionEnd} : null;
     applySkin();
     const tabs = [['hoy','Hoy'], ['agenda', 'Agenda'], ['clientas', 'Clientas'], ['mas', 'Negocio']];
-    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k==='mas' && ['servicios','promos','apariencia','conexiones'].includes(S.tab))}">${k==='mas'?svg('<path d="m3 9 2-6h14l2 6M3 9v3a3 3 0 0 0 4 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 4-2V9M5 15v6h14v-6M10 21v-6h4v6"/>'):I[k]}${n}</button>`).join('');
+    // Barra A: Hoy · Agenda · ＋ · Clientas · Negocio. El ＋ (#fab) se coloca sobre el hueco central.
+    $('#tabbar').innerHTML = tabs.map(([k, n], i) => (i===2?'<span class="tab-hueco" aria-hidden="true"></span>':'')+`<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k==='mas' && ['servicios','promos','apariencia','conexiones'].includes(S.tab))}">${k==='mas'?svg('<path d="m3 9 2-6h14l2 6M3 9v3a3 3 0 0 0 4 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 4-2V9M5 15v6h14v-6M10 21v-6h4v6"/>'):I[k]}${n}</button>`).join('');
     $('#fab').hidden = false;
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
     screen.innerHTML = ({ hoy:()=>Negocio.hoy(), agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas:()=>Negocio.negocio(), conexiones:viewConexiones, apariencia: viewApariencia })[S.tab]();

@@ -157,7 +157,8 @@ export function rutasContrasenas(pool:ConexionSQL,jwt:Jwt,config:Config){
   const ruta=url.pathname,equipo=/^\/api\/negocios\/([a-f0-9-]{36})\/miembros\/(?:(usuario|accesos)|([a-f0-9-]{36})\/contrasena)$/.exec(ruta);
   if(!['/api/acceso/contrasena','/api/acceso/usuario-disponible','/api/cuenta/contrasena','/api/cuenta/acceso'].includes(ruta)&&!equipo)return false;
   if(!config.habilitado||!config.key||!config.operacionKey)throw new ErrorAPI(503,'El acceso con contraseña todavía no está activado.');
-  if(url.search||req.headers['sec-fetch-site']==='cross-site'||req.headers.origin!==config.origen)throw new ErrorAPI(403,'Abre Agendappx para continuar.');
+  // Como en el registro: un GET del mismo sitio puede llegar sin Origin; todo lo demás lo exige.
+  if(url.search||req.headers['sec-fetch-site']==='cross-site'||req.headers.origin&&req.headers.origin!==config.origen||req.method!=='GET'&&req.headers.origin!==config.origen)throw new ErrorAPI(403,'Abre Agendappx para continuar.');
   const responder=(d:unknown)=>{res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}).end(JSON.stringify(d));return true;};
   const token=req.headers.authorization?.startsWith('Bearer ')?req.headers.authorization.slice(7):'';
   if(ruta==='/api/cuenta/acceso'&&req.method==='GET')return responder(await c.miCuenta(token));
