@@ -1,3 +1,4 @@
+import {abrirConexiones,abrirServicios,nuevaCita,seccion} from './ayudas-neutro.mjs';
 import {elegirModo,elegirTema} from './ayudas-neutro.mjs';
 // Prueba completa con Edge/Chromium y PostgreSQL local. No usa Railway.
 import { chromium } from 'playwright';
@@ -23,7 +24,7 @@ async function dispositivo() {
 }
 async function conexiones(page) {
   await page.getByRole('tab', { name: 'Negocio', exact: true }).click();
-  await page.getByRole('button', { name: /Sincronización/ }).click();
+  await abrirConexiones(page);await page.getByRole('button', { name: /Sincronización/ }).click();
   await page.getByRole('dialog', { name: 'Sincronización', exact: true }).waitFor();
 }
 async function conectar(page) {
@@ -41,7 +42,7 @@ async function sincronizar(page) {
 try {
   const a = await dispositivo();
   await a.screenshot({ path: screenshots + 'pwa-agenda.png' });
-  await a.getByRole('tab', { name: 'Servicios', exact: true }).click();
+  await abrirServicios(a);
   await a.screenshot({ path: screenshots + 'pwa-servicios.png' });
   const manifest = await a.evaluate(async () => (await fetch('./manifest.webmanifest')).json());
   assert.equal(manifest.display, 'standalone'); assert.equal(manifest.icons.length, 2);
@@ -61,7 +62,7 @@ try {
   assert.equal(await a.getByRole('button', { name: /Clienta de prueba sin conexión/ }).count(), 1);
   await a.context().setOffline(false); await sincronizar(a);
   await a.getByRole('tab', { name: 'Negocio', exact: true }).click();
-  await a.getByRole('button', { name: /Apple Calendar/ }).click();
+  await abrirConexiones(a);await a.getByRole('button', { name: /Apple Calendar/ }).click();
   await a.getByLabel('Enlace privado del calendario').waitFor({state:'attached'});
   assert.match(await a.getByLabel('Enlace privado del calendario').inputValue(), /\/calendario\/[a-f0-9]{64}\.ics$/);
   await a.getByRole('button', { name: 'Listo', exact: true }).click();

@@ -12,7 +12,7 @@ const campos: Record<string, readonly string[]> = {
   servicio: ['id','kind','nombre','categoria','precio','duracion','descripcion','foto','activo'],
   promo: ['id','kind','titulo','texto','categoria','foto','activo'],
   clienta: ['id','kind','nombre','telefono','notas','whatsappOptIn'],
-  cita: ['id','kind','clienta','servicio','especialista','date','start','duracion','estado','notas'],
+  cita: ['id','kind','clienta','servicio','especialista','date','start','duracion','estado','notas','origen','solicitaCambio'],
   ajustes: ['negocio','abre','cierra','skin','modo','examplesOff'],
 };
 

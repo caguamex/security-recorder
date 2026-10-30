@@ -26,6 +26,7 @@
     clientas: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>', 26, 1.8),
     servicios: svg('<path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2l.9-5.5-4-3.9 5.5-.8z"/>', 26, 1.8),
     promos: svg('<path d="M3 11l15-6v14L3 13z"/><path d="M7 13v5"/>', 26, 1.8),
+    hoy: svg('<path d="M3 11 12 3l9 8v10h-6v-7H9v7H3z"/>',26,1.8),
     mas: svg('<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>', 26, 1.8),
     plus: svg('<path d="M12 5v14M5 12h14"/>', 26, 2.2),
     left: svg('<path d="m15 18-6-6 6-6"/>', 22, 2.4),
@@ -86,7 +87,7 @@
       : `<span class="sq" style="--c:${catColor(s.categoria)}"></span>`;
   }
   const PROMO_COLORS = ['#E0457B', '#8B5CF6', '#0EA5A4', '#F08A24', '#1F3FD1'];
-  const ESTADOS = [['confirmada', 'Confirmada'], ['pendiente', 'Por confirmar'], ['completada', 'Completada'], ['cancelada', 'Cancelada']];
+  const ESTADOS = [['solicitada', 'Solicitud nueva'], ['apartada', 'Apartada'], ['confirmada', 'Confirmada'], ['pendiente', 'Por confirmar'], ['completada', 'Completada'], ['cancelada', 'Cancelada']];
   const estadoTxt = e => (ESTADOS.find(x => x[0] === e) || ESTADOS[1])[1];
   const SKINS = [
     ['clasico', 'Neutro iOS', ['#F2F2F7', '#FFFFFF', '#000000', '#626268']],
@@ -199,7 +200,7 @@
     return {
       get items() { return sync ? sync.items : new Map(); }, get settings() { return sync ? sync.settings : DEFAULTS; },
       get ready() { return !!sync; }, get mode() { return sync?.connected ? 'servidor' : 'local'; },
-      get sync() { return sync; }, get recuperarLegado(){return cuentaActual?.recuperarLegado===true;}, onChange: f => listeners.add(f),
+      get sync() { return sync; }, get cuenta(){return cuentaActual;}, get recuperarLegado(){return cuentaActual?.recuperarLegado===true;}, onChange: f => listeners.add(f),
       async init() {
         let scoped=false,previa='';
         async function preparar(){
@@ -257,12 +258,12 @@
     if (TZ) q.set('ctz', TZ);
     return 'https://calendar.google.com/calendar/render?' + q;
   }
-  function freeSlots(date, dur, ignoreId) {
+  function freeSlots(date, dur, ignoreId, especialista) {
     const s = Store.settings, open = C.toMin(s.abre), close = C.toMin(s.cierra);
-    const busy = citasDe(date).filter(c => c.id !== ignoreId && c.estado !== 'cancelada').map(c => [C.toMin(c.start), endOf(c)]);
+    const busy = citasDe(date).filter(c => c.id !== ignoreId && c.estado !== 'cancelada' && (!Store.cuenta || (especialista ? c.especialista===especialista : !c.especialista))).map(c => [C.toMin(c.start), endOf(c)]);
     const out = [], nm = date === today() ? nowMin() : -1;
     for (let m = open; m + dur <= close; m += 30) {
-      if (m <= nm) continue;
+      if (m <= nm || (Store.cuenta && !Negocio.enTurno(date,C.fromMin(m),dur,especialista))) continue;
       if (busy.some(([a, b]) => m < b && m + dur > a)) continue;
       out.push(C.fromMin(m));
     }
@@ -270,7 +271,7 @@
   }
 
   // ---------- Estado de la vista ----------
-  const S = { especialista: '', tab: 'agenda', day: today(), seg: 'servicios', cat: 'Todas', q: '', qServicios: '', sheetOpen: false };
+  const S = { especialista: '', tab: 'hoy', day: today(), seg: 'servicios', cat: 'Todas', q: '', qServicios: '', sheetOpen: false };
   const screen = $('#screen');
   function applySkin() {
     const k = Store.settings.skin || 'clasico';
@@ -282,11 +283,11 @@
   function render() {
     const anterior=document.activeElement?.id==='buscar-servicios' ? {inicio:document.activeElement.selectionStart,fin:document.activeElement.selectionEnd} : null;
     applySkin();
-    const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Negocio']];
-    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k === 'servicios' && S.tab === 'promos') || (k==='mas' && S.tab==='apariencia')}">${k==='mas'?svg('<path d="m3 9 2-6h14l2 6M3 9v3a3 3 0 0 0 4 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 4-2V9M5 15v6h14v-6M10 21v-6h4v6"/>'):I[k]}${n}</button>`).join('');
+    const tabs = [['hoy','Hoy'], ['agenda', 'Agenda'], ['clientas', 'Clientas'], ['mas', 'Negocio']];
+    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k==='mas' && ['servicios','promos','apariencia','conexiones'].includes(S.tab))}">${k==='mas'?svg('<path d="m3 9 2-6h14l2 6M3 9v3a3 3 0 0 0 4 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 4-2V9M5 15v6h14v-6M10 21v-6h4v6"/>'):I[k]}${n}</button>`).join('');
     $('#fab').hidden = false;
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
-    screen.innerHTML = ({ agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas: viewMas, apariencia: viewApariencia })[S.tab]();
+    screen.innerHTML = ({ hoy:()=>Negocio.hoy(), agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas:()=>Negocio.negocio(), conexiones:viewConexiones, apariencia: viewApariencia })[S.tab]();
     if(anterior){const campo=$('#buscar-servicios');if(campo){campo.focus({preventScroll:true});campo.setSelectionRange(anterior.inicio,anterior.fin);}}
   }
   // Permite retirar ejemplos guardados por versiones anteriores sin borrar registros propios.
@@ -305,11 +306,11 @@
   function viewAgenda() {
     const t = today(), d = S.day, s = Store.settings;
     const ws = C.startOfWeek(d, 1), days = Array.from({ length: 7 }, (_, i) => C.addDays(ws, i));
-    const citas = citasDe(d).filter(c=>!S.especialista||(c.especialista||'sin-asignar')===S.especialista), activas = citas.filter(c => c.estado !== 'cancelada');
-    const total = activas.reduce((a, c) => a + (+svcOf(c).precio || 0), 0);
-    const huecos = freeSlots(d, 60).filter(x => x.endsWith(':00')).length;
+    const citas = citasDe(d).filter(c=>!S.especialista||(c.especialista||'sin-asignar')===S.especialista), activas = citas.filter(c => !['cancelada','solicitada'].includes(c.estado));
+    const propias=Store.cuenta?.rol==='especialista'?activas.filter(c=>c.especialista===Store.cuenta.usuarioId):activas;const total = propias.reduce((a, c) => a + (+svcOf(c).precio || 0), 0);
+    const huecos = freeSlots(d, 60,null,S.especialista==='sin-asignar'?'':S.especialista).filter(x => x.endsWith(':00')).length;
     const open = Math.floor(C.toMin(s.abre) / 60), close = Math.ceil(C.toMin(s.cierra) / 60), H = 72;
-    const blocks = activas.concat(citas.filter(c => c.estado === 'cancelada')).map(c => ({ c, s: C.toMin(c.start), e: Math.max(endOf(c), C.toMin(c.start) + 30) }));
+    const blocks = citas.map(c => ({ c, s: C.toMin(c.start), e: Math.max(endOf(c), C.toMin(c.start) + 30) }));
     C.layoutColumns(blocks);
     const evs = blocks.map(({ c, s: st, e, col, cols }) => {
       const sv = svcOf(c), k = cliOf(c), color = catColor(sv.categoria), dur = e - st;
@@ -320,14 +321,14 @@
         <span class="who"><span class="av" style="--c:${color}">${esc(initials(k.nombre))}</span><span class="n">${esc(k.nombre)}</span><span class="st ${c.estado}">${c.solicitaCambio ? 'Cambiar cita' : sent && c.estado === 'confirmada' ? '✓ WhatsApp' : esc(estadoTxt(c.estado))}</span></span></button>`;
     }).join('');
     let hours = '';
-    for (let h = open; h < close; h++) hours += `<div class="hr" style="--h:${H}px"><span>${C.pad(h)}:00</span><i data-newat="${C.pad(h)}:00" aria-hidden="true"></i></div>`;
+    for (let h = open; h < close; h++){const fuera=Store.cuenta&&S.especialista&&S.especialista!=='sin-asignar'&&!Negocio.enTurno(d,C.pad(h)+':00',30,S.especialista);hours += `<div class="hr ${fuera?'fuera-turno':''}" style="--h:${H}px"><span>${C.pad(h)}:00</span>${fuera?'<small>Fuera de turno</small>':`<i data-newat="${C.pad(h)}:00" aria-hidden="true"></i>`}</div>`;}
     const nm = nowMin();
     const now = d === t && nm >= open * 60 && nm <= close * 60 ? `<div class="nowline" style="top:${((nm - open * 60) / 60) * H}px"><span>${C.fromMin(nm)}</span></div>` : '';
     return `<div class="nav"><button type="button" data-act="mes">${I.left}${C.cap(C.MES[+d.slice(5, 7) - 1])}</button><button type="button" data-act="hoy" style="font-weight:600">Hoy</button></div>
       <h1 class="big"><span>${C.cap(C.DOW[C.weekday(d)])} ${+d.slice(8)}</span></h1>
       ${chipsEspecialistas()}<div class="week" id="week">${days.map(x => { const n = citasDe(x).filter(c => c.estado !== 'cancelada').length; return `<button type="button" class="wd ${x === t ? 'today' : ''}" data-day="${x}" ${x === d ? 'aria-current="date"' : ''} aria-label="${esc(fechaLarga(x))}, ${n} citas">${C.DOW_1[C.weekday(x)]}<b>${+x.slice(8)}</b><span class="dots">${'<i></i>'.repeat(Math.min(3, n))}</span></button>`; }).join('')}</div>
       ${banner()}
-      <div class="daysum"><b>${activas.length} ${activas.length === 1 ? 'cita' : 'citas'} · ${money(total)}</b><span>${huecos ? huecos + ' horarios libres' : 'Día lleno'}</span></div>
+      <div class="daysum"><b>${activas.length} ${activas.length === 1 ? 'cita' : 'citas'}${Store.cuenta?.rol==='recepcion'?'':' · '+money(total)}</b><span>${huecos ? huecos + ' horarios libres' : 'Día lleno'}</span></div>
       <div class="tl" id="tl">${hours}${evs}${now}</div>`;
   }
   function scrollToHour() {
@@ -438,11 +439,11 @@
 
   // Conexiones y ajustes
   const sw = (k, on, label) => `<button type="button" class="sw" role="switch" data-setsw="${k}" aria-checked="${!!on}" aria-label="${esc(label)}"></button>`;
-  function viewMas() {
+  function viewConexiones() {
     const s = Store.settings, man = C.addDays(today(), 1);
     const recordar = citasDe(man).filter(c => c.estado !== 'cancelada');
     const grupos = list('grupo');
-    return `<div class="nav"></div><h1 class="big"><span>Mi negocio</span></h1>${banner()}<div class="business-intro"><span class="av">${esc(initials(s.negocio))}</span><div><b>${esc(s.negocio)}</b><p>Tu agenda, servicios y equipo</p></div></div><div class="group"><button type="button" class="cell" data-act="cuenta-equipo"><span class="l">Mi cuenta y equipo<small>Acceso, invitaciones y permisos</small></span><span class="chev">${I.chev}</span></button><button type="button" class="cell" data-act="apariencia"><span class="l">Apariencia<small>White y Dark</small></span><span class="chev">${I.chev}</span></button></div>
+    return `<div class="nav"></div><h1 class="big"><span>Conexiones</span></h1>${banner()}<div class="business-intro"><span class="av">${esc(initials(s.negocio))}</span><div><b>${esc(s.negocio)}</b><p>Tu agenda, servicios y equipo</p></div></div><div class="group"><button type="button" class="cell" data-act="cuenta-equipo"><span class="l">Mi cuenta y equipo<small>Acceso, invitaciones y permisos</small></span><span class="chev">${I.chev}</span></button><button type="button" class="cell" data-act="apariencia"><span class="l">Apariencia<small>White y Dark</small></span><span class="chev">${I.chev}</span></button></div>
       <p class="gh">Calendarios</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#4285F4">G</span><span class="l">Google Calendar<small>Cada cita tiene su botón «Agregar a Google Calendar»</small></span></div>
@@ -701,7 +702,7 @@
   function sheetCita(opts) {
     const o = opts || {}, edit = o.id ? byId(o.id) : null;
     const svcs = list('servicio'), clis = list('clienta').slice().sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
-    const st = { clienta: edit ? edit.clienta : o.clienta || '', servicio: edit ? edit.servicio : o.servicio || (svcs[0] || {}).id, date: edit ? edit.date : o.date || S.day, start: edit ? edit.start : o.start || '', nueva: false };
+    const st = { clienta: edit ? edit.clienta : o.clienta || '', servicio: edit ? edit.servicio : o.servicio || (svcs[0] || {}).id, date: edit ? edit.date : o.date || S.day, start: edit ? edit.start : o.start || '', especialista:edit?.especialista||(Store.cuenta?.rol==='especialista'?Store.cuenta.usuarioId:''), nueva: false };
     openSheet(`${navSheet(edit ? 'Editar cita' : 'Nueva cita', 'Guardar')}
       <p class="gh">Clienta</p>
       <div class="group"><label class="cell"><span class="sr">Clienta</span><select class="in left" id="c-cli"><option value="">Elige una clienta</option>${clis.map(k => `<option value="${esc(k.id)}" ${k.id === st.clienta ? 'selected' : ''}>${esc(k.nombre)}</option>`).join('')}<option value="__nueva">＋ Nueva clienta</option></select></label>
@@ -709,9 +710,11 @@
         <label class="cell" id="c-new2" hidden><span class="l">WhatsApp</span><input class="in" id="c-tel" type="tel" inputmode="tel" placeholder="55 1234 5678"></label><label class="cell" id="c-new-consent" hidden><span class="l">Acepta avisos de sus citas por WhatsApp</span><input type="checkbox" id="c-optin"></label></div>
       <p class="gh">Servicio</p>
       <div class="hscroll" id="c-svcs">${svcs.map(s => `<button type="button" class="svc" data-svc="${esc(s.id)}" aria-pressed="${s.id === st.servicio}">${miniaturaServicio(s)}<span class="svc-copy"><b>${esc(s.nombre)}</b><span>${money(s.precio)} · ${s.duracion} min</span></span></button>`).join('') || '<p class="foot">Primero agrega un servicio en la pestaña Servicios.</p>'}</div>
+      ${Store.cuenta?'<div class="group"><label class="cell"><span class="l">Especialista</span><select class="in" id="c-especialista" aria-label="Especialista"></select></label></div>':''}
       <p class="gh">Fecha</p>
       <div class="group cita-fields"><div class="cell"><span class="l">Fecha</span><input class="in date-pill" type="date" id="c-date" aria-label="Día" value="${st.date}" style="max-width:145px"><span id="c-time-wrap"></span></div></div>
       ${edit ? '' : `<p class="gh">Al guardar</p><div class="group"><div class="cell"><span class="l">Confirmar por WhatsApp${localStorage.getItem('agendappx.cuentas.activas')==='si'?'<small>Los avisos del salón siguen desactivados.</small>':''}</span><button type="button" class="sw" role="switch" id="c-wa" aria-checked="${localStorage.getItem('agendappx.cuentas.activas')==='si'?false:!!Store.settings.waConfirm}" aria-label="Confirmar por WhatsApp" ${localStorage.getItem('agendappx.cuentas.activas')==='si'?'disabled':''}></button></div></div>`}
+      ${Store.cuenta?.rol==='admin'?'<div class="group"><div class="cell"><span class="l">Agendar fuera de turno<small>Excepción de Admin. No permite empalmar citas.</small></span><button type="button" class="sw" role="switch" id="c-excepcion" aria-label="Agendar fuera de turno" aria-checked="false"></button></div></div>':''}
       <p class="gh" id="c-slot-h">Horarios libres</p>
       <div class="slots" id="c-slots"></div>
       <p class="gh">Notas</p>
@@ -721,7 +724,9 @@
       const slotsEl = $('#c-slots', root), go = $('#c-go', root);
       const drawSlots = () => {
         const s = byId(st.servicio), dur = s ? +s.duracion : 60;
-        const free = freeSlots(st.date, dur, edit && edit.id);
+        let free = freeSlots(st.date, dur, edit && edit.id,st.especialista);
+        const selector=$('#c-especialista',root);if(selector){const opciones=Negocio.personas(st.servicio);selector.innerHTML=(Store.cuenta.rol==='especialista'?'':'<option value="">Sin asignar</option>')+opciones.map(p=>`<option value="${esc(p.id)}">${esc(p.nombre)}</option>`).join('');if(st.especialista&&!opciones.some(p=>p.id===st.especialista)){if(edit?.especialista===st.especialista)selector.insertAdjacentHTML('beforeend',`<option value="${esc(st.especialista)}">${esc(nombreEspecialista(st.especialista))}</option>`);else st.especialista=Store.cuenta.rol==='especialista'?Store.cuenta.usuarioId:'';}selector.value=st.especialista;}
+        if($('#c-excepcion',root)?.getAttribute('aria-checked')==='true'){free=Array.from({length:96},(_,j)=>C.fromMin(j*15)).filter(h=>C.toMin(h)+dur<=1440);}
         if (st.start && !free.includes(st.start)) free.unshift(st.start), free.sort();
         $('#c-slot-h', root).textContent = `${C.cap(fechaLarga(st.date))} · horarios libres`;
         $('#c-time-wrap',root).innerHTML=hora24(st.start,'id="c-time"','Hora de la cita',free);
@@ -729,21 +734,25 @@
         go.textContent = `${edit ? 'Guardar cita' : 'Agendar cita'}${s ? ' · ' + money(s.precio) : ''}`;
       };
       drawSlots();
+      if(Store.cuenta)void Negocio.cargar().then(()=>{if(root.isConnected)drawSlots();});
       $('#c-cli', root).addEventListener('change', e => {
         st.nueva = e.target.value === '__nueva'; st.clienta = st.nueva ? '' : e.target.value;
         $('#c-new1', root).hidden = $('#c-new2', root).hidden = $('#c-new-consent',root).hidden = !st.nueva;
         if (st.nueva) $('#c-nombre', root).focus();
       });
       $('#c-date', root).addEventListener('change', e => { if (C.isKey(e.target.value)) { st.date = e.target.value; st.start = ''; drawSlots(); } });
-      root.addEventListener('change',e=>{if(e.target.id==='c-time'){st.start=e.target.value;$$('[data-slot]',root).forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.slot===st.start)));}});
+      root.addEventListener('change',e=>{if(e.target.id==='c-especialista'){st.especialista=e.target.value;st.start='';drawSlots();}if(e.target.id==='c-time'){st.start=e.target.value;$$('[data-slot]',root).forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.slot===st.start)));}});
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
         if (b.dataset.svc) { st.servicio = b.dataset.svc; $$('[data-svc]', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawSlots(); }
         if (b.dataset.slot) { st.start = b.dataset.slot; $('#c-time',root).value=st.start; $$('[data-slot]', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); }
+        if(b.id==='c-excepcion'){b.setAttribute('aria-checked',String(b.getAttribute('aria-checked')!=='true'));drawSlots();}
         if (b.id === 'c-wa') b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true'));
         if (b.hasAttribute('data-close')) closeSheet();
         if (b.hasAttribute('data-done')) {
+          if(Store.cuenta&&!Negocio.enTurno(st.date,st.start,Number(byId(st.servicio)?.duracion||60),st.especialista)&&$('#c-excepcion',root)?.getAttribute('aria-checked')!=='true'){toast('Elige un horario dentro del turno.');return;}
+          if(Store.cuenta&&citasDe(st.date).some(c=>c.id!==edit?.id&&c.estado!=='cancelada'&&(st.especialista?c.especialista===st.especialista:!c.especialista)&&C.toMin(st.start)<endOf(c)&&C.toMin(st.start)+Number(byId(st.servicio)?.duracion||60)>C.toMin(c.start))){toast('Ese horario ya está ocupado.');return;}
           let cliId = st.clienta;
           if (st.nueva) {
             const nombre = $('#c-nombre', root).value.trim();
@@ -754,8 +763,8 @@
           if (!cliId) { toast('Elige una clienta.'); return; }
           if (!st.servicio) { toast('Elige un servicio.'); return; }
           if (!st.start) { toast('Elige un horario.'); return; }
-          const cita = Object.assign(edit ? clone(edit) : { id: newId(), kind: 'cita', estado: 'pendiente', enviados: {} }, { clienta: cliId, servicio: st.servicio, date: st.date, start: st.start, notas: $('#c-notas', root).value.trim() });
-          if (edit && (edit.date !== cita.date || edit.start !== cita.start)) delete cita.solicitaCambio;
+          const cita = Object.assign(edit ? clone(edit) : { id: newId(), kind: 'cita', estado: 'pendiente', enviados: {} }, { clienta: cliId, servicio: st.servicio, date: st.date, start: st.start,...(Store.cuenta?{especialista:st.especialista||null,fueraHorario:$('#c-excepcion',root)?.getAttribute('aria-checked')==='true'}:{}), notas: $('#c-notas', root).value.trim() });
+          if (edit && (edit.date !== cita.date || edit.start !== cita.start)) {if(o.proponer)cita.solicitaCambio=true;else delete cita.solicitaCambio;}
           delete cita.example;
           const wa = !edit && $('#c-wa', root) && $('#c-wa', root).getAttribute('aria-checked') === 'true';
           if (!save(cita)) return;
@@ -784,22 +793,23 @@
     const k = cliOf(c), s = svcOf(c), tpl = Store.settings;
     const msg = (key, tplStr, label) => k.telefono ? `<a class="cell" href="${esc(waLink(k.telefono, fill(tplStr, c)))}" target="_blank" rel="noopener" data-sent="${esc(c.id)}:${key}"><span class="ico" style="background:#25D366">W</span><span class="l">${label}<small>${c.enviados && c.enviados[key] ? 'Enviado ' + esc(new Date(c.enviados[key]).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })) : 'Abre WhatsApp con el mensaje listo'}</small></span><span class="chev">${I.chev}</span></a>` : '';
     openSheet(`<div class="sh-nav"><button type="button" data-close>Cerrar</button><b>Cita</b><button type="button" class="done" data-edit>Editar</button></div>
-      <div class="group" style="margin-top:6px"><div class="cell"><span class="sq" style="--c:${catColor(s.categoria)}"></span><span class="l"><b style="font-size:18px">${esc(s.nombre)}</b><small>${esc(C.cap(fechaLarga(c.date)))} · ${c.start} – ${C.fromMin(endOf(c))}</small></span><span class="p">${money(s.precio)}</span></div>
+      <div class="group" style="margin-top:6px"><div class="cell">${miniaturaServicio(s)}<span class="l"><b style="font-size:18px">${esc(s.nombre)}</b><small>${esc(C.cap(fechaLarga(c.date)))} · ${c.start} – ${C.fromMin(endOf(c))}</small></span><span class="p">${money(s.precio)}</span></div>
         <button type="button" class="cell" data-clienta="${esc(k.id || '')}"><span class="av lg" style="--c:${catColor(s.categoria)}">${esc(initials(k.nombre))}</span><span class="l">${esc(k.nombre)}<small>${esc(k.telefono || 'Sin teléfono')}</small></span><span class="chev">${I.chev}</span></button>
         ${c.notas ? `<div class="cell"><span class="l" style="white-space:pre-wrap">${esc(c.notas)}</span></div>` : ''}</div>
       <p class="gh">Estado</p>
-      <div class="group">${ESTADOS.map(([v, n]) => `<button type="button" class="cell" data-estado="${v}"><span class="l">${n}</span>${c.estado === v ? `<span style="color:var(--acc)">${I.check}</span>` : ''}</button>`).join('')}</div>
-      <div id="wa-cita"></div>
+      <div class="group">${ESTADOS.filter(([v])=>v!=='solicitada'||c.estado==='solicitada').map(([v, n]) => `<button type="button" class="cell" data-estado="${v}"><span class="l">${n}</span>${c.estado === v ? `<span style="color:var(--acc)">${I.check}</span>` : ''}</button>`).join('')}</div>
+      <p class="foot">${esc(nombreEspecialista(c.especialista||'sin-asignar'))}</p><div id="wa-cita"></div>
       <p class="gh">Mensajes manuales</p>
       <div class="group">${msg('confirmacion', tpl.tplConfirm, 'Confirmación')}${msg('recordatorio', tpl.tplRecordar, 'Recordatorio')}${msg('gracias', tpl.tplGracias, 'Gracias y reseña')}
-        <a class="cell" href="${esc(gcalLink(c))}" target="_blank" rel="noopener"><span class="ico" style="background:#4285F4">G</span><span class="l">Agregar a Google Calendar</span><span class="chev">${I.chev}</span></a></div>
+        <a class="cell" href="${esc(gcalLink(c))}" target="_blank" rel="noopener"><span class="ico" style="background:#4285F4">G</span><span class="l">Agregar a Google Calendar</span><span class="chev">${I.chev}</span></a><button type="button" class="cell" data-apple-cita><span class="l">Agregar a Apple Calendar<small>Copia de esta cita en formato .ics</small></span><span class="chev">${I.chev}</span></button></div>
       <div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar cita</button></div>`, 'Cita', root => {
       window.AgendappxWhatsApp?.montarCita?.($('#wa-cita',root),{id,obtenerSesion:()=>window.AgendappxCuentas?.sesion(),prepararFoto,alRecibir:()=>{const actual=byId(id);if(actual&&!['cancelada','completada'].includes(actual.estado)){save({...actual,estado:'confirmada'});void Store.sync?.sync();}}});
       root.addEventListener('click', e => {
-        const b = e.target.closest('[data-close],[data-edit],[data-estado],[data-del]');
+        const b = e.target.closest('[data-close],[data-edit],[data-estado],[data-del],[data-apple-cita]');
         if (!b) return;
         if (b.hasAttribute('data-close')) closeSheet();
         if (b.hasAttribute('data-edit')) { closeSheet(); sheetCita({ id }); }
+        if(b.hasAttribute('data-apple-cita'))void exportarICS([c]);
         if (b.dataset.estado) { const u = clone(byId(id)); u.estado = b.dataset.estado; delete u.example; if (!save(u)) return; closeSheet(); toast('Cita: ' + estadoTxt(u.estado).toLowerCase()); }
         if (b.hasAttribute('data-del')) {
           if (b.dataset.sure) { const before = clone(byId(id)); if (!remove(id)) return; closeSheet(); toast('Cita eliminada', () => save(before)); }
@@ -1017,8 +1027,8 @@
   }
 
   // ---------- Exportar a calendario ----------
-  async function exportarICS() {
-    const citas = list('cita').filter(c => c.estado !== 'cancelada');
+  async function exportarICS(seleccion) {
+    const citas = (Array.isArray(seleccion)?seleccion:list('cita')).filter(c => c.estado !== 'cancelada');
     if (!citas.length) { toast('Aún no hay citas.'); return; }
     const items = citas.map(c => ({ id: c.id, type: 'event', title: `${svcOf(c).nombre} · ${cliOf(c).nombre}`, date: c.date, start: c.start, end: C.fromMin(Math.min(endOf(c), 1439)), allDay: false, days: 1, repeat: null, category: 'personal', location: Store.settings.negocio, notes: '' }));
     const contenido = C.toICS(items, { tz: TZ }).replace('PRODID:-//Ritmo//Agenda//ES', 'PRODID:-//Agendappx//Agenda//ES')
@@ -1045,6 +1055,7 @@
     clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, undo ? 6000 : 3000);
   }
 
+  const Negocio=window.AgendappxNegocio.crear({Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita,fecha:()=>S.day,tab:t=>{S.tab=t;render();scrollTo({top:0});if(t==='servicios')void cargarEquipoServicios();},servicio:sheetServicio,equipo:sheetAccesoAdmin,whatsapp:()=>sheetConexion('whatsapp'),promo:()=>sheetPromo(null)});
   // ---------- Eventos ----------
   document.addEventListener('click', e => {
     const sentLink = e.target.closest('[data-sent]');
@@ -1094,7 +1105,8 @@
       'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); for (const x of ex) if (Store.remove(x.id) === false) return; toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
     })[d.act]?.();
   });
-  $('#fab').addEventListener('click', () => sheetCita({ date: S.day }));
+  $('#fab').setAttribute('aria-label','Crear');
+  $('#fab').addEventListener('click',()=>Negocio.menu());
   document.addEventListener('input', e => {
     if (e.target.id === 'buscar-servicios') { S.qServicios=e.target.value; actualizarResultadosServicios(); return; }
     if (e.target.id === 'q') { S.q = e.target.value; const pos = e.target.selectionStart; render(); const q = $('#q'); if (q) { q.focus(); q.setSelectionRange(pos, pos); } }
@@ -1125,9 +1137,9 @@
   }, { passive: true });
   setInterval(() => { if (document.visibilityState === 'visible' && !S.sheetOpen && S.tab === 'agenda') render(); }, 60000);
 
-  document.addEventListener('agendappx:sesion',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();void cargarEquipoAgenda();});
-  window.addEventListener('online',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();void cargarEquipoAgenda();});
+  document.addEventListener('agendappx:sesion',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();void cargarEquipoAgenda();void Negocio.cargar();});
+  window.addEventListener('online',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();void cargarEquipoAgenda();void Negocio.cargar();});
   Store.onChange(render);
-  void Promise.resolve(Store.init()).then(() => { void cargarEquipoAgenda(); if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); } });
+  void Promise.resolve(Store.init()).then(() => { void cargarEquipoAgenda();void Negocio.cargar(); if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); } });
   window.addEventListener('hashchange', () => { const enlace = tomarEnlaceActivacion(); if (enlace && Store.sync) sheetActivacion(enlace); });
 })();

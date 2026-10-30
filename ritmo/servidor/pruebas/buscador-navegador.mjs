@@ -1,3 +1,4 @@
+import {abrirConexiones,abrirServicios,nuevaCita,seccion} from './ayudas-neutro.mjs';
 import {elegirModo,elegirTema} from './ayudas-neutro.mjs';
 import {chromium} from 'playwright';
 import {once} from 'node:events';
@@ -27,7 +28,7 @@ try{
  const context=await browser.newContext({viewport:{width:390,height:844},locale:'es-MX'});
  await context.addInitScript(({token,id})=>localStorage.setItem('agendappx.auth',JSON.stringify({access_token:token,refresh_token:'local',token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,user:{id,aud:'authenticated',role:'authenticated',email:'demo@example.test',factors:[]}})),{token,id:ids.admin});
  await context.route(sb+'/**',r=>r.fulfill({status:503,contentType:'application/json',body:'{"error":"solo local"}'}));
- const p=await context.newPage(),errores=[];p.on('pageerror',err=>errores.push(err.message));await p.goto(base);await p.waitForFunction(async()=>!!(await window.AgendappxCuentas?.sesion()));await p.getByRole('tab',{name:'Servicios',exact:true}).first().click();
+ const p=await context.newPage(),errores=[];p.on('pageerror',err=>errores.push(err.message));await p.goto(base);await p.waitForFunction(async()=>!!(await window.AgendappxCuentas?.sesion()));await abrirServicios(p);
  const input=p.locator('#buscar-servicios');await input.waitFor();await p.locator('[data-servicio="cejas"]').getByText(/Karina/).waitFor();
  assert.match(await p.locator('[data-servicio="cejas"]').innerText(),/45 min.*Karina/);assert.match(await p.locator('[data-servicio="cejas"]').innerText(),/\$250/);
  assert.match(await p.locator('[data-servicio="unas"]').innerText(),/Sin asignar/);
@@ -42,9 +43,9 @@ try{
  for(const width of [390,768,1440]){await p.setViewportSize({width,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
  await p.setViewportSize({width:390,height:844});await input.fill('cejas');
  if(process.env.BUSCADOR_SCREENSHOT_DIR)await p.screenshot({path:process.env.BUSCADOR_SCREENSHOT_DIR+'/buscador-white.png',animations:'disabled'});
- await p.getByRole('tab',{name:'Negocio',exact:true}).click();await elegirModo(p,/Dark/);await p.getByRole('tab',{name:'Servicios',exact:true}).first().click();assert.equal(await p.locator('[data-servicio]').count(),1);
+ await p.getByRole('tab',{name:'Negocio',exact:true}).click();await elegirModo(p,/Dark/);await abrirServicios(p);assert.equal(await p.locator('[data-servicio]').count(),1);
  if(process.env.BUSCADOR_SCREENSHOT_DIR)await p.screenshot({path:process.env.BUSCADOR_SCREENSHOT_DIR+'/buscador-dark.png',animations:'disabled'});
- await context.setOffline(true);await p.reload();await p.getByRole('tab',{name:'Servicios',exact:true}).first().click();await p.locator('[data-servicio="cejas"]').getByText(/Karina/).waitFor();await p.locator('#buscar-servicios').fill('ceja');assert.equal(await p.locator('[data-servicio]').count(),1);
+ await context.setOffline(true);await p.reload();await abrirServicios(p);await p.locator('[data-servicio="cejas"]').getByText(/Karina/).waitFor();await p.locator('#buscar-servicios').fill('ceja');assert.equal(await p.locator('[data-servicio]').count(),1);
  assert.deepEqual(errores,[]);console.log('Buscador: acentos, mayúsculas, plural, resaltado, agrupación, personal, categorías, agendar y modo sin conexión verificados.');
  await context.close();
 }finally{await browser.close();await new Promise(r=>server.close(r));await e.cerrar();}

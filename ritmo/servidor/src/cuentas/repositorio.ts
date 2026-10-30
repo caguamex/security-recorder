@@ -1,3 +1,4 @@
+import {validarTurnoCita} from '../negocio/reservas.js';
 import { createHash } from 'node:crypto';
 import { ErrorAPI, validarCambio, type Cambio, type Registro } from '../modelo.js';
 import type { ConexionSQL, Repositorio } from '../repositorio.js';
@@ -47,6 +48,7 @@ export class RepositorioConCuentas implements Repositorio {
       }
       if (actual.version !== cambio.baseVersion) throw new ErrorAPI(409,
         'Hay cambios de otro dispositivo. Elige qué versión conservar.', proyectarRegistro(actual, miembro));
+      if(cambio.data?.kind==='cita'&&(!actual.data||['date','start','servicio','especialista'].some(k=>actual.data?.[k]!==cambio.data?.[k])||actual.data.estado==='solicitada'&&cambio.data.estado!=='solicitada'))await validarTurnoCita(c,this.negocioId,cambio.data,miembro);
       // Impedir que un intento con id ajeno invisible se presente como alta.
       // ON CONFLICT queda sujeto a USING y WITH CHECK de RLS.
       const revision = (await c.query(`UPDATE ritmo.belleza_estado SET revision = revision + 1

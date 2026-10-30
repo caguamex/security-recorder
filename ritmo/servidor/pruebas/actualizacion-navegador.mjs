@@ -1,3 +1,4 @@
+import {abrirConexiones,abrirServicios,nuevaCita,seccion} from './ayudas-neutro.mjs';
 // Dos versiones servidas en localhost: no despliega ni modifica la base publicada.
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
@@ -52,7 +53,7 @@ try {
  assert.equal(await a.evaluate(()=>window.VERSION_PRUEBA),'uno');
  // La segunda pestaña tiene un formulario propio que no debe perderse por actualizar la primera.
  const b=await context.newPage(); await b.goto(base);
- await tab(b,'Servicios').click(); await b.getByRole('button',{name:'Nuevo servicio',exact:true}).click();
+ await abrirServicios(b); await b.getByRole('button',{name:'Nuevo servicio',exact:true}).click();
  await b.locator('#s-nombre').fill('Borrador en la otra pestaña');
  await tab(a,'Clientas').click(); await a.getByRole('button',{name:'Nueva clienta',exact:true}).click();
  await a.locator('#k-nombre').fill('Borrador que conservar');

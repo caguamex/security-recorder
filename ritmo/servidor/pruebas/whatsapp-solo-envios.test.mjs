@@ -104,3 +104,9 @@ test('desvinculación sin red pausa y conserva credenciales hasta confirmar cier
  assert.equal((await e.control.estado(e.ident(),n)).cerradaManualmente,true);assert.equal((await e.db.usar(c=>c.query('SELECT * FROM ritmo.whatsapp_sesiones'))).rows.length,1);
  await e.control.salir(e.ident(),n,{confirmar:true,cerradoEnTelefono:true});assert.equal((await e.db.usar(c=>c.query('SELECT * FROM ritmo.whatsapp_sesiones'))).rows.length,0);
 });
+
+
+test('Una solicitud pública no programa ni envía avisos antes de aceptarse',async t=>{
+ const e=await preparar();t.after(()=>e.cerrar());await e.iniciar();await e.cita({estado:'solicitada'});await e.cola.reconciliar(ids.salon);assert.equal((await e.cola.tomar(ids.salon)),null);assert.equal(e.llamadas.filter(x=>x[0]==='envio').length,0);
+ await e.cita({estado:'confirmada'});await e.cola.reconciliar(ids.salon);const c=await e.db.usar(c=>c.query("SELECT tipo FROM ritmo.whatsapp_envios WHERE negocio_id=$1 AND estado='pendiente'",[ids.salon]));assert.equal(c.rows.filter(x=>x.tipo==='inicio').length,1);
+});

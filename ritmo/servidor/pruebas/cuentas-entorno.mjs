@@ -42,6 +42,10 @@ export async function cuentasEntorno() {
   const ruta = new URL('../../supabase/migrations/', import.meta.url);
   const nombre = (await readdir(ruta)).find(n => n.endsWith('_cuentas_equipo.sql'));
   await db.exec(await readFile(new URL(nombre, ruta), 'utf8'));
+  // Esquema actual de horarios; siempre local y sin servicios externos.
+  await db.exec("CREATE ROLE agendappx_whatsapp NOLOGIN NOSUPERUSER NOBYPASSRLS; SELECT set_config('ritmo.migracion_etapa2','aprobada',false)");
+  await db.exec(await readFile(new URL('20261029204424_negocio_horarios_etapa2.sql',ruta),'utf8'));
+
   await db.query('INSERT INTO ritmo.negocios(id,nombre) VALUES ($1,$2)', [ids.otro, 'Otro salón']);
   await db.query('INSERT INTO ritmo.belleza_estado(negocio_id,revision) VALUES ($1,0)',[ids.otro]);
   for (const [u, negocio, rol] of [['recepcion',ids.salon,'recepcion'],['especialista',ids.salon,'especialista'],['otra',ids.salon,'especialista'],['ajena',ids.otro,'admin']]) {

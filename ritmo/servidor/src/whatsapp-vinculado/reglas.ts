@@ -24,12 +24,12 @@ export function numero(value:unknown){let s=String(value||'').replace(/\D/g,'');
 export function partes(ms:number){return Object.fromEntries(new Intl.DateTimeFormat('sv-SE',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(ms)).map(v=>[v.type,v.value]));}
 export function dia(ms:number){const p=partes(ms);return `${p.year}-${p.month}-${p.day}`;}
 export function inicio(c:Datos){return fechaUTC(c.date,c.start,TZ);}
-export function huella(c:Datos){return createHash('sha256').update(JSON.stringify([c.date,c.start,c.clienta,c.servicio,c.especialista||'',c.estado==='cancelada'?'cancelada':c.estado==='completada'?'completada':'activa'])).digest('hex');}
+export function huella(c:Datos){return createHash('sha256').update(JSON.stringify([c.date,c.start,c.clienta,c.servicio,c.especialista||'',['cancelada','completada','solicitada'].includes(c.estado)?c.estado:'activa'])).digest('hex');}
 export function idEnvio(n:string,c:Datos,t:Tipo,h=huella(c)){return createHash('sha256').update([n,c.id,t,h].join('|')).digest('hex');}
 export function anticipo(c:Datos,servicio:Datos,a:Ajustes,creada:number){const precio=Math.round(Number(servicio.precio||0)*100)/100,aplica=a.anticipoActivo&&precio>=a.minimo;return {monto:aplica?Math.round(precio*a.porcentaje/100/10)*10:0,estado:aplica?'pendiente':'no_aplica',limite:new Date(Math.max(creada,Math.min(creada+86400000,inicio(c)-7200000))).toISOString()};}
 export function plan(c:Datos,a:Ajustes,creada:number,nueva:boolean,movida:boolean,ahora:number){
   const t=inicio(c),out:{tipo:Tipo;debido:number}[]=[];
-  if(c.estado==='cancelada'||c.estado==='completada'||t<=ahora)return out;
+  if(['cancelada','completada','solicitada'].includes(c.estado)||t<=ahora)return out;
   if(nueva)out.push({tipo:'inicio',debido:ahora});else if(movida)out.push({tipo:'cambio',debido:ahora});
   let aviso=fechaUTC(c.date,a.horaDia,TZ);
   if(t-aviso<7200000){const d=new Date(c.date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-1);aviso=fechaUTC(d.toISOString().slice(0,10),'19:00',TZ);}

@@ -1,3 +1,4 @@
+import {abrirConexiones,abrirServicios,nuevaCita,seccion} from './ayudas-neutro.mjs';
 import {elegirModo,elegirTema} from './ayudas-neutro.mjs';
 // Flujo completo con PostgreSQL local, navegador y cookies reales; sin datos de producción.
 import { chromium } from 'playwright';
@@ -26,7 +27,7 @@ try {
   await env.repo.cambiar({id:'clienta_servidor',baseVersion:0,mutationId:'prueba_servidor_apple',data:{id:'clienta_servidor',kind:'clienta',nombre:'Clienta del servidor'}});
   await page.goto(env.base);
   assert.equal((await page.request.get(env.base+'/api/estado')).status(),401);
-  await tab('Negocio').click(); await page.getByRole('button',{name:/Apple Calendar/}).click();
+  await tab('Negocio').click();await abrirConexiones(page); await abrirConexiones(page);await page.getByRole('button',{name:/Apple Calendar/}).click();
   assert.equal(await page.getByLabel('Token de acceso',{exact:true}).count(),0);
   const descarga = page.waitForEvent('download');
   await page.getByRole('button',{name:'Agregar mis citas (.ics)',exact:true}).click();
@@ -57,7 +58,7 @@ try {
   await page.getByRole('button',{name:'Guardar',exact:true}).click();
   await page.reload(); await tab('Clientas').click(); assert.equal(await page.getByRole('button',{name:/Clienta actualizada sin internet/}).count(),1);
   await context.setOffline(false);
-  await tab('Negocio').click(); await page.getByRole('button',{name:/Sincronización/}).click();
+  await tab('Negocio').click(); await abrirConexiones(page);await page.getByRole('button',{name:/Sincronización/}).click();
   await page.getByRole('button',{name:'Sincronizar ahora',exact:true}).click();
   await page.waitForFunction(()=>document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));
   await page.getByRole('button',{name:'Listo',exact:true}).click();
@@ -67,18 +68,18 @@ try {
   await page.locator('[data-edit]').click();
   await page.locator('[data-slot="15:30"]').click();
   await page.getByRole('button',{name:/Guardar cita/}).click();
-  await tab('Negocio').click(); await page.getByRole('button',{name:/Apple Calendar/}).click();
+  await tab('Negocio').click();await abrirConexiones(page); await abrirConexiones(page);await page.getByRole('button',{name:/Apple Calendar/}).click();
   await page.getByLabel('Enlace privado del calendario',{exact:true}).waitFor({state:'attached'});
   assert.equal(await page.getByLabel('Enlace privado del calendario',{exact:true}).inputValue(),feedUrl);
   assert.match(await (await fetch(feedUrl)).text(),/DTSTART:20261110T213000Z/);
   await page.getByRole('button',{name:'Listo',exact:true}).click();
   for (const modo of ['White','Dark']) {
     await elegirModo(page,modo);
-    await page.getByRole('button',{name:/Apple Calendar/}).click(); await page.getByLabel('Enlace privado del calendario',{exact:true}).waitFor({state:'attached'});
+    await abrirConexiones(page);await page.getByRole('button',{name:/Apple Calendar/}).click(); await page.getByLabel('Enlace privado del calendario',{exact:true}).waitFor({state:'attached'});
     for (const width of [390,768,1440]) { await page.setViewportSize({width,height:844}); assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true); }
     await page.getByRole('button',{name:'Listo',exact:true}).click();
   }
-  await page.getByRole('button',{name:/Sincronización/}).click(); await page.getByRole('button',{name:'Desconectar este dispositivo',exact:true}).click();
+  await abrirConexiones(page);await page.getByRole('button',{name:/Sincronización/}).click(); await page.getByRole('button',{name:'Desconectar este dispositivo',exact:true}).click();
   assert.equal((await page.request.get(env.base+'/api/estado')).status(),401);
   await page.getByRole('button',{name:'Listo',exact:true}).click();
   await tab('Clientas').click(); assert.equal(await page.getByRole('button',{name:/Clienta actualizada sin internet/}).count(),1);

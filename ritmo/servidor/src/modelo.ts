@@ -53,7 +53,7 @@ export function validarCambio(body: unknown, id: string): Cambio {
     }
     if (it.kind === 'cita') {
       valido(fecha(it.date) && hora(it.start), 'Fecha u hora inválida.');
-      valido(['pendiente', 'confirmada', 'cancelada', 'completada'].includes(String(it.estado)), 'Estado de cita inválido.');
+      valido(['solicitada', 'apartada', 'pendiente', 'confirmada', 'cancelada', 'completada'].includes(String(it.estado)), 'Estado de cita inválido.');
       valido(typeof it.clienta === 'string' && /^[\w-]{1,120}$/.test(it.clienta) && typeof it.servicio === 'string' && /^[\w-]{1,120}$/.test(it.servicio), 'Falta la clienta o el servicio.');
     }
     if (it.kind === 'promo') valido(texto(it.titulo, 200) && !!String(it.titulo).trim() && texto(it.texto, 10000), 'Promoción inválida.');

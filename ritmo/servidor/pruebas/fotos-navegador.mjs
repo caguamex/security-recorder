@@ -1,3 +1,4 @@
+import {abrirConexiones,abrirServicios,nuevaCita,seccion} from './ayudas-neutro.mjs';
 // Fotos reales de referencia, dos navegadores aislados y PostgreSQL local; sin escrituras en producción.
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
@@ -17,18 +18,18 @@ async function abrir() {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } }); contexts.push(ctx);
   const p = await ctx.newPage(); p.on('pageerror', e => errores.push(e.message));
   await p.goto(env.base); await p.waitForFunction(() => navigator.serviceWorker.controller);
-  await tab(p, 'Negocio').click(); await p.getByRole('button', { name: /Sincronización/ }).click();
+  await tab(p, 'Negocio').click(); await abrirConexiones(p);await p.getByRole('button', { name: /Sincronización/ }).click();
   await p.getByText('Configuración avanzada', { exact: true }).click(); await p.getByLabel('Token de acceso', { exact: true }).fill(env.token);
   await p.getByRole('button', { name: 'Conectar', exact: true }).click();
   await p.waitForFunction(() => document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));
   await p.getByRole('button', { name: 'Listo', exact: true }).click();
-  await tab(p, 'Servicios').click(); return p;
+  await abrirServicios(p); return p;
 }
 async function sync(p) {
-  await tab(p, 'Negocio').click(); await p.getByRole('button', { name: /Sincronización/ }).click();
+  await tab(p, 'Negocio').click(); await abrirConexiones(p);await p.getByRole('button', { name: /Sincronización/ }).click();
   await p.getByRole('button', { name: 'Sincronizar ahora', exact: true }).click();
   await p.waitForFunction(() => document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));
-  await p.getByRole('button', { name: 'Listo', exact: true }).click(); await tab(p, 'Servicios').click();
+  await p.getByRole('button', { name: 'Listo', exact: true }).click(); await abrirServicios(p);
 }
 async function subir(p, path) {
   await p.locator('#s-foto').setInputFiles(path);
@@ -71,7 +72,7 @@ try {
   assert.equal(await a.locator('#s-foto-preview').getAttribute('src'), primera);
   await a.context().setOffline(true);
   const segunda = await subir(a, fotoB); assert.notEqual(segunda, primera);
-  await a.getByRole('button', {name:'Guardar',exact:true}).click(); await a.reload(); await tab(a,'Servicios').click();
+  await a.getByRole('button', {name:'Guardar',exact:true}).click(); await a.reload(); await abrirServicios(a);
   assert.equal(await a.locator('.trabajo-mini').getAttribute('src'), segunda);
   await a.context().setOffline(false); await sync(a); await sync(b);
   assert.equal(await b.locator('.trabajo-fondo').getAttribute('src'), segunda);
