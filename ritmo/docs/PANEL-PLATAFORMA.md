@@ -1,6 +1,6 @@
 # Panel de Agendappx (solo para Antonio)
 
-Estado: programado y probado en local por Claude. **Falta publicarlo** (Codex, con confirmación de Antonio).
+Estado: **revisión detenida por un fallo reproducible en el reintento de avisos**. No publicado. Los permisos separados de cada paso siguen pendientes.
 Rama: `claude/agendappx-registro-contrasena` (va junto con `CONTRASENA-EQUIPO.md`).
 
 ## Cómo se entra
@@ -105,3 +105,41 @@ Para que nadie se quede esperando si el WhatsApp de códigos falla.
 cd ritmo/servidor
 npm run test:plataforma        # 4 de base de datos/API + navegador
 ```
+
+
+## Revisión de Codex — 30 de octubre de 2026
+
+Rama nueva `codex/agendappx-panel-codigos-manuales`, desde `f5ce2d1` del PR #17. Se tomaron únicamente `7b0f9e9` y `480b852` de Claude, como `26c7539` y `b3e5747`. Los conflictos fueron solo archivos generados: se resolvieron regenerando con `npm run build`, sin editar dist manualmente. Se conserva la corrección MFA de `54081f1` y su prueba de restablecimiento.
+
+### Verificaciones completadas
+
+- `npm ci`: dependencias instaladas según el archivo de bloqueo, cero vulnerabilidades informadas.
+- `npm test`: **265/265 pruebas originales aprobadas**, incluidas plataforma y códigos manuales.
+- `BROWSER_CHANNEL=msedge node pruebas/plataforma-navegador.mjs`: aprobado con PostgreSQL local, SDK real, MFA, cifrado, filtros y acciones sobre salones ficticios. La otra Admin no accede.
+- `BROWSER_CHANNEL=msedge node pruebas/contrasenas-navegador.mjs`: aprobado, conservando la exigencia AAL2 antes de cambiar la contraseña de una cuenta con MFA.
+- Revisión de permisos: tablas privadas con RLS, administrador fijado en la migración, funciones del panel que exigen sesión/MFA, códigos cifrados AES-GCM, destinatario construido en el servidor y sin teléfono/código en el aviso push. El servicio de WhatsApp solo inserta respaldos; no recibe permiso SELECT sobre ellos.
+
+### Bloqueo reproducido — el aviso se pierde ante un fallo temporal del proveedor push
+
+`plataforma_tomar_avisos_codigos()` marca `avisado_en=now()` **antes** de intentar el envío. `avisarCodigos()` captura el fallo o respuesta 503 del proveedor, pero no devuelve el aviso al estado pendiente. La siguiente ejecución solo recoge `avisado_en IS NULL`, por lo que no vuelve a enviarlo. La persona podría pedir un código sin entrega y Antonio no recibiría la notificación prometida, aunque el código siga visible al abrir el panel.
+
+Prueba adicional de revisión: `servidor/pruebas/revision-avisos-codigos.test.mjs`. Usa PGlite y una suscripción ficticia; simula respuesta 503 en el primer envío y 201 en el siguiente. **Falla:** el segundo intento envía 0 avisos cuando debe enviar 1. No hace solicitudes a Apple, Supabase, Railway ni WhatsApp.
+
+```bash
+cd ritmo/servidor
+node --test pruebas/revision-avisos-codigos.test.mjs
+# Esperado: reintento.enviados = 1
+# Actual:   reintento.enviados = 0
+```
+
+La nueva prueba queda intencionalmente en rojo en este PR de revisión. Si se ejecuta ahora la suite completa con ella, existe este fallo conocido; las 265 aprobadas corresponden a las pruebas entregadas originalmente. No confundir el recorrido feliz de push de la prueba original con una comprobación de reintentos.
+
+### Observación adicional del estado mostrado
+
+`GET /api/plataforma/codigos` devuelve `activo:true` al existir `opciones.key` (la ACCESO_HMAC_KEY ya usada por el acceso), sin comprobar `WA_CODIGOS_RESPALDO_MANUAL` del servicio de Railway. Por ello el panel puede anunciar respaldo manual activo aunque esa bandera siga apagada. Antes de presentarlo como salud real, debe distinguirse entre el panel configurado y el respaldo habilitado en el servicio.
+
+### Detenido por instrucción de Antonio
+
+Antonio pidió «Si algo falla, detente y dime». Se detuvo la preparación para publicación al reproducir el reintento perdido; **no se corrigió ni rehízo la implementación**. No se respaldó ni modificó la base de producción para esta etapa, no se aplicaron sus dos migraciones, no se desplegó Cloudflare ni Railway, no se cambió la bandera manual, no se desconectó WhatsApp y no hubo códigos ni avisos reales.
+
+La aplicación publicada del PR #17 permanece en Worker `867d6000-8926-440f-b836-b79bf1eda4a7`, con migración de contraseña `20261030160000` ya aplicada. Para continuar este PR deben corregirse los avisos y repetirse las pruebas; después se pedirán autorizaciones independientes para (a) respaldo, (b) migración del panel, (c) migración manual, (d) Worker y (e) Railway. La prueba de desconexión deliberada también requiere su propio permiso. No tocar FiNeCi.
