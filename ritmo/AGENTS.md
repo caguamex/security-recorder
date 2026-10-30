@@ -1,5 +1,9 @@
 # Ritmo: guía para continuar el trabajo
 
+## Registro visual en revisión — 30 de octubre de 2026
+
+Antonio confirmó la recepción del OTP y pidió mejorar las ventanas. Rama `codex/agendappx-registro-visual`, documento `docs/REGISTRO-VISUAL.md`. Cabecera Agendappx, avance en los cuatro pasos, campos amplios y presentación White/Dark; conservar el flujo real de código, contraseña y MFA. 279 pruebas y recorrido Edge aprobados, capturas ficticias en `imagenes/registro-neutro/`. Cambio visual aún **no desplegado**: mostrarlo y pedir confirmación antes de publicar. No requiere migración, Railway ni permisos nuevos. El dueño reservado ya verificó el teléfono; falta comprobar que termine los datos del salón y MFA. No repetir el reinicio ni conceder propiedad a otro registro.
+
 Idioma del producto, la interfaz, los comentarios y los commits: **español de México**.
 
 ## Qué es
