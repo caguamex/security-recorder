@@ -64,3 +64,11 @@ Pruebas nuevas `registro-confirmacion.test.mjs`: entrega única por hook simulad
 Esta etapa está preparada, todavía no publicada. Requiere autorización específica para actualizar el Worker; la función Supabase v4 y las demás configuraciones permanecen como fueron publicadas. No caducar ni liberar el ticket nuevo válido del usuario: puede continuar solicitando desde la misma pantalla una vez publicada la corrección.
 
 Verificación de la preparación: **279/279** (`npm test`, incluidas once comprobaciones nuevas), Edge con confirmación inicial y recorrido posterior completos, cuatro casos workerd y empaquetado Cloudflare dry-run aprobados. No hubo códigos reales ni cambios de producción en estas pruebas. El mock de navegador ya exige `signup_disabled` antes de la primera confirmación y una sola llamada a `/resend`.
+
+### Publicación de confirmación inicial
+
+Antonio respondió «Sí, publica la corrección del envío». Se publicó `c01675f` en Worker **1a9f4aa9-a53a-487c-a949-6c4bd2082e62**, con `--keep-vars`; no hubo archivos estáticos nuevos. No cambió Supabase Auth/configuración/base, la función v4 ni Railway. Las altas públicas siguen cerradas.
+
+Verificación final con Edge: inicio público=true, registro de cuatro pasos, panel anónimo 401, cuatro archivos publicados coincidentes por SHA-256 y sin errores JS. Una validación deliberadamente inválida se rechaza correctamente con 400, sin crear tickets/OTP. La lectura de la base confirmó la identidad reservada sin confirmar/sin sesiones, ticket reciente aún válido y WhatsApp conectado con respaldo manual activo. No se solicitó un código por la persona durante la comprobación.
+
+Se indicó a Antonio continuar **desde la misma pantalla «Escribe el código»**, pedir una vez el código y no cerrar/reiniciar el registro. Se espera su respuesta para confirmar entrega física y verificación. La publicación y las pruebas simuladas no demuestran que su iPhone haya recibido un mensaje. No liberar su ticket ni borrar cuentas por inercia.
