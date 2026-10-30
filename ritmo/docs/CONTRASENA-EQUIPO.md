@@ -1,6 +1,6 @@
 # Usuario y contraseña, restablecer, accesos del equipo e inicio público
 
-Estado: programado y probado en local por Claude. **Falta publicarlo** (Codex, con confirmación de Antonio).
+Estado: **publicado y verificado el 30 de octubre de 2026**, con autorización de Antonio. Prueba física conjunta pendiente.
 Rama: `claude/agendappx-registro-contrasena`, que parte de `codex/agendappx-bienvenida-registro-ios` (PR #16).
 Modelos aprobados: `ritmo/ios/inicio.html` y `ritmo/ios/cuentas.html` en la rama `claude/es-posible-esto-tjimmb`.
 
@@ -126,8 +126,28 @@ La primera ejecución de npm test no cargó dos archivos porque faltaba enlazar 
 
 Fuentes verificadas: [contraseñas de Supabase](https://supabase.com/docs/guides/auth/passwords), [validación y cambio de contraseña en Auth](https://github.com/supabase/auth/blob/master/internal/api/user.go), [validación Admin antes de alta](https://github.com/supabase/auth/blob/master/internal/api/admin.go). Se revisó también el índice de cambios vigente de Supabase.
 
-### Publicación pendiente de confirmación
+### Plan de publicación aprobado
 
-Preparar un respaldo de los datos del salón, sin exportar secretos, hashes de contraseñas, sesiones de Auth ni credenciales de WhatsApp; comparar huellas de las tablas existentes antes/después. Aplicar solo `20261030160000_usuarios_contrasena.sql`; publicar el intermediario con la misma llave y el Worker con `--keep-vars` y `ACCESO_CONTRASENA_HABILITADO=true`.
+Antonio autorizó «sí publica todo lo que esté listo». El plan aprobado fue respaldar los datos del salón, sin exportar secretos, hashes de contraseñas, sesiones de Auth ni credenciales de WhatsApp; comparar huellas, aplicar solo `20261030160000_usuarios_contrasena.sql`, publicar el intermediario con la misma llave y el Worker con `--keep-vars` y `ACCESO_CONTRASENA_HABILITADO=true`.
 
 **No activar `AGENDAPPX_INICIO_PUBLICO`** en esta publicación: Antonio lo autorizará aparte. No cambiar las banderas existentes de WhatsApp ni desplegar Railway. No crear ejemplos en el salón real. La prueba física guiada queda pendiente después de publicar; el éxito local no acredita aún un recorrido completo con Supabase Auth real.
+
+
+## Publicación y comprobación — 30 de octubre de 2026
+
+- PR #17, sobre #16; aplicación `54081f13100370d81216e886f36de52902e9fd14`. Conserva los dos commits de Claude y la corrección del restablecimiento con MFA.
+- Respaldo privado `C:/Users/dellv/.config/ritmo-belleza/respaldo-contrasena-20261030.json`, 223 834 bytes, SHA-256 `3ceb9c271d125986bfb1725171663b810b01332e525ad90abcf65e4acac63154`: once tablas de datos y huellas de las 46 tablas previas. Los once conjuntos respaldados, incluidos los 23 objetos de la agenda, permanecen idénticos.
+- La conexión PostgreSQL directa no aceptó la credencial local. Se obtuvo la instantánea mediante el conector oficial, sin exportar credenciales. Los dos intentos `apply_migration` vencieron su confirmación interna sin aplicar cambios. Se verificó su ausencia y se aplicó el archivo desde el SQL Editor oficial con una sola transacción, incluyendo su registro en el historial.
+- Migración real **20261030160000 / usuarios_contrasena**. El SQL preparado se cotejó por SHA-256; coincidió con el archivo revisado, normalizando los saltos de línea Windows/LF. Las tres tablas tienen RLS habilitada y forzada; ni anon, authenticated ni agendappx_whatsapp tienen SELECT ni EXECUTE sobre los nuevos accesos/funciones. El rol ritmo_api conserva el acceso acotado previsto.
+- Comparación global inmediata: **44 de las 46 tablas previas idénticas**. Solo cambiaron `plataforma_conexiones` y `plataforma_sesiones`, que mantienen el latido y las credenciales cifradas de la conexión activa. La migración no las modifica y no se ejecutaron acciones sobre Railway.
+- Función `agendappx-registro` **versión 3 ACTIVE**, `verify_jwt=false` conservado con validación HMAC propia. Los dos archivos publicados coinciden con el código revisado. Mismos secretos, sin ampliaciones de planes.
+- Worker **867d6000-8926-440f-b836-b79bf1eda4a7**, publicado con `--keep-vars --var ACCESO_CONTRASENA_HABILITADO:true`. Versión anterior para reversión: `e9b7ed9b-5e1f-43b0-a444-b015a8a1daf0`.
+- Configuración pública verificada: contraseña=true, WhatsApp=true existente, correo=false e inicioPublico=false. No se activó `AGENDAPPX_INICIO_PUBLICO`, ningún envío automático, nueva vinculación ni servicio facturable. No se tocó FiNeCi.
+- Siete recursos principales coinciden por bytes/SHA-256 con el paquete local. `/`, `/comunidad/`, `/planes/`, `/recuperar-acceso/` y `/salud` devuelven 200 sin redirección. `/api/cuenta/acceso` sin sesión devuelve 401, contraseña vacía devuelve 400 y el intermediario sin firma devuelve 401.
+- Navegador real Microsoft Edge, 390 px: acceso con contraseña y alternativa OTP, registro de cuatro pasos, consulta de disponibilidad y transición a WhatsApp sin solicitar código, barra de visitante de Comunidad, sin errores JS ni desbordamiento a 768/1440. No se crearon tickets, usuarios, accesos ni códigos; las tres tablas nuevas permanecen vacías. Capturas privadas fuera de Git: carpeta `contrasena-publicada` en el espacio de la conversación.
+
+Registro privado de operación y huellas: `C:/Users/dellv/.config/ritmo-belleza/publicacion-contrasena-20261030.json`. Copia del intermediario anterior y despliegue anterior guardadas en la misma carpeta privada para reversión. No contienen contraseñas nuevas de las personas.
+
+### Prueba física pendiente
+
+Antonio debe actualizar la app y entrar a su cuenta existente mediante el código de WhatsApp y sus dos pasos. Podrá elegir «Crea tu usuario y contraseña» sin registrarse de nuevo ni cambiar de salón. La entrada real con esa contraseña, restablecimiento, registro de otro salón y acceso temporal del equipo se prueban juntos; no se declararon completados con la comprobación pública sin sesión. No pedir contraseñas ni códigos en el chat ni crearlos por la persona.
