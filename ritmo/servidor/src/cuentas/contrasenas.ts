@@ -37,7 +37,7 @@ type Jwt={verificar:(s:string)=>Promise<IdentidadFirmada>};
 
 export class Contrasenas{
  readonly red:typeof fetch;readonly ahora:()=>number;
- constructor(readonly pool:ConexionSQL,readonly jwt:Jwt,readonly config:Config){this.red=config.fetch||fetch;this.ahora=config.ahora||Date.now;}
+ constructor(readonly pool:ConexionSQL,readonly jwt:Jwt,readonly config:Config){this.red=config.fetch||fetch.bind(globalThis);this.ahora=config.ahora||Date.now;}
  async usar<T>(f:(c:ClienteSQL)=>Promise<T>){const c=await this.pool.connect();try{return await f(c);}finally{c.release();}}
  async auth(path:string,d:unknown,token?:string,metodo='POST'){
   let r;try{r=await this.red(this.config.supabaseURL+'/auth/v1/'+path,{method:metodo,headers:{apikey:this.config.llavePublica,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},...(d===undefined?{}:{body:JSON.stringify(d)}),signal:AbortSignal.timeout(15000)});}catch{throw new ErrorAPI(503,'No se pudo verificar el acceso. Intenta de nuevo.');}
