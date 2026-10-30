@@ -47,6 +47,8 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
   let r;try{r=await red(config.supabaseURL+'/auth/v1/'+path,{method:metodo,headers:{apikey:config.llavePublica,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(d),signal:AbortSignal.timeout(18000)});}catch{throw new ErrorAPI(503,config.correo?'WhatsApp tardó demasiado. Puedes usar tu correo de respaldo.':'WhatsApp tardó demasiado. Intenta más tarde.');}
   let data:any;try{data=await r.json();}catch{throw new ErrorAPI(503,'No se pudo verificar el acceso.');}return {ok:r.ok,data};
  }
+ // Restablecer con el usuario: el teléfono se resuelve aquí y nunca se devuelve.
+ async function telefonoDeUsuario(v:unknown){const u=String(v||'').trim().toLowerCase();if(!/^[a-z0-9][a-z0-9._]{2,19}$/.test(u))return null;const c=await pool.connect();try{const f=(await c.query('SELECT phone FROM ritmo.identificador_acceso($1)',[u])).rows[0];return f?.phone?telefonoMX(f.phone):null;}finally{c.release();}}
  return async(req:IncomingMessage,res:ServerResponse,url:URL)=>{
   if(!url.pathname.startsWith('/api/acceso/'))return false;
   if(!solicitudes)throw new ErrorAPI(503,'El acceso por código todavía no está activado.');
@@ -56,7 +58,11 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
   if(url.pathname==='/api/acceso/solicitar'){
    const canal=d.canal;if(!['whatsapp','correo'].includes(canal))throw new ErrorAPI(400,'Elige WhatsApp o correo.');
    if(canal==='correo'&&!config.correo)throw new ErrorAPI(503,'El correo de respaldo aún no está configurado. Tu acceso privado sigue disponible.');
-   const destino=canal==='whatsapp'?telefonoMX(d.destino):String(d.destino||'').trim().toLowerCase();
+   const porUsuario=canal==='whatsapp'&&d.usuario!==undefined&&d.vincular!==true;
+   const resuelto=porUsuario?await telefonoDeUsuario(d.usuario):canal==='whatsapp'?telefonoMX(d.destino):String(d.destino||'').trim().toLowerCase();
+   // Misma respuesta si el usuario no existe o no tiene WhatsApp; cuenta igual para los límites.
+   if(porUsuario&&!resuelto){const s=await solicitudes.crear(canal,'usuario:'+String(d.usuario).trim().toLowerCase().slice(0,40),config.ip(req));await solicitudes.fallar(s.id);responder(res,200,s);return true;}
+   const destino=String(resuelto);
    if(canal==='correo'&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destino)||destino.length>254))throw new ErrorAPI(400,'Escribe tu correo.');
    let usuarioId:string|undefined;
    if(d.vincular===true){if(canal!=='whatsapp')throw new ErrorAPI(400,'Elige tu número.');const i=await jwt.verificar(token);
@@ -71,8 +77,8 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
   }
   if(url.pathname==='/api/acceso/verificar'){
    const s=await solicitudes.intento(String(d.id||''),String(d.prueba||''),String(d.codigo||''));
-   const destino=s.canal==='whatsapp'?telefonoMX(d.destino):String(d.destino||'').trim().toLowerCase();
-   if(!iguales(s.destino_hash,huella(config.key,'destino',destino))){await solicitudes.resultado(s.id,false);throw new ErrorAPI(400,'Código inválido.');}
+   const destino=s.canal==='whatsapp'?(d.usuario!==undefined?await telefonoDeUsuario(d.usuario):telefonoMX(d.destino)):String(d.destino||'').trim().toLowerCase();
+   if(!destino||!iguales(s.destino_hash,huella(config.key,'destino',destino))){await solicitudes.resultado(s.id,false);throw new ErrorAPI(400,'Código inválido.');}
    let i:IdentidadFirmada|undefined;if(s.tipo==='phone_change'){i=await jwt.verificar(token);if(i.usuarioId!==s.usuario_id||i.aal!=='aal2'){await solicitudes.resultado(s.id,false);throw new ErrorAPI(403,'Conserva la sesión que inició la vinculación.');}}
    let r;try{r=await auth('verify',{...(s.canal==='whatsapp'?{phone:'+'+destino}:{email:destino}),token:d.codigo,type:s.tipo},i?token:undefined);}catch(e){await solicitudes.resultado(s.id,false,true);throw e;}
    if(!r.ok){await solicitudes.resultado(s.id,false);throw new ErrorAPI(400,'Código inválido o vencido.');}

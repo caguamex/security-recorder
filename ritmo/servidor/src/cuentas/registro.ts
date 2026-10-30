@@ -6,8 +6,12 @@ import {ErrorAPI} from '../modelo.js';
 import {enTransaccion,miembroVigente} from './contexto.js';
 import {Invitaciones} from './invitaciones.js';
 import {huella,iguales,telefonoMX} from './acceso.js';
+import {apartarUsuario,normalizarUsuario} from './contrasenas.js';
 const h=(v:string)=>createHash('sha256').update(v).digest('hex');
-const uuid=/^[a-f0-9-]{36}$/i;
+const uuid=/^[a-f0-9-]{36}$/i,RESERVADOS=['comunidad','api','calendario','salud','webhooks','unirse','planes','assets','recuperar-acceso'];
+const slugValido=(v:unknown)=>typeof v==='string'&&/^([a-z0-9][a-z0-9-]{2,59})$/.test(v)&&!RESERVADOS.includes(v);
+/** Enlace corto a partir del nombre del salón: «AB' Beauty Room» → «ab-beauty-room». */
+export function slugDe(nombre:string){const s=nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,50).replace(/-+$/,'');return s.length>=3?s:(s+'-salon').replace(/^-/,'');}
 type Config={habilitado:boolean;key:string;operacionKey:string;turnstileKey:string;turnstileSiteKey:string;origen:string;supabaseURL:string;llavePublica:string;ip:(r:IncomingMessage)=>string;fetch?:typeof fetch;ahora?:()=>number};
 export class RegistroWhatsApp {
  readonly red:typeof fetch;readonly ahora:()=>number;
@@ -20,12 +24,14 @@ export class RegistroWhatsApp {
  }
  async invitacion(codigo:unknown,ip:string){const vista=await new Invitaciones(this.pool).ver(String(codigo||''),huella(this.config.key,'registro-ip',ip));return vista;}
  async crear(d:any,ip:string){
-  if(d.consentimiento!==true||typeof d.nombre!=='string'||!d.nombre.trim()||d.nombre.length>200)throw new ErrorAPI(400,'Escribe tu nombre y acepta recibir el código solicitado.');
+  // Flujo nuevo: usuario y contraseña primero; nombre y datos del salón llegan al finalizar.
+  const usuario=d.usuario!==undefined?normalizarUsuario(d.usuario):null;
+  if(d.consentimiento!==true||(usuario?d.nombre!==undefined&&(typeof d.nombre!=='string'||d.nombre.length>200):(typeof d.nombre!=='string'||!d.nombre.trim()||d.nombre.length>200)))throw new ErrorAPI(400,'Escribe tu nombre y acepta recibir el código solicitado.');
   if(!ip||ip.length>200)throw new ErrorAPI(503,'No se pudo verificar la conexión.');
   const destino=telefonoMX(d.telefono),tipo=d.invitacion?'invitacion':d.tipo==='cliente'?'cliente':'salon';let inv:any;
-  const perfil:any={nombre:d.nombre.trim()};
-  if(tipo==='invitacion')inv=await this.invitacion(d.invitacion,ip);
-  else if(tipo==='salon'){if(typeof d.salon!=='string'||!d.salon.trim()||d.salon.length>200||typeof d.slug!=='string'||!/^([a-z0-9][a-z0-9-]{2,59})$/.test(d.slug)||['comunidad','api','calendario','salud','webhooks','unirse','planes','assets'].includes(d.slug))throw new ErrorAPI(400,'Revisa el nombre y el enlace de tu salón.');perfil.salon=d.salon.trim();perfil.slug=d.slug;if(d.plan!==undefined){if(!['solo','salon','pro'].includes(d.plan))throw new ErrorAPI(400,'Elige un plan disponible.');perfil.plan=d.plan;}}
+  const perfil:any={nombre:typeof d.nombre==='string'?d.nombre.trim():''};
+  if(tipo==='invitacion'){inv=await this.invitacion(d.invitacion,ip);if(!perfil.nombre)perfil.nombre=String(inv?.nombre||'').trim();}
+  else if(tipo==='salon'&&!(usuario&&d.salon===undefined)){if(typeof d.salon!=='string'||!d.salon.trim()||d.salon.length>200||!slugValido(d.slug))throw new ErrorAPI(400,'Revisa el nombre y el enlace de tu salón.');perfil.salon=d.salon.trim();perfil.slug=d.slug;if(d.plan!==undefined){if(!['solo','salon','pro'].includes(d.plan))throw new ErrorAPI(400,'Elige un plan disponible.');perfil.plan=d.plan;}}
   if(typeof d.captchaToken!=='string'||!d.captchaToken||d.captchaToken.length>4096)throw new ErrorAPI(400,'Completa la verificación de seguridad.');
   let captcha:any;try{const r=await this.red('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:this.config.turnstileKey,response:d.captchaToken,remoteip:ip}),signal:AbortSignal.timeout(8000)});if(!r.ok)throw new Error();captcha=await r.json();}catch{throw new ErrorAPI(503,'No se pudo comprobar la seguridad. Intenta de nuevo.');}
   if(!captcha.success||captcha.hostname!==new URL(this.config.origen).hostname||captcha.action!=='registro')throw new ErrorAPI(400,'Vuelve a completar la verificación de seguridad.');
@@ -35,8 +41,9 @@ export class RegistroWhatsApp {
    await c.query('DELETE FROM ritmo.registro_solicitudes WHERE creado_en<$1 AND completado_en IS NULL',[new Date(this.ahora()-86400000)]);
    const limite=(await c.query('SELECT count(*) FILTER(WHERE ip_hash=$1) AS ip,count(*) AS total FROM ritmo.registro_solicitudes WHERE creado_en>$2',[red,new Date(this.ahora()-86400000)])).rows[0];
    if(Number(limite.ip)>=3||Number(limite.total)>=100)throw new ErrorAPI(429,'Por seguridad, espera antes de comenzar otro registro.');
-   if(tipo==='salon'&&(await c.query('SELECT 1 FROM ritmo.negocios_enlaces WHERE slug=$1',[perfil.slug])).rows.length)throw new ErrorAPI(409,'Ese enlace ya está ocupado. Elige otro.');
+   if(tipo==='salon'&&perfil.slug&&(await c.query('SELECT 1 FROM ritmo.negocios_enlaces WHERE slug=$1',[perfil.slug])).rows.length)throw new ErrorAPI(409,'Ese enlace ya está ocupado. Elige otro.');
    await c.query('INSERT INTO ritmo.registro_solicitudes(id,prueba_hash,destino_hash,ip_hash,tipo,perfil,invitacion_hash,creado_en,vence_en) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',[id,huella(this.config.key,'registro',prueba),dest,red,tipo,perfil,inv?h(String(d.invitacion)):null,new Date(this.ahora()),new Date(this.ahora()+1800000)]);
+   if(usuario)await apartarUsuario(c,usuario,id,new Date(this.ahora()+1800000),new Date(this.ahora()));
   });
   // Solo este intermediario de Supabase posee la llave Admin; ni Worker, navegador ni mensajero la reciben.
   const raw=JSON.stringify({id,phone:'+'+destino}),ts=String(Math.floor(this.ahora()/1000));
@@ -54,7 +61,22 @@ export class RegistroWhatsApp {
    if(actual.completado_en)throw new ErrorAPI(400,'Este registro ya terminó. Inicia sesión.');
    await c.query('UPDATE ritmo.registro_solicitudes SET usuario_id=$2,sesion_id=$3,verificado_en=now() WHERE id=$1',[r.id,i.usuarioId,i.sesionId]);return {verificado:true};});
  }
- async finalizar(i:IdentidadFirmada,d:any){const r=await this.ticket(d.id,d.prueba);try{return await enTransaccion(this.pool,i,null,async c=>{const negocioId=(await c.query('SELECT ritmo.finalizar_registro($1,$2) AS negocio_id',[r.id,r.prueba_hash])).rows[0].negocio_id;if(r.tipo==='salon'&&r.perfil.plan&&!r.completado_en){await c.query("SELECT set_config('ritmo.negocio',$1,true)",[negocioId]);await c.query('SELECT ritmo.elegir_plan($1,$2,false)',[negocioId,r.perfil.plan]);}return {negocioId};});}catch(e:any){if(e?.code==='23505')throw new ErrorAPI(409,'Ese enlace ya está ocupado. Comienza con otro enlace.');if(['22023','42501','28000'].includes(e?.code))throw new ErrorAPI(e.code==='42501'?403:400,e.code==='42501'?'Completa la verificación en dos pasos.':'La invitación o el registro ya no están disponibles.');throw e;}}
+ /** Datos que llegan al final (paso «Crea tu salón»): nombre, salón, enlace y plan. */
+ async completarPerfil(i:IdentidadFirmada,r:any,d:any){if(r.completado_en)return r;if(r.usuario_id!==i.usuarioId)throw new ErrorAPI(403,'Registro de otra cuenta.');const perfil={...r.perfil};let cambio=false;
+  if(d.nombre!==undefined){if(typeof d.nombre!=='string'||!d.nombre.trim()||d.nombre.length>200)throw new ErrorAPI(400,'Escribe tu nombre.');perfil.nombre=d.nombre.trim();cambio=true;}
+  if(r.tipo==='salon'){
+   if(d.salon!==undefined){if(typeof d.salon!=='string'||!d.salon.trim()||d.salon.length>200)throw new ErrorAPI(400,'Escribe el nombre de tu salón.');perfil.salon=d.salon.trim();cambio=true;}
+   if(d.slug!==undefined){if(!slugValido(d.slug))throw new ErrorAPI(400,'Revisa el enlace de tu salón.');perfil.slug=d.slug;cambio=true;}
+   if(d.plan!==undefined){if(!['solo','salon','pro'].includes(d.plan))throw new ErrorAPI(400,'Elige un plan disponible.');perfil.plan=d.plan;cambio=true;}
+   if(perfil.salon&&!perfil.slug){const base=slugDe(perfil.salon);perfil.slug=base;cambio=true;
+    await this.usar(async c=>{for(let n=2;(await c.query('SELECT 1 FROM ritmo.negocios_enlaces WHERE slug=$1',[perfil.slug])).rows.length||RESERVADOS.includes(perfil.slug);n++)perfil.slug=(base.slice(0,56)+'-'+n);});}
+   if(!perfil.salon||!perfil.slug)throw new ErrorAPI(400,'Escribe el nombre de tu salón.');
+  }
+  if(!perfil.nombre)throw new ErrorAPI(400,'Escribe tu nombre.');
+  if(cambio)await this.usar(c=>c.query('UPDATE ritmo.registro_solicitudes SET perfil=$2 WHERE id=$1 AND completado_en IS NULL',[r.id,perfil]));
+  return {...r,perfil};
+ }
+ async finalizar(i:IdentidadFirmada,d:any){const r=await this.completarPerfil(i,await this.ticket(d.id,d.prueba),d);try{return await enTransaccion(this.pool,i,null,async c=>{const negocioId=(await c.query('SELECT ritmo.finalizar_registro($1,$2) AS negocio_id',[r.id,r.prueba_hash])).rows[0].negocio_id;if(r.tipo==='salon'&&r.perfil.plan&&!r.completado_en){await c.query("SELECT set_config('ritmo.negocio',$1,true)",[negocioId]);await c.query('SELECT ritmo.elegir_plan($1,$2,false)',[negocioId,r.perfil.plan]);}return {negocioId};});}catch(e:any){if(e?.code==='23505')throw new ErrorAPI(409,'Ese enlace ya está ocupado. Comienza con otro enlace.');if(['22023','42501','28000'].includes(e?.code))throw new ErrorAPI(e.code==='42501'?403:400,e.code==='42501'?'Completa la verificación en dos pasos.':'La invitación o el registro ya no están disponibles.');throw e;}}
 }
 async function cuerpo(req:IncomingMessage){if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ErrorAPI(415,'Usa application/json.');let tam=0;const partes=[];for await(const b of req){tam+=b.length;if(tam>8192)throw new ErrorAPI(413,'Solicitud demasiado grande.');partes.push(b);}try{const d=JSON.parse(Buffer.concat(partes).toString());if(!d||Array.isArray(d)||typeof d!=='object')throw new Error();return d;}catch{throw new ErrorAPI(400,'Solicitud inválida.');}}
 export function rutasRegistro(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:Config){

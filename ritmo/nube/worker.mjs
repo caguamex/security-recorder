@@ -14,6 +14,7 @@ import {rutasPush,enviarPush} from '../servidor/src/social/push.ts';
 import {rutasSocial} from '../servidor/src/social/http.ts';
 import { rutasRegistro } from '../servidor/src/cuentas/registro.ts';
 import { rutasAcceso } from '../servidor/src/cuentas/acceso.ts';
+import { rutasContrasenas } from '../servidor/src/cuentas/contrasenas.ts';
 import { rutasCuentas } from '../servidor/src/cuentas/http.ts';
 import { proxyWhatsApp, usaMeta } from '../servidor/src/whatsapp-vinculado/proxy.ts';
 import { VerificadorJWT } from '../servidor/src/cuentas/jwt.ts';
@@ -58,6 +59,10 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
     rutasPush:rutasPush(pool,jwt,{origen:env.PUBLIC_URL,publica:env.PUSH_VAPID_PUBLICA,privada:env.PUSH_VAPID_PRIVADA}),
     rutasSocial:rutasSocial(pool,jwt,{origen:env.PUBLIC_URL,key:env.ACCESO_HMAC_KEY,turnstileKey:env.TURNSTILE_SECRET_KEY,ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     rutasRegistro:rutasRegistro(pool,jwt,{habilitado:env.AGENDAPPX_REGISTRO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,operacionKey:env.REGISTRO_OPERACION_KEY,turnstileKey:env.TURNSTILE_SECRET_KEY,turnstileSiteKey:env.TURNSTILE_SITE_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,ip:req=>String(req.headers['cf-connecting-ip']||'')}),
+    // Usuario y contraseña: requiere la migración 20261030160000 y el intermediario actualizado.
+    rutasContrasenas:env.ACCESO_CONTRASENA_HABILITADO==='true'?rutasContrasenas(pool,jwt,{habilitado:true,key:env.ACCESO_HMAC_KEY,operacionKey:env.REGISTRO_OPERACION_KEY,turnstileKey:env.TURNSTILE_SECRET_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,ip:req=>String(req.headers['cf-connecting-ip']||'')}):undefined,
+    // Quien abre la app por primera vez ve las publicaciones de Comunidad.
+    inicioPublico:env.AGENDAPPX_INICIO_PUBLICO==='true',
     acceso:{whatsapp:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true'},
     rutasAcceso:rutasAcceso(pool,jwt,{registro:env.AGENDAPPX_REGISTRO_HABILITADO==='true',recuperacionHash:env.ACCESO_RECUPERACION_HASH,recuperacionUsuario:env.MIGRACION_USUARIO_ID,habilitado:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,salones:new Set(String(env.WHATSAPP_SALONES_HABILITADOS||'').split(',').filter(Boolean)),ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL, migracionUsuarioId: env.MIGRACION_USUARIO_ID,
