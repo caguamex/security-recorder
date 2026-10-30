@@ -21,7 +21,7 @@ const e=await entornoLogin(),supabase='https://zkqwephmuflbuagevvxj.supabase.co'
 const jwt=new VerificadorJWT(supabase,{fetch:async()=>Response.json({keys:[jwk]})});
 const sql=async(q,a)=>{const c=await e.pool.connect();try{return await c.query(q,a);}finally{c.release();}};
 await sql(await readFile(new URL('../../supabase/migrations/20261029174619_registro_whatsapp.sql',import.meta.url),'utf8'));
-await sql('ALTER TABLE auth.users ADD COLUMN IF NOT EXISTS phone text, ADD COLUMN IF NOT EXISTS email text');
+await sql('ALTER TABLE auth.users ADD COLUMN IF NOT EXISTS phone text, ADD COLUMN IF NOT EXISTS email text, ADD COLUMN IF NOT EXISTS phone_confirmed_at timestamptz');
 await sql(await readFile(new URL('../../supabase/migrations/20261030160000_usuarios_contrasena.sql',import.meta.url),'utf8'));
 // Estado del Auth simulado: quién tiene la sesión del navegador y sus contraseñas.
 let base='',actual={id:ids.nueva,phone:'',email:''},sid=randomUUID(),mfa=new Set(),aalActual='aal1';const claves=new Map(),factor='ffffffff-1111-4111-8111-111111111111';
@@ -29,11 +29,17 @@ async function token(aal=aalActual){return new SignJWT({session_id:sid,aal,role:
 const usuario=()=>({id:actual.id,phone:actual.phone,email:actual.email,...(actual.phone?{phone_confirmed_at:new Date().toISOString()}:{}),aud:'authenticated',role:'authenticated',factors:mfa.has(actual.id)?[{id:factor,factor_type:'totp',status:'verified'}]:[]});
 async function sesion(aal='aal1'){aalActual=aal;return {access_token:await token(aal),refresh_token:'solo-pruebas',token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,user:usuario()};}
 async function nuevaSesion(u){actual=u;sid=randomUUID();await sql('INSERT INTO auth.sessions(id,user_id) VALUES($1,$2)',[sid,u.id]);return sesion();}
-const porTelefono=async t=>(await sql('SELECT id,phone,email FROM auth.users WHERE phone=$1',[t])).rows[0];
+const porTelefono=async t=>(await sql('SELECT id,phone,email,phone_confirmed_at FROM auth.users WHERE phone=$1',[t])).rows[0];
+let confirmacionesIniciales=0;
 // Auth del lado del servidor (Worker → Supabase).
 const auth=async(input,init={})=>{const u=new URL(input),d=init.body?JSON.parse(init.body):{};
- if(u.pathname==='/auth/v1/otp'){e.avanzar(Math.max(0,Date.now()-e.now()));assert.equal(d.create_user,false);const f=await porTelefono(d.phone.replace('+',''))||{id:ids.nueva};const v=e.evento(d.phone,'482913',{user:{id:f.id,phone:d.phone}});await e.codigos.entregar(v.raw,v.headers);return Response.json({});}
- if(u.pathname==='/auth/v1/verify'){if(d.token!=='482913')return Response.json({msg:'Código incorrecto'},{status:400});const tel=d.phone.replace('+','');let f=await porTelefono(tel);if(!f){await sql('UPDATE auth.users SET phone=$1 WHERE id=$2',[tel,ids.nueva]);f={id:ids.nueva,phone:tel,email:null};}return Response.json(await nuevaSesion({id:f.id,phone:f.phone,email:f.email||''}));}
+ if(u.pathname==='/auth/v1/otp'||u.pathname==='/auth/v1/resend'){
+  e.avanzar(Math.max(0,Date.now()-e.now()));const f=await porTelefono(d.phone.replace('+',''));
+  if(u.pathname.endsWith('/otp')){assert.equal(d.create_user,false);if(!f)return Response.json({code:422,error_code:'otp_disabled'},{status:422});if(!f.phone_confirmed_at)return Response.json({code:422,error_code:'signup_disabled'},{status:422});}
+  else{assert.equal(d.type,'sms');assert.ok(f&&!f.phone_confirmed_at);confirmacionesIniciales++;}
+  const v=e.evento(d.phone,'482913',{user:{id:f.id,phone:d.phone}});await e.codigos.entregar(v.raw,v.headers);return Response.json({});
+ }
+ if(u.pathname==='/auth/v1/verify'){if(d.token!=='482913')return Response.json({msg:'Código incorrecto'},{status:400});const tel=d.phone.replace('+','');const f=await porTelefono(tel);assert.ok(f);await sql('UPDATE auth.users SET phone_confirmed_at=now() WHERE id=$1',[f.id]);return Response.json(await nuevaSesion({id:f.id,phone:f.phone,email:f.email||''}));}
  if(u.pathname==='/auth/v1/token'&&u.search==='?grant_type=password'){const f=(await sql(d.phone?'SELECT id,phone,email FROM auth.users WHERE phone=$1':'SELECT id,phone,email FROM auth.users WHERE email=$1',[d.phone?d.phone.replace('+',''):d.email])).rows[0];
   if(!f||claves.get(f.id)!==d.password)return Response.json({error_code:'invalid_credentials'},{status:400});return Response.json(await nuevaSesion({id:f.id,phone:f.phone||'',email:f.email||''}));}
  const yo=await jwt.verificar((init.headers?.Authorization||'').slice(7));
@@ -46,7 +52,7 @@ const auth=async(input,init={})=>{const u=new URL(input),d=init.body?JSON.parse(
  throw new Error('Auth inesperado '+input);};
 const operacionKey=randomBytes(32).toString('base64');
 const edge=intermediario({key:operacionKey,url:supabase,adminKey:'admin-solo-prueba',fetch:async(u,init)=>{const p=new URL(u).pathname.replace('/auth/v1/admin/',''),d=init.body?JSON.parse(init.body):{};
- if(p==='users'&&init.method==='POST'){if(d.phone)return Response.json({id:ids.nueva});const id=randomUUID();await sql('INSERT INTO auth.users(id,email) VALUES($1,$2)',[id,d.email]);claves.set(id,d.password);return Response.json({id});}
+ if(p==='users'&&init.method==='POST'){if(d.phone){await sql('UPDATE auth.users SET phone=$1 WHERE id=$2',[d.phone.replace('+',''),ids.nueva]);return Response.json({id:ids.nueva});}const id=randomUUID();await sql('INSERT INTO auth.users(id,email) VALUES($1,$2)',[id,d.email]);claves.set(id,d.password);return Response.json({id});}
  const id=p.split('/')[1],f=(await sql('SELECT id,phone,email FROM auth.users WHERE id=$1',[id])).rows[0];if(init.method==='GET')return Response.json(f);claves.set(id,d.password);return Response.json(f);}});
 const servidorFetch=async(u,init)=>{if(u.endsWith('/siteverify'))return Response.json({success:true,hostname:'127.0.0.1',action:JSON.parse(init.body).response==='captcha-acceso'?'acceso':'registro'});if(u.endsWith('/agendappx-registro'))return edge(new Request(u,init));return auth(u,init);};
 const comun={key:e.key,operacionKey,turnstileKey:'secreto-local',turnstileSiteKey:'sitio-local',get origen(){return base;},supabaseURL:supabase,llavePublica:'sb_publishable_prueba_local',fetch:servidorFetch};
@@ -123,6 +129,6 @@ try{
  // 6) Entrar con WhatsApp y la contraseña nueva.
  {const {c,p}=await contexto();await abrir(p);await p.locator('#auth-cuenta').fill('55 1111 1111');await p.locator('#auth-pass').fill('Mariana-Nueva-8');await p.locator('#auth-clave-entrar').click();await p.locator('#auth-code').waitFor({state:'visible'});
   for(const w of [768,1440]){await p.setViewportSize({width:w,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}await c.close();}
- assert.deepEqual(errores,[]);
+ assert.deepEqual(errores,[]);assert.equal(confirmacionesIniciales,1,'El registro confirma una sola vez el teléfono preparado, con las altas cerradas');
  console.log('Contraseñas: registro en 4 pasos, entrar con usuario o WhatsApp, CAPTCHA al 3.er fallo, restablecer por usuario y acceso del equipo con temporal verificados. Sin envíos reales.');
 }catch(x){for(const pg of browser.contexts().flatMap(c=>c.pages())){console.log('ESTADO:',await pg.locator('#auth-status').innerText().catch(()=>'?'));await pg.screenshot({path:capturas+'fallo.png'}).catch(()=>{});}throw x;}finally{await browser.close();server.close();await e.cerrar();}

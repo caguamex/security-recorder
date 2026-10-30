@@ -23,7 +23,7 @@ export function intermediario({key,url,adminKey,fetch:red=fetch,ahora=Date.now})
    if(Object.keys(d).sort().join(',')!=='id,phone'||!/^[a-f0-9-]{36}$/i.test(d.id||'')||!/^\+52\d{10}$/.test(d.phone||''))return respuesta(400);
    // API oficial: no confirma teléfonos, no envía correo y no modifica usuarios existentes.
    const r=await admin('users','POST',{phone:d.phone,phone_confirm:false});
-   if(r.ok)return respuesta(200);const e=await r.json();return respuesta(['phone_exists','user_already_exists'].includes(e.code||e.error_code)?200:503);
+   if(r.ok)return respuesta(200);const e=await r.json();const tipo=e.error_code||(typeof e.code==='string'?e.code:'');return respuesta(['phone_exists','user_already_exists'].includes(tipo)?200:503);
   }
   if(proposito==='alta-miembro-v1'){
    if(Object.keys(d).sort().join(',')!=='email,password'||!correoMiembro.test(d.email||'')||!temporal(d.password))return respuesta(400);

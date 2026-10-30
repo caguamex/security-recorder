@@ -15,7 +15,7 @@ export function slugDe(nombre:string){const s=nombre.normalize('NFD').replace(/[
 type Config={habilitado:boolean;key:string;operacionKey:string;turnstileKey:string;turnstileSiteKey:string;origen:string;supabaseURL:string;llavePublica:string;ip:(r:IncomingMessage)=>string;fetch?:typeof fetch;ahora?:()=>number};
 export class RegistroWhatsApp {
  readonly red:typeof fetch;readonly ahora:()=>number;
- constructor(readonly pool:ConexionSQL,readonly config:Config){this.red=config.fetch||fetch;this.ahora=config.ahora||Date.now;}
+ constructor(readonly pool:ConexionSQL,readonly config:Config){this.red=config.fetch||fetch.bind(globalThis);this.ahora=config.ahora||Date.now;}
  async usar<T>(f:(c:any)=>Promise<T>){const c=await this.pool.connect();try{return await f(c);}finally{c.release();}}
  async tx<T>(f:(c:any)=>Promise<T>){return this.usar(async c=>{try{await c.query('BEGIN');const r=await f(c);await c.query('COMMIT');return r;}catch(e){await c.query('ROLLBACK');throw e;}});}
  async ticket(id:unknown,prueba:unknown){if(!uuid.test(String(id))||!/^[a-f0-9]{64}$/.test(String(prueba)))throw new ErrorAPI(400,'Registro inválido.');
