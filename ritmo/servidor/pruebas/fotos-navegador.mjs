@@ -17,7 +17,7 @@ async function abrir() {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } }); contexts.push(ctx);
   const p = await ctx.newPage(); p.on('pageerror', e => errores.push(e.message));
   await p.goto(env.base); await p.waitForFunction(() => navigator.serviceWorker.controller);
-  await tab(p, 'Ajustes').click(); await p.getByRole('button', { name: /Sincronización/ }).click();
+  await tab(p, 'Negocio').click(); await p.getByRole('button', { name: /Sincronización/ }).click();
   await p.getByText('Configuración avanzada', { exact: true }).click(); await p.getByLabel('Token de acceso', { exact: true }).fill(env.token);
   await p.getByRole('button', { name: 'Conectar', exact: true }).click();
   await p.waitForFunction(() => document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));
@@ -25,7 +25,7 @@ async function abrir() {
   await tab(p, 'Servicios').click(); return p;
 }
 async function sync(p) {
-  await tab(p, 'Ajustes').click(); await p.getByRole('button', { name: /Sincronización/ }).click();
+  await tab(p, 'Negocio').click(); await p.getByRole('button', { name: /Sincronización/ }).click();
   await p.getByRole('button', { name: 'Sincronizar ahora', exact: true }).click();
   await p.waitForFunction(() => document.querySelector('#sync-status')?.textContent.includes('Sincronizado'));
   await p.getByRole('button', { name: 'Listo', exact: true }).click(); await tab(p, 'Servicios').click();

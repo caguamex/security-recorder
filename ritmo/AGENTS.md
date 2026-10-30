@@ -153,3 +153,13 @@ La pantalla está publicada; los códigos aún NO funcionan: external.phone=fals
 ## Registro automático — preparación del 29 de octubre de 2026
 
 Antonio pidió terminar el registro por WhatsApp e incluyó explícitamente a otras dueñas con salones propios, además del equipo por invitación. Preparación local en codex/agendappx-registro-whatsapp; leer docs/REGISTRO-WHATSAPP.md antes de publicar o activar. El registro abierto de Supabase permanece cerrado: un intermediario aislado en el mismo proyecto prepara la cuenta y nunca entrega la llave Admin a Worker/Railway/navegador. OTP nuevo ligado a la misma sesión y MFA para Admin antes de otorgar membresía. Los salones nuevos empiezan vacíos; no copiar datos del propietario. La vinculación física existente se conserva; no volver a pedir código de dispositivo ni habilitar avisos de citas por terminar el registro. No publicar, aplicar la migración nueva ni activar códigos generales sin la confirmación específica de Antonio. Brevo y el modo de entrega manual quedan pendientes fuera de este recorrido; la recuperación privada del propietario se conserva como emergencia.
+
+
+## Neutro iOS — aprobado y en revisión, 29 de octubre de 2026
+
+El diseño aprobado del PR #11 sustituye al candado 3D histórico en Agendappx. Rama nueva codex/agendappx-neutro-ios-etapa1 desde 559c3a6. Leer docs/NEUTRO-IOS-ETAPA1.md y la galería antes de continuar. Antonio pidió: selectores HH:mm sin input time, Nueva cita con fotos/pastillas/switch, Apariencia solo Mi negocio o Perfil, chips, lunes–domingo y simultáneas lado a lado. Preparación local y pruebas completas; NO desplegado. No actualizar ni la vista pública sin la confirmación nueva solicitada. No migrar ni publicar Railway: etapa de interfaz, no cambia Auth/RLS/envíos ni toca FiNeCi. Comunidad se incorpora desde los estáticos de PR #8 y sigue siendo demo; la preparación de build/deploy conserva PWA + Comunidad y secretos. Datos/funciones nuevos de Hoy, horarios, perfil público real, planes y Social siguen separados en etapas 2–4.
+
+
+### Publicación de Neutro y continuación por etapas — 29 de octubre
+
+Antonio autorizó «Publica todas las etapas». Etapa 1 publicada, Worker ccc3d5d0-1d8c-4906-9e35-ffdb3e84e40b, detalle en docs/NEUTRO-IOS-ETAPA1.md. La vista de GitHub Pages también fue actualizada y verificada. Esta aprobación cubre publicar las etapas 2–4 aprobadas conforme se completen y verifiquen; no repetir la pregunta de despliegue dentro de ese alcance. Mantener PRs independientes encadenados. Las migraciones conservan su confirmación separada previa; no aplicar SQL de nuevas etapas sin aprobación concreta. No activar cobros, envíos de citas/promociones, vinculaciones ni recursos adicionales.

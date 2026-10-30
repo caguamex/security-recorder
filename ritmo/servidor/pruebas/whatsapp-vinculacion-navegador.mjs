@@ -1,3 +1,4 @@
+import {elegirModo,elegirTema} from './ayudas-neutro.mjs';
 // Navegador → API real → JWT/RLS → PostgreSQL local. Evolution simulado; no envía mensajes.
 import {chromium} from 'playwright';
 import {once} from 'node:events';
@@ -44,7 +45,7 @@ const context=await browser.newContext({viewport:{width:390,height:844},locale:'
 const page=await context.newPage(),errores=[];page.on('pageerror',e=>errores.push(e.message));
 const imagenes=fileURLToPath(new URL('../../imagenes/',import.meta.url));await mkdir(imagenes,{recursive:true});
 const sesion={usuarioId:ids.admin,negocioId:ids.salon,accessToken:token,rol:'admin',aal:'aal2'};
-async function abrir(){await page.getByRole('tab',{name:'Ajustes',exact:true}).click();await page.getByRole('button',{name:/Mensajes de WhatsApp/}).click();}
+async function abrir(){await page.getByRole('tab',{name:'Negocio',exact:true}).click();await page.getByRole('button',{name:/Mensajes de WhatsApp/}).click();}
 async function cerrar(){await page.getByRole('button',{name:'Listo',exact:true}).click();}
 try{
  await page.addInitScript(()=>{Object.defineProperty(navigator.clipboard,'writeText',{value:async texto=>{window.__copiadoLocal=texto;}});});
@@ -74,7 +75,7 @@ try{
  for(const width of [390,768,1440]){
   await page.setViewportSize({width,height:844});
   for(const modo of ['white','dark']){
-   await page.getByRole('tab',{name:modo==='white'?'☀️ White':'🌙 Dark',exact:true}).click();
+   await elegirModo(page,modo==='white'?'White':'Dark');
    await abrir();await page.waitForFunction(()=>document.querySelector('#wa-numero')&&!document.querySelector('#wa-numero').disabled);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    assert.equal(await page.evaluate(()=>{const r=document.querySelector('#sheetCard').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;}),true);

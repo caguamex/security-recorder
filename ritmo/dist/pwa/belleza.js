@@ -89,7 +89,7 @@
   const ESTADOS = [['confirmada', 'Confirmada'], ['pendiente', 'Por confirmar'], ['completada', 'Completada'], ['cancelada', 'Cancelada']];
   const estadoTxt = e => (ESTADOS.find(x => x[0] === e) || ESTADOS[1])[1];
   const SKINS = [
-    ['clasico', 'Clásico iOS', ['#F2F2F7', '#FFFFFF', '#007AFF', '#FF3B30']],
+    ['clasico', 'Neutro iOS', ['#F2F2F7', '#FFFFFF', '#000000', '#626268']],
     ['rosa', 'Rosa champaña', ['#FBF5F3', '#F6E1E2', '#B8606B', '#3B2422']],
     ['dorado', 'Negro y dorado', ['#000000', '#1C1C1E', '#D4AF6A', '#F5F5F7']],
     ['ritmo', 'Ritmo', ['#F6F7F9', '#FFFFFF', '#1F3FD1', '#FFE15A']],
@@ -270,32 +270,42 @@
   }
 
   // ---------- Estado de la vista ----------
-  const S = { tab: 'agenda', day: today(), seg: 'servicios', cat: 'Todas', q: '', qServicios: '', sheetOpen: false };
+  const S = { especialista: '', tab: 'agenda', day: today(), seg: 'servicios', cat: 'Todas', q: '', qServicios: '', sheetOpen: false };
   const screen = $('#screen');
   function applySkin() {
     const k = Store.settings.skin || 'clasico';
+    try{document.documentElement.dataset.transparencia=localStorage.getItem('agendappx.apariencia.transparencia')==='solida'?'solida':'vidrio';}catch{}
+    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=Store.settings.modo==='dark'?'#000000':'#F2F2F7';
     if (Store.settings.modo === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
     if (k === 'clasico') delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = k;
   }
   function render() {
     const anterior=document.activeElement?.id==='buscar-servicios' ? {inicio:document.activeElement.selectionStart,fin:document.activeElement.selectionEnd} : null;
     applySkin();
-    const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Ajustes']];
-    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k === 'servicios' && S.tab === 'promos')}">${I[k]}${n}</button>`).join('');
+    const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Negocio']];
+    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k === 'servicios' && S.tab === 'promos') || (k==='mas' && S.tab==='apariencia')}">${k==='mas'?svg('<path d="m3 9 2-6h14l2 6M3 9v3a3 3 0 0 0 4 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 4-2V9M5 15v6h14v-6M10 21v-6h4v6"/>'):I[k]}${n}</button>`).join('');
     $('#fab').hidden = false;
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
-    screen.innerHTML = ({ agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas: viewMas })[S.tab]();
+    screen.innerHTML = ({ agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas: viewMas, apariencia: viewApariencia })[S.tab]();
     if(anterior){const campo=$('#buscar-servicios');if(campo){campo.focus({preventScroll:true});campo.setSelectionRange(anterior.inicio,anterior.fin);}}
   }
   // Permite retirar ejemplos guardados por versiones anteriores sin borrar registros propios.
   const banner = () => all().some(x => x.example) ? `<div class="banner"><p>Todavía tienes datos de ejemplo.</p><button type="button" class="btn" data-act="borrar-ejemplos">Borrar ejemplos</button></div>` : '';
 
+  let equipoAgenda={clave:'',personas:[],enCurso:false};
+  const nombreEspecialista=id=>equipoAgenda.personas.find(p=>p.id===id)?.nombre||(id==='sin-asignar'?'Sin asignar':'Especialista '+String(id).slice(0,4));
+  function chipsEspecialistas(){const ids=new Set(equipoAgenda.personas.map(p=>p.id));for(const c of citasDe(S.day))ids.add(c.especialista||'sin-asignar');if(S.especialista&&!ids.has(S.especialista))S.especialista='';return `<div class="hscroll specialist-chips" aria-label="Especialistas"><button type="button" class="chip" data-especialista="" aria-pressed="${!S.especialista}">Todas</button>${[...ids].map(id=>`<button type="button" class="chip" data-especialista="${esc(id)}" aria-pressed="${S.especialista===id}">${esc(nombreEspecialista(id))}</button>`).join('')}</div>`;}
+  async function cargarEquipoAgenda(){const cuenta=await window.AgendappxCuentas?.sesion?.();if(!cuenta){equipoAgenda={clave:'',personas:[],enCurso:false};S.especialista='';if(S.tab==='agenda')render();return;}const clave=cuenta.usuarioId+':'+cuenta.negocioId+':'+cuenta.rol;if(equipoAgenda.clave===clave&&equipoAgenda.enCurso)return;if(equipoAgenda.clave!==clave){S.especialista='';equipoAgenda={clave,personas:[],enCurso:false};try{const cache=JSON.parse(localStorage.getItem('agendappx.agenda.equipo.'+clave)||'[]');equipoAgenda.personas=Array.isArray(cache)&&cuenta.rol==='admin'?cache.filter(p=>typeof p.id==='string'&&typeof p.nombre==='string'):[];}catch{}}
+    if(cuenta.rol==='admin'&&cuenta.aal==='aal2'&&navigator.onLine){equipoAgenda.enCurso=true;try{const r=await fetch('/api/negocios/'+cuenta.negocioId+'/miembros',{headers:{Authorization:'Bearer '+cuenta.accessToken},cache:'no-store',signal:AbortSignal.timeout(8000)});if(r.ok){const d=await r.json();if(equipoAgenda.clave!==clave)return;equipoAgenda.personas=d.miembros.map(p=>({id:p.id,nombre:p.nombre}));try{localStorage.setItem('agendappx.agenda.equipo.'+clave,JSON.stringify(equipoAgenda.personas));}catch{}}}catch{}finally{if(equipoAgenda.clave===clave)equipoAgenda.enCurso=false;}}
+    if(S.tab==='agenda')render();
+  }
+  function hora24(v,atributos,label,opciones){let hs=opciones||Array.from({length:96},(_,i)=>C.fromMin(i*15));hs=[...hs];if(v&&!hs.includes(v))hs.push(v),hs.sort();return `<select class="time24" ${atributos} aria-label="${esc(label)}">${!v?'<option value="">Elegir hora</option>':''}${hs.map(h=>`<option value="${esc(h)}" ${h===v?'selected':''}>${esc(h)}</option>`).join('')}</select>`;}
   // Agenda
   let lastScrollDay = null;
   function viewAgenda() {
     const t = today(), d = S.day, s = Store.settings;
-    const ws = C.startOfWeek(d, 0), days = Array.from({ length: 7 }, (_, i) => C.addDays(ws, i));
-    const citas = citasDe(d), activas = citas.filter(c => c.estado !== 'cancelada');
+    const ws = C.startOfWeek(d, 1), days = Array.from({ length: 7 }, (_, i) => C.addDays(ws, i));
+    const citas = citasDe(d).filter(c=>!S.especialista||(c.especialista||'sin-asignar')===S.especialista), activas = citas.filter(c => c.estado !== 'cancelada');
     const total = activas.reduce((a, c) => a + (+svcOf(c).precio || 0), 0);
     const huecos = freeSlots(d, 60).filter(x => x.endsWith(':00')).length;
     const open = Math.floor(C.toMin(s.abre) / 60), close = Math.ceil(C.toMin(s.cierra) / 60), H = 72;
@@ -312,10 +322,10 @@
     let hours = '';
     for (let h = open; h < close; h++) hours += `<div class="hr" style="--h:${H}px"><span>${C.pad(h)}:00</span><i data-newat="${C.pad(h)}:00" aria-hidden="true"></i></div>`;
     const nm = nowMin();
-    const now = d === t && nm >= open * 60 && nm <= close * 60 ? `<div class="nowline" style="top:${((nm - open * 60) / 60) * H}px"></div>` : '';
+    const now = d === t && nm >= open * 60 && nm <= close * 60 ? `<div class="nowline" style="top:${((nm - open * 60) / 60) * H}px"><span>${C.fromMin(nm)}</span></div>` : '';
     return `<div class="nav"><button type="button" data-act="mes">${I.left}${C.cap(C.MES[+d.slice(5, 7) - 1])}</button><button type="button" data-act="hoy" style="font-weight:600">Hoy</button></div>
       <h1 class="big"><span>${C.cap(C.DOW[C.weekday(d)])} ${+d.slice(8)}</span></h1>
-      <div class="week" id="week">${days.map(x => { const n = citasDe(x).filter(c => c.estado !== 'cancelada').length; return `<button type="button" class="wd ${x === t ? 'today' : ''}" data-day="${x}" ${x === d ? 'aria-current="date"' : ''} aria-label="${esc(fechaLarga(x))}, ${n} citas">${C.DOW_1[C.weekday(x)]}<b>${+x.slice(8)}</b><span class="dots">${'<i></i>'.repeat(Math.min(3, n))}</span></button>`; }).join('')}</div>
+      ${chipsEspecialistas()}<div class="week" id="week">${days.map(x => { const n = citasDe(x).filter(c => c.estado !== 'cancelada').length; return `<button type="button" class="wd ${x === t ? 'today' : ''}" data-day="${x}" ${x === d ? 'aria-current="date"' : ''} aria-label="${esc(fechaLarga(x))}, ${n} citas">${C.DOW_1[C.weekday(x)]}<b>${+x.slice(8)}</b><span class="dots">${'<i></i>'.repeat(Math.min(3, n))}</span></button>`; }).join('')}</div>
       ${banner()}
       <div class="daysum"><b>${activas.length} ${activas.length === 1 ? 'cita' : 'citas'} · ${money(total)}</b><span>${huecos ? huecos + ' horarios libres' : 'Día lleno'}</span></div>
       <div class="tl" id="tl">${hours}${evs}${now}</div>`;
@@ -373,7 +383,7 @@
   async function cargarEquipoServicios() {
     const cuenta=await window.AgendappxCuentas?.sesion?.();
     if(!cuenta){equipoServicios={clave:'',personas:null,enCurso:null};actualizarResultadosServicios();return;}
-    const clave=cuenta.usuarioId+':'+cuenta.negocioId;
+    const clave=cuenta.usuarioId+':'+cuenta.negocioId+':'+cuenta.rol;
     if(equipoServicios.clave!==clave){equipoServicios={clave,personas:null,enCurso:null};try{const guardado=JSON.parse(localStorage.getItem('agendappx.prestadores.'+clave));if(Array.isArray(guardado))equipoServicios.personas=guardado;}catch{}}
     if(cuenta.sinConexion || equipoServicios.enCurso){actualizarResultadosServicios();return;}
     const operacion=(async()=>{try {
@@ -422,7 +432,7 @@
         <p class="gh">Desliza para ver todas · toca una para publicarla en tus grupos</p>
         ${ps.length ? `<div class="group">${ps.map(p => { const n = Object.keys(p.publicado || {}).length; return `<button type="button" class="cell" data-promo="${esc(p.id)}"><span class="ico" style="background:${esc(p.color)}">%</span><span class="l">${esc(p.titulo)}<small>${n ? `Publicada en ${n} ${n === 1 ? 'grupo' : 'grupos'}` : 'Sin publicar'}</small></span><span class="chev">${I.chev}</span></button>`; }).join('')}</div>` : ''}`;
     }
-    return head + `<div class="search servicios-busqueda"><span aria-hidden="true">🔍</span><input id="buscar-servicios" type="search" value="${esc(S.qServicios)}" placeholder="Buscar: cejas, pestañas, uñas…" aria-label="Buscar servicios" autocomplete="off"><button type="button" id="borrar-busqueda-servicios" data-act="borrar-busqueda-servicios" aria-label="Borrar búsqueda" ${S.qServicios?'':'hidden'}>✕</button></div>
+    return head + `<div class="search servicios-busqueda"><span aria-hidden="true">${I.search}</span><input id="buscar-servicios" type="search" value="${esc(S.qServicios)}" placeholder="Buscar: cejas, pestañas, uñas…" aria-label="Buscar servicios" autocomplete="off"><button type="button" id="borrar-busqueda-servicios" data-act="borrar-busqueda-servicios" aria-label="Borrar búsqueda" ${S.qServicios?'':'hidden'}>✕</button><button type="button" class="search-mic" data-act="dictar-busqueda" aria-label="Dictar búsqueda">${svg('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M9 22h6"/>',18)}</button></div>
       <div class="hscroll" role="group" aria-label="Categorías rápidas">${['Uñas','Pestañas','Cejas','Cabello'].map(c=>`<button type="button" class="chip" data-busqueda-servicio="${esc(c)}" aria-pressed="${normalizarBusqueda(S.qServicios.trim())===normalizarBusqueda(c)}">${esc(c)}</button>`).join('')}</div><div id="resultados-servicios">${resultadosServicios()}</div>`;
   }
 
@@ -432,7 +442,7 @@
     const s = Store.settings, man = C.addDays(today(), 1);
     const recordar = citasDe(man).filter(c => c.estado !== 'cancelada');
     const grupos = list('grupo');
-    return `<div class="nav"></div><h1 class="big"><span>Ajustes</span></h1>${banner()}
+    return `<div class="nav"></div><h1 class="big"><span>Mi negocio</span></h1>${banner()}<div class="business-intro"><span class="av">${esc(initials(s.negocio))}</span><div><b>${esc(s.negocio)}</b><p>Tu agenda, servicios y equipo</p></div></div><div class="group"><button type="button" class="cell" data-act="cuenta-equipo"><span class="l">Mi cuenta y equipo<small>Acceso, invitaciones y permisos</small></span><span class="chev">${I.chev}</span></button><button type="button" class="cell" data-act="apariencia"><span class="l">Apariencia<small>White y Dark</small></span><span class="chev">${I.chev}</span></button></div>
       <p class="gh">Calendarios</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#4285F4">G</span><span class="l">Google Calendar<small>Cada cita tiene su botón «Agregar a Google Calendar»</small></span></div>
@@ -442,7 +452,7 @@
       <p class="gh">WhatsApp</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#25D366">✓</span><span class="l">Confirmar al agendar</span>${sw('waConfirm', s.waConfirm, 'Confirmar al agendar')}</div>
-        <div class="cell"><span class="ico" style="background:#25D366">⏰</span><span class="l">Recordar un día antes</span>${sw('waRecordar', s.waRecordar, 'Recordar un día antes')}</div>
+        <div class="cell"><span class="ico">${svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',18)}</span><span class="l">Recordar un día antes</span>${sw('waRecordar', s.waRecordar, 'Recordar un día antes')}</div>
         <div class="cell"><span class="ico" style="background:#25D366">♡</span><span class="l">Gracias y pedir reseña</span>${sw('waGracias', s.waGracias, 'Gracias y pedir reseña')}</div>
         <button type="button" class="cell" data-act="recordatorios"><span class="l">Recordatorios de mañana</span><span class="v">${recordar.length}</span><span class="chev">${I.chev}</span></button>
         <button type="button" class="cell" data-act="mensajes"><span class="l">Editar mensajes</span><span class="chev">${I.chev}</span></button>
@@ -454,19 +464,21 @@
       <div class="group">${grupos.map(g => `<button type="button" class="cell" data-grupo="${esc(g.id)}"><span class="ico" style="background:#1877F2">f</span><span class="l">${esc(g.nombre)}</span><span class="chev">${I.chev}</span></button>`).join('')}
         <button type="button" class="cell" data-act="nuevo-grupo" style="color:var(--acc)"><span class="l">Agregar grupo</span></button></div>
       <p class="foot">Para publicar, abre una promoción y toca «Publicar» en cada grupo.</p>
-      <p class="gh">Apariencia</p>
-      <div class="seg modo" role="tablist" aria-label="Apariencia"><button type="button" role="tab" data-modo="white" aria-selected="${s.modo !== 'dark'}">☀️ White</button><button type="button" role="tab" data-modo="dark" aria-selected="${s.modo === 'dark'}">🌙 Dark</button></div>
-      <p class="gh">Tema</p>
-      <div class="skins" role="radiogroup" aria-label="Tema">${SKINS.map(([k, n, c]) => `<button type="button" class="skin" role="radio" data-skin="${k}" aria-checked="${(s.skin || 'clasico') === k}"><span class="s4">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
       <p class="gh">Tu negocio</p>
       <div class="group">
         <label class="cell"><span class="l">Nombre</span><input class="in" data-setin="negocio" value="${esc(s.negocio)}" autocomplete="off"></label>
-        <label class="cell"><span class="l">Abre</span><input class="in" type="time" data-setin="abre" value="${esc(s.abre)}" style="max-width:120px"></label>
-        <label class="cell"><span class="l">Cierra</span><input class="in" type="time" data-setin="cierra" value="${esc(s.cierra)}" style="max-width:120px"></label>
+        <label class="cell"><span class="l">Abre</span>${hora24(s.abre,'data-setin="abre"','Hora de apertura')}</label>
+        <label class="cell"><span class="l">Cierra</span>${hora24(s.cierra,'data-setin="cierra"','Hora de cierre')}</label>
       </div>
       <p class="foot">${Store.mode === 'cloud' ? 'Guardado en tu cuenta: lo ves igual en todos tus dispositivos.' : esc(Store.sync?.status || 'Guardado en este dispositivo.')}</p>
       ${Store.sync ? `<div class="group" style="margin-top:12px"><button type="button" class="cell" data-act="servidor"><span class="l">Sincronización<small>${Store.sync.connected ? 'Servidor conectado' : 'Conecta tu agenda con tu servidor'}</small></span><span class="chev">${I.chev}</span></button></div>` : ''}`;
   }
+
+  function viewApariencia(){const s=Store.settings;return `<div class="nav"><button type="button" data-tab="mas">${I.left} Mi negocio</button></div><h1 class="big">Apariencia</h1>      <p class="gh">Apariencia</p>
+      <div class="seg modo" role="tablist" aria-label="Apariencia"><button type="button" role="tab" data-modo="white" aria-selected="${s.modo !== 'dark'}">White</button><button type="button" role="tab" data-modo="dark" aria-selected="${s.modo === 'dark'}">Dark</button></div>
+      <p class="gh">Tema</p>
+      <div class="skins" role="radiogroup" aria-label="Tema">${SKINS.map(([k, n, c]) => `<button type="button" class="skin" role="radio" data-skin="${k}" aria-checked="${(s.skin || 'clasico') === k}"><span class="s4">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
+<div class="group" style="margin-top:16px"><div class="cell"><span class="l">Reducir transparencia<small>Fondos sólidos en los controles flotantes</small></span><button type="button" class="sw" role="switch" data-act="transparencia" aria-label="Reducir transparencia" aria-checked="${document.documentElement.dataset.transparencia==='solida'}"></button></div></div><p class="foot">Neutro iOS es el diseño predeterminado. Tus temas opcionales y White/Dark se conservan en tus dispositivos.</p>`;}
 
   // ---------- Hojas ----------
   function sheetAccesoAdmin(){openSheet(navSheet('Iniciar sesión','Listo')+'<div id="wa-acceso"></div>','Iniciar sesión',root=>{void window.AgendappxCuentas?.montar($('#wa-acceso',root));root.addEventListener('click',e=>{if(e.target.closest('[data-close],[data-done]'))closeSheet();});});}
@@ -668,8 +680,9 @@
     document.dispatchEvent(new Event('ritmo:hoja'));
   }
   function closeSheet() { sheet.hidden = true; card.innerHTML = ''; S.sheetOpen = false; document.body.style.overflow = ''; document.dispatchEvent(new Event('ritmo:hoja')); }
+  let hojaInicioY=null;sheet.addEventListener('touchstart',e=>{if(e.target.closest('.grab'))hojaInicioY=e.touches[0].clientY;},{passive:true});sheet.addEventListener('touchend',e=>{if(hojaInicioY!==null&&e.changedTouches[0].clientY-hojaInicioY>65)closeSheet();hojaInicioY=null;},{passive:true});
   sheet.addEventListener('mousedown', e => { if (e.target === sheet) closeSheet(); });
-  const navSheet = (title, right) => `<div class="sh-nav"><button type="button" data-close>Cancelar</button><b>${esc(title)}</b>${right ? `<button type="button" class="done" data-done>${esc(right)}</button>` : '<span style="width:64px"></span>'}</div>`;
+  const navSheet = (title, right) => `<div class="sh-nav"><button type="button" data-close aria-label="Cancelar">✕</button><b>${esc(title)}</b>${right ? `<button type="button" class="done" data-done aria-label="${esc(right)}">✓</button>` : '<span style="width:44px"></span>'}</div>`;
 
   function sheetFotos(id) {
     const servicio = byId(id), fotos = servicio && fotosServicio(servicio);
@@ -695,14 +708,15 @@
         <label class="cell" id="c-new1" hidden><span class="l">Nombre</span><input class="in" id="c-nombre" placeholder="Nombre y apellido" autocomplete="off"></label>
         <label class="cell" id="c-new2" hidden><span class="l">WhatsApp</span><input class="in" id="c-tel" type="tel" inputmode="tel" placeholder="55 1234 5678"></label><label class="cell" id="c-new-consent" hidden><span class="l">Acepta avisos de sus citas por WhatsApp</span><input type="checkbox" id="c-optin"></label></div>
       <p class="gh">Servicio</p>
-      <div class="hscroll" id="c-svcs">${svcs.map(s => `<button type="button" class="svc" data-svc="${esc(s.id)}" aria-pressed="${s.id === st.servicio}"><b>${esc(s.nombre)}</b><span>${s.duracion} min · ${money(s.precio)}</span></button>`).join('') || '<p class="foot">Primero agrega un servicio en la pestaña Servicios.</p>'}</div>
+      <div class="hscroll" id="c-svcs">${svcs.map(s => `<button type="button" class="svc" data-svc="${esc(s.id)}" aria-pressed="${s.id === st.servicio}">${miniaturaServicio(s)}<span class="svc-copy"><b>${esc(s.nombre)}</b><span>${money(s.precio)} · ${s.duracion} min</span></span></button>`).join('') || '<p class="foot">Primero agrega un servicio en la pestaña Servicios.</p>'}</div>
       <p class="gh">Fecha</p>
-      <div class="group"><label class="cell"><span class="l">Día</span><input class="in" type="date" id="c-date" value="${st.date}" style="max-width:170px"></label></div>
+      <div class="group cita-fields"><div class="cell"><span class="l">Fecha</span><input class="in date-pill" type="date" id="c-date" aria-label="Día" value="${st.date}" style="max-width:145px"><span id="c-time-wrap"></span></div></div>
+      ${edit ? '' : `<p class="gh">Al guardar</p><div class="group"><div class="cell"><span class="l">Confirmar por WhatsApp${localStorage.getItem('agendappx.cuentas.activas')==='si'?'<small>Los avisos del salón siguen desactivados.</small>':''}</span><button type="button" class="sw" role="switch" id="c-wa" aria-checked="${localStorage.getItem('agendappx.cuentas.activas')==='si'?false:!!Store.settings.waConfirm}" aria-label="Confirmar por WhatsApp" ${localStorage.getItem('agendappx.cuentas.activas')==='si'?'disabled':''}></button></div></div>`}
       <p class="gh" id="c-slot-h">Horarios libres</p>
       <div class="slots" id="c-slots"></div>
       <p class="gh">Notas</p>
       <div class="group"><label class="cell"><span class="sr">Notas</span><textarea class="in" id="c-notas" placeholder="Diseño, color, alergias…">${esc(edit ? edit.notas : '')}</textarea></label></div>
-      ${edit || localStorage.getItem('agendappx.cuentas.activas')==='si' ? '' : `<p class="gh">Al guardar</p><div class="group"><div class="cell"><span class="ico" style="background:#25D366">W</span><span class="l">Enviar confirmación por WhatsApp</span><button type="button" class="sw" role="switch" id="c-wa" aria-checked="${!!Store.settings.waConfirm}" aria-label="Enviar confirmación por WhatsApp"></button></div></div>`}
+
       <button type="button" class="cta" id="c-go" data-done></button>`, 'Nueva cita', root => {
       const slotsEl = $('#c-slots', root), go = $('#c-go', root);
       const drawSlots = () => {
@@ -710,6 +724,7 @@
         const free = freeSlots(st.date, dur, edit && edit.id);
         if (st.start && !free.includes(st.start)) free.unshift(st.start), free.sort();
         $('#c-slot-h', root).textContent = `${C.cap(fechaLarga(st.date))} · horarios libres`;
+        $('#c-time-wrap',root).innerHTML=hora24(st.start,'id="c-time"','Hora de la cita',free);
         slotsEl.innerHTML = free.length ? free.map(h => `<button type="button" class="slot" data-slot="${h}" aria-pressed="${h === st.start}">${h}</button>`).join('') : '<p class="foot" style="grid-column:1/-1">No hay horarios libres ese día con este servicio.</p>';
         go.textContent = `${edit ? 'Guardar cita' : 'Agendar cita'}${s ? ' · ' + money(s.precio) : ''}`;
       };
@@ -720,11 +735,12 @@
         if (st.nueva) $('#c-nombre', root).focus();
       });
       $('#c-date', root).addEventListener('change', e => { if (C.isKey(e.target.value)) { st.date = e.target.value; st.start = ''; drawSlots(); } });
+      root.addEventListener('change',e=>{if(e.target.id==='c-time'){st.start=e.target.value;$$('[data-slot]',root).forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.slot===st.start)));}});
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
         if (b.dataset.svc) { st.servicio = b.dataset.svc; $$('[data-svc]', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawSlots(); }
-        if (b.dataset.slot) { st.start = b.dataset.slot; $$('[data-slot]', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); }
+        if (b.dataset.slot) { st.start = b.dataset.slot; $('#c-time',root).value=st.start; $$('[data-slot]', root).forEach(x => x.setAttribute('aria-pressed', String(x === b))); }
         if (b.id === 'c-wa') b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true'));
         if (b.hasAttribute('data-close')) closeSheet();
         if (b.hasAttribute('data-done')) {
@@ -766,7 +782,7 @@
     const c = byId(id);
     if (!c) return;
     const k = cliOf(c), s = svcOf(c), tpl = Store.settings;
-    const msg = (key, tplStr, label) => k.telefono ? `<a class="cell" href="${esc(waLink(k.telefono, fill(tplStr, c)))}" target="_blank" rel="noopener" data-sent="${esc(c.id)}:${key}"><span class="ico" style="background:#25D366">W</span><span class="l">${label}<small>${c.enviados && c.enviados[key] ? 'Enviado ' + esc(new Date(c.enviados[key]).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })) : 'Abre WhatsApp con el mensaje listo'}</small></span><span class="chev">${I.chev}</span></a>` : '';
+    const msg = (key, tplStr, label) => k.telefono ? `<a class="cell" href="${esc(waLink(k.telefono, fill(tplStr, c)))}" target="_blank" rel="noopener" data-sent="${esc(c.id)}:${key}"><span class="ico" style="background:#25D366">W</span><span class="l">${label}<small>${c.enviados && c.enviados[key] ? 'Enviado ' + esc(new Date(c.enviados[key]).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })) : 'Abre WhatsApp con el mensaje listo'}</small></span><span class="chev">${I.chev}</span></a>` : '';
     openSheet(`<div class="sh-nav"><button type="button" data-close>Cerrar</button><b>Cita</b><button type="button" class="done" data-edit>Editar</button></div>
       <div class="group" style="margin-top:6px"><div class="cell"><span class="sq" style="--c:${catColor(s.categoria)}"></span><span class="l"><b style="font-size:18px">${esc(s.nombre)}</b><small>${esc(C.cap(fechaLarga(c.date)))} · ${c.start} – ${C.fromMin(endOf(c))}</small></span><span class="p">${money(s.precio)}</span></div>
         <button type="button" class="cell" data-clienta="${esc(k.id || '')}"><span class="av lg" style="--c:${catColor(s.categoria)}">${esc(initials(k.nombre))}</span><span class="l">${esc(k.nombre)}<small>${esc(k.telefono || 'Sin teléfono')}</small></span><span class="chev">${I.chev}</span></button>
@@ -980,9 +996,9 @@
   function sheetMes() {
     let m = C.monthStart(S.day);
     const draw = root => {
-      const g0 = C.startOfWeek(m, 0), end = C.monthEnd(m), weeks = Math.ceil((C.diffDays(g0, end) + 1) / 7), t = today();
+      const g0 = C.startOfWeek(m, 1), end = C.monthEnd(m), weeks = Math.ceil((C.diffDays(g0, end) + 1) / 7), t = today();
       let h = `<div class="sh-nav"><button type="button" data-m="-1" aria-label="Mes anterior">${I.left}</button><b>${C.cap(C.MES[+m.slice(5, 7) - 1])} ${m.slice(0, 4)}</b><button type="button" data-m="1" aria-label="Mes siguiente" style="transform:scaleX(-1)">${I.left}</button></div>
-        <div class="week" style="padding:0 10px">${C.DOW_1.map(x => `<span style="text-align:center;color:var(--ink3);font-size:12px;font-weight:600">${x}</span>`).join('')}`;
+        <div class="week" style="padding:0 10px">${[1,2,3,4,5,6,0].map(i=>C.DOW_1[i]).map(x => `<span style="text-align:center;color:var(--ink3);font-size:12px;font-weight:600">${x}</span>`).join('')}`;
       for (let i = 0; i < weeks * 7; i++) {
         const d = C.addDays(g0, i), n = citasDe(d).filter(c => c.estado !== 'cancelada').length;
         h += `<button type="button" class="wd ${d === t ? 'today' : ''}" data-pick="${d}" ${d === S.day ? 'aria-current="date"' : ''} style="${d.slice(0, 7) !== m.slice(0, 7) ? 'opacity:.35' : ''};padding:4px 0">${'' }<b>${+d.slice(8)}</b><span class="dots">${'<i></i>'.repeat(Math.min(3, n))}</span></button>`;
@@ -1046,9 +1062,10 @@
       }
       return;
     }
-    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-busqueda-servicio],[data-agendar],[data-act],[data-modo],[data-skin],[data-setsw],[data-newat],[data-fotos]');
+    const b = e.target.closest('[data-especialista],[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-busqueda-servicio],[data-agendar],[data-act],[data-modo],[data-skin],[data-setsw],[data-newat],[data-fotos]');
     if (!b) return;
     const d = b.dataset;
+    if(d.especialista!==undefined){S.especialista=d.especialista;render();return;}
     if (d.tab) { S.tab = d.tab; if (d.tab === 'servicios') { S.seg = 'servicios'; void cargarEquipoServicios(); } lastScrollDay = null; scrollTo({ top: 0 }); render(); }
     else if (d.day) { S.day = d.day; lastScrollDay = null; render(); }
     else if (d.cita) sheetDetalle(d.cita);
@@ -1069,6 +1086,9 @@
       'borrar-busqueda-servicios': () => { S.qServicios='';const input=$('#buscar-servicios');if(input){input.value='';input.focus();}actualizarResultadosServicios(); },
       mes: sheetMes, hoy: () => { S.day = today(); lastScrollDay = null; render(); },
       'nueva-clienta': () => sheetClienta(null), 'nuevo-servicio': () => sheetServicio(null), 'nueva-promo': () => sheetPromo(null), 'nuevo-grupo': () => sheetGrupo(null),
+      transparencia:()=>{try{localStorage.setItem('agendappx.apariencia.transparencia',document.documentElement.dataset.transparencia==='solida'?'vidrio':'solida');}catch{toast('No se pudo guardar esta preferencia en el dispositivo.');}render();},
+      apariencia:()=>{S.tab='apariencia';render();scrollTo({top:0});}, 'cuenta-equipo':sheetAccesoAdmin,
+      'dictar-busqueda':()=>{const input=$('#buscar-servicios')||$('#q');input?.focus();toast('Usa el micrófono del teclado de tu celular para dictar.');},
       'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes, servidor: sheetServidor,
       suscripcion: () => sheetConexion('calendario'), 'estado-whatsapp': () => sheetConexion('whatsapp'),
       'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); for (const x of ex) if (Store.remove(x.id) === false) return; toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
@@ -1105,9 +1125,9 @@
   }, { passive: true });
   setInterval(() => { if (document.visibilityState === 'visible' && !S.sheetOpen && S.tab === 'agenda') render(); }, 60000);
 
-  document.addEventListener('agendappx:sesion',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();});
-  window.addEventListener('online',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();});
+  document.addEventListener('agendappx:sesion',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();void cargarEquipoAgenda();});
+  window.addEventListener('online',()=>{if(S.tab==='servicios'&&S.seg==='servicios')void cargarEquipoServicios();void cargarEquipoAgenda();});
   Store.onChange(render);
-  void Promise.resolve(Store.init()).then(() => { if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); } });
+  void Promise.resolve(Store.init()).then(() => { void cargarEquipoAgenda(); if (enlaceActivacion && Store.sync) { const enlace = enlaceActivacion; enlaceActivacion = ''; sheetActivacion(enlace); } });
   window.addEventListener('hashchange', () => { const enlace = tomarEnlaceActivacion(); if (enlace && Store.sync) sheetActivacion(enlace); });
 })();

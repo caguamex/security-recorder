@@ -53,7 +53,7 @@ async function contexto(){const c=await browser.newContext({viewport:{width:390,
  else {status=503;data={msg:'Esta ruta debe pasar por el control de Agendappx'};}
  await route.fulfill({status,contentType:'application/json',headers:{'Access-Control-Allow-Origin':base,'Access-Control-Allow-Headers':'*'},body:JSON.stringify(data)});
  });return c;}
-async function abrir(p){await p.goto(base);await p.waitForFunction(()=>window.AgendappxCuentas?.listo);await p.getByRole('tab',{name:'Ajustes',exact:true}).click();await p.getByRole('button',{name:/Sincronización/}).click();await p.locator('#sync-activate').click();await p.locator('#auth-destino').waitFor();}
+async function abrir(p){await p.goto(base);await p.waitForFunction(()=>window.AgendappxCuentas?.listo);await p.getByRole('tab',{name:'Negocio',exact:true}).click();await p.getByRole('button',{name:/Sincronización/}).click();await p.locator('#sync-activate').click();await p.locator('#auth-destino').waitFor();}
 try{
  quien='nueva';mfa=false;phone='';const c=await contexto(),p=await c.newPage();p.on('pageerror',x=>errores.push(x.message));await p.goto(base+'/#registro');await p.locator('#registro-formulario').waitFor({state:'visible'});
  for(const width of [390,768,1440]){await p.setViewportSize({width,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await p.screenshot({path:capturas+'registro-'+width+'.png',animations:'disabled'});}

@@ -1,3 +1,4 @@
+import {elegirModo,elegirTema} from './ayudas-neutro.mjs';
 // Prueba completa con Edge/Chromium y PostgreSQL local. No usa Railway.
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
@@ -21,7 +22,7 @@ async function dispositivo() {
   return page;
 }
 async function conexiones(page) {
-  await page.getByRole('tab', { name: 'Ajustes', exact: true }).click();
+  await page.getByRole('tab', { name: 'Negocio', exact: true }).click();
   await page.getByRole('button', { name: /Sincronización/ }).click();
   await page.getByRole('dialog', { name: 'Sincronización', exact: true }).waitFor();
 }
@@ -44,9 +45,9 @@ try {
   await a.screenshot({ path: screenshots + 'pwa-servicios.png' });
   const manifest = await a.evaluate(async () => (await fetch('./manifest.webmanifest')).json());
   assert.equal(manifest.display, 'standalone'); assert.equal(manifest.icons.length, 2);
-  await a.getByRole('tab', { name: 'Ajustes', exact: true }).click();
-  for (const theme of ['Rosa champaña', 'Negro y dorado', 'Ritmo', 'Cristal pastel', 'Clásico iOS']) {
-    await a.getByRole('radio', { name: theme, exact: true }).click();
+  await a.getByRole('tab', { name: 'Negocio', exact: true }).click();
+  for (const theme of ['Rosa champaña', 'Negro y dorado', 'Ritmo', 'Cristal pastel', 'Neutro iOS']) {
+    await elegirTema(a,theme);
     assert.equal(await a.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   }
   await conectar(a);
@@ -59,7 +60,7 @@ try {
   await a.getByRole('tab', { name: 'Clientas', exact: true }).click();
   assert.equal(await a.getByRole('button', { name: /Clienta de prueba sin conexión/ }).count(), 1);
   await a.context().setOffline(false); await sincronizar(a);
-  await a.getByRole('tab', { name: 'Ajustes', exact: true }).click();
+  await a.getByRole('tab', { name: 'Negocio', exact: true }).click();
   await a.getByRole('button', { name: /Apple Calendar/ }).click();
   await a.getByLabel('Enlace privado del calendario').waitFor({state:'attached'});
   assert.match(await a.getByLabel('Enlace privado del calendario').inputValue(), /\/calendario\/[a-f0-9]{64}\.ics$/);

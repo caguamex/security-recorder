@@ -24,6 +24,7 @@ console.log('Listo: ritmo/dist/ritmo.html (' + Math.round(pagina.length / 1024) 
 
 // Ritmo Belleza
 let bel = readFileSync(join(raiz, 'belleza', 'index.html'), 'utf8');
+bel = bel.replace('<link rel="stylesheet" href="estilo-neutro-ios.css">', () => '<style>'+readFileSync(join(raiz,'belleza','estilo-neutro-ios.css'),'utf8')+'</style>');
 bel = bel.replace('<script src="core.js"></script>', () => `<script>\n${readFileSync(join(proto, 'core.js'), 'utf8')}</script>`)
   .replace('<script src="sincronizacion.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'sincronizacion.js'), 'utf8')}</script>`)
   .replace('<script src="cuentas.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'cuentas.js'), 'utf8')}</script>`)
@@ -38,7 +39,7 @@ console.log('Listo: ritmo/dist/belleza.html');
 // Publicación PWA: documento completo, recursos locales y caché versionada por contenido.
 const fuente = join(raiz, 'belleza'), pwa = join(raiz, 'dist', 'pwa');
 mkdirSync(pwa, { recursive: true });
-for (const recurso of ['belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
+for (const recurso of ['estilo-neutro-ios.css', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
   cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
 }
 cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));

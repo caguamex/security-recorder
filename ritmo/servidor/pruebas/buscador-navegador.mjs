@@ -1,3 +1,4 @@
+import {elegirModo,elegirTema} from './ayudas-neutro.mjs';
 import {chromium} from 'playwright';
 import {once} from 'node:events';
 import {fileURLToPath} from 'node:url';
@@ -41,7 +42,7 @@ try{
  for(const width of [390,768,1440]){await p.setViewportSize({width,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
  await p.setViewportSize({width:390,height:844});await input.fill('cejas');
  if(process.env.BUSCADOR_SCREENSHOT_DIR)await p.screenshot({path:process.env.BUSCADOR_SCREENSHOT_DIR+'/buscador-white.png',animations:'disabled'});
- await p.getByRole('tab',{name:'Ajustes',exact:true}).click();await p.getByRole('tab',{name:/Dark/}).click();await p.getByRole('tab',{name:'Servicios',exact:true}).first().click();assert.equal(await p.locator('[data-servicio]').count(),1);
+ await p.getByRole('tab',{name:'Negocio',exact:true}).click();await elegirModo(p,/Dark/);await p.getByRole('tab',{name:'Servicios',exact:true}).first().click();assert.equal(await p.locator('[data-servicio]').count(),1);
  if(process.env.BUSCADOR_SCREENSHOT_DIR)await p.screenshot({path:process.env.BUSCADOR_SCREENSHOT_DIR+'/buscador-dark.png',animations:'disabled'});
  await context.setOffline(true);await p.reload();await p.getByRole('tab',{name:'Servicios',exact:true}).first().click();await p.locator('[data-servicio="cejas"]').getByText(/Karina/).waitFor();await p.locator('#buscar-servicios').fill('ceja');assert.equal(await p.locator('[data-servicio]').count(),1);
  assert.deepEqual(errores,[]);console.log('Buscador: acentos, mayúsculas, plural, resaltado, agrupación, personal, categorías, agendar y modo sin conexión verificados.');

@@ -10,7 +10,7 @@ try {
  await env.repo.cambiar({id:'__settings',baseVersion:0,mutationId:'ajustes_servidor_prueba',data:{skin:'rosa',negocio:'Salón del servidor'}});
  await page.addInitScript(()=>{if(!localStorage.getItem('prueba.pendientes')){localStorage.setItem('prueba.pendientes','si');localStorage.setItem('belleza.v1.settings',JSON.stringify({skin:'clasico',negocio:'Salón del celular'}));}});
  await page.goto(env.base);
- await page.locator('#tabbar').getByRole('tab',{name:'Ajustes',exact:true}).click();
+ await page.locator('#tabbar').getByRole('tab',{name:'Negocio',exact:true}).click();
  await page.getByRole('button',{name:/Apple Calendar/}).click();await page.getByRole('button',{name:'Activar sincronización',exact:true}).click();
  const ticket=await(await fetch(env.base+'/api/dispositivos/enlaces',{method:'POST',headers:{Authorization:'Bearer '+env.token,'Content-Type':'application/json'},body:'{}'})).json();
  await page.getByLabel('Enlace privado de activación',{exact:true}).fill(ticket.activacionUrl);await page.getByRole('button',{name:'Activar y abrir Apple Calendar',exact:true}).click();
