@@ -48,3 +48,19 @@ Reparación: leer primero `error_code` y admitir `code` solo cuando es texto. Ú
 - Prueba real firmada del propósito `alta-whatsapp-v1` sobre la identidad ya existente: **HTTP 200 / preparada:true**, mismo UUID y teléfono sin confirmar antes/después, sin contraseña nueva, OTP ni sesión. No se crearon cuentas de prueba.
 - Se caducó únicamente el ticket fallido no verificado/no completado y su apartado de usuario; no se borró la cuenta, se reasignó propiedad ni se reiniciaron datos. La intervención se limitó al intento identificado en los logs y aprobado por Antonio.
 - Se pidió a Antonio repetir el registro y solicitar su código una vez. La recepción física del OTP queda pendiente de su respuesta. No declarar que ya lo recibió basándose en la preparación correcta de la cuenta.
+
+## Confirmación inicial con las altas de Supabase cerradas
+
+La captura siguiente ya mostraba «Escribe el código», pero la solicitud falló antes del hook. Lectura del intento: ticket de registro preparado, solicitud OTP fallida sin `hook_hash` ni `codigo_hash`, sin respaldo manual; WhatsApp conectado. Los logs de Auth mostraron `signup_disabled` (HTTP 422) en `/auth/v1/otp`.
+
+Auth trata un usuario existente con teléfono sin confirmar como alta al usar `/otp`, incluso con `create_user:false`. Al conservar las altas públicas cerradas, rechaza esa llamada antes del hook. La API `/resend` con `type:'sms'` permite solicitar confirmación de un teléfono **ya existente**, sin crear un usuario ni confirmar el teléfono por operación. El SMS es el tipo de confirmación interno de Auth; el hook existente sigue entregándolo por WhatsApp.
+
+Fuentes primarias: [implementación de OTP](https://github.com/supabase/auth/blob/master/internal/api/otp.go), [confirmación de cuentas existentes](https://github.com/supabase/auth/blob/master/internal/api/resend.go). No cambiar `disable_signup`, autoconfirmar usuarios, pedir una contraseña a Auth por operación ni abrir un registro alternativo.
+
+Preparación: el proxy intenta la confirmación mediante `/resend` **solo** después de la respuesta explícita 422/`signup_disabled`, en WhatsApp, con registro de Agendappx habilitado y sin `phone_change`. Usa el mismo ticket y los límites vigentes. No repite solicitudes aceptadas, límites, errores ambiguos ni fallos de red. El hook firmado vuelve a exigir solicitud reciente y guarda la huella del OTP, que se verifica antes de admitir la sesión. El error de Auth se normaliza dando prioridad a `error_code`, conservando la respuesta indistinguible de cuentas inexistentes y el HTTP 429 de límites.
+
+Pruebas nuevas `registro-confirmacion.test.mjs`: entrega única por hook simulado con el mismo ticket, OTP verificable, rechazo sin reintentos ante respuesta incierta/límite/otra causa, exclusión de correo y phone_change, registro deshabilitado y fallo del reenvío. El navegador de contraseñas representa ahora altas cerradas y teléfono inicialmente sin confirmar; exige una sola confirmación inicial antes de completar el registro. Todas las llamadas de prueba están simuladas y no mandan mensajes reales.
+
+Esta etapa está preparada, todavía no publicada. Requiere autorización específica para actualizar el Worker; la función Supabase v4 y las demás configuraciones permanecen como fueron publicadas. No caducar ni liberar el ticket nuevo válido del usuario: puede continuar solicitando desde la misma pantalla una vez publicada la corrección.
+
+Verificación de la preparación: **279/279** (`npm test`, incluidas once comprobaciones nuevas), Edge con confirmación inicial y recorrido posterior completos, cuatro casos workerd y empaquetado Cloudflare dry-run aprobados. No hubo códigos reales ni cambios de producción en estas pruebas. El mock de navegador ya exige `signup_disabled` antes de la primera confirmación y una sola llamada a `/resend`.

@@ -45,7 +45,7 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
  const red=config.fetch||fetch;
  async function auth(path:string,d:unknown,token?:string,metodo='POST'){
   let r;try{r=await red(config.supabaseURL+'/auth/v1/'+path,{method:metodo,headers:{apikey:config.llavePublica,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(d),signal:AbortSignal.timeout(18000)});}catch{throw new ErrorAPI(503,config.correo?'WhatsApp tardó demasiado. Puedes usar tu correo de respaldo.':'WhatsApp tardó demasiado. Intenta más tarde.');}
-  let data:any;try{data=await r.json();}catch{throw new ErrorAPI(503,'No se pudo verificar el acceso.');}return {ok:r.ok,data};
+  let data:any;try{data=await r.json();}catch{throw new ErrorAPI(503,'No se pudo verificar el acceso.');}return {ok:r.ok,status:r.status,data};
  }
  // Restablecer con el usuario: el teléfono se resuelve aquí y nunca se devuelve.
  async function telefonoDeUsuario(v:unknown){const u=String(v||'').trim().toLowerCase();if(!/^[a-z0-9][a-z0-9._]{2,19}$/.test(u))return null;const c=await pool.connect();try{const f=(await c.query('SELECT phone FROM ritmo.identificador_acceso($1)',[u])).rows[0];return f?.phone?telefonoMX(f.phone):null;}finally{c.release();}}
@@ -71,8 +71,16 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
    }
    const s=await solicitudes.crear(canal,destino,config.ip(req),usuarioId);
    const payload=usuarioId?{phone:'+'+destino,channel:'sms'}:{...(canal==='whatsapp'?{phone:'+'+destino,channel:'sms'}:{email:destino}),create_user:false,...(d.captchaToken?{gotrue_meta_security:{captcha_token:String(d.captchaToken).slice(0,4096)}}:{})};
-   let r;try{r=await auth(usuarioId?'user':'otp',payload,usuarioId?token:undefined,usuarioId?'PUT':'POST');}catch(e){await solicitudes.fallar(s.id);throw e;}
-   if(!r.ok){await solicitudes.fallar(s.id);if(['user_not_found','otp_disabled','signup_disabled'].includes(r.data?.code||r.data?.error_code)){responder(res,200,s);return true;}throw new ErrorAPI(String(r.data?.code||r.data?.error_code||'').includes('rate_limit')?429:503,config.correo?'No se pudo enviar el código. Usa tu correo de respaldo o intenta más tarde.':'No se pudo enviar el código. Intenta más tarde.');}
+   const tipoError=(r:{data:any})=>r.data?.error_code||(typeof r.data?.code==='string'?r.data.code:'');
+   let r;try{
+    r=await auth(usuarioId?'user':'otp',payload,usuarioId?token:undefined,usuarioId?'PUT':'POST');
+    // Auth trata el teléfono existente sin confirmar como alta y rechaza /otp si las altas están cerradas.
+    // /resend confirma únicamente cuentas ya preparadas; no crea usuarios ni confirma el teléfono por operación.
+    // Solo tras rechazo explícito antes del hook: nunca repetir una aceptación, un límite o un resultado incierto.
+    if(!r.ok&&r.status===422&&tipoError(r)==='signup_disabled'&&config.registro&&canal==='whatsapp'&&!usuarioId)
+     r=await auth('resend',{type:'sms',phone:'+'+destino});
+   }catch(e){await solicitudes.fallar(s.id);throw e;}
+   if(!r.ok){await solicitudes.fallar(s.id);const tipo=tipoError(r);if(['user_not_found','otp_disabled','signup_disabled'].includes(tipo)){responder(res,200,s);return true;}throw new ErrorAPI(r.status===429||String(tipo).includes('rate_limit')?429:503,config.correo?'No se pudo enviar el código. Usa tu correo de respaldo o intenta más tarde.':'No se pudo enviar el código. Intenta más tarde.');}
    responder(res,200,{...s,...(usuarioId?{usuario:r.data}:{})});return true;
   }
   if(url.pathname==='/api/acceso/verificar'){
