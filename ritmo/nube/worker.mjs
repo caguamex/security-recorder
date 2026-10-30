@@ -76,7 +76,7 @@ export default {
     if (path === '/salud' || path.startsWith('/api/') || path.startsWith('/calendario/') || path.startsWith('/webhooks/')) {
       return api.fetch(request, bindings, context);
     }
-    if(/^\/[a-z0-9][a-z0-9-]{2,59}\/?$/.test(path)&&!['/planes','/comunidad','/unirse','/recuperar-acceso'].includes(path.replace(/\/$/,''))){const u=new URL(request.url);u.pathname='/comunidad/';return bindings.ASSETS.fetch(new Request(u,request));}
+    if(/^\/[a-z0-9][a-z0-9-]{2,59}\/?$/.test(path)&&!['/planes','/plataforma','/comunidad','/unirse','/recuperar-acceso'].includes(path.replace(/\/$/,''))){const u=new URL(request.url);u.pathname='/comunidad/';return bindings.ASSETS.fetch(new Request(u,request));}
     return bindings.ASSETS.fetch(request);
   },
   async scheduled(_controller, _bindings, context) {
