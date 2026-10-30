@@ -1,6 +1,6 @@
 # Prompt completo para Codex: publicar lo que programó Claude
 
-Pégalo completo en el chat de Codex. Reemplaza a los mensajes anteriores sobre contraseñas, panel y códigos manuales.
+Ya no se usa completo: contraseñas y equipo los tomó Codex en el PR #17. Para el panel y el código manual usa `PROMPT-CODEX-PANEL.md`.
 
 ```
 Hola Codex. Claude ya programó y probó lo que sigue. NO lo vuelvas a
