@@ -72,3 +72,9 @@ Antonio respondió «Sí, publica la corrección del envío». Se publicó `c016
 Verificación final con Edge: inicio público=true, registro de cuatro pasos, panel anónimo 401, cuatro archivos publicados coincidentes por SHA-256 y sin errores JS. Una validación deliberadamente inválida se rechaza correctamente con 400, sin crear tickets/OTP. La lectura de la base confirmó la identidad reservada sin confirmar/sin sesiones, ticket reciente aún válido y WhatsApp conectado con respaldo manual activo. No se solicitó un código por la persona durante la comprobación.
 
 Se indicó a Antonio continuar **desde la misma pantalla «Escribe el código»**, pedir una vez el código y no cerrar/reiniciar el registro. Se espera su respuesta para confirmar entrega física y verificación. La publicación y las pruebas simuladas no demuestran que su iPhone haya recibido un mensaje. No liberar su ticket ni borrar cuentas por inercia.
+
+### Cambio de ventana informado por Antonio
+
+Antonio informó que abre el enlace desde el chat y vuelve a una ventana nueva; compartió el paso de usuario con «Ese usuario ya está ocupado». Se comprobó que no había cuenta de acceso creada: solo el apartado del intento anterior, sin identidad asignada, OTP verificado ni registro completo. Por su solicitud de resolver el bloqueo, se caducó únicamente ese apartado, con condiciones sobre el ticket revisado y ausencia de cuenta creada; se confirmó disponibilidad. No se caducó el ticket ni se borró la reserva de dueño o cuenta Auth. No se registró el nombre de usuario en Git.
+
+Se indicó copiar el enlace de registro en Safari para conservar una pestaña independiente del chat, cambiar a WhatsApp para consultar el mensaje y regresar a Safari sin volver a abrir el enlace. La contraseña permanece solo en memoria hasta verificar; no guardarla en localStorage para resolver un cambio de ventana. Esta operación no requirió publicación ni modificó el código. Recepción física todavía pendiente.
