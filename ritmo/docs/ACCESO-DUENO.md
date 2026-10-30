@@ -1,6 +1,6 @@
 # Acceso del dueño sin crear un salón
 
-**Cambio posterior solicitado:** Antonio indicó que el dueño entrará solo con códigos de WhatsApp, sin QR ni autenticadora. La preparación nueva, aún pendiente de migración/publicación, está en `DUENO-SOLO-WHATSAPP.md`. Las referencias a MFA de este documento describen la versión publicada anterior.
+**Cambio posterior publicado:** el dueño ya entra solo con códigos de WhatsApp, sin QR ni autenticadora. Migración y Worker autorizados y verificados; consultar `DUENO-SOLO-WHATSAPP.md`. Las referencias a MFA de este documento describen la versión publicada anterior.
 
 Antonio pidió el 30 de octubre de 2026 limpiar su intento vencido y tener una entrada independiente para administrar Agendappx: no debe completar los datos de un negocio ni elegir un plan. Esa instrucción sustituye para el dueño el flujo anterior que le hacía crear un salón. Los registros de otras dueñas y del equipo no cambian.
 

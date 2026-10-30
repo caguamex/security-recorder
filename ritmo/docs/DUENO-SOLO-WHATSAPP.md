@@ -4,7 +4,7 @@ Antonio indicó el 30 de octubre de 2026: «No necesito ningún código qr, todo
 
 ## Estado
 
-Preparado en `codex/agendappx-dueno-solo-whatsapp`, desde el cierre del PR #21. **No está migrado ni publicado.** El sitio conserva la exigencia anterior hasta confirmar y completar la actualización. No se ha solicitado ningún código real durante las pruebas.
+**Migrado y publicado el 30 de octubre de 2026**, con confirmación expresa de Antonio. Rama `codex/agendappx-dueno-solo-whatsapp`, PR #22, desde el cierre del PR #21. Código de aplicación **b158896**; Worker **0984ce8b-a525-497c-b1b0-7a9875f5da51**, `--keep-vars`. No se solicitaron códigos reales durante las verificaciones.
 
 El alcance es el dueño de la plataforma y su moderación de Comunidad. Los flujos de registro y acceso del equipo y otras administradoras conservan sus reglas existentes. No se desactiva MFA globalmente en Supabase ni se eliminan factores. En la consulta real del dueño no había factores verificados; se encontraron tres sesiones ligadas a códigos de WhatsApp ya usados.
 
@@ -27,11 +27,15 @@ El acceso de plataforma se resuelve antes del flujo de MFA y no llama a enroll/c
 
 El Worker liga cada login OTP admitido a su solicitud incluso si se cierra temporalmente el registro de salones. Esta marca no abre altas, no evita CAPTCHA, no cambia los límites y no repite envíos inciertos. La vinculación de números y las contraseñas del equipo mantienen sus reglas.
 
-## Respaldo y publicación pendiente
+## Respaldo y publicación
 
 Respaldo privado de las definiciones actuales de `es_admin_plataforma` y `es_moderador_social`, sus permisos, columnas e inventario: **1826 bytes**, SHA-256 **a296cbc9733c2cd61e9f262509aca2d1b5a6e99310de8b89a2267ebd9e23d862**. Archivo `respaldo-dueno-solo-whatsapp-20261030.json`, fuera de Git. No contiene códigos, contraseñas ni secretos de integración.
 
-Pedir a Antonio confirmación de la migración de permisos y de la publicación antes de ejecutarlas. Orden: comprobar respaldo y funciones actuales, aplicar esta migración, verificar límites de acceso sin solicitar OTP real y publicar el Worker con `--keep-vars`. Comprobar archivos y entrada del dueño; después Antonio prueba su propio acceso. No contratar servicios ni cambiar Railway.
+Antonio confirmó «Sí» a aplicar los permisos y publicar. Se verificaron otra vez el SHA-256 del respaldo y las funciones originales antes de aplicar. Supabase registró la migración como **20261030220441 / dueno_solo_whatsapp_aprobado_20261030**; el archivo local se llama `20261030214547_dueno_solo_whatsapp.sql`. **No repetirla por la diferencia de versión/nombre.** La función comprueba la prueba OTP; un único propietario conservado; API puede insertar las columnas normales de admisión pero no la marca; `anon` y `authenticated` no pueden ejecutar directamente las funciones privadas.
+
+Después se publicó el Worker con las variables existentes. Comprobación pública en Edge a las **22:05:55 UTC**: salud 200; API del panel anónima 401; seis estáticos coincidentes por SHA-256; entrada del dueño White/Dark 390 con instrucciones de WhatsApp y sin autenticadora/QR visible; Comunidad y registro normal conservados, sin errores JavaScript. No se solicitaron OTP, crearon cuentas, cambiaron servicios o recursos ni modificaron Railway/FiNeCi. La prueba física de Antonio continúa pendiente.
+
+Advisors de seguridad consultados después de la migración: avisos informativos de RLS sin políticas en tablas privadas diseñadas para acceso por funciones; no se abrieron políticas de lectura. También permanece el aviso de [protección de contraseñas filtradas](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) desactivada; este cambio no modifica ese ajuste ni activa planes. No se añadieron tablas públicas ni permisos a roles del navegador.
 
 La limpieza antigua de intentos continúa pendiente por confirmaciones caducadas de Supabase. **No ejecutar el plan viejo de revocar todas las sesiones**: ahora hay códigos reales verificados posteriores al respaldo antiguo. Si se retoma la limpieza, limitarla a los registros vencidos y conservar las sesiones actuales del dueño. Esta migración no borra cuentas, registros ni datos.
 
@@ -44,4 +48,4 @@ La limpieza antigua de intentos continúa pendiente por confirmaciones caducadas
 - `contrasenas-navegador.mjs`: registro, contraseña, recuperación y equipo sin cambios.
 - Capturas locales en `imagenes/acceso-dueno/`; `02-codigo-whatsapp.png` reemplaza como referencia vigente la captura histórica de dos pasos.
 
-No hubo cambios de datos, permisos, configuración ni servicios de producción en esta preparación.
+La preparación no tocó producción. La publicación autorizada posterior solo aplicó la migración descrita y actualizó Cloudflare; no borró cuentas o datos ni modificó factores MFA, la configuración global de Auth o la conexión de WhatsApp.
