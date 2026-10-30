@@ -1,6 +1,6 @@
 # Panel de Agendappx (solo para Antonio)
 
-Estado: **revisión detenida por un fallo reproducible en el reintento de avisos**. No publicado. Los permisos separados de cada paso siguen pendientes.
+Estado: **correcciones de Claude revisadas; 266 pruebas y ambos recorridos de navegador aprobados**. No publicado. Los permisos separados de cada paso siguen pendientes. El bloqueo histórico de abajo quedó resuelto por `ac61e25`, integrado como `509e575`.
 Rama: `claude/agendappx-registro-contrasena` (va junto con `CONTRASENA-EQUIPO.md`).
 
 ## Cómo se entra
@@ -143,3 +143,17 @@ La nueva prueba queda intencionalmente en rojo en este PR de revisión. Si se ej
 Antonio pidió «Si algo falla, detente y dime». Se detuvo la preparación para publicación al reproducir el reintento perdido; **no se corrigió ni rehízo la implementación**. No se respaldó ni modificó la base de producción para esta etapa, no se aplicaron sus dos migraciones, no se desplegó Cloudflare ni Railway, no se cambió la bandera manual, no se desconectó WhatsApp y no hubo códigos ni avisos reales.
 
 La aplicación publicada del PR #17 permanece en Worker `867d6000-8926-440f-b836-b79bf1eda4a7`, con migración de contraseña `20261030160000` ya aplicada. Para continuar este PR deben corregirse los avisos y repetirse las pruebas; después se pedirán autorizaciones independientes para (a) respaldo, (b) migración del panel, (c) migración manual, (d) Worker y (e) Railway. La prueba de desconexión deliberada también requiere su propio permiso. No tocar FiNeCi.
+
+## Correcciones verificadas — 30 de octubre de 2026
+
+Por instrucción nueva de Antonio se tomó únicamente `ac61e2565b80daf29934b75a6f44c457634989c6` de Claude sobre esta rama del PR #18, como `509e575`. La prueba de revisión ya existía idéntica y se conservó, sin duplicarla. La corrección MFA de `54081f1` sigue presente y probada.
+
+- `plataforma_tomar_avisos_codigos` ahora aparta con `intento_en`; `plataforma_confirmar_avisos` marca `avisado_en` solo cuando algún proveedor acepta la notificación. Si no acepta ninguno, libera el intento. Un intento abandonado puede recuperarse después de dos minutos.
+- El servicio anuncia su bandera manual al arrancar. El panel consulta `plataforma_respaldo_activo`, con permiso de administrador de plataforma y MFA, en lugar de inferirla de la existencia de la llave del Worker. La prueba comprueba el cambio de apagado a encendido.
+- La migración `20261030190000_codigos_manuales.sql` es la versión corregida y **todavía no se aplicó en producción**.
+- `npm test`: **266/266 aprobadas**, incluida `revision-avisos-codigos.test.mjs` y las de plataforma/códigos manuales. La primera ejecución tuvo bloqueos locales `connect EACCES 127.0.0.1`; la ejecución con acceso al servidor local terminó sin fallos, sin cambiar código para saltar pruebas.
+- `BROWSER_CHANNEL=msedge node pruebas/plataforma-navegador.mjs`: aprobado, White/Dark a 390/768/1440, acceso exclusivo, filtros, bitácora y códigos sobre datos ficticios.
+- `BROWSER_CHANNEL=msedge node pruebas/contrasenas-navegador.mjs`: aprobado, incluidos CAPTCHA, acceso temporal del equipo y restablecimiento que exige AAL2 antes de guardar contraseña nueva.
+- Revisión del cambio: se conservan el cifrado, el destinatario fijado por servidor, los permisos mínimos y la exclusión de código/teléfono del aviso. No se observó un bloqueo nuevo en este alcance. La aceptación del proveedor push no demuestra recepción en un iPhone; esa comprobación y la conservación del OTP por Supabase siguen pendientes de la prueba física autorizada.
+
+No hubo respaldo, migraciones, cambios de variables ni publicaciones en Cloudflare/Railway en esta revisión; no se mandaron códigos reales ni se desconectó WhatsApp. Continuar con confirmación **separada antes de cada punto**: respaldo; panel con `ritmo.plataforma_admin` en la misma sesión; códigos manuales; Worker `--keep-vars`; y Railway existente con `WA_CODIGOS_RESPALDO_MANUAL=true`. No habilitar citas/promociones, vinculaciones nuevas, inicio público ni tocar FiNeCi.
