@@ -31,3 +31,6 @@ dialog header{display:flex;align-items:center;justify-content:space-between;padd
 .fila2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 select,input.campo{border:0;background:none;text-align:right;outline:0;min-width:0}
 #aviso{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 32px);padding:11px 16px;border-radius:14px;background:var(--t);color:var(--bg);font-weight:600;z-index:9}
+.alerta{box-shadow:0 0 0 1.5px var(--mal)}
+.mini{flex:none;padding:8px 13px;border:0;border-radius:999px;background:var(--t);color:var(--bg);font-weight:600;font-size:13.5px}
+.codigo-grande{justify-content:center;font-size:44px;font-weight:700;letter-spacing:.08em;font-variant-numeric:tabular-nums;padding:18px 0}

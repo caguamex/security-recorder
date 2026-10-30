@@ -9,17 +9,23 @@ import {entornoSocial,ids,sesiones} from './social-entorno.mjs';
 import {VerificadorJWT} from '../build/cuentas/jwt.js';
 import {rutasCuentas} from '../build/cuentas/http.js';
 import {crearServidor} from '../build/http.js';
+import {randomBytes,randomUUID} from 'node:crypto';
+import {cifrarCodigo} from '../build/plataforma/cifrado.js';
 const e=await entornoSocial(),supabase='https://zkqwephmuflbuagevvxj.supabase.co',par=await generateKeyPair('ES256',{extractable:true}),jwk={...await exportJWK(par.publicKey),kid:'local',alg:'ES256'};
 const jwt=new VerificadorJWT(supabase,{fetch:async()=>Response.json({keys:[jwk]})});
 const sql=async(q,a)=>{const c=await e.pool.connect();try{return await c.query(q,a);}finally{c.release();}};
 await sql("SELECT set_config('ritmo.plataforma_admin',$1,false)",[ids.admin]);
-await sql(await readFile(new URL('../../supabase/migrations/20261030180000_panel_plataforma.sql',import.meta.url),'utf8'));
+for(const m of ['20261030180000_panel_plataforma.sql','20261030190000_codigos_manuales.sql'])await sql(await readFile(new URL('../../supabase/migrations/'+m,import.meta.url),'utf8'));
+// Un código que WhatsApp no pudo entregar, guardado cifrado para envío manual.
+const llave=randomBytes(32).toString('base64'),solicitud=randomUUID();
+await sql("INSERT INTO ritmo.acceso_solicitudes(id,prueba_hash,destino_hash,ip_hash,canal,tipo,creado_en,vence_en,estado) VALUES($1,$2,$2,$2,'whatsapp','sms',now()-interval '2 minutes',now()+interval '8 minutes','manual')",[solicitud,'a'.repeat(64)]);
+await sql("INSERT INTO ritmo.codigos_manuales(solicitud_id,cifrado,motivo,vence_en) VALUES($1,$2,'desconectado',now()+interval '8 minutes')",[solicitud,cifrarCodigo(llave,{telefono:'528441234545',codigo:'482913'})]);
 await sql('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[sesiones.admin,ids.admin]);
 await sql("UPDATE auth.users SET phone='525522222222' WHERE id=$1",[ids.ajena]);
 await sql("INSERT INTO ritmo.negocios_planes(negocio_id,plan,estado,prueba_inicio,prueba_fin) VALUES($1,'salon','prueba',now()-interval '27 days',now()+interval '3 days') ON CONFLICT(negocio_id) DO UPDATE SET estado='prueba',plan='salon',prueba_inicio=EXCLUDED.prueba_inicio,prueba_fin=EXCLUDED.prueba_fin",[ids.otro]);
 await e.fuente({id:'__settings',negocio:'AB Beauty Room',abre:'10:00',cierra:'20:00',examplesOff:true});
 let base='';
-const cuentas={habilitado:true,supabaseURL:supabase,llavePublica:'sb_publishable_prueba_local',salones:new Set([ids.salon]),migracionUsuarioId:ids.admin,get origen(){return base;}};
+const cuentas={habilitado:true,supabaseURL:supabase,llavePublica:'sb_publishable_prueba_local',salones:new Set([ids.salon]),migracionUsuarioId:ids.admin,plataforma:{key:llave},get origen(){return base;}};
 const server=crearServidor({salud:async()=>{},estado:async()=>[],snapshot:async()=>({records:[],cursor:0,full:true})},'a'.repeat(40),fileURLToPath(new URL('../../dist/pwa/',import.meta.url)),{cuentas:rutasCuentas(e.poolAPI,jwt,cuentas)});
 server.listen(0,'127.0.0.1');await once(server,'listening');base='http://127.0.0.1:'+server.address().port;
 const token=async(u,s)=>new SignJWT({session_id:s,aal:'aal2',role:'authenticated'}).setProtectedHeader({alg:'ES256',kid:'local'}).setSubject(u).setIssuer(supabase+'/auth/v1').setAudience('authenticated').setIssuedAt().setExpirationTime('1h').sign(par.privateKey);
@@ -34,6 +40,10 @@ try{
  {const {c,p}=await abrir('admin');await p.locator('[data-salon]').first().waitFor();
   assert.equal(await p.locator('[data-salon]').count(),2);assert.match(await p.locator('#contenido').innerText(),/En prueba gratis/);
   await p.screenshot({path:capturas+'01-panel.png',fullPage:true,animations:'disabled'});
+  // Código sin entregar: ver y enviar desde el WhatsApp del administrador.
+  assert.match(await p.locator('.alerta').innerText(),/\+52 844 ••• 45/);await p.locator(`[data-codigo="${solicitud}"]`).click();await p.locator('.codigo-grande').waitFor();
+  assert.equal((await p.locator('.codigo-grande').innerText()).replace(/\s/g,''),'482913');assert.match(await p.locator('#codigo-whatsapp').getAttribute('href'),/^https:\/\/wa\.me\/528441234545\?text=/);
+  await p.screenshot({path:capturas+'04-codigo.png',animations:'disabled'});await p.locator(`[data-entregado="${solicitud}"]`).click();await p.locator('.alerta').waitFor({state:'detached'});
   await p.locator('[data-filtro=vencer]').click();assert.equal(await p.locator('[data-salon]').count(),1);
   await p.locator('#buscar').fill('ab beauty');await p.locator('[data-filtro=todos]').click();
   await p.locator(`[data-salon="${ids.otro}"]`).click({trial:false}).catch(async()=>{await p.locator('#buscar').fill('');await p.locator(`[data-salon="${ids.otro}"]`).click();});

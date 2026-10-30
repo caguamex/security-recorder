@@ -15,6 +15,7 @@ import {rutasSocial} from '../servidor/src/social/http.ts';
 import { rutasRegistro } from '../servidor/src/cuentas/registro.ts';
 import { rutasAcceso } from '../servidor/src/cuentas/acceso.ts';
 import { rutasContrasenas } from '../servidor/src/cuentas/contrasenas.ts';
+import { avisarCodigos } from '../servidor/src/plataforma/codigos.ts';
 import { rutasCuentas } from '../servidor/src/cuentas/http.ts';
 import { proxyWhatsApp, usaMeta } from '../servidor/src/whatsapp-vinculado/proxy.ts';
 import { VerificadorJWT } from '../servidor/src/cuentas/jwt.ts';
@@ -63,6 +64,8 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
     rutasContrasenas:env.ACCESO_CONTRASENA_HABILITADO==='true'?rutasContrasenas(pool,jwt,{habilitado:true,key:env.ACCESO_HMAC_KEY,operacionKey:env.REGISTRO_OPERACION_KEY,turnstileKey:env.TURNSTILE_SECRET_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,ip:req=>String(req.headers['cf-connecting-ip']||'')}):undefined,
     // Quien abre la app por primera vez ve las publicaciones de Comunidad.
     inicioPublico:env.AGENDAPPX_INICIO_PUBLICO==='true',
+    // Panel: respaldo manual de códigos y avisos al celular del administrador.
+    plataforma:{key:env.ACCESO_HMAC_KEY,publica:env.PUSH_VAPID_PUBLICA,privada:env.PUSH_VAPID_PRIVADA},
     acceso:{whatsapp:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true'},
     rutasAcceso:rutasAcceso(pool,jwt,{registro:env.AGENDAPPX_REGISTRO_HABILITADO==='true',recuperacionHash:env.ACCESO_RECUPERACION_HASH,recuperacionUsuario:env.MIGRACION_USUARIO_ID,habilitado:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,salones:new Set(String(env.WHATSAPP_SALONES_HABILITADOS||'').split(',').filter(Boolean)),ip:req=>String(req.headers['cf-connecting-ip']||'')}),
     llavePublica: env.SUPABASE_PUBLISHABLE_KEY, origen: env.PUBLIC_URL, migracionUsuarioId: env.MIGRACION_USUARIO_ID,
@@ -81,6 +84,8 @@ export default {
   },
   async scheduled(_controller, _bindings, context) {
     context.waitUntil(enviarPush(pool,{origen:env.PUBLIC_URL,publica:env.PUSH_VAPID_PUBLICA,privada:env.PUSH_VAPID_PRIVADA}));
+    // Si el aviso inmediato del servicio de WhatsApp no llegó, este lo reintenta cada 5 minutos.
+    context.waitUntil(avisarCodigos(pool,{origen:env.PUBLIC_URL,publica:env.PUSH_VAPID_PUBLICA,privada:env.PUSH_VAPID_PRIVADA}).catch(()=>{}));
     // La misma cola oficial y gratuita; no hay proceso permanente ni mensajes sin Meta configurado.
     if (usaMeta(env.WHATSAPP_REMITENTE) && env.WHATSAPP_PROVEEDOR !== 'evolution' && whatsapp.configurado) {
       context.waitUntil(whatsapp.procesar());

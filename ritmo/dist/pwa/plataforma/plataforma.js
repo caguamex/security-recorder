@@ -4,7 +4,7 @@
  const fecha=v=>v?new Date(v).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}):'—';
  const hace=v=>{if(!v)return 'sin uso';const d=Math.floor((Date.now()-new Date(v))/86400000);return d<=0?'hoy':d===1?'ayer':'hace '+d+' días';};
  const PLANES={solo:'Solo',salon:'Salón',pro:'Pro'};
- let salones=[],resumen={},filtro='todos',q='',actual=null,avisador;
+ let salones=[],resumen={},codigos=[],respaldo=false,filtro='todos',q='',actual=null,codigoActual=null,avisador;
  const aviso=t=>{clearTimeout(avisador);$('#aviso').textContent=t;$('#aviso').hidden=false;avisador=setTimeout(()=>{$('#aviso').hidden=true;},3500);};
  async function api(ruta,datos){const s=await window.AgendappxCuentas?.sesion();if(!s?.accessToken)throw Object.assign(new Error('Entra a Agendappx con tu cuenta para ver el panel.'),{entrar:true});
   const r=await fetch(ruta,{method:datos?'POST':'GET',headers:{Authorization:'Bearer '+s.accessToken,...(datos?{'Content-Type':'application/json'}:{})},...(datos?{body:JSON.stringify(datos)}:{}),cache:'no-store',signal:AbortSignal.timeout(20000)});
@@ -19,11 +19,14 @@
   const lista=salones.filter(pasa);
   $('#contenido').innerHTML=`<div class="cifras">${cifra(r.salones,'Salones',r.nuevosSemana+' nuevos esta semana')}${cifra(r.enPrueba,'En prueba gratis',r.pruebaPorVencer+' vencen en 5 días')}${cifra(r.pruebaVencida,'Pruebas vencidas','Para ofrecerles un plan')}${cifra((r.fundadoras||0)+' de 20','Precio de fundadora')}
    ${cifra(r.personas,'Personas con acceso')}${cifra(r.clientas,'Clientas registradas')}${cifra(r.citasSemana,'Citas movidas esta semana')}${cifra(r.solicitudesSemana,'Pedidas desde la app','Esta semana')}</div>
+   ${codigos.length?`<h2>Códigos sin entregar · ${codigos.length}</h2><div class="grupo alerta">${codigos.map(x=>`<div class="celda"><span class="punto mal"></span><span class="l"><b>${esc(x.telefono||'Número protegido')}</b><small>${esc({sms:'Para entrar o registrarse',phone_change:'Para vincular su número',email:'Correo'}[x.tipo]||'Código de acceso')} · ${esc(MOTIVO[x.motivo]||'No salió')} · ${esc(minutos(x.creadoEn))}</small><small>Vence ${esc(new Date(x.venceEn).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hourCycle:'h23'}))}</small></span><button type="button" class="mini" data-codigo="${esc(x.id)}">${x.revelado?'Ver de nuevo':'Ver y enviar'}</button></div>`).join('')}</div>`:''}
    <h2>Salud de la plataforma</h2><div class="grupo">
     <div class="celda"><span class="punto ${conectado?'ok':'mal'}"></span><span class="l">WhatsApp de códigos (866 124 1483)<small>${conectado?'Conectado':'Revisar: '+esc(w.estado||'sin datos')}${w.ultimaConexion?' · última conexión '+esc(fecha(w.ultimaConexion)):''}</small></span></div>
     <div class="celda"><span class="punto ${r.codigosFallidosHoy?'aviso':'ok'}"></span><span class="l">Códigos enviados en 24 h<small>${esc(r.codigosHoy)} pedidos · ${esc(r.codigosFallidosHoy)} con error</small></span></div>
     <div class="celda"><span class="punto ${r.registrosSinTerminar?'aviso':'ok'}"></span><span class="l">Registros esta semana<small>${esc(r.registrosSemana)} completos · ${esc(r.registrosSinTerminar)} sin terminar</small></span></div>
     <div class="celda"><span class="punto ${r.reportesPendientes?'aviso':'ok'}"></span><span class="l">Reportes de Comunidad<small>${esc(r.reportesPendientes)} pendientes de revisar</small></span>${r.reportesPendientes?'<a class="v" href="/comunidad/">Revisar ›</a>':''}</div>
+    <div class="celda"><span class="punto ${respaldo?'ok':'aviso'}"></span><span class="l">Respaldo manual de códigos<small>${respaldo?'Activo: si un código no sale, te avisamos y aparece arriba para que lo envíes tú.':'Pendiente de activar en el servicio de WhatsApp.'}</small></span></div>
+    <button type="button" class="celda" id="avisos-celular"><span class="punto"></span><span class="l">Avisarme en este celular<small>Notificación al momento si un código no sale.</small></span><span class="chev">›</span></button>
     <div class="celda"><span class="punto ok"></span><span class="l">En Explorar<small>${esc(r.visiblesExplorar)} visibles · ${esc(r.verificados)} verificados · ${esc(r.suspendidos)} en pausa</small></span></div></div>
    <h2>Salones · ${lista.length}</h2><label class="buscar"><span aria-hidden="true">⌕</span><input id="buscar" type="search" placeholder="Nombre, enlace, dueña o ciudad" value="${esc(q)}" aria-label="Buscar salón"></label>
    <div class="chips" role="group" aria-label="Filtrar">${FILTROS.map(([k,t])=>`<button type="button" data-filtro="${k}" aria-pressed="${filtro===k}">${t}</button>`).join('')}</div>
@@ -47,7 +50,15 @@
    <p class="vacio" style="padding:12px 4px 0;text-align:left">Verifica solo cuando confirmes que el salón existe (dirección y WhatsApp). En pausa, el salón conserva sus datos pero no puede agendar ni aparece en Explorar.</p>`;
   if(!$('#hoja').open)$('#hoja').showModal();
  }
- async function cargar(){try{const [r,s]=await Promise.all([api('/api/plataforma/resumen'),api('/api/plataforma/salones')]);resumen=r;salones=s.salones;pintar();}
+ const MOTIVO={desconectado:'WhatsApp desconectado',detenido:'Envíos detenidos',sin_confirmar:'WhatsApp no confirmó',error:'No salió'};
+ const minutos=v=>{const m=Math.max(0,Math.round((Date.now()-new Date(v))/60000));return m<1?'ahora':m===1?'hace 1 minuto':'hace '+m+' minutos';};
+ // El código solo se muestra al tocar «Ver y enviar», queda en la bitácora y se manda al mismo número desde tu WhatsApp.
+ async function verCodigo(id){codigoActual=id;const d=await api('/api/plataforma/codigos/'+id+'/ver',{});$('#hoja-titulo').textContent='Enviar código';
+  $('#hoja-cuerpo').innerHTML=`<div class="grupo"><div class="celda"><span class="l">Para<small>${esc(d.telefono)}</small></span></div><div class="celda codigo-grande" aria-label="Código ${esc(d.codigo.split('').join(' '))}">${esc(d.codigo.slice(0,3))} ${esc(d.codigo.slice(3))}</div></div>
+   <a class="btn p" href="${esc(d.whatsapp)}" target="_blank" rel="noopener" id="codigo-whatsapp">Enviar por WhatsApp</a><button type="button" class="btn" data-entregado="${esc(id)}">Ya lo envié</button>
+   <p class="vacio" style="padding:12px 4px 0;text-align:left">Se abre tu WhatsApp con el mensaje listo para ese número. Vence a los 10 minutos de haberlo pedido; si venció, la persona puede pedir otro.</p>`;
+  if(!$('#hoja').open)$('#hoja').showModal();}
+ async function cargar(){try{const [r,s,c]=await Promise.all([api('/api/plataforma/resumen'),api('/api/plataforma/salones'),api('/api/plataforma/codigos').catch(()=>({codigos:[],activo:false}))]);resumen=r;salones=s.salones;codigos=c.codigos;respaldo=c.activo;pintar();}
   catch(e){$('#contenido').innerHTML=`<p class="vacio">${esc(e.message)}</p>${e.entrar?'<a class="btn p" href="/#entrar">Entrar</a>':''}`;}}
  async function accion(a,valor={}){await api('/api/plataforma/salones/'+actual.id,{accion:a,valor});aviso({verificar:'Listo.',extender_prueba:'Prueba extendida.',plan:'Plan cambiado.',suspender:'Salón en pausa.',reactivar:'Salón reactivado.',ocultar:'Ya no aparece en Explorar.'}[a]);
   const id=actual.id;await cargar();const s=salones.find(x=>x.id===id);if(s&&$('#hoja').open)hoja(s);}
@@ -55,6 +66,9 @@
   if(b.id==='recargar'){await cargar();aviso('Actualizado.');}
   if(b.id==='hoja-cerrar')$('#hoja').close();
   if(b.dataset.filtro){filtro=b.dataset.filtro;pintar();}
+  if(b.dataset.codigo){b.disabled=true;await verCodigo(b.dataset.codigo);return;}
+  if(b.dataset.entregado){await api('/api/plataforma/codigos/'+b.dataset.entregado+'/entregado',{});$('#hoja').close();aviso('Listo. Quedó anotado.');await cargar();return;}
+  if(b.id==='avisos-celular'){await window.AgendappxAvisos.activar('negocio');aviso('Te avisaremos en este celular.');return;}
   if(b.dataset.salon)hoja(salones.find(s=>s.id===b.dataset.salon));
   const a=b.dataset.accion;if(!a)return;b.disabled=true;
   if(a==='verificar')await accion(a,{si:!actual.verificado});
@@ -65,5 +79,7 @@
  }catch(e){aviso(e.message);}finally{b.disabled=false;}});
  document.addEventListener('change',async ev=>{if(ev.target.id==='hoja-plan'&&actual&&ev.target.value!==actual.plan){try{await accion('plan',{plan:ev.target.value});}catch(e){aviso(e.message);}}});
  document.addEventListener('input',ev=>{if(ev.target.id==='buscar'){q=ev.target.value.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();const pos=ev.target.selectionStart;pintar();const c=$('#buscar');c.focus();c.setSelectionRange(pos,pos);}});
+ // Revisa cada minuto mientras el panel está abierto.
+ setInterval(()=>{if(!document.hidden&&!$('#hoja').open)void cargar();},60000);
  void cargar();
 })();
