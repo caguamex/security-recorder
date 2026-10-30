@@ -59,11 +59,16 @@ test('registro: límites durables, consentimiento, slug reservado y caducidad',a
 });
 test('intermediario: firma y caducidad obligatorias, no modifica ni confirma cuentas existentes',async()=>{
  const key=randomBytes(32).toString('base64'),ahora=Date.now(),llamadas=[];
- const edge=intermediario({key,url,adminKey:'privada-prueba',ahora:()=>ahora,fetch:async(u,init)=>{llamadas.push(init);return Response.json({code:'phone_exists'},{status:422});}});
+ let respuestaAuth={code:422,error_code:'phone_exists',msg:'Phone number already registered by another user'};
+ const edge=intermediario({key,url,adminKey:'privada-prueba',ahora:()=>ahora,fetch:async(u,init)=>{llamadas.push(init);return Response.json(respuestaAuth,{status:422});}});
  const raw=JSON.stringify({id:randomUUID(),phone:'+525511111111'}),ts=String(Math.floor(ahora/1000));const firma=createHmac('sha256',Buffer.from(key,'base64')).update('alta-whatsapp-v1\0'+ts+'\0'+raw).digest('hex');
  const req=(f=firma,fecha=ts,body=raw)=>new Request('https://local.test/registro',{method:'POST',headers:{'Content-Type':'application/json','x-registro-fecha':fecha,'x-registro-firma':f},body});
  assert.equal((await edge(req('a'.repeat(64)))).status,401);assert.equal(llamadas.length,0);assert.equal((await edge(req(firma,String(Number(ts)-61)))).status,401);
  const r=await edge(req());assert.equal(r.status,200);assert.equal(JSON.stringify(await r.json()).includes('privada'),false);assert.deepEqual(JSON.parse(llamadas[0].body),{phone:'+525511111111',phone_confirm:false});
+ for(const [datos,esperado] of [[{code:422,error_code:'user_already_exists'},200],[{code:'phone_exists'},200],[{code:422,error_code:'validation_failed'},503],[{code:422},503]]){
+  respuestaAuth=datos;assert.equal((await edge(req())).status,esperado);
+ }
+ assert.equal(llamadas.every(x=>x.method==='POST'),true,'No modifica ni confirma la identidad existente');
 });
 test('modo de cuentas: códigos normales admitidos, duplicados no enviados y límite global durable',async t=>{
  const e=await entorno(t),codigos=()=>new CodigosWhatsApp(e.plataformaDB,e.remoto,{modo:'cuentas',habilitado:true,hookSecret:'v1,whsec_'+e.hookKey,key:e.key,ahora:e.now});

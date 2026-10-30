@@ -33,3 +33,18 @@ La misma comprobación pública con token deliberadamente inválido cambió de *
 Comprobación adicional de producción con Edge: inicio público sigue activo, registro de cuatro pasos disponible, panel sin sesión devuelve 401 y los cuatro archivos del panel/SDK coinciden por SHA-256. Sin errores JS. La lectura inmediata de la base confirmó cero tickets/OTP/salones y reserva del propietario intacta; WhatsApp conectado y respaldo manual activo. No se modificó Railway ni la base en esta reparación.
 
 Se pidió a Antonio abrir de nuevo `/#registro` para obtener una validación reciente, solicitar una sola vez su código y responder qué ocurre. Esa verificación física sigue pendiente de su respuesta. No volver a borrar cuentas ni reasignar el dueño ante un error posterior.
+
+## Segunda incidencia: identidad ya reservada en Supabase
+
+La siguiente captura cambió a «No se pudo preparar la cuenta». Se comprobó que Turnstile ya había pasado: había un ticket de registro sin verificar y todavía ningún OTP. Los logs del intento mostraron Auth Admin HTTP 422 / `phone_exists` y la función devolviendo 503. La fuente publicada v3 coincidía exactamente con el archivo local; no era un problema de claves ni de publicación incompleta.
+
+La función elegía `e.code || e.error_code`, pero en la respuesta REST real `code` es el número HTTP 422 y `error_code` contiene `phone_exists`. La prueba anterior simulaba `code:'phone_exists'`, por lo que no detectaba el fallo. Al reservar previamente la identidad del dueño, ese caso se volvió obligatorio en su primer registro. Referencia primaria: [esquema de errores Auth Admin](https://github.com/supabase/auth/blob/master/client/admin/client.go).
+
+Reparación: leer primero `error_code` y admitir `code` solo cuando es texto. Únicamente `phone_exists` y `user_already_exists` permiten continuar de manera idempotente. El resto de errores 422 se sigue rechazando. La prueba usa ahora la respuesta real con código numérico, comprueba compatibilidad y rechaza errores diferentes o sin clasificación; no permite confirmar ni modificar la cuenta existente.
+
+- Se reprodujo primero el 503 con la prueba corregida; después de reparar, **268/268 pruebas aprobadas**.
+- Antonio autorizó explícitamente «Sí, corrige Supabase y libera el intento fallido».
+- Se respaldó la función previa v3 fuera de Git y publicó `agendappx-registro` **v4 ACTIVE**, con la misma autenticación HMAC y `verify_jwt=false` anterior. No cambió ningún secreto, plan, Worker ni Railway.
+- Prueba real firmada del propósito `alta-whatsapp-v1` sobre la identidad ya existente: **HTTP 200 / preparada:true**, mismo UUID y teléfono sin confirmar antes/después, sin contraseña nueva, OTP ni sesión. No se crearon cuentas de prueba.
+- Se caducó únicamente el ticket fallido no verificado/no completado y su apartado de usuario; no se borró la cuenta, se reasignó propiedad ni se reiniciaron datos. La intervención se limitó al intento identificado en los logs y aprobado por Antonio.
+- Se pidió a Antonio repetir el registro y solicitar su código una vez. La recepción física del OTP queda pendiente de su respuesta. No declarar que ya lo recibió basándose en la preparación correcta de la cuenta.
