@@ -23,3 +23,13 @@ En ambos constructores, el transporte predeterminado pasa a `fetch.bind(globalTh
 - Paquete de Cloudflare preparado con dry-run aprobado. Archivos generados regenerados, sin resolverlos a mano.
 
 Antonio autorizó explícitamente publicar esta reparación solo en Cloudflare. Registrar aquí el despliegue y la comprobación posterior antes de declararla publicada. La recepción física del código sigue requiriendo que Antonio lo solicite desde su registro; no solicitar códigos por él ni confirmar teléfono/MFA por operación.
+
+## Publicada y comprobada
+
+Con la respuesta explícita «Sí, publica la reparación en Cloudflare», se publicó el código `7e9dc20` en Worker **1a2ba21b-467c-458d-9056-77299bcf9422**, misma URL y `--keep-vars`. No hubo archivos estáticos nuevos: la reparación es del servidor y no exige actualizar el service worker.
+
+La misma comprobación pública con token deliberadamente inválido cambió de **503** («No se pudo comprobar la seguridad») a **400** («Vuelve a completar la verificación de seguridad»), que es el rechazo correcto de Siteverify. Así se verificó que la llamada real ya llega a Cloudflare sin crear cuentas ni pedir códigos. No confundir esta comprobación negativa ni los casos válidos con red simulada con la recepción física de un OTP.
+
+Comprobación adicional de producción con Edge: inicio público sigue activo, registro de cuatro pasos disponible, panel sin sesión devuelve 401 y los cuatro archivos del panel/SDK coinciden por SHA-256. Sin errores JS. La lectura inmediata de la base confirmó cero tickets/OTP/salones y reserva del propietario intacta; WhatsApp conectado y respaldo manual activo. No se modificó Railway ni la base en esta reparación.
+
+Se pidió a Antonio abrir de nuevo `/#registro` para obtener una validación reciente, solicitar una sola vez su código y responder qué ocurre. Esa verificación física sigue pendiente de su respuesta. No volver a borrar cuentas ni reasignar el dueño ante un error posterior.
