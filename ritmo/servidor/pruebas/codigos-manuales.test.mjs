@@ -21,6 +21,7 @@ async function entorno(t,{conectado=false}={}){
  const codigos=new CodigosWhatsApp(e.plataformaDB,remoto,{habilitado:true,hookSecret:'v1,whsec_'+e.hookKey,key:e.key,ahora:e.now,respaldoManual:true,avisoURL:origen+'/api/plataforma/aviso-codigo',red:async(u,init)=>{avisos.push({u,init});return new Response('{}');}});
  async function pedir(tel='525511111111'){e.avanzar(1);const a=await e.solicitudes.crear('whatsapp',tel,'ip-'+Math.random());const v=e.evento(tel,'482913',{user:{id:ids.nueva,phone:tel}});await codigos.entregar(v.raw,v.headers);return a;}
  const f=(i,q,a=[])=>enTransaccion(e.poolAPI,i,null,async c=>(await c.query(q,a)).rows[0]?.r);
+ await codigos.anunciarRespaldo();
  return {...e,sql,codigos,pedir,avisos,enviados,f};
 }
 test('cifrado: ida y vuelta, alteración detectada y número oculto',()=>{
@@ -49,6 +50,8 @@ test('panel: ver código (queda en bitácora), enviar por WhatsApp al mismo núm
  const e=await entorno(t),a=await e.pedir();
  const rutas=rutasPlataforma(e.poolAPI,{verificar:async()=>quien},()=>origen,{key:e.key});let quien=identidad();
  const llamar=async(ruta,{metodo='GET',datos,headers={}}={})=>{const req=Readable.from(datos?[Buffer.from(JSON.stringify(datos))]:[]);req.method=metodo;req.headers={'content-type':'application/json',authorization:'Bearer x',...(metodo==='GET'?{}:{origin:origen}),...headers};let estado=0,cuerpo='';const res={writeHead(s){estado=s;return this;},end(b){cuerpo=b;}};await rutas(req,res,new URL(origen+ruta));return {estado,d:JSON.parse(cuerpo)};};
+ // El panel refleja el estado anunciado por el servicio de WhatsApp, no solo la llave del Worker.
+ e.codigos.respaldoManual=false;await e.codigos.anunciarRespaldo();assert.equal((await llamar('/api/plataforma/codigos')).d.activo,false);e.codigos.respaldoManual=true;await e.codigos.anunciarRespaldo();
  const lista=(await llamar('/api/plataforma/codigos')).d;assert.equal(lista.activo,true);assert.equal(lista.codigos.length,1);assert.equal(lista.codigos[0].telefono,'+52 551 ••• 11');assert.equal(JSON.stringify(lista).includes('482913'),false);assert.equal('cifrado' in lista.codigos[0],false);
  await assert.rejects(()=>llamar('/api/plataforma/codigos/'+a.id+'/entregado',{metodo:'POST',datos:{}}),x=>x.status===400);
  const v=(await llamar('/api/plataforma/codigos/'+a.id+'/ver',{metodo:'POST',datos:{}})).d;assert.equal(v.codigo,'482913');assert.equal(v.telefono,'+525511111111');assert.match(v.whatsapp,/^https:\/\/wa\.me\/525511111111\?text=Tu%20c%C3%B3digo/);

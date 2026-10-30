@@ -66,6 +66,8 @@ export class CodigosWhatsApp {
      await this.db.usar(c=>c.query('UPDATE ritmo.acceso_solicitudes SET estado=$2 WHERE id=$1 AND estado=\'enviando\'',[s.id,salida?'incierto':'fallido']));throw fallo(503,'No se pudo enviar el código. Usa tu correo de respaldo.');}
   });this.cola=op.catch(()=>{});return op;
  }
+ // El panel muestra el estado real del respaldo: el servicio lo anuncia al arrancar.
+ async anunciarRespaldo(){try{await this.db.tx(async c=>{await this.db.prepararConexion(PLATAFORMA,c);await c.query("UPDATE ritmo.plataforma_conexiones SET respaldo_manual=$1 WHERE negocio_id='codigos'",[this.respaldoManual===true&&this.habilitado===true]);});}catch{}}
  // Aviso firmado al Worker para notificar al administrador; si falla, la tarea programada lo reintenta.
  async avisar(){if(!this.avisoURL)return;try{const ts=String(Math.floor(this.ahora()/1000));await this.red(this.avisoURL,{method:'POST',headers:{'x-aviso-fecha':ts,'x-aviso-firma':firmarAviso(this.key,ts)},signal:AbortSignal.timeout(5000)});}catch{}}
  async ruta(req,res,url){if(url.pathname!=='/hook/codigo')return false;
