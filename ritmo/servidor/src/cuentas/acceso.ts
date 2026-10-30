@@ -38,7 +38,7 @@ export class SolicitudesAcceso {
 }
 async function cuerpo(req:IncomingMessage){if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ErrorAPI(415,'Usa application/json.');const partes=[];let tam=0;for await(const b of req){tam+=b.length;if(tam>4096)throw new ErrorAPI(413,'Solicitud demasiado grande.');partes.push(b);}try{const d=JSON.parse(Buffer.concat(partes).toString());if(!d||typeof d!=='object'||Array.isArray(d))throw new Error();return d;}catch{throw new ErrorAPI(400,'Solicitud inválida.');}}
 const responder=(res:ServerResponse,status:number,d:unknown)=>res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}).end(JSON.stringify(d));
-type Config={registro?:boolean;recuperacionHash?:string;recuperacionUsuario?:string;habilitado:boolean;correo:boolean;key:string;origen:string;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;ip:(req:IncomingMessage)=>string;fetch?:typeof fetch};
+type Config={registro?:boolean;sesionesConOtp?:boolean;recuperacionHash?:string;recuperacionUsuario?:string;habilitado:boolean;correo:boolean;key:string;origen:string;supabaseURL:string;llavePublica:string;salones:ReadonlySet<string>;ip:(req:IncomingMessage)=>string;fetch?:typeof fetch};
 export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<IdentidadFirmada>},config:Config){
  if(config.habilitado&&(config.supabaseURL!=='https://zkqwephmuflbuagevvxj.supabase.co'||!/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.llavePublica)))throw new Error('Usa exclusivamente el proyecto y la llave publicable de Agendappx.');
  const solicitudes=config.habilitado?new SolicitudesAcceso(pool,config.key):null;
@@ -103,7 +103,7 @@ export function rutasAcceso(pool:ConexionSQL,jwt:{verificar:(s:string)=>Promise<
     // El navegador refresca su propia sesión vigente para actualizar el teléfono.
     respuesta={user:usuario};
    }
-   else {const identidad=await jwt.verificar(r.data.access_token);if(s.usuario_id&&s.usuario_id!==identidad.usuarioId)throw new ErrorAPI(403,'Cuenta distinta.');await solicitudes.admitir(identidad,config.registro?s.id:undefined);}
+   else {const identidad=await jwt.verificar(r.data.access_token);if(s.usuario_id&&s.usuario_id!==identidad.usuarioId)throw new ErrorAPI(403,'Cuenta distinta.');await solicitudes.admitir(identidad,config.registro||config.sesionesConOtp?s.id:undefined);}
    await solicitudes.resultado(s.id,true);responder(res,200,respuesta);return true;
   }
   // Mantener el acceso de recuperación ya existente, verificándolo siempre con Auth.

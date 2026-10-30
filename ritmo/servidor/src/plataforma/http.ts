@@ -5,7 +5,7 @@ import {ErrorAPI} from '../modelo.js';
 import {enTransaccion} from '../cuentas/contexto.js';
 import {avisarCodigos,avisoValido,descifrarCodigo,telefonoOculto} from './codigos.js';
 
-// Panel de Agendappx: solo administradores de la plataforma con MFA. La base vuelve a exigirlo en cada función.
+// Panel de Agendappx: dueño reservado con sesión validada por WhatsApp. La base lo exige en cada función.
 const ACCIONES=['verificar','ocultar','extender_prueba','plan','suspender','reactivar'];
 async function cuerpo(req:IncomingMessage){if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ErrorAPI(415,'Usa application/json.');let tam=0;const partes=[];for await(const b of req){tam+=b.length;if(tam>2048)throw new ErrorAPI(413,'Solicitud demasiado grande.');partes.push(b);}try{const d=JSON.parse(Buffer.concat(partes).toString());if(!d||Array.isArray(d)||typeof d!=='object')throw new Error();return d;}catch{throw new ErrorAPI(400,'Solicitud inválida.');}}
 type Opciones={key?:string;publica?:string;privada?:string;fetch?:typeof fetch};
@@ -18,7 +18,7 @@ export function rutasPlataforma(pool:ConexionSQL,jwt:{verificar:(s:string)=>Prom
   if(url.search||req.headers['sec-fetch-site']==='cross-site'||req.headers.origin&&req.headers.origin!==origen||req.method!=='GET'&&req.headers.origin!==origen)throw new ErrorAPI(403,'Abre Agendappx para continuar.');
   const token=req.headers.authorization?.startsWith('Bearer ')?req.headers.authorization.slice(7):'',i=await jwt.verificar(token);
   const responder=(d:unknown)=>{res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Authorization','Referrer-Policy':'no-referrer'}).end(JSON.stringify(d));return true;};
-  const funcion=async(sql:string,args:unknown[]=[])=>{try{return await enTransaccion(pool,i,null,async c=>(await c.query(sql,args)).rows[0]?.r);}catch(e:any){if(e?.code==='42501')throw new ErrorAPI(403,'Este panel es solo para el administrador de Agendappx (con verificación en dos pasos).');if(e?.code==='22023')throw new ErrorAPI(400,String(e.message||'Datos inválidos.'));throw e;}};
+  const funcion=async(sql:string,args:unknown[]=[])=>{try{return await enTransaccion(pool,i,null,async c=>(await c.query(sql,args)).rows[0]?.r);}catch(e:any){if(e?.code==='42501')throw new ErrorAPI(403,'Este panel es solo para el dueño de Agendappx. Entra con su código de WhatsApp.');if(e?.code==='22023')throw new ErrorAPI(400,String(e.message||'Datos inválidos.'));throw e;}};
   if(ruta==='/api/plataforma/yo'&&req.method==='GET')return responder({admin:await funcion('SELECT ritmo.es_admin_plataforma() AS r')===true});
   if(ruta==='/api/plataforma/resumen'&&req.method==='GET')return responder(await funcion('SELECT ritmo.plataforma_resumen() AS r'));
   if(ruta==='/api/plataforma/salones'&&req.method==='GET')return responder({salones:await funcion('SELECT ritmo.plataforma_salones() AS r')});
