@@ -12,7 +12,7 @@ Modelos aprobados: `ritmo/ios/inicio.html` y `ritmo/ios/cuentas.html` en la rama
   3. Código de WhatsApp.
   4. Datos del salón: nombre, negocio y plan.
 
-  El enlace del salón se crea solo (`AB' Beauty Room` → `ab-beauty-room`). La cuenta se crea **solo al confirmar el código**; mientras tanto el usuario queda apartado 30 minutos. La contraseña vive solo en la memoria de la página hasta ese momento.
+  El enlace del salón se crea solo (`AB' Beauty Room` → `ab-beauty-room`). El acceso con usuario y contraseña se habilita **solo al confirmar el código**; mientras tanto el usuario queda apartado 30 minutos. El intermediario anterior prepara el teléfono en Auth sin confirmarlo antes de enviar el código; esa preparación no concede acceso al salón. La contraseña vive solo en la memoria de la página hasta ese momento.
 - **Entrar:** un campo «WhatsApp o usuario» y la contraseña. «Entrar con código de WhatsApp» sigue como otra opción.
   - Después del 3.er error aparece la verificación de seguridad (Turnstile).
   - Al 5.º error la cuenta espera 15 minutos.
@@ -94,3 +94,40 @@ En local también se corrieron sin errores, con Chromium:
 - la prueba nueva de contraseñas.
 
 `comunidad-navegador` ya fallaba antes de este cambio: busca la Comunidad de demostración anterior.
+
+
+## Revisión de Codex — 30 de octubre de 2026
+
+Revisada la implementación de Claude, commits `914003d` y `28f6cc3`, en una copia separada. No se rehízo el cambio ni se incorporaron los cambios locales incompletos de la rama anterior.
+
+### Corrección necesaria antes de publicar
+
+El restablecimiento de una cuenta con MFA verificado intentaba guardar la contraseña con AAL1, antes de los dos pasos. Supabase Auth rechaza esa operación con `insufficient_aal`; el simulador original no exigía esta regla. Se reprodujo el fallo con el simulador corregido y se ajustó únicamente el orden: código de WhatsApp → MFA existente → contraseña nueva. El servidor devuelve un mensaje específico si Auth exige AAL2. Registro inicial, UUID, membresías y requisito MFA de Admin se conservan.
+
+Prueba: `contrasenas-navegador.mjs` ahora rechaza actualizaciones de contraseña con AAL1 cuando existe MFA y comprueba que la contraseña anterior permanece hasta completar los dos pasos. La captura `imagenes/contrasena-equipo/11-restablecer-dos-pasos.png` corresponde a esa comprobación local; no contiene un secreto MFA.
+
+### Comprobaciones del destino (solo lectura y validación sin alta)
+
+- Proyecto dedicado `zkqwephmuflbuagevvxj`, organización `caguamex's Org`, plan Free.
+- Email activo; Phone activo. Confirmación telefónica activa, códigos de seis dígitos y 600 segundos. El hook de envío existente continúa seleccionado, sin configurar SMS ni cambiar Railway.
+- Mínimo de Auth: seis caracteres; la aplicación exige ocho. Secure password change y Require current password when updating están desactivados; no se modificaron estos ajustes.
+- Auth Admin acepta la validación del correo `miembro-<uuid>@agendappx.invalid`. Se comprobó con un ID y duración deliberadamente inválidos: Auth respondió `ID must conform to the uuid v4 format` después de validar el correo y antes de la transacción de alta. No se creó un usuario, no se generó una sesión y no se envió correo ni WhatsApp. No hace falta comprar ni sustituir el dominio.
+- La función publicada `agendappx-registro` sigue en versión 2. La migración nueva todavía no figura en el historial: no se aplicó por la revisión.
+- Los asesores actuales muestran protección contra contraseñas filtradas desactivada (la opción de Supabase requiere Pro) y tablas privadas con RLS sin políticas, cerradas por diseño y atendidas mediante funciones acotadas. No se activó un plan ni se ampliaron permisos.
+
+### Validación local
+
+- `npm test`: **256/256** después de la corrección.
+- `BROWSER_CHANNEL=msedge node pruebas/contrasenas-navegador.mjs`: aprobado, incluida la exigencia real de MFA antes de restablecer la contraseña.
+- Regresión `login-whatsapp-navegador.mjs`: aprobada; SDK real, mismo UUID, OTP, MFA, vinculación propia simulada y tamaños 390/768/1440.
+- `npm run build --prefix ritmo/nube`: dry-run aprobado, sin publicar.
+
+La primera ejecución de npm test no cargó dos archivos porque faltaba enlazar la dependencia local Baileys en la copia de revisión. Al usar las dependencias ya instaladas, las 256 pruebas pasaron. El primer recorrido con la exigencia MFA corregida reprodujo el fallo descrito arriba; el recorrido final pasa.
+
+Fuentes verificadas: [contraseñas de Supabase](https://supabase.com/docs/guides/auth/passwords), [validación y cambio de contraseña en Auth](https://github.com/supabase/auth/blob/master/internal/api/user.go), [validación Admin antes de alta](https://github.com/supabase/auth/blob/master/internal/api/admin.go). Se revisó también el índice de cambios vigente de Supabase.
+
+### Publicación pendiente de confirmación
+
+Preparar un respaldo de los datos del salón, sin exportar secretos, hashes de contraseñas, sesiones de Auth ni credenciales de WhatsApp; comparar huellas de las tablas existentes antes/después. Aplicar solo `20261030160000_usuarios_contrasena.sql`; publicar el intermediario con la misma llave y el Worker con `--keep-vars` y `ACCESO_CONTRASENA_HABILITADO=true`.
+
+**No activar `AGENDAPPX_INICIO_PUBLICO`** en esta publicación: Antonio lo autorizará aparte. No cambiar las banderas existentes de WhatsApp ni desplegar Railway. No crear ejemplos en el salón real. La prueba física guiada queda pendiente después de publicar; el éxito local no acredita aún un recorrido completo con Supabase Auth real.

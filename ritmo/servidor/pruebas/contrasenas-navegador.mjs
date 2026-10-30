@@ -37,7 +37,10 @@ const auth=async(input,init={})=>{const u=new URL(input),d=init.body?JSON.parse(
  if(u.pathname==='/auth/v1/token'&&u.search==='?grant_type=password'){const f=(await sql(d.phone?'SELECT id,phone,email FROM auth.users WHERE phone=$1':'SELECT id,phone,email FROM auth.users WHERE email=$1',[d.phone?d.phone.replace('+',''):d.email])).rows[0];
   if(!f||claves.get(f.id)!==d.password)return Response.json({error_code:'invalid_credentials'},{status:400});return Response.json(await nuevaSesion({id:f.id,phone:f.phone||'',email:f.email||''}));}
  const yo=await jwt.verificar((init.headers?.Authorization||'').slice(7));
- if(u.pathname==='/auth/v1/user'&&init.method==='PUT'){if(claves.get(yo.usuarioId)===d.password)return Response.json({error_code:'same_password'},{status:422});claves.set(yo.usuarioId,d.password);return Response.json(usuario());}
+ if(u.pathname==='/auth/v1/user'&&init.method==='PUT'){
+  // Supabase Auth exige AAL2 cuando la cuenta ya tiene un factor MFA verificado.
+  if(mfa.has(yo.usuarioId)&&yo.aal!=='aal2')return Response.json({error_code:'insufficient_aal'},{status:401});
+  if(claves.get(yo.usuarioId)===d.password)return Response.json({error_code:'same_password'},{status:422});claves.set(yo.usuarioId,d.password);return Response.json(usuario());}
  if(u.pathname==='/auth/v1/user')return Response.json({...usuario(),id:yo.usuarioId});
  if(u.pathname==='/auth/v1/logout'){if(u.search==='?scope=others')await sql('DELETE FROM auth.sessions WHERE user_id=$1 AND id<>$2',[yo.usuarioId,yo.sesionId]);return new Response(null,{status:204});}
  throw new Error('Auth inesperado '+input);};
@@ -108,9 +111,15 @@ try{
  {const {c,p}=await contexto();await abrir(p);await p.locator('#auth-cuenta').fill('mariana.salon');await p.locator('#auth-olvide').click();
   await p.locator('#auth-otp').waitFor({state:'visible'});assert.equal(await p.locator('#auth-destino').inputValue(),'mariana.salon');await foto(p,'09-restablecer');
   await p.locator('#auth-pedir').click();await p.locator('#auth-otp-code').waitFor({state:'visible'});assert.match(e.envios.at(-1).tel,/5511111111/);
-  await p.locator('#auth-otp-valor').fill('482913');await p.locator('#auth-confirmar').click();await p.locator('#auth-nueva').waitFor({state:'visible'});await foto(p,'10-contrasena-nueva');
+  await p.locator('#auth-otp-valor').fill('482913');await p.locator('#auth-confirmar').click();
+  // La dueña ya tiene MFA: debe completar AAL2 antes de enviar la contraseña a Auth.
+  await p.locator('#auth-code').waitFor({state:'visible'});assert.equal(await p.locator('#auth-nueva').isVisible(),false);
+  assert.equal(claves.get(ids.nueva),'Mariana-2026');
+  await foto(p,'11-restablecer-dos-pasos');
+  await p.locator('#auth-code').fill('123456');await p.locator('#auth-verificar').click();
+  await p.locator('#auth-nueva').waitFor({state:'visible'});await foto(p,'10-contrasena-nueva');
   await p.locator('#auth-nueva-pass').fill('Mariana-Nueva-8');await p.locator('#auth-nueva-pass2').fill('Mariana-Nueva-8');await p.locator('#auth-nueva-guardar').click();
-  await p.locator('#auth-code').waitFor({state:'visible'});assert.equal(claves.get(ids.nueva),'Mariana-Nueva-8');await c.close();}
+  await p.waitForFunction(()=>/Acceso verificado/.test(document.querySelector('#auth-status')?.textContent||''));assert.equal(claves.get(ids.nueva),'Mariana-Nueva-8');await c.close();}
  // 6) Entrar con WhatsApp y la contraseña nueva.
  {const {c,p}=await contexto();await abrir(p);await p.locator('#auth-cuenta').fill('55 1111 1111');await p.locator('#auth-pass').fill('Mariana-Nueva-8');await p.locator('#auth-clave-entrar').click();await p.locator('#auth-code').waitFor({state:'visible'});
   for(const w of [768,1440]){await p.setViewportSize({width:w,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}await c.close();}

@@ -95,6 +95,7 @@ export class Contrasenas{
    if(code==='same_password')throw new ErrorAPI(400,'Usa una contraseña distinta a la anterior.');
    if(code==='weak_password')throw new ErrorAPI(400,'Esa contraseña es muy débil. Elige otra.');
    if(code==='reauthentication_needed')throw new ErrorAPI(403,'Para cambiar tu contraseña, entra con un código de WhatsApp.');
+   if(code==='insufficient_aal')throw new ErrorAPI(403,'Completa la verificación en dos pasos antes de cambiar tu contraseña.');
    throw new ErrorAPI(503,'No se pudo guardar la contraseña. Intenta de nuevo.');}
   await this.usar(async c=>{
    if(fila)await c.query('UPDATE ritmo.usuarios_acceso SET con_contrasena=true,debe_cambiar=false,temporal_vence=NULL,actualizado_en=$2 WHERE usuario_id=$1',[i.usuarioId,ahora]);

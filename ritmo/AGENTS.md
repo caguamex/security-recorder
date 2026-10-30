@@ -204,3 +204,12 @@ Etapas 1–4 publicadas, PRs #12, #13, #14 y #15 encadenados. Última aplicació
 Leer docs/RECUPERACION-SAFARI.md. La canonicalización de index.html dejaba Response.redirected=true en caché y Safari rechazaba la navegación. El worker normaliza esas respuestas y /recuperar-acceso/ actualiza la copia instalada conservando sesión, cookies, IndexedDB y cola pendiente. La prueba nueva reproduce el fallo anterior con WebKit y redirecciones HTTP reales. No indicar borrar datos de Safari ni repetir migraciones para resolver este problema.
 
 Reparación publicada desde cfa075e, Worker e9b7ed9b-5e1f-43b0-a444-b015a8a1daf0, PR #15. Verificados hash y 200 sin redirección de siete rutas; botón publicado abre Hoy. WebKit/Chromium y ambas regresiones de actualización aprobados. Entregar /recuperar-acceso/ con barra final a dispositivos con la copia anterior; falta confirmación física del iPhone de Antonio.
+
+
+## Contraseña y equipo — revisión del 30 de octubre de 2026
+
+Antonio pidió revisar y publicar la implementación de Claude en `claude/agendappx-registro-contrasena`, desde PR #16, sin rehacerla. Leer `docs/CONTRASENA-EQUIPO.md` completo. Copia de revisión `codex/agendappx-revision-contrasena`, desde `28f6cc3`; no incorpora los cambios locales incompletos de la otra copia de PR #16.
+
+256 pruebas y Edge aprobados. Se corrigió un fallo real del restablecimiento: cuentas con MFA deben completar AAL2 antes de guardar la contraseña nueva; la prueba ahora exige esa regla de Supabase. El dominio interno `agendappx.invalid` pasó validación Admin sin crear usuarios. Email y Phone ya están activos; Auth mínimo seis, app mínimo ocho, Free conservado. No se cambiaron ajustes ni datos de producción.
+
+Pendientes: confirmación explícita de Antonio antes de respaldo, migración aditiva `20261030160000_usuarios_contrasena.sql`, función `agendappx-registro` y Worker con `--keep-vars`/`ACCESO_CONTRASENA_HABILITADO=true`. Mantener `AGENDAPPX_INICIO_PUBLICO` apagado hasta autorización separada. No tocar FiNeCi, Railway ni activar envíos. Hacer la prueba física con Antonio después de publicar y registrar su resultado; no declarar publicada la revisión antes de verificarla.
