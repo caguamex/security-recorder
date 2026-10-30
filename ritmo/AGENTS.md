@@ -202,3 +202,5 @@ Etapas 1–4 publicadas, PRs #12, #13, #14 y #15 encadenados. Última aplicació
 ### Reparación posterior de Safari
 
 Leer docs/RECUPERACION-SAFARI.md. La canonicalización de index.html dejaba Response.redirected=true en caché y Safari rechazaba la navegación. El worker normaliza esas respuestas y /recuperar-acceso/ actualiza la copia instalada conservando sesión, cookies, IndexedDB y cola pendiente. La prueba nueva reproduce el fallo anterior con WebKit y redirecciones HTTP reales. No indicar borrar datos de Safari ni repetir migraciones para resolver este problema.
+
+Reparación publicada desde cfa075e, Worker e9b7ed9b-5e1f-43b0-a444-b015a8a1daf0, PR #15. Verificados hash y 200 sin redirección de siete rutas; botón publicado abre Hoy. WebKit/Chromium y ambas regresiones de actualización aprobados. Entregar /recuperar-acceso/ con barra final a dispositivos con la copia anterior; falta confirmación física del iPhone de Antonio.

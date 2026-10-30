@@ -88,3 +88,7 @@ Las diez tablas anteriores coinciden exactamente con el respaldo tras migrar. Al
 PR #15: https://github.com/caguamex/security-recorder/pull/15, encadenado al #14. La rama de trabajo conserva código, migración real, pruebas y capturas. Todas las etapas 1–4 quedaron publicadas; las notas de «pendiente» anteriores son el historial de preparación.
 
 Para Antonio: abrir la app y aceptar Actualizar ahora. En Negocio → Ver como cliente, completar/guardar el perfil y activar Mostrar mi salón cuando decida aparecer públicamente. Subir trabajos propios desde el botón Crear → Publicar trabajo. El directorio /comunidad/ permanece vacío mientras no haya negocios que hayan publicado su perfil.
+
+### Reparación de navegación en Safari
+
+Tras la captura del iPhone, se reprodujo el rechazo de respuestas cacheadas con redirecciones reales en WebKit. Se publicó la reparación cfa075e, Worker e9b7ed9b-5e1f-43b0-a444-b015a8a1daf0. Sustituye la versión final anterior dentro de esta misma etapa; no modifica datos ni migraciones. Ver RECUPERACION-SAFARI.md. Si la copia anterior impide abrir la app, usar https://ritmo-belleza.antonio-t-22.workers.dev/recuperar-acceso/ y pulsar Reparar y abrir Agendappx. No borrar datos de Safari ni desconectar dispositivos.

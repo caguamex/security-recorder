@@ -25,4 +25,8 @@ La entrega al iPhone físico queda por confirmar por Antonio al abrir el enlace;
 
 ## Publicación
 
-Pendiente registrar versión y comprobación de la URL tras desplegar la reparación dentro de la publicación ya autorizada. No volver a aplicar migraciones ni modificar Supabase, Railway o FiNeCi para esta incidencia.
+Publicada desde **cfa075e9ed5d6d957d2dd43686ea50439d90d387**, Worker **e9b7ed9b-5e1f-43b0-a444-b015a8a1daf0**, dentro del cierre de las etapas autorizadas. Se conservan keep-vars, bindings, cron, secretos, planes y límites. Las siete rutas de agenda, Comunidad, Planes, worker y recuperación coinciden en SHA256 con el paquete local y responden 200 sin redirección.
+
+WebKit y Chromium pasan la nueva regresión. Las dos pruebas anteriores de actualización (agenda y Comunidad) también pasan, incluidos borradores de otra pestaña. El navegador integrado abrió el enlace publicado, pulsó el botón y llegó a la pantalla real Hoy; después se dejó abierta la recuperación como enlace para Antonio. No se inició sesión, solicitaron códigos ni crearon datos para esta comprobación.
+
+Enlace: https://ritmo-belleza.antonio-t-22.workers.dev/recuperar-acceso/ . No volver a aplicar migraciones ni modificar Supabase, Railway o FiNeCi para esta incidencia. PR #15 contiene esta reparación y sus pruebas.
