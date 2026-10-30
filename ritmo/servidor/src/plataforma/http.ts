@@ -23,8 +23,8 @@ export function rutasPlataforma(pool:ConexionSQL,jwt:{verificar:(s:string)=>Prom
   if(ruta==='/api/plataforma/resumen'&&req.method==='GET')return responder(await funcion('SELECT ritmo.plataforma_resumen() AS r'));
   if(ruta==='/api/plataforma/salones'&&req.method==='GET')return responder({salones:await funcion('SELECT ritmo.plataforma_salones() AS r')});
   if(ruta==='/api/plataforma/bitacora'&&req.method==='GET')return responder({bitacora:await funcion('SELECT ritmo.plataforma_bitacora_reciente() AS r')});
-  if(ruta==='/api/plataforma/codigos'&&req.method==='GET'){if(!opciones.key)return responder({codigos:[],activo:false});const lista=await funcion('SELECT ritmo.plataforma_codigos() AS r');
-   return responder({activo:true,codigos:lista.map((x:any)=>{let tel='';try{tel=telefonoOculto(descifrarCodigo(opciones.key!,x.cifrado).telefono);}catch{}const {cifrado,...resto}=x;return {...resto,telefono:tel};})});}
+  if(ruta==='/api/plataforma/codigos'&&req.method==='GET'){if(!opciones.key)return responder({codigos:[],activo:false});const lista=await funcion('SELECT ritmo.plataforma_codigos() AS r'),activo=await funcion('SELECT ritmo.plataforma_respaldo_activo() AS r')===true;
+   return responder({activo,codigos:lista.map((x:any)=>{let tel='';try{tel=telefonoOculto(descifrarCodigo(opciones.key!,x.cifrado).telefono);}catch{}const {cifrado,...resto}=x;return {...resto,telefono:tel};})});}
   const codigo=/^\/api\/plataforma\/codigos\/([a-f0-9-]{36})\/(ver|entregado)$/.exec(ruta);
   if(codigo&&req.method==='POST'){if(!opciones.key)throw new ErrorAPI(503,'El respaldo de códigos no está configurado.');
    if(codigo[2]==='entregado'){await funcion('SELECT ritmo.plataforma_codigo_entregado($1) AS r',[codigo[1]]);return responder({entregado:true});}
