@@ -1,0 +1,7 @@
+.git
+**/node_modules
+**/.env
+**/.env.*
+ritmo/servidor/build
+ritmo/imagenes
+ritmo/dist
