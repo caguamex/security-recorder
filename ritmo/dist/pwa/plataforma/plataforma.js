@@ -1,4 +1,4 @@
-// Panel de Agendappx (plataforma). El servidor y la base vuelven a exigir administrador con MFA en cada consulta.
+// Panel de Agendappx. El servidor y la base exigen dueño reservado y sesión verificada por WhatsApp.
 (function(){
  const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const fecha=v=>v?new Date(v).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}):'—';

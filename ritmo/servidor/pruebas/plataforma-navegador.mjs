@@ -15,7 +15,10 @@ const e=await entornoSocial(),supabase='https://zkqwephmuflbuagevvxj.supabase.co
 const jwt=new VerificadorJWT(supabase,{fetch:async()=>Response.json({keys:[jwk]})});
 const sql=async(q,a)=>{const c=await e.pool.connect();try{return await c.query(q,a);}finally{c.release();}};
 await sql("SELECT set_config('ritmo.plataforma_admin',$1,false)",[ids.admin]);
-for(const m of ['20261030180000_panel_plataforma.sql','20261030190000_codigos_manuales.sql'])await sql(await readFile(new URL('../../supabase/migrations/'+m,import.meta.url),'utf8'));
+for(const m of ['20261030180000_panel_plataforma.sql','20261030190000_codigos_manuales.sql','20261030214547_dueno_solo_whatsapp.sql'])await sql(await readFile(new URL('../../supabase/migrations/'+m,import.meta.url),'utf8'));
+const otpDueno=randomUUID();await sql('UPDATE auth.users SET phone=$2,phone_confirmed_at=now() WHERE id=$1',[ids.admin,'525511111111']);
+await sql("INSERT INTO ritmo.acceso_solicitudes(id,prueba_hash,destino_hash,ip_hash,usuario_id,canal,tipo,estado,codigo_hash,vence_en) VALUES($1,$2,$2,$2,$3,'whatsapp','sms','usado',$2,now()+interval '10 minutes')",[otpDueno,'f'.repeat(64),ids.admin]);
+await sql('UPDATE ritmo.acceso_sesiones SET solicitud_otp=$1 WHERE sesion_id=$2',[otpDueno,sesiones.admin]);
 // Un código que WhatsApp no pudo entregar, guardado cifrado para envío manual.
 const llave=randomBytes(32).toString('base64'),solicitud=randomUUID();
 await sql("INSERT INTO ritmo.acceso_solicitudes(id,prueba_hash,destino_hash,ip_hash,canal,tipo,creado_en,vence_en,estado) VALUES($1,$2,$2,$2,'whatsapp','sms',now()-interval '2 minutes',now()+interval '8 minutes','manual')",[solicitud,'a'.repeat(64)]);
@@ -56,7 +59,7 @@ try{
   for(const w of [768,1440]){await p.setViewportSize({width:w,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}await c.close();}
  {const {c,p}=await abrir('admin','dark');await p.locator('[data-salon]').first().waitFor();await p.screenshot({path:capturas+'03-panel-dark.png',animations:'disabled'});await c.close();}
  // Otra Admin de salón con MFA no ve el panel.
- {await sql('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[sesiones.ajena,ids.ajena]);const {c,p}=await abrir('ajena');await p.getByText(/solo para el administrador de Agendappx|exclusivo del dueño/).waitFor();assert.equal(await p.locator('[data-salon]').count(),0);await c.close();}
+ {await sql('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[sesiones.ajena,ids.ajena]);const {c,p}=await abrir('ajena');await p.getByText(/Esta sesión no tiene acceso al panel/).waitFor();assert.equal(await p.locator('[data-salon]').count(),0);await c.close();}
  assert.deepEqual(errores,[]);
  console.log('Panel: resumen, salones, filtros, búsqueda, extender prueba, verificar, pausa y bitácora; otra Admin no lo ve. White/Dark 390/768/1440.');
 }finally{await browser.close();server.close();await e.cerrar();}
