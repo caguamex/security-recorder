@@ -33,24 +33,33 @@ botones: lo primero son las publicaciones.
    calificación, distancia y próximo lugar) y abajo la cuadrícula de
    trabajos con su precio. Sin importar acentos, mayúsculas ni plural.
 
-3. AGENDAR SIN CUENTA (pantalla 3): al tocar «Agendar» en una foto, una
-   hoja con el servicio y precio, horas libres de hoy en chips, nombre y
-   WhatsApp, y «Pedir cita». Crea la cita `solicitada`; el salón la
-   confirma por WhatsApp. (Mientras Explorar/Social reales no estén
-   listos, déjalo como en la demostración de Comunidad.)
+3. AGENDAR SIN CUENTA: al tocar «Agendar» en una foto, una hoja con el
+   servicio y precio, horas libres de hoy en chips, nombre y WhatsApp, y
+   «Pedir cita» (modelo: ritmo/social/index.html). Crea la cita
+   `solicitada`; el salón la confirma por WhatsApp. (Mientras
+   Explorar/Social reales no estén listos, déjalo como en la
+   demostración de Comunidad.)
 
-4. REGISTRO EN 3 PASOS (pantallas 4 a 6), con barrita de avance arriba
+4. REGISTRO EN 4 PASOS (pantallas 3 a 6), con barrita de avance arriba
    y botón ‹ para regresar. Usa el registro por WhatsApp que ya
-   publicaste (PR #10); solo cambia la apariencia y el orden:
-   - Paso 1 «Registra tu salón»: +52 fijo, teclado numérico y «Enviar
-     código por WhatsApp».
-   - Paso 2 «Escribe el código»: 6 cuadros, a qué número llegó, vence en
+   publicaste (PR #10) y agrega la contraseña:
+   - Paso 1 «Crea tu cuenta»: usuario, contraseña y repetirla (con ojo,
+     medidor y reglas en vivo: usuario disponible, mínimo 8 caracteres
+     con letra y número, que coincidan). Abajo «¿Ya tienes cuenta?
+     Entrar».
+   - Paso 2 «Tu WhatsApp»: +52 fijo, teclado numérico y «Enviar código
+     por WhatsApp».
+   - Paso 3 «Escribe el código»: 6 cuadros, a qué número llegó, vence en
      10 minutos y «Reenviar en 0:42».
-   - Paso 3 «Crea tu salón»: tu nombre, negocio, colonia o ciudad, tipo
+   - Paso 4 «Crea tu salón»: tu nombre, negocio, colonia o ciudad, tipo
      de negocio en chips (Salón de belleza, Barbería, Uñas, Cejas y
      pestañas, Spa), aviso «30 días gratis, sin tarjeta» y «Crear mi
      salón». Turnstile y el consentimiento siguen igual.
-   - Las invitaciones de equipo saltan el paso 3.
+   - La cuenta se crea SOLO cuando el código se confirma; antes, el
+     usuario queda apartado unos minutos y se libera si no se termina.
+   - Para entrar después: usuario o WhatsApp + contraseña (o código).
+     Detalles en PROMPT-CODEX-CONTRASENA-EQUIPO.md.
+   - Las invitaciones de equipo saltan el paso 4.
 
 5. SALÓN LISTO (pantalla 7): «¡Listo, {nombre}!» y una lista para
    empezar: Crear tu salón (palomeado), Agrega tus servicios y precios,
@@ -82,7 +91,7 @@ botones: lo primero son las publicaciones.
       lado (ritmo/ios/index.html, pantalla 4).
 
 Actualiza primero la vista previa publicada (neutro-ios) y mándame
-capturas a 390 px en White y Dark de las 8 pantallas, del menú del ＋,
+capturas a 390 px en White y Dark de las 8 pantallas, de la hoja de Agendar, del menú del ＋,
 de Nueva cita y de Agenda. Después sigue con la etapa 1 en la app real.
 No despliegues la app real sin mi confirmación.
 ```

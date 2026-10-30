@@ -11,17 +11,24 @@ trabajadoras según su plan.
 MODELO: ritmo/ios/cuentas.html y su captura
 ritmo/imagenes/app-ios-cuentas.png (rama claude/es-posible-esto-tjimmb,
 último commit). El registro completo está en ritmo/ios/inicio.html
-(ahora son 4 pasos).
+(4 pasos: cuenta, WhatsApp, código y salón).
 
-1. REGISTRO EN 4 PASOS (salones nuevos)
-   1) Tu WhatsApp → 2) Código de 6 dígitos → 3) «Crea tu contraseña»
-   (pantalla 1) → 4) «Crea tu salón».
-   - Paso 3: usuario (sugerido del nombre del negocio, editable),
+1. REGISTRO EN 4 PASOS (salones nuevos), en este orden:
+   1) «Crea tu cuenta»: usuario y contraseña (pantalla 1)
+   2) Tu WhatsApp
+   3) Código de 6 dígitos por WhatsApp
+   4) «Crea tu salón»
+   - Paso 1: usuario (se revisa en vivo que esté disponible),
      contraseña y repetirla, con el ojo para mostrarla, medidor y
      reglas en vivo: mínimo 8 caracteres, una letra y un número, que
      coincidan. Rechaza contraseñas muy comunes.
    - Usuario: único en toda la app, minúsculas, letras, números, punto y
      guion bajo, de 3 a 20 caracteres. Nunca se muestra a clientas.
+   - La cuenta se crea SOLO al confirmar el código (paso 3). Antes, el
+     usuario queda apartado 15 minutos y se libera si no se termina. La
+     contraseña se queda solo en la memoria de la app hasta ese momento
+     y entonces se manda a Supabase Auth; nunca la guardes en otro lado.
+   - Un WhatsApp solo puede tener una cuenta.
 
 2. INICIAR SESIÓN (pantalla 2)
    - Un campo «WhatsApp o usuario» y «Contraseña». Si escriben 10
@@ -91,8 +98,10 @@ MIGRACIÓN
 - Migración aditiva, con respaldo y mi confirmación antes de aplicarla.
 
 PRUEBAS
-- Registro de 4 pasos; entrar con WhatsApp+contraseña, usuario+
-  contraseña y con código; contraseña equivocada 5 veces → bloqueo.
+- Registro de 4 pasos en orden (cuenta, WhatsApp, código, salón); el
+  usuario apartado se libera si no se confirma el código.
+- Entrar con WhatsApp+contraseña, usuario+contraseña y con código;
+  contraseña equivocada 5 veces → bloqueo.
 - Restablecer con WhatsApp; respuesta igual para cuentas que no
   existen; sesiones viejas cerradas.
 - Admin crea trabajadora, ella entra con la temporal, la cambia y solo

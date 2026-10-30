@@ -297,7 +297,7 @@ figcaption small { display: block; margin-top: 3px; color: var(--pageInk2); font
 
 <header class="head">
   <h1>Contraseña, inicio de sesión y accesos del equipo</h1>
-  <p>La cuenta se crea con el código de WhatsApp y una contraseña. Después se entra con WhatsApp o usuario y contraseña, se puede restablecer, y la dueña da acceso a sus trabajadores según su plan.</p>
+  <p>Al registrarse: usuario y contraseña, y luego WhatsApp con código. Después se entra con WhatsApp o usuario y contraseña, se puede restablecer, y la dueña da acceso a sus trabajadores según su plan.</p>
 </header>
 <div class="wall-grid" id="g"></div>
 <p class="foot">Simulación con datos de ejemplo. Fotos de Pexels (licencia libre). En un iPhone se ve con la letra del sistema (San Francisco).</p>
@@ -350,15 +350,15 @@ figcaption small { display: block; margin-top: 3px; color: var(--pageInk2); font
   const pwRow = (lbl, dots, eye = 1) => `<div class="cellr field"><div class="l">${lbl}</div><span class="val pw">${dots}</span>${eye ? `<span class="eye">${I('eye')}</span>` : ''}</div>`;
 
   // 1 · Paso 3: contraseña y usuario
-  S.push(['Regístrate · paso 3 de 4', 'Después del código: su usuario y una contraseña para entrar sin código', tel(`<div class="body">
+  S.push(['Regístrate · paso 1 de 4', 'Primero: usuario y contraseña. Luego WhatsApp y código', tel(`<div class="body">
     ${back()}
-    <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
-    <div class="lt" style="margin-top:10px">Crea tu contraseña</div>
-    <div class="hint">Con ella entras con tu WhatsApp o tu usuario, sin esperar el código.</div>
+    <div class="steps"><i class="on"></i><i></i><i></i><i></i></div>
+    <div class="lt" style="margin-top:10px">Crea tu cuenta</div>
+    <div class="hint">Con tu usuario o tu WhatsApp y esta contraseña vas a entrar.</div>
     <div class="ig" style="margin-top:16px"><div class="cellr field"><div class="l">Usuario</div><span class="val">abbeautyroom</span></div>${pwRow('Contraseña', '••••••••••')}${pwRow('Repítela', '••••••••••')}</div>
     <div class="meter2"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
-    <div class="rules"><span class="ok">${I('check')}Mínimo 8 caracteres</span><span class="ok">${I('check')}Una letra y un número</span><span class="ok">${I('check')}Las dos coinciden</span></div>
-    <div class="cta2"><div class="bigb p">Continuar</div><div class="lk" style="font-size:12.5px">El usuario sirve para entrar y nunca se muestra a clientas</div></div>
+    <div class="rules"><span class="ok">${I('check')}Usuario disponible</span><span class="ok">${I('check')}Mínimo 8 caracteres, con letra y número</span><span class="ok">${I('check')}Las dos coinciden</span></div>
+    <div class="cta2"><div class="bigb p">Continuar</div><div class="lk" style="font-size:12.5px">Después confirmas tu WhatsApp con un código</div></div>
   </div>`)]);
   // 2 · Iniciar sesión
   S.push(['Iniciar sesión', 'WhatsApp o usuario, y contraseña. El código queda como otra opción', tel(`<div class="body">

@@ -273,11 +273,19 @@ figcaption small { display: block; margin-top: 3px; color: var(--pageInk2); font
 .check { display: flex; align-items: center; gap: 12px; }
 .check .dot { width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #C7C7CC; flex: none; }
 .check .dot.ok { background: #0B0B0F; box-shadow: none; color: #fff; display: grid; place-items: center; } .check .dot.ok .ic { width: 14px; height: 14px; stroke-width: 2.6; }
+.field { display: flex; align-items: center; gap: 10px; }
+.field .l { flex: 1; }
+.field input, .field .val { font: inherit; border: 0; background: none; text-align: right; color: #000; }
+.pw { letter-spacing: 3px; font-weight: 700; }
+.eye { color: var(--ink3); }
+.rules { padding: 8px 32px 0; display: grid; gap: 4px; font-size: 13px; color: var(--ink3); }
+.rules span { display: flex; align-items: center; gap: 6px; } .rules .ok { color: #1E9E4A; } .rules .ic { width: 15px; height: 15px; stroke-width: 2.4; }
+.meter2 { display: flex; gap: 4px; padding: 10px 32px 0; } .meter2 i { flex: 1; height: 4px; border-radius: 2px; background: var(--fill); } .meter2 i.on { background: #1E9E4A; }
 </style>
 
 <header class="head">
   <h1>Primera entrada: publicaciones y «Regístrate»</h1>
-  <p>Quien entra por primera vez ve los trabajos de los negocios registrados y busca lo que le interesa. Abajo solo está Inicio y un botón para salones. De ahí siguen los pasos del registro (el paso 3, la contraseña, está en la lámina de cuentas).</p>
+  <p>Quien entra por primera vez ve los trabajos de los negocios registrados y busca lo que le interesa. Abajo solo está Inicio y un botón para salones. Al tocar «¿Tienes un salón?» sigue el registro: usuario y contraseña, WhatsApp, código y datos del salón.</p>
 </header>
 <div class="wall-grid" id="g"></div>
 <p class="foot">Simulación con datos de ejemplo. Fotos de Pexels (licencia libre). En un iPhone se ve con la letra del sistema (San Francisco).</p>
@@ -347,29 +355,32 @@ figcaption small { display: block; margin-top: 3px; color: var(--pageInk2); font
     <div class="sh">Trabajos de cejas cerca</div>
     <div class="grid3">${[[5177994, 250], [3813896, 350], [3985329, 180], [8554941, 550], [5128220, 300], [5177994, 250], [3813896, 700], [8554941, 550], [3985329, 450]].map(([f, p]) => `<div><img src="${F(f)}" alt=""><span>$${p}</span></div>`).join('')}</div>
   </div>${vbar()}`)]);
-  // 3 · Agendar sin cuenta
-  S.push(['Agenda sin crear cuenta', 'Desde la foto: elige hora y deja su WhatsApp para la confirmación', tel(`<div class="body" style="background:#fff"></div><div class="dim"></div>
-    <div class="sheet" style="top:150px"><div class="grab"></div>
-      <div class="navr"><span class="gbtn gl">${I('x')}</span><b>Agendar</b><span style="width:38px"></span></div>
-      <div class="ig" style="margin-top:6px"><div class="cellr"><img class="thumb" src="${F(5177994)}" alt="" style="width:44px;height:44px"><div class="l"><b>Diseño de cejas</b><small>AB' Beauty Room · 45 min</small></div><span class="price">$250</span></div></div>
-      <div class="sh">Hoy · horas libres</div>
-      <div class="chips2"><span>11:00</span><span class="on">13:30</span><span>15:00</span><span>16:30</span><span>18:00</span></div>
-      <div class="ig" style="margin-top:14px"><div class="cellr"><div class="l">Tu nombre</div><span class="v" style="color:#000">Valeria</span></div><div class="cellr"><div class="l">Tu WhatsApp</div><span class="v" style="color:#000">+52 844 123 4567</span></div></div>
-      <div class="cta2" style="bottom:34px"><div class="bigb p">Pedir cita</div><div class="lk" style="font-size:12.5px">El salón te confirma por WhatsApp</div></div>
-    </div>`)]);
-  // 4 · Paso 1
-  S.push(['Regístrate · paso 1 de 4', 'Al tocar «Regístrate»: solo su número de WhatsApp, sin contraseñas', tel(`<div class="body">
+  // 3 · Paso 1: cuenta
+  P.eye = '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>';
+  const pwRow = (lbl, dots) => `<div class="cellr field"><div class="l">${lbl}</div><span class="val pw">${dots}</span><span class="eye">${I('eye')}</span></div>`;
+  S.push(['Regístrate · paso 1 de 4', 'Al tocar «¿Tienes un salón?»: primero su usuario y contraseña', tel(`<div class="body">
     <div class="navr"><span class="gbtn gl">${I('left')}</span><span></span></div>
     <div class="steps"><i class="on"></i><i></i><i></i><i></i></div>
-    <div class="lt" style="margin-top:10px">Registra tu salón</div>
-    <div class="hint">Escribe tu WhatsApp. Te mandamos un código de 6 dígitos para entrar; no necesitas contraseña.</div>
+    <div class="lt" style="margin-top:10px">Crea tu cuenta</div>
+    <div class="hint">Con tu usuario o tu WhatsApp y esta contraseña vas a entrar.</div>
+    <div class="ig" style="margin-top:16px"><div class="cellr field"><div class="l">Usuario</div><span class="val">abbeautyroom</span></div>${pwRow('Contraseña', '••••••••••')}${pwRow('Repítela', '••••••••••')}</div>
+    <div class="meter2"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+    <div class="rules"><span class="ok">${I('check')}Usuario disponible</span><span class="ok">${I('check')}Mínimo 8 caracteres, con letra y número</span><span class="ok">${I('check')}Las dos coinciden</span></div>
+    <div class="cta2"><div class="bigb p">Continuar</div><div class="lk">¿Ya tienes cuenta? <b>Entrar</b></div></div>
+  </div>`)]);
+  // 4 · Paso 1
+  S.push(['Regístrate · paso 2 de 4', 'Su WhatsApp, para confirmar que es suyo con un código', tel(`<div class="body">
+    <div class="navr"><span class="gbtn gl">${I('left')}</span><span></span></div>
+    <div class="steps"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+    <div class="lt" style="margin-top:10px">Tu WhatsApp</div>
+    <div class="hint">Te mandamos un código de 6 dígitos para confirmar que es tu número. También podrás entrar con él.</div>
     <div class="telbox"><span class="cc">🇲🇽 +52</span>844 123 45<span class="car"></span></div>
     <div class="cta2" style="bottom:258px"><div class="bigb p">Enviar código por WhatsApp</div></div>
     ${kb()}</div>`)]);
   // 5 · Paso 2
-  S.push(['Regístrate · paso 2 de 4', 'Escribe el código que llegó por WhatsApp', tel(`<div class="body">
+  S.push(['Regístrate · paso 3 de 4', 'Escribe el código que llegó por WhatsApp', tel(`<div class="body">
     <div class="navr"><span class="gbtn gl">${I('left')}</span><span></span></div>
-    <div class="steps"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+    <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
     <div class="lt" style="margin-top:10px">Escribe el código</div>
     <div class="hint">Te llegó por WhatsApp al +52 844 •••• 45. Vence en 10 minutos.</div>
     <div class="code"><span>4</span><span>8</span><span>2</span><span class="cur"></span><span></span><span></span></div>
