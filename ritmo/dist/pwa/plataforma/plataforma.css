@@ -4,7 +4,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-size:15px;line-height:1.35;-webkit-font-smoothing:antialiased}
 main{max-width:760px;margin:auto;padding:max(10px,env(safe-area-inset-top,0px)) 14px calc(40px + env(safe-area-inset-bottom,0px))}
 button,input,select{font:inherit;color:inherit}button{cursor:pointer}
-.arriba{display:flex;justify-content:space-between;padding:6px 0}
+.arriba{display:flex;justify-content:space-between;gap:8px;padding:6px 0}.arriba [hidden]{display:none}
 .vidrio{background:var(--vidrio);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);box-shadow:inset 0 0 0 .5px #ffffff55,0 4px 14px #0000001a;border:0}
 .cap{display:inline-flex;align-items:center;height:38px;padding:0 14px;border-radius:19px;color:var(--t);text-decoration:none;font-weight:600}
 .circulo{width:38px;height:38px;border-radius:50%;display:grid;place-items:center}
@@ -16,6 +16,30 @@ h2{margin:24px 18px 7px;font-size:12.5px;font-weight:500;text-transform:uppercas
 .celda{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 16px;border:0;background:none;text-align:left;position:relative}
 .celda+.celda::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--linea)}
 .celda .l{flex:1;min-width:0}.celda small{display:block;color:var(--t3);font-size:13px}.celda .v{color:var(--t3);text-align:right;font-size:13.5px}
+
+/* Entrada del dueño, independiente del registro y la agenda de los salones. */
+main.entrada-dueno{max-width:480px;padding-inline:24px;min-height:100dvh;padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
+.entrada-dueno h1{margin:30px 0 8px;font-size:30px;line-height:1.15;letter-spacing:-1px}
+.entrada-dueno>.sub{margin:0;color:var(--t2);font-size:14px;line-height:1.5}
+.acceso-dueno{margin-top:34px}
+.etapa-dueno{font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--t3);margin:0 0 14px}
+.nota-dueno{font-size:14px;line-height:1.5;color:var(--t2);margin:28px 0 0}
+#acceso-plataforma [hidden]{display:none!important}
+#acceso-plataforma h2{margin:0 0 12px!important;font-size:26px;font-weight:700;line-height:1.15;letter-spacing:-.7px;text-transform:none;color:var(--t)}
+#acceso-plataforma .foot{margin:12px 0 24px;font-size:14px;line-height:1.5;color:var(--t2)}
+#acceso-plataforma .group{margin:0 0 20px}
+#acceso-plataforma label.cell{display:flex;flex-direction:column;align-items:stretch;gap:10px;border:0;margin:0 0 18px;font-size:14px;font-weight:500}
+#acceso-plataforma .in{box-sizing:border-box;display:block;appearance:none;-webkit-appearance:none;width:100%;max-width:100%!important;min-width:0;height:54px;padding:12px 16px;border:1px solid transparent;border-radius:14px;color:var(--t);background:var(--celda);font:400 17px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;outline:none}
+#acceso-plataforma .in:focus-visible{border-color:var(--t)}
+#acceso-plataforma .in::placeholder{color:var(--t3)}
+#acceso-plataforma .cell[type=button],#acceso-plataforma button[type=submit]{display:block;width:100%!important;min-height:48px;border:0;border-radius:26px;padding:13px 18px;background:transparent;text-align:center;color:var(--t);font:inherit}
+#acceso-plataforma button[type=submit],#acceso-plataforma #auth-confirmar,#acceso-plataforma #auth-verificar{margin:24px 0 16px!important;min-height:54px;background:var(--t);color:var(--bg);font-size:16px;font-weight:600}
+#acceso-plataforma button:disabled{opacity:.6}
+#acceso-plataforma #auth-form:has(+ #auth-otp-code:not([hidden])){display:none}
+#acceso-plataforma #auth-otp-valor,#acceso-plataforma #auth-code{font-size:28px;text-align:center;letter-spacing:10px;padding-left:26px;font-variant-numeric:tabular-nums}
+#acceso-plataforma #auth-qr{background:#fff;padding:12px;border-radius:16px}
+#acceso-plataforma #auth-status:empty{display:none}
+#acceso-plataforma #auth-salir{font-size:14px;color:var(--t2)}
 .chev{color:#C4C4C7}
 .punto{width:9px;height:9px;border-radius:50%;flex:none;background:var(--t3)}.punto.ok{background:var(--ok)}.punto.aviso{background:var(--aviso)}.punto.mal{background:var(--mal)}
 .buscar{display:flex;align-items:center;gap:8px;height:40px;margin:4px 0 10px;padding:0 12px;border-radius:20px;background:var(--fill)}.buscar input{flex:1;border:0;background:none;outline:0;font-size:16px}

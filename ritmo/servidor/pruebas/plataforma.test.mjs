@@ -34,6 +34,21 @@ test('panel: resumen y lista de salones con plan, dueña, personas y uso',async 
  const otro=s.find(x=>x.id===ids.otro);assert.equal(otro.plan,'salon');assert.equal(otro.estado,'prueba');assert.deepEqual(otro.duena,{nombre:'ajena',whatsapp:'525522222222'});assert.equal(otro.personas,1);
  assert.equal(s.find(x=>x.id===ids.salon).personas,4);
 });
+test('dueño sin salón: panel con MFA, sin membresías, sin plan y sin perfil de clienta',async t=>{
+ const e=await entorno(t);await e.sql('DELETE FROM ritmo.plataforma_admins');await e.sql('INSERT INTO ritmo.plataforma_admins(usuario_id) VALUES($1)',[ids.nueva]);
+ assert.equal(Number((await e.sql('SELECT count(*) FROM ritmo.miembros WHERE usuario_id=$1',[ids.nueva])).rows[0].count),0);
+ assert.equal(Number((await e.sql('SELECT count(*) FROM ritmo.social_clientes WHERE usuario_id=$1',[ids.nueva])).rows[0].count),0);
+ assert.equal(await e.f(identidad('nueva'),'SELECT ritmo.es_admin_plataforma() AS r'),true);
+ assert.equal((await e.f(identidad('nueva'),'SELECT ritmo.plataforma_resumen() AS r')).salones,2);
+ await assert.rejects(()=>e.f(identidad('nueva','aal1'),'SELECT ritmo.plataforma_resumen() AS r'),x=>x.code==='42501');
+ await assert.rejects(()=>e.f(identidad('admin'),'SELECT ritmo.plataforma_resumen() AS r'),x=>x.code==='42501');
+ // Los avisos del dueño usan una suscripción personal: no crean un negocio ni un perfil social.
+ const sub={endpoint:'https://web.push.apple.com/prueba-dueno',keys:{auth:'ficticio',p256dh:'ficticio'}};
+ await e.f(identidad('nueva'),'SELECT ritmo.guardar_push($1,NULL,$2::jsonb) AS r',['cliente',JSON.stringify(sub)]);
+ assert.equal(Number((await e.sql('SELECT count(*) FROM ritmo.push_suscripciones WHERE usuario_id=$1 AND negocio_id IS NULL',[ids.nueva])).rows[0].count),1);
+ await e.sql('DELETE FROM ritmo.acceso_sesiones WHERE usuario_id=$1',[ids.nueva]);
+ await assert.rejects(()=>e.f(identidad('nueva'),'SELECT ritmo.plataforma_resumen() AS r'),x=>x.status===401);
+});
 test('panel: verificar, extender prueba, cambiar plan, pausar y reactivar quedan en la bitácora',async t=>{
  const e=await entorno(t),acc=(a,v)=>e.f(identidad(),'SELECT ritmo.plataforma_accion($1,$2,$3::jsonb) AS r',[ids.otro,a,JSON.stringify(v)]);
  await acc('verificar',{si:true});assert.equal((await e.sql('SELECT verificado FROM ritmo.publico_perfiles WHERE negocio_id=$1',[ids.otro])).rows[0].verificado,true);
