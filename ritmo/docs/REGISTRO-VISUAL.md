@@ -24,4 +24,6 @@ La identidad reservada en `ritmo.plataforma_admins` es la que puede entrar al Pa
 
 ## Publicación
 
-**Pendiente de la confirmación de Antonio después de revisar las capturas.** No se ha desplegado este cambio visual ni requiere migración, cambios en Railway o servicios nuevos. No se han solicitado códigos reales durante la prueba local ni modificado FiNeCi.
+Antonio confirmó «Sí» después de revisar las capturas. Publicado el 30 de octubre de 2026, código `7a7d854`, Worker **fe5c32f7-90e2-4bfa-aab8-0bc472746626**, con `--keep-vars`, misma URL y recursos. Solo se cargaron tres estáticos modificados: `cuentas.js`, `estilo-neutro-ios.css` y `sw.js`. No se ejecutó migración ni se modificaron Railway, datos, permisos, planes o FiNeCi.
+
+Comprobación pública en Edge a las 20:27:25 UTC: archivos publicados idénticos al paquete por SHA-256; registro con cabecera, avance y campos amplios en White/Dark a 390 px; inicio público redirige a Comunidad; salud 200 y panel sin sesión 401. Sin errores JavaScript, sin solicitar códigos ni crear cuentas. La prueba física de completar el salón y MFA sigue correspondiendo a Antonio; no se declara terminada por la publicación del diseño.
