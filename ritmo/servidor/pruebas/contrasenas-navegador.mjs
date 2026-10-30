@@ -63,7 +63,7 @@ const cuentas={habilitado:true,supabaseURL:supabase,llavePublica:comun.llavePubl
  rutasContrasenas:rutasContrasenas(e.poolAPI,jwt,{...comun,habilitado:true,get origen(){return base;},ip:()=> 'ip-contrasena'})};
 const server=crearServidor({salud:async()=>{},estado:async()=>[],snapshot:async()=>({records:[],cursor:0,full:true})},'a'.repeat(40),fileURLToPath(new URL('../../dist/pwa/',import.meta.url)),{cuentas:rutasCuentas(e.poolAPI,jwt,cuentas)});
 server.listen(0,'127.0.0.1');await once(server,'listening');base='http://127.0.0.1:'+server.address().port;
-const browser=await chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL||'msedge'}),errores=[];const capturas=fileURLToPath(new URL('../../imagenes/contrasena-equipo/',import.meta.url));await mkdir(capturas,{recursive:true});
+const browser=await chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL||'msedge'}),errores=[];const capturas=process.env.REGISTRO_CAPTURAS||fileURLToPath(new URL('../../imagenes/contrasena-equipo/',import.meta.url));await mkdir(capturas,{recursive:true});
 let captchaVisto=0;
 async function contexto(modo='light'){const c=await browser.newContext({viewport:{width:390,height:844},locale:'es-MX',colorScheme:modo});
  await c.route('https://challenges.cloudflare.com/**',route=>route.fulfill({contentType:'application/javascript',body:'window.turnstile={render:function(el,config){el.textContent="Seguridad verificada (prueba local)";config.callback(config.action==="acceso"?"captcha-acceso":"registro");return 1;},reset:function(){}};'}));
@@ -79,7 +79,27 @@ async function contexto(modo='light'){const c=await browser.newContext({viewport
   await route.fulfill({status,contentType:'application/json',headers:{'Access-Control-Allow-Origin':base,'Access-Control-Allow-Headers':'*'},body:JSON.stringify(data)});});
  const p=await c.newPage();p.on('pageerror',x=>errores.push(x.message));return {c,p};}
 async function abrir(p){await p.goto(base);await p.waitForFunction(()=>window.AgendappxCuentas?.listo);await p.getByRole('tab',{name:'Negocio',exact:true}).click();await abrirConexiones(p);await p.getByRole('button',{name:/Sincronización/}).click();await p.locator('#sync-activate').click();await p.locator('#auth-clave, #auth-otp').first().waitFor();}
-const foto=(p,n)=>p.screenshot({path:capturas+n+'.png',animations:'disabled'});
+async function foto(p,n){
+ await p.screenshot({path:capturas+n+'.png',animations:'disabled'});
+ if(!/^0[1-4]-registro/.test(n))return;
+ const paso=n.slice(1,2),panel=p.locator('[data-registro-paso]');
+ assert.equal(await panel.getAttribute('data-registro-paso'),paso);
+ assert.equal(await p.locator('.sh-nav b').innerText(),'Agendappx');
+ assert.equal(await p.locator('.sh-nav [data-done]').isVisible(),false);
+ assert.equal(await p.locator('#auth-salir').isVisible(),false);
+ assert.equal(await p.locator('#auth-correo').isVisible(),false);
+ const original=await p.evaluate(()=>document.documentElement.dataset.modo);
+ for(const tema of ['light','dark']){
+  await p.evaluate(t=>document.documentElement.dataset.modo=t,tema);
+  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'El registro cabe en 390 px');
+  const campo=panel.locator('input.in:visible').first();
+  const ancho=await campo.evaluate(x=>x.getBoundingClientRect().width);
+  assert.ok(ancho>=300,'Los campos del registro aprovechan el ancho del teléfono');
+  assert.ok(await campo.evaluate(x=>parseFloat(getComputedStyle(x).fontSize)>=16),'No provoca zoom automático en iPhone');
+  await p.screenshot({path:capturas+n+'-'+tema+'.png',animations:'disabled'});
+ }
+ await p.evaluate(t=>{if(t===undefined)delete document.documentElement.dataset.modo;else document.documentElement.dataset.modo=t;},original);
+}
 const texto=p=>p.locator('#auth-status').innerText();
 try{
  // 1) Registro en 4 pasos: usuario y contraseña → WhatsApp → código → datos del salón (+ MFA de Admin).
@@ -89,12 +109,15 @@ try{
   await p.locator('#registro-continuar').click();await p.locator('#registro-paso-whatsapp').waitFor({state:'visible'});
   assert.equal(await p.evaluate(()=>JSON.stringify(sessionStorage)+JSON.stringify(localStorage)).then(s=>s.includes('Mariana-2026')),false);
   await p.locator('#registro-telefono').fill('5511111111');await p.locator('#registro-consentimiento').check();await foto(p,'02-registro-whatsapp');
-  await p.locator('#registro-crear').click();await p.locator('#auth-otp-code').waitFor({state:'visible'});await foto(p,'03-registro-codigo');
+  await p.locator('#registro-crear').click();await p.locator('#auth-otp-code').waitFor({state:'visible'});assert.equal(await p.locator('#auth-form').isVisible(),false);assert.equal(await p.locator('#auth-confirmar').innerText(),'Verificar código');await foto(p,'03-registro-codigo');
   await p.locator('#auth-otp-valor').fill('482913');await p.locator('#auth-confirmar').click();await p.locator('#registro-salon-form').waitFor({state:'visible'});
   assert.equal(claves.get(ids.nueva),'Mariana-2026');assert.equal((await sql("SELECT usuario FROM ritmo.usuarios_acceso WHERE usuario_id=$1",[ids.nueva])).rows[0].usuario,'mariana.salon');
   await p.locator('#registro-s-nombre').fill('Mariana');await p.locator('#registro-s-salon').fill('Salón Mariana');await foto(p,'04-registro-salon');
-  await p.locator('#registro-s-crear').click();await p.locator('#auth-code').waitFor({state:'visible'});await p.locator('#auth-code').fill('123456');await p.locator('#auth-verificar').click();
+  for(const width of [320,768,1440]){await p.setViewportSize({width,height:700});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Sin desbordamiento en teléfono, tableta y escritorio');await p.locator('#registro-s-crear').scrollIntoViewIfNeeded();assert.ok(await p.locator('#registro-s-crear').isVisible());}
+  await p.setViewportSize({width:390,height:844});
+  await p.locator('#registro-s-crear').click();await p.locator('#auth-code').waitFor({state:'visible'});assert.equal(await p.locator('[data-registro-paso]').getAttribute('data-registro-paso'),'5');await p.locator('#auth-code').fill('123456');await p.locator('#auth-verificar').click();
   await p.waitForFunction(()=>/Acceso verificado/.test(document.querySelector('#auth-status')?.textContent||''));
+  assert.equal(await p.locator('[data-registro-paso]').count(),0,'El registro libera su presentación al completar MFA');
   const n=(await sql("SELECT n.nombre,l.slug FROM ritmo.miembros m JOIN ritmo.negocios n ON n.id=m.negocio_id JOIN ritmo.negocios_enlaces l ON l.negocio_id=n.id WHERE m.usuario_id=$1",[ids.nueva])).rows[0];
   assert.deepEqual(n,{nombre:'Salón Mariana',slug:'salon-mariana'});await c.close();}
  // 2) Entrar con usuario y contraseña; CAPTCHA desde el 3.er fallo.

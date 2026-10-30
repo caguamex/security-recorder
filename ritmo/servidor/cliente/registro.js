@@ -8,7 +8,7 @@ export function montarRegistro(root,{config,cliente,sesion,aviso,modoCliente=fal
  const guardar=()=>{if(ticket)sessionStorage.setItem('agendappx.registro',JSON.stringify(ticket));else sessionStorage.removeItem('agendappx.registro');};
  async function llamada(path,datos,metodo='POST'){const {data}=await cliente.auth.getSession();const r=await fetch(path,{method:metodo,headers:{'Content-Type':'application/json',...(data.session?{Authorization:'Bearer '+data.session.access_token}:{})},...(!['GET','HEAD'].includes(metodo)&&datos!==null?{body:JSON.stringify(datos)}:{}),cache:'no-store',signal:AbortSignal.timeout(25000)});const d=await r.json();if(!r.ok)throw new Error(d.error||'No se pudo continuar. Intenta de nuevo.');return d;}
  const contenedor=document.createElement('section');contenedor.innerHTML=`<button class="cell" type="button" id="registro-abrir">Crear mi cuenta y mi salón</button>
- <section id="registro-formulario" hidden><h2 style="margin:20px 16px 8px">${invitacion?'Unirme al equipo':modoCliente?'Crear mi cuenta':'Crear mi salón'}</h2><p class="foot" id="registro-explicacion">Tu WhatsApp será tu acceso. La agenda de tu salón empieza vacía.</p>
+ <section id="registro-formulario" hidden><h2 id="registro-titulo" style="margin:20px 16px 8px">${invitacion?'Unirme al equipo':modoCliente?'Crear mi cuenta':'Crear mi salón'}</h2><p class="foot" id="registro-explicacion">Tu WhatsApp será tu acceso. La agenda de tu salón empieza vacía.</p>
  <div id="registro-pasos" class="registro-pasos" ${nuevo?'':'hidden'} aria-hidden="true"><i></i><i></i><i></i><i></i></div>
  <form id="registro-form"><div id="registro-paso-cuenta" ${nuevo?'':'hidden'}><div class="group"><label class="cell"><span class="l">Usuario</span><input class="in" id="registro-usuario" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" style="max-width:60%;min-width:0"></label>
  <label class="cell"><span class="l">Contraseña</span><input class="in" id="registro-pass" type="password" autocomplete="new-password" maxlength="72" style="max-width:55%;min-width:0"></label>
@@ -35,8 +35,29 @@ export function montarRegistro(root,{config,cliente,sesion,aviso,modoCliente=fal
  <div class="group registro-credencial" id="registro-credencial" hidden><div class="cell"><span class="l">Usuario</span><b id="registro-c-usuario"></b></div><div class="cell"><span class="l">Contraseña temporal</span><b id="registro-c-clave" style="letter-spacing:.3px"></b></div><button class="cell" type="button" id="registro-c-copiar">Copiar</button><button class="cell" type="button" id="registro-c-whatsapp">Enviar por WhatsApp</button><p class="foot" id="registro-c-nota"></p></div>`:''}
  <div class="group" id="registro-enlace-panel" hidden><label class="cell" style="display:block">Enlace privado<textarea class="in" id="registro-enlace" readonly aria-label="Enlace de invitación" style="width:100%;min-height:80px;overflow-wrap:anywhere"></textarea></label><button class="cell" id="registro-copiar" type="button">Copiar enlace</button><p class="foot">Compártelo solo con la persona invitada. Vence en 48 horas y se usa una sola vez.</p></div></section>`;
  root.appendChild(contenedor);
+ // Presentación del registro: no altera tickets, permisos, códigos ni contraseñas.
+ const marco=document.createElement('header');marco.className='registro-marco';marco.hidden=true;
+ marco.innerHTML='<p id="registro-etapa"></p><div id="registro-progreso" class="registro-pasos" role="progressbar" aria-label="Avance del registro" aria-valuemin="1" aria-valuemax="4"><i></i><i></i><i></i><i></i></div><p id="registro-numero" hidden></p><h2 id="registro-seguridad-titulo" hidden>Protege tu cuenta</h2>';
+ root.prepend(marco);
+ const cabecera=root.closest('.sheet-card')?.querySelector('.sh-nav b'),tituloOriginal=cabecera?.textContent;
+ function presentacion(n){
+  if(!nuevo)return;
+  if(n){root.dataset.registroPaso=String(n);marco.hidden=false;if(cabecera)cabecera.textContent='Agendappx';}
+  else{delete root.dataset.registroPaso;marco.hidden=true;if(cabecera)cabecera.textContent=tituloOriginal;}
+  $('#registro-etapa').textContent=n<=4?'Paso '+n+' de 4':'Último paso · Seguridad';
+  $('#registro-progreso').setAttribute('aria-valuenow',String(Math.min(n,4)));
+  root.querySelectorAll('#registro-progreso i').forEach((x,i)=>x.classList.toggle('on',i<n));
+  $('#registro-seguridad-titulo').hidden=n!==5;
+  $('#registro-numero').hidden=n!==3;
+  if($('#auth-confirmar'))$('#auth-confirmar').textContent=n===3?'Verificar código':'Entrar';
+  if(n===3)$('#registro-numero').textContent='WhatsApp · +52 '+$('#registro-telefono').value.trim();
+  const titulos=['','Crea tu cuenta','Tu WhatsApp','Escribe el código',invitacion?'Unirme al equipo':'Crea tu salón'];
+  if(titulos[n])$('#registro-titulo').textContent=titulos[n];
+  // El estado queda después de la acción, junto a la pantalla que lo produjo.
+  root.append($('#auth-status'));
+ }
  const status=t=>{$('#auth-status').textContent=t;};
- const paso=n=>{root.querySelectorAll('#registro-pasos i').forEach((x,i)=>x.classList.toggle('on',i<n));};
+ const paso=n=>{root.querySelectorAll('#registro-pasos i').forEach((x,i)=>x.classList.toggle('on',i<n));presentacion(n);};
  function reglas(p,u){const l=[];if(p.length<8)l.push('mínimo 8 caracteres');if(!/\p{L}/u.test(p)||!/\d/.test(p))l.push('una letra y un número');if(u&&p.toLowerCase().includes(u))l.push('sin tu usuario dentro');return l;}
  function revisarCuenta(){const u=$('#registro-usuario').value.trim().toLowerCase(),p=$('#registro-pass').value,falta=reglas(p,u);
   $('#registro-reglas').textContent=!p?'Mínimo 8 caracteres, con al menos una letra y un número. Con tu usuario o tu WhatsApp y esta contraseña vas a entrar.':falta.length?'Falta: '+falta.join(', ')+'.':p!==$('#registro-pass2').value?'Las dos contraseñas deben coincidir.':'Contraseña lista.';return {u,p,falta};}
@@ -87,19 +108,19 @@ export function montarRegistro(root,{config,cliente,sesion,aviso,modoCliente=fal
   if(b.dataset.registroClave&&confirm('Se cerrará su sesión y tendrá que entrar con una contraseña temporal nueva. ¿Continuar?')){ocupado=true;const s=await sesion();const d=await llamada('/api/negocios/'+s.negocioId+'/miembros/'+b.dataset.registroClave+'/contrasena',{});credencial(d,'Contraseña temporal nueva.');status('Contraseña temporal creada.');}
   if(b.id==='registro-abrir')await abrir();
   if(b.id==='registro-continuar'){ocupado=true;await continuarCuenta();}
-  if(b.id==='registro-volver'){ticket=null;claveRegistro='';guardar();if($('#auth-clave')){$('#auth-clave').hidden=false;$('#registro-formulario').hidden=true;$('#registro-abrir').hidden=false;status('');return;}$('#registro-formulario').hidden=true;$('#registro-abrir').hidden=false;$('#auth-otp').hidden=false;$('#auth-recuperacion').hidden=false;status('Escribe tu WhatsApp para entrar.');}
+  if(b.id==='registro-volver'){ticket=null;claveRegistro='';guardar();presentacion(0);if($('#auth-clave')){$('#auth-clave').hidden=false;$('#registro-formulario').hidden=true;$('#registro-abrir').hidden=false;status('');return;}$('#registro-formulario').hidden=true;$('#registro-abrir').hidden=false;$('#auth-otp').hidden=false;$('#auth-recuperacion').hidden=false;status('Escribe tu WhatsApp para entrar.');}
   if(b.id==='registro-copiar'){await navigator.clipboard.writeText($('#registro-enlace').value);status('Enlace copiado.');}
   if(b.dataset.guardarAsignaciones){ocupado=true;const s=await sesion(),panel=root.querySelector('[data-asignaciones="'+b.dataset.guardarAsignaciones+'"]');await llamada('/api/negocios/'+s.negocioId+'/miembros/'+b.dataset.guardarAsignaciones,{servicios:[...panel.querySelectorAll('[data-servicio-asignado]:checked')].map(x=>x.value),verTodas:panel.querySelector('[data-ver-todas]').checked},'PATCH');status('Asignaciones guardadas.');aviso();}
   if(b.dataset.registroQuitar&&confirm('Esta persona perderá el acceso al salón. ¿Continuar?')){ocupado=true;const s=await sesion();await llamada('/api/negocios/'+s.negocioId+'/miembros/'+b.dataset.registroQuitar,null,'DELETE');await equipo();status('Acceso retirado.');}
  }catch(e){status(e.message);}finally{ocupado=false;}});
  const pendiente=()=>!!ticket;
  async function verificar(){if(!ticket)return null;await llamada('/api/registro/verificado',{id:ticket.id,prueba:ticket.prueba});return ticket.rol;}
- async function finalizar(){if(!ticket)return;const d=await llamada('/api/registro/finalizar',{id:ticket.id,prueba:ticket.prueba,...(ticket.salon?{nombre:ticket.salon.nombre,salon:ticket.salon.salon,plan:ticket.salon.plan}:{})});const {data}=await cliente.auth.getSession();if(d.negocioId)localStorage.setItem('agendappx.negocio.'+data.session.user.id,d.negocioId);ticket=null;guardar();invitacion='';delete globalThis.__agendappxInvitacion;limpiarContexto();}
+ async function finalizar(){if(!ticket)return;const d=await llamada('/api/registro/finalizar',{id:ticket.id,prueba:ticket.prueba,...(ticket.salon?{nombre:ticket.salon.nombre,salon:ticket.salon.salon,plan:ticket.salon.plan}:{})});const {data}=await cliente.auth.getSession();if(d.negocioId)localStorage.setItem('agendappx.negocio.'+data.session.user.id,d.negocioId);ticket=null;guardar();presentacion(0);invitacion='';delete globalThis.__agendappxInvitacion;limpiarContexto();}
  if(modoCliente)$('#registro-abrir').textContent='Crear mi cuenta';
  if(!config.registro?.habilitado)contenedor.hidden=true;
  if(invitacion&&config.registro?.habilitado)void abrir().catch(e=>status(e.message));
  async function guardarClave(){if(!ticket?.usuario||!claveRegistro||ticket.claveGuardada)return false;await llamada('/api/cuenta/contrasena',{usuario:ticket.usuario,contrasena:claveRegistro});claveRegistro='';ticket.claveGuardada=true;guardar();return true;}
  const faltaSalon=()=>!!ticket&&nuevo&&ticket.tipo==='salon'&&!ticket.salon;
  function mostrarSalon(){$('#registro-formulario').hidden=false;$('#registro-form').hidden=true;$('#registro-salon-form').hidden=false;$('#registro-pasos').hidden=false;paso(4);$('#registro-explicacion').textContent='Último paso: los datos de tu negocio. Empiezas con 30 días gratis, sin tarjeta.';$('#registro-s-nombre').focus();status('');}
- return {pendiente,verificar,finalizar,equipo,abrir,guardarClave,faltaSalon,mostrarSalon,limpiar(){ticket=null;claveRegistro='';guardar();$('#registro-enlace').value='';$('#registro-equipo').hidden=true;}};
+ return {pendiente,verificar,finalizar,equipo,abrir,guardarClave,faltaSalon,mostrarSalon,seguridad(){presentacion(5);},limpiar(){ticket=null;claveRegistro='';guardar();presentacion(0);$('#registro-enlace').value='';$('#registro-equipo').hidden=true;}};
 }
