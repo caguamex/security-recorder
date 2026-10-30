@@ -1,0 +1,434 @@
+<title>Agendappx contraseña y equipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Agendappx como app nativa de iPhone (iOS 26), con el diseño Neutro (docs/DISENO.md).
+   Lámina de 8 pantallas: piezas del sistema (pantalla bloqueada, widget, Live Activity) y de la app
+   (títulos grandes, listas agrupadas, hojas y barra de pestañas flotante de vidrio). */
+:root {
+  --page: #ECEEF3; --pageInk: #0B0B0F; --pageInk2: #5A6070;
+  --grp: #F2F2F7; --cell: #FFFFFF; --ink: #000000; --ink2: #3C3C43; --ink3: #8A8A8E; --sep: rgba(60, 60, 67, .16); --fill: rgba(118, 118, 128, .12);
+  --acInk: #FFFFFF; --green: #34C759;
+  --glass: rgba(255, 255, 255, .72); --glassLine: rgba(255, 255, 255, .6);
+  --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #0B0B0E; --pageInk: #F5F5F7; --pageInk2: #9A9AA3; } }
+:root[data-theme="dark"] { --page: #0B0B0E; --pageInk: #F5F5F7; --pageInk2: #9A9AA3; }
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--page); color: var(--pageInk); font-family: var(--sf); -webkit-font-smoothing: antialiased; padding: 34px 16px 40px; }
+.head { max-width: 1440px; margin: 0 auto 26px; text-align: center; }
+.head h1 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -.02em; }
+.head p { margin-top: 8px; color: var(--pageInk2); font-size: clamp(15px, 1.6vw, 18px); line-height: 1.4; }
+.wall-grid { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 34px 26px; justify-items: center; }
+figure { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+figcaption { max-width: 320px; text-align: center; font-size: 15px; font-weight: 700; }
+figcaption small { display: block; margin-top: 3px; color: var(--pageInk2); font-size: 13px; font-weight: 500; line-height: 1.35; }
+.foot { max-width: 900px; margin: 30px auto 0; text-align: center; color: var(--pageInk2); font-size: 13px; }
+
+/* Teléfono */
+.ios { width: 330px; height: 700px; border-radius: 56px; padding: 11px; background: #1C1C1E; box-shadow: 0 0 0 2px #3A3A3C, 0 30px 60px rgba(20, 30, 60, .22); flex: none; }
+.scr { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 46px; background: var(--grp); color: var(--ink); font-size: 15px; line-height: 1.3; }
+.scr.white { background: #FFFFFF; }
+.island { position: absolute; z-index: 9; top: 10px; left: 50%; width: 100px; height: 30px; margin-left: -50px; border-radius: 20px; background: #000; }
+.sb { position: absolute; z-index: 8; top: 0; left: 0; right: 0; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 6px 26px 0 32px; font-size: 15px; font-weight: 600; }
+.sb.w { color: #fff; }
+.sb .r { display: flex; gap: 5px; align-items: center; }
+.hi { position: absolute; z-index: 9; bottom: 8px; left: 50%; width: 120px; height: 5px; margin-left: -60px; border-radius: 3px; background: #000; }
+.hi.w { background: #fff; }
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.fillic { fill: currentColor; stroke: none; }
+.body { position: absolute; inset: 0; padding-top: 52px; overflow: hidden; }
+
+/* Vidrio (Liquid Glass) */
+.gl { background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); box-shadow: inset 0 0 0 .5px var(--glassLine), 0 6px 20px rgba(0, 0, 0, .10); }
+.gbtn { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; gap: 2px; white-space: nowrap; color: var(--ink); }
+.gbtn.dark { background: #0B0B0F; color: #fff; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }
+.navr { display: flex; align-items: center; justify-content: space-between; padding: 4px 14px 0; min-height: 44px; }
+.navr .grp2 { display: flex; gap: 8px; }
+.lt { padding: 4px 18px 0; font-size: 33px; font-weight: 700; letter-spacing: -.02em; line-height: 1.12; }
+.lts { padding: 0 18px; color: var(--ink3); font-size: 15px; }
+.sh { padding: 18px 34px 7px; color: var(--ink3); font-size: 12.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .02em; }
+.ig { margin: 0 14px; border-radius: 22px; background: var(--cell); overflow: hidden; }
+.cellr { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 9px 16px; position: relative; }
+.cellr + .cellr::before { content: ""; position: absolute; top: 0; right: 0; left: 16px; height: .5px; background: var(--sep); }
+.cellr.ico + .cellr.ico::before { left: 58px; }
+.cellr .l { flex: 1; min-width: 0; }
+.cellr small { display: block; color: var(--ink3); font-size: 13px; }
+.cellr .v { color: var(--ink3); }
+.chev { width: 14px; height: 14px; color: #C4C4C7; stroke-width: 2.4; }
+.sq { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: #0B0B0F; color: #fff; flex: none; }
+.sq.g { background: #8E8E93; }
+.sq .ic { width: 17px; height: 17px; }
+.pillbtn { border: 0; padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; background: var(--fill); color: var(--ink); font-family: inherit; }
+.pillbtn.p { background: #0B0B0F; color: #fff; }
+.thumb { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; flex: none; }
+
+/* Barra de pestañas flotante (iOS 26) */
+.tabs { position: absolute; z-index: 7; left: 12px; right: 12px; bottom: 22px; display: flex; gap: 8px; align-items: center; }
+.tabbar { flex: 1; height: 60px; border-radius: 30px; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; padding: 0 4px; }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 1px; height: 52px; justify-content: center; border-radius: 26px; white-space: nowrap; font-size: 10px; font-weight: 600; color: var(--ink); }
+.tab .ic { width: 23px; height: 23px; }
+.tab.on { background: rgba(0, 0, 0, .07); }
+.tabs .solo { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.tabs .solo.dark { background: #0B0B0F; color: #fff; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
+.tabs .solo .ic { width: 24px; height: 24px; }
+
+/* Pantalla bloqueada y de inicio */
+.wp { position: absolute; inset: 0; background: radial-gradient(120% 70% at 20% 0%, #CFD3DB, transparent 60%), radial-gradient(110% 80% at 100% 100%, #5C616C, transparent 60%), linear-gradient(170deg, #B7BCC6, #6B707B); }
+.lock-date { position: absolute; top: 64px; left: 0; right: 0; text-align: center; color: #fff; font-size: 17px; font-weight: 600; }
+.lock-time { position: absolute; top: 82px; left: 0; right: 0; text-align: center; color: #fff; font-size: 86px; font-weight: 700; letter-spacing: -.03em; line-height: 1; font-family: "SF Pro Rounded", var(--sf); }
+.notif { position: absolute; left: 10px; right: 10px; border-radius: 24px; padding: 12px 14px; display: flex; gap: 10px; color: #000; background: rgba(255, 255, 255, .62); -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%); }
+.appi { width: 38px; height: 38px; border-radius: 10px; background: #0B0B0F; color: #fff; display: grid; place-items: center; flex: none; }
+.appi .ic { width: 22px; height: 22px; }
+.notif b { font-size: 14.5px; } .notif p { font-size: 14px; line-height: 1.3; color: #1C1C1E; } .notif .t { margin-left: auto; color: #3C3C43; font-size: 12.5px; font-weight: 400; }
+.live { position: absolute; left: 10px; right: 10px; bottom: 96px; border-radius: 26px; padding: 14px 16px; color: #fff; background: rgba(0, 0, 0, .78); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.live .row { display: flex; align-items: center; gap: 10px; }
+.live .bar { height: 5px; margin-top: 12px; border-radius: 3px; background: rgba(255, 255, 255, .22); overflow: hidden; } .live .bar i { display: block; width: 72%; height: 100%; background: #fff; }
+.live small { color: rgba(255, 255, 255, .7); font-size: 12.5px; }
+.lockbtns { position: absolute; left: 44px; right: 44px; bottom: 34px; display: flex; justify-content: space-between; }
+.lockbtns span { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, .28); color: #fff; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.widget { position: absolute; left: 18px; right: 18px; top: 66px; height: 150px; border-radius: 24px; padding: 14px 16px; background: #fff; box-shadow: 0 10px 26px rgba(0, 0, 0, .18); display: grid; grid-template-columns: 92px 1fr; gap: 12px; }
+.widget .k b { display: block; font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1.05; }
+.widget .k small { color: var(--ink3); font-size: 12px; font-weight: 600; }
+.widget .k .mono { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+.widget .k .mono i { width: 18px; height: 18px; border-radius: 5px; background: #0B0B0F; color: #fff; display: grid; place-items: center; } .widget .k .mono .ic { width: 12px; height: 12px; stroke-width: 2.4; }
+.widget ul { list-style: none; padding: 0; display: grid; gap: 7px; }
+.widget li { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.25; }
+.widget li::before { content: ""; width: 3px; align-self: stretch; border-radius: 2px; background: var(--c); }
+.widget li b { display: block; font-size: 13px; } .widget li span { color: var(--ink3); }
+.apps { position: absolute; top: 236px; left: 22px; right: 22px; display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 16px; justify-items: center; }
+.app { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
+.app i { width: 58px; height: 58px; border-radius: 15px; background: rgba(255, 255, 255, .38); box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .5); }
+.app .appi { width: 58px; height: 58px; border-radius: 15px; } .app .appi .ic { width: 32px; height: 32px; }
+.small-w { grid-column: span 2; width: 132px; height: 132px; border-radius: 22px; background: #0B0B0F; color: #fff; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 22px rgba(0, 0, 0, .2); text-shadow: none; }
+.small-w b { font-size: 34px; font-weight: 700; line-height: 1; } .small-w small { font-size: 12px; color: rgba(255, 255, 255, .7); font-weight: 600; }
+.dock { position: absolute; left: 12px; right: 12px; bottom: 22px; height: 84px; border-radius: 32px; display: flex; align-items: center; justify-content: space-around; background: rgba(255, 255, 255, .3); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.dock i { width: 56px; height: 56px; border-radius: 15px; background: rgba(255, 255, 255, .45); }
+
+/* Hoy */
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 14px 0; }
+.kpi { border-radius: 20px; background: var(--cell); padding: 12px 14px; }
+.kpi b { display: block; font-size: 27px; font-weight: 700; letter-spacing: -.02em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.kpi small { color: var(--ink3); font-size: 12.5px; }
+.kpi .ic { color: var(--ink3); width: 18px; height: 18px; }
+.req .l b { font-size: 15px; } .req .btns { display: flex; gap: 8px; margin-top: 8px; }
+.req { align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
+
+/* Agenda */
+.week { display: grid; grid-template-columns: repeat(7, 1fr); padding: 6px 12px 0; text-align: center; }
+.week span { font-size: 11px; color: var(--ink3); font-weight: 600; }
+.week b { display: grid; place-items: center; width: 34px; height: 34px; margin: 3px auto 0; border-radius: 50%; font-size: 17px; font-weight: 500; }
+.week .on b { background: #0B0B0F; color: #fff; font-weight: 700; }
+.chips { display: flex; gap: 6px; padding: 12px 14px 6px; overflow: hidden; }
+.chips span { flex: none; padding: 6px 12px; border-radius: 999px; background: var(--cell); font-size: 13.5px; font-weight: 600; }
+.chips .on { background: #0B0B0F; color: #fff; }
+.day { position: relative; margin: 6px 0 0; height: 470px; background: var(--cell); border-radius: 24px 24px 0 0; padding: 10px 12px 0 52px; }
+.hr { position: absolute; left: 0; right: 0; height: .5px; background: var(--sep); }
+.hr span { position: absolute; left: 12px; top: -7px; font-size: 11px; color: var(--ink3); font-variant-numeric: tabular-nums; }
+.ev { position: absolute; border-radius: 8px; padding: 5px 8px 5px 10px; font-size: 12.5px; line-height: 1.22; background: color-mix(in srgb, var(--c) 13%, #fff); color: color-mix(in srgb, var(--c) 70%, #000); overflow: hidden; }
+.ev::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3.5px; background: var(--c); }
+.ev b { display: block; color: #000; font-size: 13px; }
+.now { position: absolute; left: 44px; right: 0; height: 2px; background: #FF3B30; } .now::before { content: ""; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: #FF3B30; }
+.now span { position: absolute; left: -44px; top: -8px; padding: 1px 5px; border-radius: 6px; background: #FF3B30; color: #fff; font-size: 10.5px; font-weight: 700; }
+
+/* Hoja */
+.dim { position: absolute; inset: 0; background: rgba(0, 0, 0, .25); }
+.sheet { position: absolute; left: 0; right: 0; top: 54px; bottom: 0; border-radius: 34px 34px 0 0; background: var(--grp); box-shadow: 0 -4px 30px rgba(0, 0, 0, .15); }
+.grab { width: 38px; height: 5px; border-radius: 3px; background: rgba(60, 60, 67, .3); margin: 7px auto 0; }
+.sheet .navr { padding-top: 6px; }
+.sheet .navr b { font-size: 17px; font-weight: 600; }
+.svcs { display: flex; gap: 10px; padding: 0 14px; overflow: hidden; }
+.svc { flex: none; width: 118px; border-radius: 18px; background: var(--cell); overflow: hidden; font-size: 12.5px; }
+.svc img { width: 100%; height: 78px; object-fit: cover; display: block; }
+.svc div { padding: 7px 10px 9px; } .svc b { display: block; font-size: 13px; } .svc span { color: var(--ink3); }
+.svc.on { box-shadow: 0 0 0 2.5px #0B0B0F; }
+.dpill { padding: 6px 11px; border-radius: 9px; background: var(--fill); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.sw { width: 51px; height: 31px; border-radius: 16px; background: var(--green); position: relative; flex: none; }
+.sw::after { content: ""; position: absolute; top: 2px; right: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, .2); }
+.foothint { padding: 7px 34px 0; color: var(--ink3); font-size: 12.5px; line-height: 1.35; }
+
+/* Explorar */
+.search { display: flex; align-items: center; gap: 7px; margin: 10px 14px 0; height: 40px; padding: 0 12px; border-radius: 20px; background: var(--fill); color: var(--ink3); font-size: 16px; }
+.search .ic { width: 18px; height: 18px; }
+.search .mic { margin-left: auto; }
+.cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 14px; }
+.cat { position: relative; height: 76px; border-radius: 16px; overflow: hidden; }
+.cat img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cat::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, .7)); }
+.cat b { position: absolute; z-index: 1; left: 7px; bottom: 6px; color: #fff; font-size: 11.5px; font-weight: 700; }
+.biz { margin: 0 14px; border-radius: 22px; background: var(--cell); overflow: hidden; }
+.biz .ph { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 64px 64px; gap: 2px; }
+.biz .ph img { width: 100%; height: 100%; object-fit: cover; display: block; } .biz .ph img:first-child { grid-row: span 2; }
+.biz .in { padding: 10px 14px 12px; } .biz .in b { font-size: 16px; }
+.biz .in small { display: block; color: var(--ink3); font-size: 13px; margin-top: 2px; }
+.biz .nx { display: inline-block; margin-top: 7px; padding: 4px 10px; border-radius: 999px; background: var(--fill); font-size: 12.5px; font-weight: 600; }
+.ver { width: 15px; height: 15px; vertical-align: -2px; }
+
+/* Perfil */
+.hero { position: relative; height: 230px; }
+.hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero .ov { position: absolute; top: 52px; left: 14px; right: 14px; display: flex; justify-content: space-between; }
+.hero .ov .gl { background: rgba(255, 255, 255, .55); }
+.prof { padding: 0 18px; margin-top: -30px; position: relative; }
+.prof .lg { width: 64px; height: 64px; border-radius: 50%; background: #0B0B0F; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 21px; border: 3px solid var(--grp); }
+.prof h2 { margin-top: 6px; font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
+.prof small { color: var(--ink3); font-size: 13.5px; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); margin: 14px 14px 10px; padding: 2px; border-radius: 10px; background: var(--fill); }
+.seg span { text-align: center; padding: 6px 0; font-size: 13px; font-weight: 500; border-radius: 8px; }
+.seg .on { background: #fff; font-weight: 600; box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
+.price { font-weight: 600; font-variant-numeric: tabular-nums; }
+.fab { position: absolute; z-index: 7; left: 18px; right: 18px; bottom: 26px; height: 52px; border-radius: 26px; background: #0B0B0F; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 24px rgba(0, 0, 0, .28); }
+
+/* Mi plan */
+.plan { padding: 14px 16px; }
+.plan .row { display: flex; align-items: center; gap: 8px; }
+.plan .tg { padding: 2px 8px; border-radius: 999px; background: #0B0B0F; color: #fff; font-size: 11.5px; font-weight: 700; }
+.plan .pr { margin-top: 6px; font-size: 30px; font-weight: 700; letter-spacing: -.02em; } .plan .pr s { color: var(--ink3); font-size: 15px; font-weight: 500; margin-right: 6px; } .plan .pr span { color: var(--ink3); font-size: 13.5px; font-weight: 500; }
+.plan .bar { height: 5px; margin-top: 10px; border-radius: 3px; background: var(--fill); overflow: hidden; } .plan .bar i { display: block; width: 40%; height: 100%; background: #0B0B0F; }
+.plan small { display: flex; justify-content: space-between; margin-top: 5px; color: var(--ink3); font-size: 12.5px; }
+.ok { color: #1E9E4A; font-weight: 600; }
+
+/* Registro */
+.welcome { position: absolute; inset: 0; background: #fff; }
+.mosaic { position: absolute; top: 0; left: 0; right: 0; height: 330px; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; }
+.mosaic img { width: 100%; height: 100%; object-fit: cover; display: block; } .mosaic img:first-child { grid-row: span 2; grid-column: span 2; }
+.mosaic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.25), transparent 30%, transparent 60%, #fff); }
+.wtext { position: absolute; left: 22px; right: 22px; top: 268px; }
+.wtext .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
+.wtext .brand i { width: 30px; height: 30px; border-radius: 9px; background: #0B0B0F; color: #fff; display: grid; place-items: center; } .wtext .brand .ic { width: 18px; height: 18px; }
+.wtext h2 { margin-top: 12px; font-size: 30px; line-height: 1.08; font-weight: 700; letter-spacing: -.02em; }
+.wtext p { margin-top: 8px; color: var(--ink3); font-size: 15px; line-height: 1.35; }
+.cta2 { position: absolute; left: 20px; right: 20px; bottom: 34px; display: grid; gap: 10px; }
+.bigb { height: 52px; border-radius: 26px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 16px; background: var(--fill); color: #000; }
+.bigb.p { background: #0B0B0F; color: #fff; }
+.bigb .ic { width: 19px; height: 19px; }
+.lk { text-align: center; font-size: 14px; color: var(--ink3); margin-top: 4px; } .lk b { color: #000; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(0,0,0,.25); }
+.steps { display: flex; gap: 5px; padding: 6px 18px 0; } .steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--fill); } .steps i.on { background: #0B0B0F; }
+.hint { padding: 6px 18px 0; color: var(--ink3); font-size: 15px; line-height: 1.35; }
+.telbox { display: flex; align-items: center; gap: 10px; margin: 20px 14px 0; height: 56px; padding: 0 16px; border-radius: 18px; background: var(--cell); font-size: 20px; font-variant-numeric: tabular-nums; }
+.telbox .cc { display: flex; align-items: center; gap: 6px; padding-right: 12px; border-right: .5px solid var(--sep); font-weight: 600; font-size: 17px; }
+.telbox .car { width: 2px; height: 24px; background: #0A84FF; margin-left: -6px; animation: none; }
+.code { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 22px 18px 0; }
+.code span { height: 54px; border-radius: 14px; background: var(--cell); display: grid; place-items: center; font-size: 24px; font-weight: 600; }
+.code span.cur { box-shadow: inset 0 0 0 2px #0B0B0F; }
+.kb { position: absolute; left: 0; right: 0; bottom: 0; height: 236px; background: #D1D3D9; padding: 8px 6px 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.kb span { border-radius: 8px; background: #fff; display: grid; place-items: center; font-size: 22px; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.kb span.e { background: none; box-shadow: none; }
+.autofill { position: absolute; left: 0; right: 0; bottom: 236px; height: 44px; background: #D1D3D9; display: grid; place-items: center; font-size: 14px; border-bottom: .5px solid rgba(0,0,0,.12); }
+.autofill b { font-weight: 600; }
+.chips2 { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 14px; }
+.chips2 span { padding: 8px 13px; border-radius: 999px; background: var(--cell); font-size: 14px; font-weight: 600; }
+.chips2 .on { background: #0B0B0F; color: #fff; }
+.trialbox { margin: 14px 14px 0; padding: 12px 14px; border-radius: 18px; background: var(--cell); display: flex; gap: 10px; align-items: center; font-size: 13.5px; color: var(--ink2); }
+.trialbox b { color: #000; display: block; font-size: 14.5px; }
+.banner2 { margin: 16px 14px 0; padding: 14px; border-radius: 22px; background: #0B0B0F; color: #fff; display: flex; align-items: center; gap: 12px; }
+.banner2 b { display: block; font-size: 15px; } .banner2 small { color: rgba(255,255,255,.7); font-size: 12.5px; }
+.banner2 span.go { margin-left: auto; padding: 8px 12px; border-radius: 999px; background: #fff; color: #000; font-weight: 600; font-size: 13px; white-space: nowrap; }
+/* Barra de 5 con el ＋ al centro */
+.bar5 { position: absolute; z-index: 7; left: 12px; right: 12px; bottom: 22px; height: 62px; border-radius: 31px; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; padding: 0 4px; }
+.bar5 .tab { height: 54px; border-radius: 27px; }
+.bar5 .mid { justify-self: center; width: 50px; height: 50px; border-radius: 50%; background: #0B0B0F; color: #fff; display: grid; place-items: center; }
+.bar5 .mid .ic { width: 24px; height: 24px; stroke-width: 2.2; }
+.bar5.raise .mid { width: 62px; height: 62px; transform: translateY(-20px); box-shadow: 0 0 0 5px var(--grp), 0 10px 22px rgba(0,0,0,.3); }
+.bar5.raise .mid .ic { width: 28px; height: 28px; }
+.menu { position: absolute; z-index: 8; left: 50%; bottom: 96px; width: 250px; margin-left: -125px; border-radius: 26px; padding: 6px; }
+.menu div { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; font-size: 16px; font-weight: 500; }
+.menu div + div { border-top: .5px solid var(--sep); border-radius: 0; }
+.menu small { display: block; color: var(--ink3); font-size: 12.5px; font-weight: 400; }
+.dim2 { position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,.18); }
+.opt { position: absolute; z-index: 9; top: 54px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 999px; background: #0B0B0F; color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
+
+/* Feed para visitantes */
+.feedtop { padding: 4px 14px 0; display: flex; align-items: center; gap: 8px; }
+.feedtop .brand2 { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 18px; flex: 1; }
+.feedtop .brand2 i { width: 28px; height: 28px; border-radius: 8px; background: #0B0B0F; color: #fff; display: grid; place-items: center; } .feedtop .brand2 .ic { width: 16px; height: 16px; }
+.fchips { display: flex; gap: 7px; padding: 10px 14px 0; overflow: hidden; }
+.fchips span { flex: none; padding: 7px 12px; border-radius: 999px; background: var(--cell); font-size: 13.5px; font-weight: 600; }
+.fchips .on { background: #0B0B0F; color: #fff; }
+.post { margin: 12px 0 0; background: var(--cell); }
+.post .who { display: flex; align-items: center; gap: 9px; padding: 10px 14px; }
+.post .av { width: 34px; height: 34px; border-radius: 50%; background: #0B0B0F; color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; }
+.post .who b { font-size: 14.5px; } .post .who small { display: block; color: var(--ink3); font-size: 12.5px; }
+.post .who .fol { margin-left: auto; padding: 6px 12px; border-radius: 999px; background: var(--fill); font-size: 13px; font-weight: 600; }
+.post .pic { position: relative; height: 300px; } .post .pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.post .ag { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; align-items: center; gap: 10px; padding: 9px 9px 9px 14px; border-radius: 18px; background: rgba(255,255,255,.82); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.post .ag b { display: block; font-size: 14px; } .post .ag small { color: var(--ink2); font-size: 12px; }
+.post .ag span.btn { margin-left: auto; padding: 8px 13px; border-radius: 999px; background: #0B0B0F; color: #fff; font-weight: 600; font-size: 13.5px; }
+.post .acts { display: flex; gap: 16px; padding: 10px 14px 4px; } .post .acts .ic { width: 23px; height: 23px; }
+.post .cap2 { padding: 0 14px 12px; font-size: 13.5px; } .post .cap2 b { font-weight: 600; }
+.vbar { position: absolute; z-index: 7; left: 12px; right: 12px; bottom: 22px; display: flex; gap: 8px; align-items: center; }
+.vbar .home { width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.vbar .home .ic { width: 25px; height: 25px; }
+.vbar .reg { flex: 1; height: 62px; border-radius: 31px; background: #0B0B0F; color: #fff; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 18px; box-shadow: 0 10px 24px rgba(0,0,0,.28); }
+.vbar .reg b { display: block; font-size: 14.5px; } .vbar .reg small { display: block; color: rgba(255,255,255,.7); font-size: 12px; }
+.vbar .reg span.go { margin-left: auto; padding: 9px 13px; border-radius: 999px; background: #fff; color: #000; font-weight: 700; font-size: 13.5px; white-space: nowrap; }
+.locs { display: flex; gap: 10px; padding: 0 14px; overflow: hidden; }
+.locs .lc { flex: none; width: 230px; display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 18px; background: var(--cell); }
+.locs .lc img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; }
+.locs .lc b { font-size: 14px; display: block; } .locs .lc small { color: var(--ink3); font-size: 12px; display: block; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.grid3 div { position: relative; aspect-ratio: 1; } .grid3 img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.grid3 span { position: absolute; left: 5px; bottom: 5px; padding: 2px 6px; border-radius: 6px; background: rgba(0,0,0,.55); color: #fff; font-size: 11px; font-weight: 700; }
+.check { display: flex; align-items: center; gap: 12px; }
+.check .dot { width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #C7C7CC; flex: none; }
+.check .dot.ok { background: #0B0B0F; box-shadow: none; color: #fff; display: grid; place-items: center; } .check .dot.ok .ic { width: 14px; height: 14px; stroke-width: 2.6; }
+
+.field { display: flex; align-items: center; gap: 10px; }
+.field .l { flex: 1; }
+.field input, .field .val { font: inherit; border: 0; background: none; text-align: right; color: #000; }
+.pw { letter-spacing: 3px; font-weight: 700; }
+.eye { color: var(--ink3); }
+.rules { padding: 8px 32px 0; display: grid; gap: 4px; font-size: 13px; color: var(--ink3); }
+.rules span { display: flex; align-items: center; gap: 6px; } .rules .ok { color: #1E9E4A; } .rules .ic { width: 15px; height: 15px; stroke-width: 2.4; }
+.meter2 { display: flex; gap: 4px; padding: 10px 32px 0; } .meter2 i { flex: 1; height: 4px; border-radius: 2px; background: var(--fill); } .meter2 i.on { background: #1E9E4A; }
+.or { display: flex; align-items: center; gap: 10px; margin: 18px 30px 0; color: var(--ink3); font-size: 13px; } .or::before, .or::after { content: ""; flex: 1; height: .5px; background: var(--sep); }
+.av2 { width: 38px; height: 38px; border-radius: 50%; background: #0B0B0F; color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 700; flex: none; }
+.av2.g { background: #8E8E93; }
+.role { padding: 3px 8px; border-radius: 999px; background: var(--fill); font-size: 12px; font-weight: 600; color: var(--ink2); }
+.usebar { margin: 12px 14px 0; padding: 12px 14px; border-radius: 18px; background: var(--cell); }
+.usebar .row { display: flex; justify-content: space-between; font-size: 14px; } .usebar .bar { height: 6px; margin-top: 8px; border-radius: 3px; background: var(--fill); overflow: hidden; } .usebar .bar i { display: block; height: 100%; background: #0B0B0F; }
+.cred { margin: 14px 14px 0; padding: 14px 16px; border-radius: 18px; background: #0B0B0F; color: #fff; font-size: 14px; }
+.cred .r { display: flex; justify-content: space-between; padding: 4px 0; } .cred small { color: rgba(255,255,255,.65); font-size: 13px; } .cred b { font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+.cred .acts2 { display: flex; gap: 8px; margin-top: 10px; } .cred .acts2 span { flex: 1; text-align: center; padding: 9px 0; border-radius: 999px; background: rgba(255,255,255,.14); font-weight: 600; font-size: 13.5px; } .cred .acts2 span.w { background: #fff; color: #000; }
+.lim { margin: 70px 22px 0; text-align: center; } .lim .big2 { width: 74px; height: 74px; margin: 0 auto; border-radius: 22px; background: var(--cell); display: grid; place-items: center; } .lim .big2 .ic { width: 34px; height: 34px; }
+.lim h2 { margin-top: 16px; font-size: 24px; font-weight: 700; letter-spacing: -.01em; } .lim p { margin-top: 8px; color: var(--ink3); font-size: 15px; line-height: 1.4; }
+</style>
+
+<header class="head">
+  <h1>Contraseña, inicio de sesión y accesos del equipo</h1>
+  <p>La cuenta se crea con el código de WhatsApp y una contraseña. Después se entra con WhatsApp o usuario y contraseña, se puede restablecer, y la dueña da acceso a sus trabajadores según su plan.</p>
+</header>
+<div class="wall-grid" id="g"></div>
+<p class="foot">Simulación con datos de ejemplo. Fotos de Pexels (licencia libre). En un iPhone se ve con la letra del sistema (San Francisco).</p>
+
+<script>
+(() => {
+  const P = {
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/>',
+    calp: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+    people: '<circle cx="9" cy="8.5" r="3.3"/><path d="M3 19.5c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9.5" r="2.5"/><path d="M16.5 14.6c2.3.2 4 1.7 4.5 4.4"/>',
+    store: '<path d="M4 9.5L5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-4.5h4V20"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    bell: '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+    mic: '<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/>',
+    chev: '<path d="M9 6l6 6-6 6"/>',
+    left: '<path d="M15 5.5L8.5 12l6.5 6.5"/>',
+    share: '<path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M5.5 11.5v8h13v-8"/>',
+    heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+    x: '<path d="M7 7l10 10M17 7L7 17"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    wa: '<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-1.8-1.8l.8-1-1-2z"/>',
+    card: '<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/>',
+    doc: '<path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10.5A.5.5 0 0 1 6.5 20V4a.5.5 0 0 1 .5-.5z"/><path d="M14 3.5V8h4M9.5 12.5h5M9.5 16h5"/>',
+    inbox: '<path d="M3.5 13.5l2.5-8h12l2.5 8V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z"/><path d="M3.5 13.5h5l1 2h5l1-2h5"/>',
+    money: '<rect x="3" y="6.5" width="18" height="11" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    flash: '<path d="M9 3h6l-1 6h4l-8 12 1-8H7z"/>',
+    cam: '<path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+  };
+  const I = (k, c = '') => `<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
+  const F = id => `fotos/${id}.jpg`;
+  const VER = '<svg class="ver" viewBox="0 0 24 24" aria-label="Verificado" role="img"><path d="M12 2l2.4 1.8 3-.2 1 2.8 2.6 1.6-.8 2.9.8 2.9-2.6 1.6-1 2.8-3-.2L12 22l-2.4-1.8-3 .2-1-2.8-2.6-1.6.8-2.9-.8-2.9 2.6-1.6 1-2.8 3 .2z" fill="#0B0B0F"/><path d="M8.3 12.2l2.5 2.5 4.9-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const sb = w => `<div class="sb ${w ? 'w' : ''}"><span>9:41</span><span class="r"><svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.2-1.3A10.4 10.4 0 0 0 8 .4C5.2.4 2.7 1.5.8 3.3L2 4.6a8.6 8.6 0 0 1 6-2.4zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.3A7 7 0 0 0 8 3.8a7 7 0 0 0-4.8 1.9L4.4 7c1-.9 2.2-1.4 3.6-1.4zm0 3.3c-.6 0-1.1.2-1.5.6L8 11l1.5-1.5A2.1 2.1 0 0 0 8 8.9z"/></svg><svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><rect x="23.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" opacity=".5"/></svg></span></div><div class="island"></div>`;
+  const tel = (inner, opt = {}) => `<div class="ios"><div class="scr ${opt.white ? 'white' : ''}">${inner}${sb(opt.w)}<div class="hi ${opt.w ? 'w' : ''}"></div></div></div>`;
+  const tabs = (on, solo = 'plus') => `<div class="tabs"><div class="tabbar gl">${[['sun', 'Hoy'], ['calp', 'Agenda'], ['people', 'Clientas'], ['store', 'Negocio']].map(([k, n]) => `<div class="tab ${n === on ? 'on' : ''}">${I(k)}${n}</div>`).join('')}</div><div class="solo ${solo === 'plus' ? 'dark' : 'gl'}">${I(solo)}</div></div>`;
+  const tabsCli = on => `<div class="tabs"><div class="tabbar gl">${[['search', 'Explorar'], ['calp', 'Mis citas'], ['heart', 'Favoritos'], ['people', 'Perfil']].map(([k, n]) => `<div class="tab ${n === on ? 'on' : ''}">${I(k)}${n}</div>`).join('')}</div><div class="solo gl">${I('search')}</div></div>`;
+
+  const S = [];
+  P.lock = '<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>';
+  P.eye = '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>';
+  P.key = '<circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16.5 6.5l2.5 2.5M14 9l2 2"/>';
+  P.user = '<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/>';
+  P.uplus = '<circle cx="10" cy="8.5" r="3.6"/><path d="M3 20c.7-3.8 3.4-5.8 7-5.8 1.4 0 2.6.3 3.7.9M18 13v6M15 16h6"/>';
+  P.copy = '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>';
+  const kb = () => `<div class="kb">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].map(k => `<span class="${k ? '' : 'e'}">${k}</span>`).join('')}</div>`;
+  const back = (t = '') => `<div class="navr"><span class="gbtn gl" ${t ? 'style="width:auto;padding:0 14px;border-radius:19px;font-weight:600;font-size:15px"' : ''}>${I('left')}${t}</span><span></span></div>`;
+  const pwRow = (lbl, dots, eye = 1) => `<div class="cellr field"><div class="l">${lbl}</div><span class="val pw">${dots}</span>${eye ? `<span class="eye">${I('eye')}</span>` : ''}</div>`;
+
+  // 1 · Paso 3: contraseña y usuario
+  S.push(['Regístrate · paso 3 de 4', 'Después del código: su usuario y una contraseña para entrar sin código', tel(`<div class="body">
+    ${back()}
+    <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+    <div class="lt" style="margin-top:10px">Crea tu contraseña</div>
+    <div class="hint">Con ella entras con tu WhatsApp o tu usuario, sin esperar el código.</div>
+    <div class="ig" style="margin-top:16px"><div class="cellr field"><div class="l">Usuario</div><span class="val">abbeautyroom</span></div>${pwRow('Contraseña', '••••••••••')}${pwRow('Repítela', '••••••••••')}</div>
+    <div class="meter2"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+    <div class="rules"><span class="ok">${I('check')}Mínimo 8 caracteres</span><span class="ok">${I('check')}Una letra y un número</span><span class="ok">${I('check')}Las dos coinciden</span></div>
+    <div class="cta2"><div class="bigb p">Continuar</div><div class="lk" style="font-size:12.5px">El usuario sirve para entrar y nunca se muestra a clientas</div></div>
+  </div>`)]);
+  // 2 · Iniciar sesión
+  S.push(['Iniciar sesión', 'WhatsApp o usuario, y contraseña. El código queda como otra opción', tel(`<div class="body">
+    ${back()}
+    <div class="lt" style="margin-top:6px">Entrar</div>
+    <div class="hint">Con tu WhatsApp o tu usuario.</div>
+    <div class="ig" style="margin-top:18px"><div class="cellr field"><div class="l">WhatsApp o usuario</div><span class="val">karla.ab</span></div>${pwRow('Contraseña', '••••••••')}</div>
+    <div class="lk" style="margin-top:12px;text-align:right;padding-right:22px"><b>¿Olvidaste tu contraseña?</b></div>
+    <div style="padding:20px 20px 0"><div class="bigb p">Entrar</div></div>
+    <div class="or">o</div>
+    <div style="padding:14px 20px 0"><div class="bigb">${I('wa')}Entrar con código de WhatsApp</div></div>
+    <div class="lk" style="position:absolute;left:0;right:0;bottom:40px">¿Tienes un salón? <b>Regístrate</b></div>
+  </div>`)]);
+  // 3 · Restablecer: paso 1
+  S.push(['Restablecer contraseña · 1', 'Escribe su WhatsApp o usuario; el código llega al WhatsApp de la cuenta', tel(`<div class="body">
+    ${back()}
+    <div class="lt" style="margin-top:6px">Restablecer contraseña</div>
+    <div class="hint">Te mandamos un código al WhatsApp de tu cuenta.</div>
+    <div class="ig" style="margin-top:18px"><div class="cellr field"><div class="l">WhatsApp o usuario</div><span class="val">abbeautyroom</span></div></div>
+    <div class="foothint" style="padding:10px 32px 0">Si eres parte de un equipo y no tienes WhatsApp en tu cuenta, pídele a la dueña que te dé una contraseña nueva.</div>
+    <div class="cta2"><div class="bigb p">Enviar código</div></div>
+  </div>`)]);
+  // 4 · Restablecer: código + nueva
+  S.push(['Restablecer contraseña · 2', 'Código de WhatsApp y la contraseña nueva; se cierran las otras sesiones', tel(`<div class="body">
+    ${back()}
+    <div class="lt" style="margin-top:6px">Contraseña nueva</div>
+    <div class="hint">Código enviado al +52 844 •••• 45.</div>
+    <div class="code" style="margin-top:14px"><span>4</span><span>8</span><span>2</span><span>9</span><span>1</span><span>3</span></div>
+    <div class="ig" style="margin-top:16px">${pwRow('Nueva', '••••••••••')}${pwRow('Repítela', '••••••••••')}</div>
+    <div class="rules"><span class="ok">${I('check')}Mínimo 8 caracteres</span><span class="ok">${I('check')}Una letra y un número</span></div>
+    <div class="cta2"><div class="bigb p">Guardar y entrar</div><div class="lk" style="font-size:12.5px">Cerraremos tu sesión en otros celulares</div></div>
+  </div>`)]);
+  // 5 · Equipo
+  S.push(['Equipo (dueña)', 'Quién tiene acceso, su rol y cuántos lugares quedan en su plan', tel(`<div class="body">
+    ${back('Negocio')}
+    <div class="lt">Equipo</div>
+    <div class="usebar"><div class="row"><span>Plan Salón</span><b>3 de 5 personas</b></div><div class="bar"><i style="width:60%"></i></div></div>
+    <div class="sh">Con acceso</div>
+    <div class="ig">${[['AN', 'Antonio', 'WhatsApp', 'Admin', 0], ['DS', 'Dueña', 'WhatsApp', 'Admin', 0], ['KA', 'Karla', 'karla.ab', 'Especialista', 1]].map(([i, n, d, r, g]) => `<div class="cellr ico"><span class="av2 ${g ? 'g' : ''}">${i}</span><div class="l">${n}<small>${d}</small></div><span class="role">${r}</span>${I('chev', 'chev')}</div>`).join('')}</div>
+    <div style="padding:16px 14px 0"><div class="bigb p">${I('uplus')}Agregar persona</div></div>
+    <div class="foothint">Cada quien entra con su usuario y contraseña. Puedes quitar el acceso al momento.</div>
+  </div>`)]);
+  // 6 · Agregar persona
+  S.push(['Agregar persona', 'La dueña crea el usuario; la app genera una contraseña temporal para compartirla', tel(`<div class="body" style="background:#fff"></div><div class="dim"></div>
+    <div class="sheet" style="top:70px"><div class="grab"></div>
+      <div class="navr"><span class="gbtn gl">${I('x')}</span><b>Agregar persona</b><span class="gbtn dark">${I('check')}</span></div>
+      <div class="ig" style="margin-top:6px"><div class="cellr field"><div class="l">Nombre</div><span class="val">Sofía</span></div><div class="cellr field"><div class="l">Usuario</div><span class="val">sofia.ab</span></div><div class="cellr field"><div class="l">WhatsApp <small>opcional</small></div><span class="val" style="color:var(--ink3)">Agregar</span></div></div>
+      <div class="sh">Rol</div>
+      <div class="chips2"><span class="on">Especialista</span><span>Recepción</span><span>Admin</span></div>
+      <div class="cred"><div class="r"><small>Usuario</small><b>sofia.ab</b></div><div class="r"><small>Contraseña temporal</small><b>Rosa-48-Luna</b></div>
+        <div class="acts2"><span>${'Copiar'}</span><span class="w">Enviar por WhatsApp</span></div></div>
+      <div class="foothint">Al entrar por primera vez, Sofía cambia la contraseña. Quedan 2 lugares en tu plan.</div>
+    </div>`)]);
+  // 7 · Límite del plan
+  S.push(['Si ya no hay lugares', 'Al llegar al límite del plan, invita a subir de plan sin borrar nada', tel(`<div class="body">
+    ${back('Equipo')}
+    <div class="lim"><div class="big2">${I('people')}</div><h2>Tu equipo está completo</h2><p>El Plan Salón incluye 5 personas y ya tienes 5. Sube a Pro para agregar a más personas, o quita a alguien que ya no trabaje contigo.</p></div>
+    <div class="cta2"><div class="bigb p">Ver Plan Pro · $799 al mes</div><div class="bigb">Administrar equipo</div></div>
+  </div>`)]);
+  // 8 · Primera vez de la trabajadora
+  S.push(['Trabajadora: primera entrada', 'Entra con su usuario y la temporal; luego pone su propia contraseña', tel(`<div class="body">
+    <div class="lt" style="margin-top:44px">Hola, Sofía</div>
+    <div class="hint">La dueña de AB' Beauty Room te dio acceso como <b style="color:#000">Especialista</b>. Crea tu propia contraseña para seguir.</div>
+    <div class="ig" style="margin-top:18px">${pwRow('Nueva', '•••••••••')}${pwRow('Repítela', '•••••••••')}</div>
+    <div class="rules"><span class="ok">${I('check')}Mínimo 8 caracteres</span><span class="ok">${I('check')}Una letra y un número</span></div>
+    <div class="sh">Lo que podrás ver</div>
+    <div class="ig"><div class="cellr"><div class="l">Tu agenda y tus citas</div>${I('check')}</div><div class="cellr"><div class="l">Teléfonos de clientas</div><span class="v">Ocultos</span></div><div class="cellr"><div class="l">Ingresos del salón</div><span class="v">No</span></div></div>
+    <div class="cta2"><div class="bigb p">Guardar y entrar</div></div>
+  </div>`)]);
+
+  document.getElementById('g').innerHTML = S.map(([t, d, h], i) => `<figure>${h}<figcaption>${i + 1}. ${t}<small>${d}</small></figcaption></figure>`).join('');
+})();
+</script>
