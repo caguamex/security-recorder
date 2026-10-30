@@ -18,6 +18,7 @@ try{
  // recuperar() no pide códigos y se detiene si no hay credenciales guardadas.
  const plataforma=new BaileysSoloEnvios(basePlataforma,config.key,{vincular:config.codigos.vincular});
  const codigos=plataforma?new CodigosWhatsApp(basePlataforma,plataforma,config.codigos):undefined;
+ void codigos?.anunciarRespaldo();
  app=crearAplicacion({pool,remitente,codigos,plataforma,jwt:new VerificadorJWT(config.supabase),config});
  operacion=plataforma?operacionCodigos(plataforma,basePlataforma,{vincular:config.codigos.vincular,key:process.env.WA_CODIGOS_OPERACION_KEY}):null;
  app.server.listen(config.port,'0.0.0.0',()=>{console.log('Agendappx: servicio de solo envíos listo.');app.iniciar();});

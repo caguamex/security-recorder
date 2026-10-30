@@ -43,7 +43,7 @@ console.log('Listo: ritmo/dist/belleza.html');
 // Publicación PWA: documento completo, recursos locales y caché versionada por contenido.
 const fuente = join(raiz, 'belleza'), pwa = join(raiz, 'dist', 'pwa');
 mkdirSync(pwa, { recursive: true });
-for (const recurso of ['recuperar-acceso', 'estilo-neutro-ios.css', 'planes.js', 'planes', 'avisos-pwa.js', 'social.js', 'negocio.js', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
+for (const recurso of ['recuperar-acceso', 'estilo-neutro-ios.css', 'planes.js', 'planes', 'plataforma', 'avisos-pwa.js', 'social.js', 'negocio.js', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
   cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
 }
 cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));
