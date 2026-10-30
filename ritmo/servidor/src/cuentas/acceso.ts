@@ -28,7 +28,7 @@ export class SolicitudesAcceso {
  async intento(id:string,prueba:string,codigo:string){
   if(!/^[a-f0-9-]{36}$/.test(id)||!/^\d{6}$/.test(codigo)||!/^[a-f0-9]{64}$/.test(prueba))throw new ErrorAPI(400,'Escribe el código de seis dígitos.');
   const salida=await this.tx(async c=>{const s=(await c.query('SELECT * FROM ritmo.acceso_solicitudes WHERE id=$1 FOR UPDATE',[id])).rows[0];
-   if(!s||!iguales(s.prueba_hash,huella(this.key,'prueba',prueba))||new Date(s.vence_en).getTime()<=this.ahora()||s.intentos>=5||!['pendiente','enviado'].includes(s.estado))return null;
+   if(!s||!iguales(s.prueba_hash,huella(this.key,'prueba',prueba))||new Date(s.vence_en).getTime()<=this.ahora()||s.intentos>=5||!['pendiente','enviado','manual'].includes(s.estado))return null;
    const correcto=s.canal==='correo'||!!s.codigo_hash&&iguales(s.codigo_hash,huella(this.key,'otp',id+':'+codigo));
    await c.query('UPDATE ritmo.acceso_solicitudes SET intentos=intentos+1,estado=$2 WHERE id=$1',[id,correcto?'verificando':s.estado]);return correcto?s:null;
   });if(!salida)throw new ErrorAPI(400,'Código inválido, vencido o sin intentos. Pide uno nuevo.');return salida;

@@ -23,7 +23,7 @@ export function configurar(env){
   if(!id.test(usuario||'')||!Number.isFinite(desde)||!Number.isFinite(hasta)||hasta<=desde||hasta-desde>600000)throw new Error('Autoriza un único código con usuario y ventana de prueba de hasta diez minutos.');
   prueba={usuario,destino:'528661241483',desde,hasta};
  }
- return {codigos:{modo,habilitado:env.WA_CODIGOS_HABILITADOS==='true',vincular:env.WA_CODIGOS_VINCULAR==='true',hookSecret:env.WA_CODIGOS_HOOK_SECRET,key:env.ACCESO_HMAC_KEY,prueba},db:db.href,supabase:supabase.origin,origen:app.origin,salones,port,key:env.WA_SESSION_KEY,
+ return {codigos:{modo,habilitado:env.WA_CODIGOS_HABILITADOS==='true',vincular:env.WA_CODIGOS_VINCULAR==='true',hookSecret:env.WA_CODIGOS_HOOK_SECRET,key:env.ACCESO_HMAC_KEY,prueba,respaldoManual:env.WA_CODIGOS_RESPALDO_MANUAL==='true',avisoURL:app.origin+'/api/plataforma/aviso-codigo'},db:db.href,supabase:supabase.origin,origen:app.origin,salones,port,key:env.WA_SESSION_KEY,
  ssl:{rejectUnauthorized:true,...(env.DATABASE_CA_CERT?{ca:env.DATABASE_CA_CERT.replace(/\\n/g,'\n')}:{})},
  politica:{envios:env.WA_ENVIOS_HABILITADOS==='true',vincular:env.WA_VINCULACION_HABILITADA==='true',...(destinatarios.size?{destinatarios}:{})}};
 }
