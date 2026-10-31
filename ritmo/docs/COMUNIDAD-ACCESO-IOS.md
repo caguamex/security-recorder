@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparación local en `codex/agendappx-comunidad-acceso-ios`, desde `8bbf70e` (PR #23). Antonio mostró que Comunidad ocultaba el registro al detectar una sesión y que el acceso seguía usando la hoja genérica de la agenda. Esta corrección aún **no está publicada** y requiere su confirmación específica según `.agents/skills/ritmo-confirmar-deploy/SKILL.md`. La autorización anterior solo cubrió la reparación de actualización del panel del dueño.
+Preparación local en `codex/agendappx-comunidad-acceso-ios`, aplicación `775ff69`, [PR #24](https://github.com/caguamex/security-recorder/pull/24), desde `8bbf70e` (PR #23). Antonio mostró que Comunidad ocultaba el registro al detectar una sesión y que el acceso seguía usando la hoja genérica de la agenda. Esta corrección aún **no está publicada** y requiere su confirmación específica según `.agents/skills/ritmo-confirmar-deploy/SKILL.md`. La autorización anterior solo cubrió la reparación de actualización del panel del dueño.
 
 Referencia vigente de Claude: [inicio.html en a91beea](https://github.com/caguamex/security-recorder/blob/a91beea/ritmo/ios/inicio.html) y `registro.html` de esa misma rama. Se conservan Neutro, SF/sistema, White/Dark, cápsulas, vidrio y áreas seguras aprobadas; no se sortea otra dirección visual ni se cambia de framework. Las reglas generales de diseño no sustituyen ese modelo explícito.
 
