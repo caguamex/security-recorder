@@ -5,6 +5,8 @@
  const hace=v=>{if(!v)return 'sin uso';const d=Math.floor((Date.now()-new Date(v))/86400000);return d<=0?'hoy':d===1?'ayer':'hace '+d+' días';};
  const PLANES={solo:'Solo',salon:'Salón',pro:'Pro'};
  let salones=[],resumen={},codigos=[],respaldo=false,filtro='todos',q='',actual=null,codigoActual=null,avisador,revision=0;
+ // Mismo aviso de versión nueva que Comunidad: «Actualizar» también instala el código del panel, no solo los datos.
+ const actualizador=import('/comunidad/actualizacion.mjs').then(m=>m.prepararActualizacion()).catch(()=>null);
  const aviso=t=>{clearTimeout(avisador);$('#aviso').textContent=t;$('#aviso').hidden=false;avisador=setTimeout(()=>{$('#aviso').hidden=true;},3500);};
  async function api(ruta,datos){const s=await window.AgendappxCuentas?.sesionPlataforma();if(!s?.accessToken)throw Object.assign(new Error('Entra con tu cuenta de dueño para ver el panel.'),{entrar:true});
   const r=await fetch(ruta,{method:datos?'POST':'GET',headers:{Authorization:'Bearer '+s.accessToken,...(datos?{'Content-Type':'application/json'}:{})},...(datos?{body:JSON.stringify(datos)}:{}),cache:'no-store',signal:AbortSignal.timeout(20000)});
@@ -63,7 +65,7 @@
  async function accion(a,valor={}){await api('/api/plataforma/salones/'+actual.id,{accion:a,valor});aviso({verificar:'Listo.',extender_prueba:'Prueba extendida.',plan:'Plan cambiado.',suspender:'Salón en pausa.',reactivar:'Salón reactivado.',ocultar:'Ya no aparece en Explorar.'}[a]);
   const id=actual.id;await cargar();const s=salones.find(x=>x.id===id);if(s&&$('#hoja').open)hoja(s);}
  document.addEventListener('click',async ev=>{const b=ev.target.closest('button');if(!b)return;try{
-  if(b.id==='recargar'){await cargar();aviso('Actualizado.');}
+  if(b.id==='recargar'){if(await (await actualizador)?.pendiente()){(await actualizador).aplicar();return;}await cargar();aviso('Actualizado.');}
   if(b.id==='salir-dueno'){revision++;salones=[];resumen={};codigos=[];actual=null;codigoActual=null;$('#contenido').textContent='Cerrando sesión…';if($('#hoja').open)$('#hoja').close();$('#hoja-cuerpo').replaceChildren();await window.AgendappxCuentas.salir();await cargar();return;}
   if(b.id==='hoja-cerrar')$('#hoja').close();
   if(b.dataset.filtro){filtro=b.dataset.filtro;pintar();}

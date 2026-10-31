@@ -1,12 +1,14 @@
 const boton = document.getElementById('reparar');
 const estado = document.getElementById('estado');
 const pausa = () => new Promise(resolve => setTimeout(resolve, 150));
+// ?destino=/plataforma/ regresa al panel del dueño; cualquier otro valor abre la agenda.
+const destino = new URLSearchParams(location.search).get('destino') === '/plataforma/' ? '/plataforma/' : '/';
 boton.addEventListener('click', async () => {
   boton.disabled = true;
   estado.textContent = 'Descargando la corrección…';
   try {
     if (!('serviceWorker' in navigator)) {
-      location.replace('/');
+      location.replace(destino);
       return;
     }
     const registro = await navigator.serviceWorker.getRegistration('/') ||
@@ -26,8 +28,8 @@ boton.addEventListener('click', async () => {
         if (!cambio) throw new Error('activacion');
       }
       if (!registro.active || registro.active.state === 'redundant') throw new Error('sin version');
-      estado.textContent = 'Listo. Abriendo tu agenda…';
-      location.replace('/');
+      estado.textContent = destino === '/' ? 'Listo. Abriendo tu agenda…' : 'Listo. Abriendo tu panel…';
+      location.replace(destino);
     } finally {
       navigator.serviceWorker.removeEventListener('controllerchange', alCambiar);
     }

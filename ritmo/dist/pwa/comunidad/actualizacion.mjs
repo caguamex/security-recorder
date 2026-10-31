@@ -12,4 +12,6 @@ export function prepararActualizacion(){
  async function revisar(){if(navigator.onLine&&document.visibilityState==='visible')try{await registro?.update();mostrar();}catch{}}
  async function iniciar(){try{registro=await navigator.serviceWorker.register('/sw.js',{scope:'/',updateViaCache:'none'});const observar=w=>w?.addEventListener('statechange',()=>{if(w.state==='installed')mostrar();});observar(registro.installing);registro.addEventListener('updatefound',()=>observar(registro.installing));mostrar();document.addEventListener('visibilitychange',revisar);window.addEventListener('online',revisar);setInterval(revisar,60000);void revisar();}catch{}}
  if(document.readyState==='complete')void iniciar();else window.addEventListener('load',iniciar,{once:true});
+ // Permite que un botón propio de la página busque la versión nueva y use el mismo aviso.
+ return {async pendiente(){await revisar();const w=registro?.installing;if(w)await new Promise(ok=>{const t=setTimeout(ok,15000);w.addEventListener('statechange',()=>{if(w.state!=='installing'){clearTimeout(t);ok();}});});return !!(registro?.waiting||otra);},aplicar:()=>ahora.click()};
 }
