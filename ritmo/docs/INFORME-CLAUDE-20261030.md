@@ -4,13 +4,12 @@ Encargo de Antonio coordinado por Codex: reparar el «Error generating QR Code»
 
 ## 1. Estado
 
-**Terminado para revisión, sin publicar** (actualizado el 31/oct tras la revisión de Codex). La causa se reprodujo en el mismo contexto de navegador y está corregida. La regresión nueva aprueba en **Edge y en WebKit**. El fallo de WebKit que observó Codex se diagnosticó como un problema del arnés de la prueba, no de la app (sección 4.1). Pendientes reales:
+**Publicado y verificado en Cloudflare** por Codex, con autorización específica de Antonio el 31/oct. Aplicación `4cc01da`, PR #23, Worker `b47b38fc-c9bb-400b-b7b1-f27b6f562c09`, `--keep-vars`. La causa se reprodujo en el mismo contexto de navegador y está corregida. La regresión nueva aprueba en **Edge y en WebKit**. El fallo de WebKit que observó Codex se diagnosticó como un problema del arnés de la prueba, no de la app (sección 4.1). Detalle de publicación en sección10. Pendientes reales:
 
 - **Prueba física en el iPhone** de Antonio: no realizada (no hay acceso al dispositivo). WebKit en Windows no equivale a Safari en iOS.
-- **Publicación:** no se desplegó nada. Requiere la confirmación de Antonio según `.agents/skills/ritmo-confirmar-deploy/SKILL.md`.
-- Sin commit ni push; Codex gestiona Git.
+- Las mejoras de capacidad y cuatro pruebas anteriores señaladas en sección6 quedan fuera de esta reparación.
 
-No se tocaron producción, Supabase, Railway, Cloudflare, FiNeCi, cuentas, códigos ni mensajes reales. No se leyeron `.env*` ni credenciales. La foto del usuario no se incorporó a Git ni a este informe.
+Claude trabajó exclusivamente en la copia local; después Codex publicó solo la reparación autorizada en el Worker existente. No hubo migraciones ni cambios en Railway/FiNeCi, cuentas o mensajes reales. La foto del usuario y las credenciales no se incorporaron a Git ni a este informe.
 
 ## 2. Causa reproducida
 
@@ -279,6 +278,8 @@ El informe semanal existente (desde 2026-10-27T19:11:09.551883275Z) no se reinic
 
 ## 8. Pasos pendientes
 
+Este apartado conserva la secuencia de entrega previa; la revisión, Git y la publicación ya se completaron según sección10. La prueba física y las mejoras de capacidad continúan pendientes.
+
 1. **Codex:** revisar el diff; excluir las capturas regeneradas ajenas (sección 5); confirmar en Git.
 2. Hecho: `node --test ritmo/servidor/pruebas/dueno-actualizacion-navegador.mjs` recorre Edge y WebKit; con `SAFARI_PRUEBA=webkit`, solo WebKit.
 3. Hecho por Codex: `ritmo/whatsapp` instalado con su lockfile; `npm test` 287/287.
@@ -297,3 +298,15 @@ El informe semanal existente (desde 2026-10-27T19:11:09.551883275Z) no se reinic
 - Proxy local: **cero intentos hacia Supabase** en ambos motores. Las 57 conexiones propias de Edge fueron rechazadas; WebKit no intentó conexiones externas. No se enviaron códigos reales ni se usaron cuentas reales.
 - Contrastadas las cuotas relevantes con las fuentes oficiales enlazadas: 500 MB de BD y 5 GB de transferencia en Supabase Free, 100 000 sentencias/día en Hyperdrive Free, y mínimo Hobby con 5 USD de recursos incluidos. La revisión corrigió el límite registrado de Railway y retiró las conclusiones absolutas de capacidad. No se consultó facturación actual ni se hizo una prueba de carga; no hay una capacidad operativa o demanda comercial medida.
 - **Aún no publicado.** Falta confirmación de Antonio para Cloudflare y luego la prueba física en su iPhone. Las mejoras de sincronización/directorio y las cuatro pruebas de navegador anteriores identificadas siguen pendientes; no se afirma que toda la plataforma esté libre de fallos.
+
+## 10. Publicación autorizada y comprobada — Codex, 31 de octubre de 2026
+
+Antonio confirmó «si autorizo» a publicar exclusivamente la reparación del acceso en Cloudflare. Se guardó la aplicación `4cc01da` en la rama `codex/claude-revision-agendappx` y el [PR #23](https://github.com/caguamex/security-recorder/pull/23), sobre la rama del PR #22. Se excluyeron la foto privada y todas las capturas ajenas regeneradas. No hay publicación automática al subir a Git.
+
+- Compilación y simulación de publicación aprobadas. Worker publicado: **b47b38fc-c9bb-400b-b7b1-f27b6f562c09**, usando `--keep-vars`, mismo nombre, recursos, cron y URL. Versión anterior registrada: `0984ce8b-a525-497c-b1b0-7a9875f5da51`.
+- Comprobación pública por SHA-256: **ocho archivos idénticos** al paquete probado: SW, SDK, panel HTML/JS/CSS, actualizador compartido, recuperación y Comunidad HTML. `/salud`200; `/api/plataforma/yo` y `/api/plataforma/resumen`401 sin identidad. Cuentas y WhatsApp permanecen habilitados.
+- Navegadores públicos **Edge y WebKit**: entrada de dueño con WhatsApp sin QR ni autenticadora visible; White/Dark a390px sin desbordamiento; Comunidad con registro visible y apertura de `/#registro`. Cero errores JavaScript y ninguna operación de escritura o solicitud de código. Las consultas públicas de búsqueda son POST de lectura, no altas ni mensajes.
+- El primer arnés público usaba `context.route` global y `networkidle`; WebKit daba una advertencia de acceso al SW. Una comprobación directa sin interceptación instaló y activó `/sw.js`200 correctamente. La verificación final observa las peticiones sin interceptarlas y espera los elementos visibles; ambos motores pasan. No se alteró el código publicado para acomodar la prueba.
+- Sin migraciones, cambios en Railway/FiNeCi, activación de envíos, nuevas vinculaciones, recursos, planes o límites. El acceso real del dueño se confirma en su teléfono; no se generó un OTP de prueba sobre su cuenta.
+
+Entrada recomendada para el dispositivo con copia anterior: [Reparar y abrir el panel](https://ritmo-belleza.antonio-t-22.workers.dev/recuperar-acceso/?destino=/plataforma/). Pulsar «Reparar y abrir Agendappx» conserva sesión y almacenamiento y regresa al panel. Si hace falta iniciar sesión, usar únicamente el código de WhatsApp propio. La instalación física en iPhone continúa pendiente de Antonio.
