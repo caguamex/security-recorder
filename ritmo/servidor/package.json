@@ -18,7 +18,8 @@
     "test:calendario": "npm run build && node --test pruebas/dispositivos.test.mjs && node pruebas/calendario-navegador.mjs && node pruebas/calendario-pendientes-navegador.mjs",
     "test:registro": "npm run build && node --test pruebas/registro-whatsapp.test.mjs && node pruebas/registro-whatsapp-navegador.mjs",
     "test:contrasenas": "npm run build && node --test pruebas/contrasenas.test.mjs && node pruebas/contrasenas-navegador.mjs",
-    "test:plataforma": "npm run build && node --test pruebas/plataforma.test.mjs && node pruebas/plataforma-navegador.mjs"
+    "test:dueno": "npm run build && node --test pruebas/dueno-whatsapp.test.mjs && node pruebas/dueno-navegador.mjs && node pruebas/dueno-actualizacion-navegador.mjs",
+    "test:plataforma":"npm run build && node --test pruebas/plataforma.test.mjs && node pruebas/plataforma-navegador.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",

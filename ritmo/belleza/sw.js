@@ -10,20 +10,35 @@ function sinRedirecciones(response) {
   for (const nombre of ['content-encoding', 'content-length', 'transfer-encoding']) headers.delete(nombre);
   return new Response(response.body, {status: response.status, statusText: response.statusText, headers});
 }
+// El panel del dueño y la recuperación no guardan agenda, cola ni fotos en el dispositivo.
+// Las versiones anteriores del panel no tenían aviso de actualización: si solo están
+// abiertas esas páginas, una versión en espera nunca llegaba a activarse.
+const sinDatosLocales = url => /^\/(plataforma|recuperar-acceso)\//.test(new URL(url).pathname);
+const soloPaneles = async () => (await self.clients.matchAll({type: 'window', includeUncontrolled: true}))
+  .every(c => sinDatosLocales(c.url));
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
+  event.waitUntil((async () => {
+    await caches.open(CACHE).then(cache => cache.addAll(ASSETS));
+    if (self.registration.active && await soloPaneles()) await self.skipWaiting();
+  })());
 });
-// Solo el botón de actualizar de una página de esta aplicación activa la versión en espera.
+// Con la agenda o Comunidad abiertas, solo su botón de actualizar activa la versión en espera.
 self.addEventListener('message', event => {
   if (event.data?.tipo === 'RITMO_ACTUALIZAR' && event.source?.type === 'window' &&
       new URL(event.source.url).origin === self.location.origin) event.waitUntil(self.skipWaiting());
 });
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
+    let anterior = false;
     for (const key of await caches.keys()) {
-      if (key.startsWith('ritmo-belleza-') && key !== CACHE) await caches.delete(key);
+      if (key.startsWith('ritmo-belleza-') && key !== CACHE) { anterior = true; await caches.delete(key); }
     }
     await self.clients.claim();
+    // Recarga los paneles que siguen con el código anterior, nunca la agenda ni Comunidad.
+    // Sin await: esa navegación espera a que termine esta activación.
+    if (anterior && await soloPaneles()) for (const c of await self.clients.matchAll({type: 'window'})) {
+      if (new URL(c.url).pathname.startsWith('/plataforma/')) c.navigate(c.url).catch(() => {});
+    }
   })());
 });
 self.addEventListener('fetch', event => {
