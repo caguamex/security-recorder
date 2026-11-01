@@ -1,0 +1,21 @@
+{
+  "motores": [
+    "Edge",
+    "WebKit"
+  ],
+  "modos": [
+    "White",
+    "Black"
+  ],
+  "anchos": [
+    320,
+    390,
+    768,
+    1440
+  ],
+  "colorPor": "clienta",
+  "datos": "vacío y con citas ficticias, solo locales",
+  "material": "degradado y reflejos direccionales de la referencia",
+  "errores": [],
+  "externas": []
+}

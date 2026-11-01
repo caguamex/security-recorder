@@ -1,0 +1,6 @@
+{
+  "fondo": "linear-gradient(125deg, rgba(255, 255, 255, 0.043), rgba(0, 0, 0, 0) 42%), linear-gradient(150deg, rgba(32, 33, 38, 0.7), rgba(16, 17, 20, 0.6))",
+  "arriba": "rgba(255, 255, 255, 0.22)",
+  "abajo": "rgba(255, 255, 255, 0.07)",
+  "filtro": "blur(24px) saturate(0.5)"
+}
