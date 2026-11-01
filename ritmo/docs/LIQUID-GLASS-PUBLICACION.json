@@ -1,5 +1,5 @@
 {
-  "worker": "191c09ee-040a-4795-98a2-9d47032f7089",
+  "worker": "738c1044-0340-4611-aa6e-a05610d0aca9",
   "archivos": [
     {
       "ruta": "/",
@@ -23,7 +23,7 @@
     },
     {
       "ruta": "/estilo-liquid-glass.css",
-      "sha256": "1bc60b06c9b7fdf1cac7ca4e112eb73090096fc7d88caac9d074303c410e206e"
+      "sha256": "7367ae0de976d0163b69371e106924e4cae3e715be7f8fa65da9f14ced15c257"
     },
     {
       "ruta": "/colores-clientas.js",
@@ -31,7 +31,7 @@
     },
     {
       "ruta": "/belleza.js",
-      "sha256": "c59509a36a9c5721af6ad259078e94e5338d1a7c4b688ef813740a96198783b1"
+      "sha256": "9feeb7d954dc5dcc70a16cea8ebe5718097715a5d804395caf1596f65b16a143"
     },
     {
       "ruta": "/negocio.js",
@@ -47,7 +47,7 @@
     },
     {
       "ruta": "/sw.js",
-      "sha256": "ed65d1ad911c91b7271a495eeaee0c2cf45233aca6ebafc8d01253b87d6bb9c8"
+      "sha256": "de5d415e79f43096e910e271c2b166ba36fe5676a837172f4da69914c1175707"
     },
     {
       "ruta": "/comunidad/real.mjs",

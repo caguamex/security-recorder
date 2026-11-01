@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 const base='https://ritmo-belleza.antonio-t-22.workers.dev';
 const destino=new URL('../../imagenes/liquid-glass/publicado/',import.meta.url);await mkdir(destino,{recursive:true});
 const assets=new URL('../../nube/build/comunidad-publicacion/assets/',import.meta.url);
-const resultado={worker:'191c09ee-040a-4795-98a2-9d47032f7089',archivos:[],navegadores:[]};
+const resultado={worker:process.env.AGENDAPPX_WORKER_VERSION||'pendiente-de-publicar',archivos:[],navegadores:[]};
 for(const [nombre,motor]of [['Edge',chromium],['WebKit',webkit]]){
  const b=await motor.launch({headless:true,...(nombre==='Edge'?{channel:'msedge'}:{})});
  try{for(const modo of ['light','dark']){
@@ -23,7 +23,7 @@ for(const [nombre,motor]of [['Edge',chromium],['WebKit',webkit]]){
    if(ruta==='/#registro'){await p.locator('#registro-formulario').waitFor();assert.equal(await p.locator('#registro-paso-cuenta>.group').evaluate(e=>getComputedStyle(e).borderTopWidth),'0px','El registro no conserva el marco anterior');}
    if(ruta.startsWith('/#'))await p.evaluate(m=>{document.documentElement.dataset.aparienciaNegocio=m;document.documentElement.dataset.modo=m==='dark'?'dark':'';},modo);
    const estado=await p.evaluate(()=>({fondo:getComputedStyle(document.documentElement).getPropertyValue('--lg-bg').trim(),desborda:document.documentElement.scrollWidth>innerWidth,tema:[...document.styleSheets].some(s=>s.href?.endsWith('/estilo-liquid-glass.css'))}));
-   assert.equal(estado.tema,true,ruta);assert.equal(estado.fondo,modo==='dark'?'#08090b':'#f5f7f9',ruta);assert.equal(estado.desborda,false,ruta);
+   assert.equal(estado.tema,true,ruta);assert.equal(estado.fondo,modo==='dark'?'#08090b':'#eef2f4',ruta);assert.equal(estado.desborda,false,ruta);
    assert.equal(await p.getByText('Error generating QR Code',{exact:true}).count(),0);
    await p.screenshot({path:fileURLToPath(new URL(nombre+'-'+modo+'-'+ruta.replace(/[\/#]/g,'')+'.png',destino)),animations:'disabled'});
   }

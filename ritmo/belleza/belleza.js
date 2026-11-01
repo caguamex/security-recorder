@@ -278,7 +278,7 @@
     const k = Store.settings.skin || 'clasico';
     document.documentElement.dataset.aparienciaNegocio=Store.settings.modo==='dark'?'dark':'light';
     try{document.documentElement.dataset.transparencia=localStorage.getItem('agendappx.apariencia.transparencia')==='solida'?'solida':'vidrio';}catch{}
-    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=Store.settings.modo==='dark'?'#08090b':'#f5f7f9';
+    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=Store.settings.modo==='dark'?'#08090b':'#eef2f4';
     if (Store.settings.modo === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
     if (k === 'clasico') delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = k;
   }

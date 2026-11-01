@@ -2,12 +2,13 @@
    Material compartido por negocio, comunidad, acceso, planes y panel del dueño.
    Los selectores históricos de tema se conservan; estas variables unifican el acabado. */
 :root {
-  --lg-bg:#f5f7f9;--lg-solid:#fff;--lg-ink:#18212a;--lg-muted:#5d6974;
-  --lg-surface:rgba(255,255,255,.72);--lg-chrome:rgba(255,255,255,.78);--lg-sheet:rgba(248,250,252,.97);
-  --lg-line:rgba(59,76,87,.13);--lg-edge:rgba(255,255,255,.86);
-  --lg-fill:rgba(75,96,112,.08);--lg-shadow:0 6px 20px rgba(36,56,70,.045);
-  --lg-float:0 12px 32px rgba(36,56,70,.12);--lg-halo:rgba(178,211,207,.23);
-  --lg-silver:rgba(194,210,229,.22);--lg-blur:blur(20px) saturate(125%);
+  --lg-bg:#eef2f4;--lg-solid:#fff;--lg-ink:#18212a;--lg-muted:#5d6974;
+  --lg-surface:linear-gradient(130deg,#ffffffd1,#ffffff80);
+  --lg-chrome:linear-gradient(130deg,#ffffffd9,#ffffff8f);--lg-sheet:rgba(248,250,252,.97);
+  --lg-line:rgba(59,76,87,.13);--lg-edge:#fff;--lg-border:#ffffffc7;--lg-edge-side:#ffffffc7;
+  --lg-fill:rgba(75,96,112,.08);--lg-shadow:inset 0 1px 1px #fff,0 4px 15px #163e521c;
+  --lg-float:inset 0 1px 1px #fff,0 6px 18px #163e5224;--lg-halo:rgba(177,214,202,.5);
+  --lg-silver:rgba(183,204,224,.45);--lg-blur:blur(24px) saturate(110%);
   --bg:var(--lg-bg)!important;--stage:var(--lg-bg)!important;
   --card:var(--lg-solid)!important;--celda:var(--lg-solid)!important;
   --ink:var(--lg-ink)!important;--t:var(--lg-ink)!important;
@@ -26,20 +27,22 @@
 @media(prefers-color-scheme:dark){
   :root:not([data-modo]):not([data-theme]):not([data-apariencia-negocio]) {
     --lg-bg:#08090b;--lg-solid:#191b1f;--lg-ink:#f4f4f6;--lg-muted:#b0b1ba;
-    --lg-surface:rgba(29,31,35,.78);--lg-chrome:rgba(28,30,34,.82);--lg-sheet:rgba(19,21,24,.97);
-    --lg-line:rgba(238,242,249,.13);--lg-edge:rgba(255,255,255,.2);
-    --lg-fill:rgba(229,234,244,.09);--lg-shadow:0 6px 20px #0002;
-    --lg-float:0 12px 32px #0005;--lg-halo:rgba(178,185,200,.07);
-    --lg-silver:rgba(207,211,220,.045);color-scheme:dark!important;
+    --lg-surface:linear-gradient(125deg,#ffffff0b,transparent 42%),linear-gradient(150deg,#202126b3,#10111499);
+    --lg-chrome:linear-gradient(155deg,#ffffff0c,#ffffff02 50%),#141518b8;--lg-sheet:rgba(19,21,24,.97);
+    --lg-line:rgba(238,242,249,.10);--lg-edge:#ffffff38;--lg-border:#ffffff12;--lg-edge-side:#ffffff25;
+    --lg-fill:rgba(229,234,244,.07);--lg-shadow:inset 0 1px 1px #ffffff0c,inset 0 -1px 1px #00000033,0 4px 14px #00000059;
+    --lg-float:inset 0 1px 1px #ffffff1f,0 4px 15px #0005;--lg-halo:rgba(83,87,96,.23);
+    --lg-silver:rgba(57,61,72,.30);--lg-blur:blur(24px) saturate(50%);color-scheme:dark!important;
   }
 }
 :root[data-modo=dark],:root[data-theme=dark] {
   --lg-bg:#08090b;--lg-solid:#191b1f;--lg-ink:#f4f4f6;--lg-muted:#b0b1ba;
-  --lg-surface:rgba(29,31,35,.78);--lg-chrome:rgba(28,30,34,.82);--lg-sheet:rgba(19,21,24,.97);
-  --lg-line:rgba(238,242,249,.13);--lg-edge:rgba(255,255,255,.2);
-  --lg-fill:rgba(229,234,244,.09);--lg-shadow:0 6px 20px #0002;
-  --lg-float:0 12px 32px #0005;--lg-halo:rgba(178,185,200,.07);
-  --lg-silver:rgba(207,211,220,.045);color-scheme:dark!important;
+  --lg-surface:linear-gradient(125deg,#ffffff0b,transparent 42%),linear-gradient(150deg,#202126b3,#10111499);
+  --lg-chrome:linear-gradient(155deg,#ffffff0c,#ffffff02 50%),#141518b8;--lg-sheet:rgba(19,21,24,.97);
+  --lg-line:rgba(238,242,249,.10);--lg-edge:#ffffff38;--lg-border:#ffffff12;--lg-edge-side:#ffffff25;
+  --lg-fill:rgba(229,234,244,.07);--lg-shadow:inset 0 1px 1px #ffffff0c,inset 0 -1px 1px #00000033,0 4px 14px #00000059;
+  --lg-float:inset 0 1px 1px #ffffff1f,0 4px 15px #0005;--lg-halo:rgba(83,87,96,.23);
+  --lg-silver:rgba(57,61,72,.30);--lg-blur:blur(24px) saturate(50%);color-scheme:dark!important;
 }
 /* Los temas guardados solo matizan el fondo White; la agenda mantiene colores por clienta. */
 :root[data-skin=rosa]:not([data-modo=dark]) {--lg-halo:rgba(220,175,183,.24)}
@@ -48,21 +51,23 @@
 :root[data-skin=cristal]:not([data-modo=dark]) {--lg-halo:rgba(194,183,215,.24)}
 body {
   color:var(--lg-ink);background-color:var(--lg-bg);
-  background-image:radial-gradient(ellipse at 4% 5%,var(--lg-halo),transparent 55%),radial-gradient(ellipse at 100% 38%,var(--lg-silver),transparent 56%);
+  /* Halos de la vista aprobada, anclados al contenido incluso sin citas. */
+  background-image:radial-gradient(ellipse 250px 310px at calc(50% - 190px) 300px,var(--lg-halo),transparent 85%),radial-gradient(ellipse 290px 350px at calc(50% + 190px) 680px,var(--lg-silver),transparent 85%);
   background-attachment:fixed;-webkit-font-smoothing:antialiased;
 }
 .app {background:transparent;box-shadow:none}
-/* Una sola superficie por grupo: las filas no apilan filtros de desenfoque. */
+/* Material de la muestra aprobada: brillo direccional, no contorno uniforme.
+   Una sola superficie por grupo: las filas no apilan filtros de desenfoque. */
 :is(.group,.grupo,.local,.post,.hoy-cifras>div,.negocio-portada,.plan-card,.planes-fundadora,.cifra,.promocion-negocio,.pwa-update) {
-  background:var(--lg-surface);border:1px solid var(--lg-edge);border-radius:24px;
-  box-shadow:var(--lg-shadow);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  background:var(--lg-surface);border:1px solid var(--lg-border);border-top-color:var(--lg-edge);border-left-color:var(--lg-edge-side);border-radius:24px;
+  box-shadow:var(--lg-shadow);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);
 }
 :is(.group,.grupo) :is(.cell,.celda) {background:transparent}
 /* En acceso/registro los campos ya forman su propia superficie; no encuadrar el formulario. */
 :is([data-registro-paso],[data-acceso]) .group {border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 :is(.tabbar,.vidrio,.buscar-circulo,.foto-servicio,.entrar-negocio,.arriba .vidrio,.quick-menu) {
-  background:var(--lg-chrome);border:1px solid var(--lg-edge);
-  box-shadow:var(--lg-float),inset 0 1px 0 var(--lg-edge);
+  background:var(--lg-chrome);border:1px solid var(--lg-border);border-top-color:var(--lg-edge);border-left-color:var(--lg-edge-side);
+  box-shadow:var(--lg-float);
   -webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);
 }
 .tabbar {border-radius:36px}
@@ -72,7 +77,7 @@ body {
 :is(.search,.buscador,.seg,.segmentado,.chip,.categorias-rapidas button,.time24,.slot,.horas button) {background:var(--lg-fill);color:var(--lg-ink);border-radius:18px}
 .chip[aria-pressed=true],.categorias-rapidas button[aria-pressed=true],.horas button[aria-pressed=true] {background:var(--lg-ink);color:var(--lg-bg)}
 .search,.buscador {border:1px solid var(--lg-line)}
-.nav {background:var(--lg-bg)}
+.nav {background:transparent}
 :is(.sheet-card,dialog) {background:var(--lg-sheet);border:1px solid var(--lg-edge);box-shadow:var(--lg-float);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border-radius:30px 30px 0 0}
 :is(.sh-nav,.hoja-cabecera) {background:var(--lg-chrome)}
 /* Campos opacos para que el texto siga siendo legible encima de cualquier fotografía. */
@@ -90,7 +95,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 :root[data-modo=dark] .ev {background:color-mix(in srgb,var(--c) 23%,var(--lg-solid))}
 .cita-clienta {border-left:4px solid var(--c)!important}
 .av {background:var(--c);color:#fff;text-shadow:none;box-shadow:none}
-.week {border-radius:22px;background:var(--lg-surface);border:1px solid var(--lg-edge);padding-block:8px}
+.week {border-radius:22px;background:var(--lg-surface);border:1px solid var(--lg-border);border-top-color:var(--lg-edge);border-left-color:var(--lg-edge-side);box-shadow:var(--lg-shadow);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);padding-block:8px}
 .wd.today b,.wd[aria-current=date] b {background:var(--lg-ink);color:var(--lg-bg);box-shadow:none}
 .daysum,.ev .t,.hr,.plan-precio {font-variant-numeric:tabular-nums}
 .specialist-chips .chip {box-shadow:none}
