@@ -1,13 +1,13 @@
 /* Modo negocio: usa el mismo almacén y sesión de la agenda; no duplica datos. */
 (function(global){'use strict';
  global.AgendappxNegocio={crear(ctx){
- const {Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita}=ctx;
+ const {Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,colorClienta,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita}=ctx;
  const $=(s,r=document)=>r.querySelector(s);
  const fila=(titulo,accion,nota='')=>`<button type="button" class="cell" data-negocio="${accion}"><span class="l">${esc(titulo)}${nota?`<small>${esc(nota)}</small>`:''}</span><span class="chev" aria-hidden="true">›</span></button>`;
  let cacheHorarios=null,claveHorarios='',cargando=false;
  const propia=c=>Store.cuenta?.rol!=='especialista'||c.especialista===Store.cuenta.usuarioId;
  const activas=c=>!['cancelada','solicitada'].includes(c.estado);
- const citar=c=>`<button type="button" class="cell" data-cita="${esc(c.id)}">${miniaturaServicio(svcOf(c))}<span class="l"><b>${esc(cliOf(c).nombre)}</b><small>${esc(svcOf(c).nombre)} · ${esc(c.date)} · ${esc(c.start)} · ${esc(nombreEspecialista(c.especialista||'sin-asignar'))}</small><small>${esc(({solicitada:'Solicitud nueva',apartada:'Apartada',pendiente:'Por confirmar',confirmada:'Confirmada',completada:'Completada'})[c.estado]||c.estado)}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
+ const citar=c=>`<button type="button" class="cell cita-clienta" style="--c:${colorClienta(c.clienta)}" data-cita="${esc(c.id)}">${miniaturaServicio(svcOf(c))}<span class="l"><b>${esc(cliOf(c).nombre)}</b><small>${esc(svcOf(c).nombre)} · ${esc(c.date)} · ${esc(c.start)} · ${esc(nombreEspecialista(c.especialista||'sin-asignar'))}</small><small>${esc(({solicitada:'Solicitud nueva',apartada:'Apartada',pendiente:'Por confirmar',confirmada:'Confirmada',completada:'Completada'})[c.estado]||c.estado)}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
  function hoy(){
   const fecha=today(),citas=list('cita').filter(c=>c.date===fecha&&activas(c)&&propia(c)),solicitudes=list('cita').filter(c=>c.estado==='solicitada'&&propia(c));
   const monto=citas.reduce((n,c)=>n+Number(svcOf(c).precio||0),0),anticipos=citas.filter(c=>c.anticipo&&['pendiente','vencido'].includes(c.anticipo.estado));

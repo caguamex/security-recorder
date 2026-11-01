@@ -297,6 +297,119 @@ html:root[data-skin=cristal]:not([data-modo=dark]){--bg:#F3EAFF;--stage:#F3EAFF;
 #hoja:has([data-acceso]) #cuerpo-hoja{padding:0}
 @media(min-width:700px){#hoja:has([data-acceso]){inset:16px;height:min(860px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);border-radius:28px}#hoja:has([data-acceso]) .hoja-cabecera{padding-top:14px}}
 </style>
+<style>/* Agendappx · Liquid Glass aprobado: White / Black, sin perspectiva ni relieve 3D.
+   Material compartido por negocio, comunidad, acceso, planes y panel del dueño.
+   Los selectores históricos de tema se conservan; estas variables unifican el acabado. */
+:root {
+  --lg-bg:#f5f7f9;--lg-solid:#fff;--lg-ink:#18212a;--lg-muted:#5d6974;
+  --lg-surface:rgba(255,255,255,.72);--lg-chrome:rgba(255,255,255,.78);--lg-sheet:rgba(248,250,252,.97);
+  --lg-line:rgba(59,76,87,.13);--lg-edge:rgba(255,255,255,.86);
+  --lg-fill:rgba(75,96,112,.08);--lg-shadow:0 6px 20px rgba(36,56,70,.045);
+  --lg-float:0 12px 32px rgba(36,56,70,.12);--lg-halo:rgba(178,211,207,.23);
+  --lg-silver:rgba(194,210,229,.22);--lg-blur:blur(20px) saturate(125%);
+  --bg:var(--lg-bg)!important;--stage:var(--lg-bg)!important;
+  --card:var(--lg-solid)!important;--celda:var(--lg-solid)!important;
+  --ink:var(--lg-ink)!important;--t:var(--lg-ink)!important;
+  --ink2:var(--lg-muted)!important;--ink3:var(--lg-muted)!important;
+  --t2:var(--lg-muted)!important;--t3:var(--lg-muted)!important;--gris:var(--lg-muted)!important;
+  --acc:var(--lg-ink)!important;--accInk:var(--lg-bg)!important;
+  --today:var(--lg-ink)!important;--todayInk:var(--lg-bg)!important;
+  --fab:var(--lg-ink)!important;--fabInk:var(--lg-bg)!important;
+  --sep:var(--lg-line)!important;--linea:var(--lg-line)!important;
+  --fill:var(--lg-fill)!important;--soft:var(--lg-fill)!important;--pastilla:var(--lg-fill)!important;
+  --glass:var(--lg-chrome)!important;--vidrio:var(--lg-chrome)!important;
+  --glassLine:var(--lg-edge)!important;--segOn:var(--lg-solid)!important;
+  color-scheme:light!important;background:var(--lg-bg);color:var(--lg-ink);
+}
+/* Las páginas independientes siguen el celular; las preferencias explícitas prevalecen. */
+@media(prefers-color-scheme:dark){
+  :root:not([data-modo]):not([data-theme]):not([data-apariencia-negocio]) {
+    --lg-bg:#08090b;--lg-solid:#191b1f;--lg-ink:#f4f4f6;--lg-muted:#b0b1ba;
+    --lg-surface:rgba(29,31,35,.78);--lg-chrome:rgba(28,30,34,.82);--lg-sheet:rgba(19,21,24,.97);
+    --lg-line:rgba(238,242,249,.13);--lg-edge:rgba(255,255,255,.2);
+    --lg-fill:rgba(229,234,244,.09);--lg-shadow:0 6px 20px #0002;
+    --lg-float:0 12px 32px #0005;--lg-halo:rgba(178,185,200,.07);
+    --lg-silver:rgba(207,211,220,.045);color-scheme:dark!important;
+  }
+}
+:root[data-modo=dark],:root[data-theme=dark] {
+  --lg-bg:#08090b;--lg-solid:#191b1f;--lg-ink:#f4f4f6;--lg-muted:#b0b1ba;
+  --lg-surface:rgba(29,31,35,.78);--lg-chrome:rgba(28,30,34,.82);--lg-sheet:rgba(19,21,24,.97);
+  --lg-line:rgba(238,242,249,.13);--lg-edge:rgba(255,255,255,.2);
+  --lg-fill:rgba(229,234,244,.09);--lg-shadow:0 6px 20px #0002;
+  --lg-float:0 12px 32px #0005;--lg-halo:rgba(178,185,200,.07);
+  --lg-silver:rgba(207,211,220,.045);color-scheme:dark!important;
+}
+/* Los temas guardados solo matizan el fondo White; la agenda mantiene colores por clienta. */
+:root[data-skin=rosa]:not([data-modo=dark]) {--lg-halo:rgba(220,175,183,.24)}
+:root[data-skin=dorado]:not([data-modo=dark]) {--lg-halo:rgba(209,189,144,.23)}
+:root[data-skin=ritmo]:not([data-modo=dark]) {--lg-halo:rgba(165,189,225,.24)}
+:root[data-skin=cristal]:not([data-modo=dark]) {--lg-halo:rgba(194,183,215,.24)}
+body {
+  color:var(--lg-ink);background-color:var(--lg-bg);
+  background-image:radial-gradient(ellipse at 4% 5%,var(--lg-halo),transparent 55%),radial-gradient(ellipse at 100% 38%,var(--lg-silver),transparent 56%);
+  background-attachment:fixed;-webkit-font-smoothing:antialiased;
+}
+.app {background:transparent;box-shadow:none}
+/* Una sola superficie por grupo: las filas no apilan filtros de desenfoque. */
+:is(.group,.grupo,.local,.post,.hoy-cifras>div,.negocio-portada,.plan-card,.planes-fundadora,.cifra,.promocion-negocio,.pwa-update) {
+  background:var(--lg-surface);border:1px solid var(--lg-edge);border-radius:24px;
+  box-shadow:var(--lg-shadow);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+:is(.group,.grupo) :is(.cell,.celda) {background:transparent}
+:is(.tabbar,.vidrio,.buscar-circulo,.foto-servicio,.entrar-negocio,.arriba .vidrio,.quick-menu) {
+  background:var(--lg-chrome);border:1px solid var(--lg-edge);
+  box-shadow:var(--lg-float),inset 0 1px 0 var(--lg-edge);
+  -webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);
+}
+.tabbar {border-radius:36px}
+.tabbar .tab {color:var(--lg-muted)}
+.tabbar .tab[aria-selected=true],.vidrio button[aria-current=page] {background:var(--lg-fill);color:var(--lg-ink)}
+.fab {background:var(--lg-ink);color:var(--lg-bg);box-shadow:none}
+:is(.search,.buscador,.seg,.segmentado,.chip,.categorias-rapidas button,.time24,.slot,.horas button) {background:var(--lg-fill);color:var(--lg-ink);border-radius:18px}
+.chip[aria-pressed=true],.categorias-rapidas button[aria-pressed=true],.horas button[aria-pressed=true] {background:var(--lg-ink);color:var(--lg-bg)}
+.search,.buscador {border:1px solid var(--lg-line)}
+.nav {background:var(--lg-bg)}
+:is(.sheet-card,dialog) {background:var(--lg-sheet);border:1px solid var(--lg-edge);box-shadow:var(--lg-float);-webkit-backdrop-filter:var(--lg-blur);backdrop-filter:var(--lg-blur);border-radius:30px 30px 0 0}
+:is(.sh-nav,.hoja-cabecera) {background:var(--lg-chrome)}
+/* Campos opacos para que el texto siga siendo legible encima de cualquier fotografía. */
+:is([data-registro-paso],#auth-form,#auth-password-form,#acceso-plataforma,.campo) :is(input:not([type=checkbox]),textarea,select),[data-acceso-neutro] .in {background:var(--lg-solid);color:var(--lg-ink)}
+input::placeholder,textarea::placeholder {color:var(--lg-muted);opacity:1}
+.sheet-card select.in {border:0;border-radius:14px;background:var(--lg-fill);padding:10px;min-height:44px}
+input,select,textarea {accent-color:var(--lg-ink)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {outline:2px solid var(--lg-ink);outline-offset:3px}
+.registro-salon {background:var(--lg-ink);color:var(--lg-bg);box-shadow:var(--lg-shadow)}
+.cap,.arriba .circulo {min-height:44px}
+/* Citas: el acento identifica a la clienta. Confirmada/cancelada siguen escritas. */
+.ev {background:color-mix(in srgb,var(--c) 17%,var(--lg-solid));border-left:4px solid var(--c);border-radius:14px;box-shadow:0 2px 8px #00000008;color:var(--lg-ink)}
+.st.confirmada {color:#217349}
+:root[data-modo=dark] .st.confirmada {color:#72d49a}
+:root[data-modo=dark] .ev {background:color-mix(in srgb,var(--c) 23%,var(--lg-solid))}
+.cita-clienta {border-left:4px solid var(--c)!important}
+.av {background:var(--c);color:#fff;text-shadow:none;box-shadow:none}
+.week {border-radius:22px;background:var(--lg-surface);border:1px solid var(--lg-edge);padding-block:8px}
+.wd.today b,.wd[aria-current=date] b {background:var(--lg-ink);color:var(--lg-bg);box-shadow:none}
+.daysum,.ev .t,.hr,.plan-precio {font-variant-numeric:tabular-nums}
+.specialist-chips .chip {box-shadow:none}
+.quick-menu {border-radius:24px}
+/* Sin efecto 3D. Se conservan traslaciones 2D necesarias para centrar barras y abrir hojas. */
+.app,.group,.grupo,.ev,.promo,.plan-card,.negocio-portada {perspective:none;transform-style:flat}
+.promo:not(.trabajo) {background:color-mix(in srgb,var(--c) 18%,var(--lg-solid));color:var(--lg-ink);box-shadow:var(--lg-shadow)}
+.trabajo .badge {background:var(--lg-chrome);color:var(--lg-ink);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+/* Transparencia opcional: todos los materiales tienen alternativa sólida, también sin soporte. */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  :root {--lg-surface:var(--lg-solid)!important;--lg-chrome:var(--lg-solid)!important;--lg-sheet:var(--lg-solid)!important}
+}
+@media(prefers-reduced-transparency:reduce) {
+  :root {--lg-surface:var(--lg-solid)!important;--lg-chrome:var(--lg-solid)!important;--lg-sheet:var(--lg-solid)!important}
+  body {background-image:none}
+  *,*::before,*::after {-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+}
+html[data-transparencia=solida] {--lg-surface:var(--lg-solid)!important;--lg-chrome:var(--lg-solid)!important;--lg-sheet:var(--lg-solid)!important}
+html[data-transparencia=solida] body {background-image:none}
+html[data-transparencia=solida] *,html[data-transparencia=solida] *::before,html[data-transparencia=solida] *::after {-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+@media(prefers-reduced-motion:reduce) {*,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
 
 <div class="app" id="app">
   <main id="screen" aria-live="polite"></main>
@@ -1250,16 +1363,33 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
 }};})(window);
 </script>
 <script>
+/* Identidad visual local y determinista: nunca depende del servicio o especialista.
+   El ID sincronizado conserva el color entre dispositivos y sin conexiÃ³n.
+   Es una paleta finita: dos clientas pueden compartir tono; el nombre las distingue. */
+(function(global){
+  'use strict';
+  const paleta=Object.freeze(['#2E7AA8','#9A597E','#497F68','#9A6D35','#7463A9','#A25C57','#287F86','#697343']);
+  function color(id){
+    const clave=String(id??'').trim();
+    if(!clave)return '#72767E';
+    let hash=2166136261;
+    for(let i=0;i<clave.length;i++){hash^=clave.charCodeAt(i);hash=Math.imul(hash,16777619);}
+    return paleta[(hash>>>0)%paleta.length];
+  }
+  global.AgendappxColoresClientas=Object.freeze({color});
+})(typeof window==='undefined'?globalThis:window);
+</script>
+<script>
 /* Modo negocio: usa el mismo almacén y sesión de la agenda; no duplica datos. */
 (function(global){'use strict';
  global.AgendappxNegocio={crear(ctx){
- const {Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita}=ctx;
+ const {Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,colorClienta,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita}=ctx;
  const $=(s,r=document)=>r.querySelector(s);
  const fila=(titulo,accion,nota='')=>`<button type="button" class="cell" data-negocio="${accion}"><span class="l">${esc(titulo)}${nota?`<small>${esc(nota)}</small>`:''}</span><span class="chev" aria-hidden="true">›</span></button>`;
  let cacheHorarios=null,claveHorarios='',cargando=false;
  const propia=c=>Store.cuenta?.rol!=='especialista'||c.especialista===Store.cuenta.usuarioId;
  const activas=c=>!['cancelada','solicitada'].includes(c.estado);
- const citar=c=>`<button type="button" class="cell" data-cita="${esc(c.id)}">${miniaturaServicio(svcOf(c))}<span class="l"><b>${esc(cliOf(c).nombre)}</b><small>${esc(svcOf(c).nombre)} · ${esc(c.date)} · ${esc(c.start)} · ${esc(nombreEspecialista(c.especialista||'sin-asignar'))}</small><small>${esc(({solicitada:'Solicitud nueva',apartada:'Apartada',pendiente:'Por confirmar',confirmada:'Confirmada',completada:'Completada'})[c.estado]||c.estado)}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
+ const citar=c=>`<button type="button" class="cell cita-clienta" style="--c:${colorClienta(c.clienta)}" data-cita="${esc(c.id)}">${miniaturaServicio(svcOf(c))}<span class="l"><b>${esc(cliOf(c).nombre)}</b><small>${esc(svcOf(c).nombre)} · ${esc(c.date)} · ${esc(c.start)} · ${esc(nombreEspecialista(c.especialista||'sin-asignar'))}</small><small>${esc(({solicitada:'Solicitud nueva',apartada:'Apartada',pendiente:'Por confirmar',confirmada:'Confirmada',completada:'Completada'})[c.estado]||c.estado)}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
  function hoy(){
   const fecha=today(),citas=list('cita').filter(c=>c.date===fecha&&activas(c)&&propia(c)),solicitudes=list('cita').filter(c=>c.estado==='solicitada'&&propia(c));
   const monto=citas.reduce((n,c)=>n+Number(svcOf(c).precio||0),0),anticipos=citas.filter(c=>c.anticipo&&['pendiente','vencido'].includes(c.anticipo.estado));
@@ -1348,6 +1478,7 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
 
   // ---------- Catálogos ----------
   const CATS = [['Uñas', '#E0457B'], ['Cabello', '#8B5CF6'], ['Pestañas', '#0EA5A4'], ['Cejas', '#F08A24'], ['Facial', '#22A45D'], ['Otro', '#8E8E93']];
+  const colorClienta = id => window.AgendappxColoresClientas.color(id);
   const catColor = c => (CATS.find(x => x[0] === c) || CATS[5])[1];
   // Referencias visuales de demostración; no se escriben en los datos del salón.
   const FOTOS_TRABAJOS = {
@@ -1586,8 +1717,9 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
   const screen = $('#screen');
   function applySkin() {
     const k = Store.settings.skin || 'clasico';
+    document.documentElement.dataset.aparienciaNegocio=Store.settings.modo==='dark'?'dark':'light';
     try{document.documentElement.dataset.transparencia=localStorage.getItem('agendappx.apariencia.transparencia')==='solida'?'solida':'vidrio';}catch{}
-    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=Store.settings.modo==='dark'?'#000000':'#F2F2F7';
+    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=Store.settings.modo==='dark'?'#08090b':'#f5f7f9';
     if (Store.settings.modo === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
     if (k === 'clasico') delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = k;
   }
@@ -1625,7 +1757,7 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
     const blocks = citas.map(c => ({ c, s: C.toMin(c.start), e: Math.max(endOf(c), C.toMin(c.start) + 30) }));
     C.layoutColumns(blocks);
     const evs = blocks.map(({ c, s: st, e, col, cols }) => {
-      const sv = svcOf(c), k = cliOf(c), color = catColor(sv.categoria), dur = e - st;
+      const sv = svcOf(c), k = cliOf(c), color = colorClienta(c.clienta), dur = e - st;
       const top = ((st - open * 60) / 60) * H, h = (dur / 60) * H - 3;
       const sent = c.enviados && c.enviados.confirmacion;
       return `<button type="button" class="ev ${dur <= 45 ? 'short' : ''} ${c.estado === 'cancelada' ? 'cancel' : ''}" data-cita="${esc(c.id)}" style="--c:${color};top:${top}px;height:${h}px;left:calc(60px + (100% - 60px) * ${col / cols} + 2px);width:calc((100% - 60px) / ${cols} - 4px)">
@@ -1666,7 +1798,7 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
       ${items.length ? `<div class="group">${items.map(k => {
         const citas = list('cita').filter(c => c.clienta === k.id && c.estado !== 'cancelada');
         const prox = citas.filter(c => c.date >= t).sort((a, b) => (a.date + a.start < b.date + b.start ? -1 : 1))[0];
-        return `<button type="button" class="cell" data-clienta="${esc(k.id)}"><span class="av lg" style="--c:${catColor(prox ? svcOf(prox).categoria : 'Otro')}">${esc(initials(k.nombre))}</span>
+        return `<button type="button" class="cell" data-clienta="${esc(k.id)}"><span class="av lg" style="--c:${colorClienta(k.id)}">${esc(initials(k.nombre))}</span>
           <span class="l">${esc(k.nombre)}<small>${prox ? `Próxima: ${esc(relDay(prox.date) || C.fmtShort(prox.date))}, ${prox.start}` : `${citas.length} ${citas.length === 1 ? 'visita' : 'visitas'}`}</small></span><span class="chev">${I.chev}</span></button>`;
       }).join('')}</div>` : `<p class="empty">${q ? 'No encontré a nadie con ese nombre.' : 'Agrega a tu primera clienta con el +.'}</p>`}`;
   }
@@ -1791,7 +1923,7 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
       <div class="seg modo" role="tablist" aria-label="Apariencia"><button type="button" role="tab" data-modo="white" aria-selected="${s.modo !== 'dark'}">White</button><button type="button" role="tab" data-modo="dark" aria-selected="${s.modo === 'dark'}">Dark</button></div>
       <p class="gh">Tema</p>
       <div class="skins" role="radiogroup" aria-label="Tema">${SKINS.map(([k, n, c]) => `<button type="button" class="skin" role="radio" data-skin="${k}" aria-checked="${(s.skin || 'clasico') === k}"><span class="s4">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
-<div class="group" style="margin-top:16px"><div class="cell"><span class="l">Reducir transparencia<small>Fondos sólidos en los controles flotantes</small></span><button type="button" class="sw" role="switch" data-act="transparencia" aria-label="Reducir transparencia" aria-checked="${document.documentElement.dataset.transparencia==='solida'}"></button></div></div><p class="foot">Neutro iOS es el diseño predeterminado. Tus temas opcionales y White/Dark se conservan en tus dispositivos.</p>`;}
+<div class="group" style="margin-top:16px"><div class="cell"><span class="l">Reducir transparencia<small>Fondos sólidos en los controles flotantes</small></span><button type="button" class="sw" role="switch" data-act="transparencia" aria-label="Reducir transparencia" aria-checked="${document.documentElement.dataset.transparencia==='solida'}"></button></div></div><p class="foot">Liquid Glass en White y Dark. Los temas opcionales matizan el fondo White; tus preferencias se conservan en tus dispositivos.</p>`;}
 
   // ---------- Hojas ----------
   function sheetAccesoAdmin(){openSheet(navSheet('Iniciar sesión','Listo')+'<div id="wa-acceso"></div>','Iniciar sesión',root=>{void window.AgendappxCuentas?.montar($('#wa-acceso',root));root.addEventListener('click',e=>{if(e.target.closest('[data-close],[data-done]'))closeSheet();});});}
@@ -2106,7 +2238,7 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
     const msg = (key, tplStr, label) => k.telefono ? `<a class="cell" href="${esc(waLink(k.telefono, fill(tplStr, c)))}" target="_blank" rel="noopener" data-sent="${esc(c.id)}:${key}"><span class="ico" style="background:#25D366">W</span><span class="l">${label}<small>${c.enviados && c.enviados[key] ? 'Enviado ' + esc(new Date(c.enviados[key]).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })) : 'Abre WhatsApp con el mensaje listo'}</small></span><span class="chev">${I.chev}</span></a>` : '';
     openSheet(`<div class="sh-nav"><button type="button" data-close>Cerrar</button><b>Cita</b><button type="button" class="done" data-edit>Editar</button></div>
       <div class="group" style="margin-top:6px"><div class="cell">${miniaturaServicio(s)}<span class="l"><b style="font-size:18px">${esc(s.nombre)}</b><small>${esc(C.cap(fechaLarga(c.date)))} · ${c.start} – ${C.fromMin(endOf(c))}</small></span><span class="p">${money(s.precio)}</span></div>
-        <button type="button" class="cell" data-clienta="${esc(k.id || '')}"><span class="av lg" style="--c:${catColor(s.categoria)}">${esc(initials(k.nombre))}</span><span class="l">${esc(k.nombre)}<small>${esc(k.telefono || 'Sin teléfono')}</small></span><span class="chev">${I.chev}</span></button>
+        <button type="button" class="cell" data-clienta="${esc(k.id || '')}"><span class="av lg" style="--c:${colorClienta(c.clienta)}">${esc(initials(k.nombre))}</span><span class="l">${esc(k.nombre)}<small>${esc(k.telefono || 'Sin teléfono')}</small></span><span class="chev">${I.chev}</span></button>
         ${c.notas ? `<div class="cell"><span class="l" style="white-space:pre-wrap">${esc(c.notas)}</span></div>` : ''}</div>
       <p class="gh">Estado</p>
       <div class="group">${ESTADOS.filter(([v])=>v!=='solicitada'||c.estado==='solicitada').map(([v, n]) => `<button type="button" class="cell" data-estado="${v}"><span class="l">${n}</span>${c.estado === v ? `<span style="color:var(--acc)">${I.check}</span>` : ''}</button>`).join('')}</div>
@@ -2139,7 +2271,7 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
         <label class="cell"><span class="sr">Notas</span><textarea class="in" id="k-notas" placeholder="Notas: tono favorito, alergias…">${esc(k ? k.notas : '')}</textarea></label>
         <div class="cell"><span class="l">Autoriza WhatsApp automático<small>La clienta aceptó recibir avisos de sus citas</small></span><button class="sw" type="button" role="switch" id="k-consent" aria-label="Autoriza WhatsApp automático" aria-checked="${k?.whatsappOptIn === true}"></button></div></div>
       ${k && k.telefono ? `<div style="padding:14px 16px 0;display:flex;gap:8px;flex-wrap:wrap"><a class="btn wa" href="${esc(waLink(k.telefono, `Hola ${k.nombre.split(' ')[0]} 💅`))}" target="_blank" rel="noopener">Escribir por WhatsApp</a><button type="button" class="btn fill" data-agendar-cli="${esc(k.id)}">Agendar cita</button></div>` : ''}
-      ${citas.length ? `<p class="gh">Visitas</p><div class="group">${citas.slice(0, 20).map(c => `<button type="button" class="cell" data-cita="${esc(c.id)}"><span class="l">${esc(svcOf(c).nombre)}<small>${esc(C.fmtShort(c.date))}, ${c.start} · ${esc(estadoTxt(c.estado))}</small></span><span class="p">${money(svcOf(c).precio)}</span></button>`).join('')}</div>` : ''}
+      ${citas.length ? `<p class="gh">Visitas</p><div class="group">${citas.slice(0, 20).map(c => `<button type="button" class="cell cita-clienta" style="--c:${colorClienta(c.clienta)}" data-cita="${esc(c.id)}"><span class="l">${esc(svcOf(c).nombre)}<small>${esc(C.fmtShort(c.date))}, ${c.start} · ${esc(estadoTxt(c.estado))}</small></span><span class="p">${money(svcOf(c).precio)}</span></button>`).join('')}</div>` : ''}
       ${k ? '<div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar clienta</button></div>' : ''}`, 'Clienta', root => {
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
@@ -2369,7 +2501,7 @@ g.AgendappxAvisos=Object.freeze({activar,desactivar});
 
   const Planes=window.AgendappxPlanes.crear({Store,openSheet,closeSheet,navSheet,toast});window.AgendappxPlanes.abrir=()=>Planes.abrir();
   const Social=window.AgendappxSocial.crear({Store,list,openSheet,closeSheet,navSheet,toast,esc,money});Object.assign(window.AgendappxSocial,Social);
-  const Negocio=window.AgendappxNegocio.crear({Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita,fecha:()=>S.day,tab:t=>{S.tab=t;render();scrollTo({top:0});if(t==='servicios')void cargarEquipoServicios();},servicio:sheetServicio,equipo:sheetAccesoAdmin,whatsapp:()=>sheetConexion('whatsapp'),promo:()=>sheetPromo(null)});
+  const Negocio=window.AgendappxNegocio.crear({Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,colorClienta,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita,fecha:()=>S.day,tab:t=>{S.tab=t;render();scrollTo({top:0});if(t==='servicios')void cargarEquipoServicios();},servicio:sheetServicio,equipo:sheetAccesoAdmin,whatsapp:()=>sheetConexion('whatsapp'),promo:()=>sheetPromo(null)});
   // ---------- Eventos ----------
   document.addEventListener('click', e => {
     const sentLink = e.target.closest('[data-sent]');

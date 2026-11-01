@@ -1,5 +1,9 @@
 # Ritmo: guía para continuar el trabajo
 
+## Liquid Glass y colores por clienta — preparado, sin publicar
+
+Antonio aprobó el diseño Liquid Glass White/Black sin 3D y aclaró que el color de agenda depende de la **clienta**, nunca del especialista ni del servicio. Rama `codex/agendappx-liquid-glass-app` desde `6e0645e`. Leer `docs/LIQUID-GLASS-APP.md`: material compartido en las pantallas reales y acento determinista por ID en Agenda, Hoy, Clientas, detalle e historial, sin datos nuevos. Misma clienta conserva el tono entre servicios/especialistas/dispositivos/offline; la paleta finita no garantiza tonos exclusivos. 289/289 pruebas y recorridos locales de diseño Edge/WebKit, registro, fotos, Social y actualización residente aprobados; capturas ficticias390px. Regenerar dist desde las fuentes, sin editarlo a mano. **Pendiente confirmar publicación de este conjunto**, no trasladar autorizaciones anteriores. Sin migración, cambios de Auth/RLS, cuentas, WhatsApp, Railway, recursos o FiNeCi.
+
 ## Comunidad y acceso Neutro — publicado y comprobado
 
 Antonio confirmó «demos el siguiente paso ahora» después de recibir las capturas y el estado pendiente de publicar. Aplicación `775ff69`, PR #24, Worker **4e2f209d-2290-40d4-a965-238b42c5e84a**, publicado con `--keep-vars`. Doce archivos públicos idénticos al paquete; salud200, panel anónimo401, Edge/WebKit públicos aprobados sin escrituras ni códigos. Registro fijo, Social inicial y acceso propio publicados. Recursos, variables, Railway, FiNeCi y base conservados. Prueba física iPhone pendiente; `docs/COMUNIDAD-ACCESO-IOS.md` registra el cierre. El siguiente párrafo describe la preparación previa, ya autorizada y publicada.
