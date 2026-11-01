@@ -1,6 +1,6 @@
 # Liquid Glass y colores por clienta · 1 de noviembre de 2026
 
-Antonio aprobó trasladar la vista Liquid Glass White/Black a la app real y corrigió expresamente que los colores de agenda son **por clienta**, no por especialista. Rama `codex/agendappx-liquid-glass-app`, desde `6e0645e` del PR #24. Implementado localmente; **publicación pendiente de confirmación** según `ritmo-confirmar-deploy`.
+Antonio aprobó trasladar la vista Liquid Glass White/Black a la app real y corrigió expresamente que los colores de agenda son **por clienta**, no por especialista. Rama `codex/agendappx-liquid-glass-app`, desde `6e0645e` del PR #24. Revisión: [PR #25](https://github.com/caguamex/security-recorder/pull/25), implementación `c6395e2`. Implementado localmente; **publicación pendiente de confirmación** según `ritmo-confirmar-deploy`.
 
 ## Resultado
 
