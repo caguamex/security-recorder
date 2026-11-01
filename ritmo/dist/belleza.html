@@ -357,6 +357,8 @@ body {
   box-shadow:var(--lg-shadow);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
 }
 :is(.group,.grupo) :is(.cell,.celda) {background:transparent}
+/* En acceso/registro los campos ya forman su propia superficie; no encuadrar el formulario. */
+:is([data-registro-paso],[data-acceso]) .group {border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 :is(.tabbar,.vidrio,.buscar-circulo,.foto-servicio,.entrar-negocio,.arriba .vidrio,.quick-menu) {
   background:var(--lg-chrome);border:1px solid var(--lg-edge);
   box-shadow:var(--lg-float),inset 0 1px 0 var(--lg-edge);

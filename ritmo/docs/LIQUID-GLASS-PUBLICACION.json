@@ -1,0 +1,105 @@
+{
+  "worker": "191c09ee-040a-4795-98a2-9d47032f7089",
+  "archivos": [
+    {
+      "ruta": "/",
+      "sha256": "78b66648706afd0d8f63ddd625744f1a993cf7c676873215ab6d5c0020f0ab98"
+    },
+    {
+      "ruta": "/comunidad/",
+      "sha256": "974a9da71634fd48f7deebdc566b08930b1926acf34b07b05670789ae6d56c5e"
+    },
+    {
+      "ruta": "/plataforma/",
+      "sha256": "0d1c1dff9d3ae57b7ed2d132d2ea8556be5831d3fa404c06791edd5ec9ce5145"
+    },
+    {
+      "ruta": "/planes/",
+      "sha256": "a99fee5772580d605bf17b736487b66b8d8e6dc8f95b84e597be4fcd3be71ca4"
+    },
+    {
+      "ruta": "/recuperar-acceso/",
+      "sha256": "82a78a80a9a6640bb862717ebd6b28e7ecd4cf09e023906d8bd4048d2b66c2fd"
+    },
+    {
+      "ruta": "/estilo-liquid-glass.css",
+      "sha256": "1bc60b06c9b7fdf1cac7ca4e112eb73090096fc7d88caac9d074303c410e206e"
+    },
+    {
+      "ruta": "/colores-clientas.js",
+      "sha256": "a5718c9ee61df785a7b2a1d21f1461916ca7798ec3484802ee3d518a47311388"
+    },
+    {
+      "ruta": "/belleza.js",
+      "sha256": "c59509a36a9c5721af6ad259078e94e5338d1a7c4b688ef813740a96198783b1"
+    },
+    {
+      "ruta": "/negocio.js",
+      "sha256": "cabf7a9d771e22641bba1246001b4ac0db47f13e68936932adddc5f61864848f"
+    },
+    {
+      "ruta": "/acceso-neutro.css",
+      "sha256": "6e19a12ae584dd0857ddf06a54ea50f80f400f979288b7a6828c389c32c0039c"
+    },
+    {
+      "ruta": "/cuentas.js",
+      "sha256": "d97bf8c03d4fa29bfb2e9d411df7933e5f99c592d248903e09dcb939d0c8594d"
+    },
+    {
+      "ruta": "/sw.js",
+      "sha256": "ed65d1ad911c91b7271a495eeaee0c2cf45233aca6ebafc8d01253b87d6bb9c8"
+    },
+    {
+      "ruta": "/comunidad/real.mjs",
+      "sha256": "1d1d74f792300f16458496bc6a551f41c227822fb332b8fbe5220997dc23a7ff"
+    },
+    {
+      "ruta": "/comunidad/real.css",
+      "sha256": "ee32e296036af68091e1a6fdacb15a001120c5f118d9e5eb14e58287c1708d58"
+    },
+    {
+      "ruta": "/plataforma/plataforma.js",
+      "sha256": "d343b07b5333c0fc4a96e3ee565ac7849774a97ff3e5ff08426e4dadd330bd96"
+    },
+    {
+      "ruta": "/recuperar-acceso/recuperar.js",
+      "sha256": "be4fc3ce8340fd2a4e8fa52e74d831587b16cd7af36227fe1bc85321e5767642"
+    }
+  ],
+  "navegadores": [
+    {
+      "motor": "Edge",
+      "modo": "light",
+      "pantallas": 6,
+      "errores": 0,
+      "escrituras": 0,
+      "validacionesCloudflare": 1
+    },
+    {
+      "motor": "Edge",
+      "modo": "dark",
+      "pantallas": 6,
+      "errores": 0,
+      "escrituras": 0,
+      "validacionesCloudflare": 0
+    },
+    {
+      "motor": "WebKit",
+      "modo": "light",
+      "pantallas": 6,
+      "errores": 0,
+      "escrituras": 0,
+      "validacionesCloudflare": 0
+    },
+    {
+      "motor": "WebKit",
+      "modo": "dark",
+      "pantallas": 6,
+      "errores": 0,
+      "escrituras": 0,
+      "validacionesCloudflare": 0
+    }
+  ],
+  "salud": 200,
+  "panelAnonimo": 401
+}

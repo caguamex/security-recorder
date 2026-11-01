@@ -1,6 +1,6 @@
 # Liquid Glass y colores por clienta · 1 de noviembre de 2026
 
-Antonio aprobó trasladar la vista Liquid Glass White/Black a la app real y corrigió expresamente que los colores de agenda son **por clienta**, no por especialista. Rama `codex/agendappx-liquid-glass-app`, desde `6e0645e` del PR #24. Revisión: [PR #25](https://github.com/caguamex/security-recorder/pull/25), implementación `c6395e2`. Implementado localmente; **publicación pendiente de confirmación** según `ritmo-confirmar-deploy`.
+Antonio aprobó trasladar la vista Liquid Glass White/Black a la app real y corrigió expresamente que los colores de agenda son **por clienta**, no por especialista. Rama `codex/agendappx-liquid-glass-app`, desde `6e0645e` del PR #24. Revisión: [PR #25](https://github.com/caguamex/security-recorder/pull/25), implementación `c6395e2`. Antonio confirmó la publicación de este conjunto. **Publicado y comprobado**, versión final `191c09ee-040a-4795-98a2-9d47032f7089` con `--keep-vars`.
 
 ## Resultado
 
@@ -22,8 +22,14 @@ Antonio aprobó trasladar la vista Liquid Glass White/Black a la app real y corr
 - Compilación de Cloudflare con `--dry-run`: aprobada (91 recursos). Solo preparación local, sin publicación.
 - Capturas a 390 px en `imagenes/liquid-glass/`. Solo muestran datos ficticios locales. No representan salones registrados ni cifras reales de la plataforma.
 
-## Límites y publicación
+## Publicación comprobada
 
-La comprobación WebKit es local; falta revisar la versión publicada en un iPhone físico. No se han enviado OTP, vinculado números, modificado cuentas, migrado datos, cambiado recursos, desplegado en Cloudflare/Railway ni tocado FiNeCi. No se introducen dependencias ni servicios nuevos.
+Antonio confirmó «sí, publícalo, que no se pase ninguna página, hoja con este tema». Worker existente `ritmo-belleza`, versión final **191c09ee-040a-4795-98a2-9d47032f7089**, conservando variables con `--keep-vars`. Destino: https://ritmo-belleza.antonio-t-22.workers.dev/.
 
-Tras la confirmación específica de Antonio, publicar el paquete en el Worker existente conservando variables (`--keep-vars`) y comprobar recursos, caché, salud y pantallas públicas sin escrituras reales. En pestañas abiertas, usar el aviso existente «Actualizar ahora», conservando sesión y datos pendientes. Hasta entonces, la URL de producción mantiene su versión anterior.
+Antes de publicar se enumeraron los cinco HTML de producción (agenda, Comunidad, panel, planes y recuperación): todos cargan el material compartido; los enlaces CSS resuelven y los recursos nuevos están en el precache. Los perfiles por slug usan Comunidad y las hojas heredan el tema. No se publican los prototipos como sustituto de la aplicación.
+
+La comprobación pública compara **16 archivos byte por byte** contra el paquete; revisa seis entradas (incluidos login y registro) en **Edge y WebKit, White/Black, 390 px**, sin desbordamiento ni errores JavaScript. Salud200, API de panel sin sesión401 y WhatsApp de acceso habilitado. No se envían formularios ni códigos: cero escrituras de aplicación; las lecturas públicas y las validaciones antibots de Cloudflare se distinguen expresamente. El borde sobrante de registro se corrigió y se exige ancho de borde0 en ambos motores. Evidencia en `LIQUID-GLASS-PUBLICACION.json`; capturas en `imagenes/liquid-glass/publicado/`.
+
+No se migraron datos, modificaron cuentas o configuraciones de Auth, vincularon números ni cambiaron recursos, servicios o costos. Railway y FiNeCi no se tocaron. Las comprobaciones de pantallas privadas con datos se hicieron localmente; no se usa la cuenta real de Antonio para probar. Falta la confirmación visual en su iPhone físico.
+
+En pestañas abiertas usar «Actualizar ahora», conservando sesión y pendientes. No limpiar almacenamiento, borrar cuentas ni repetir migraciones para obtener el tema nuevo. No hay publicación automática al subir Git; cambios futuros requieren su confirmación específica.
