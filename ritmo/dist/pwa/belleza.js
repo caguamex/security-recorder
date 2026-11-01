@@ -37,6 +37,7 @@
 
   // ---------- Catálogos ----------
   const CATS = [['Uñas', '#E0457B'], ['Cabello', '#8B5CF6'], ['Pestañas', '#0EA5A4'], ['Cejas', '#F08A24'], ['Facial', '#22A45D'], ['Otro', '#8E8E93']];
+  const colorClienta = id => window.AgendappxColoresClientas.color(id);
   const catColor = c => (CATS.find(x => x[0] === c) || CATS[5])[1];
   // Referencias visuales de demostración; no se escriben en los datos del salón.
   const FOTOS_TRABAJOS = {
@@ -275,8 +276,9 @@
   const screen = $('#screen');
   function applySkin() {
     const k = Store.settings.skin || 'clasico';
+    document.documentElement.dataset.aparienciaNegocio=Store.settings.modo==='dark'?'dark':'light';
     try{document.documentElement.dataset.transparencia=localStorage.getItem('agendappx.apariencia.transparencia')==='solida'?'solida':'vidrio';}catch{}
-    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=Store.settings.modo==='dark'?'#000000':'#F2F2F7';
+    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=Store.settings.modo==='dark'?'#08090b':'#f5f7f9';
     if (Store.settings.modo === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
     if (k === 'clasico') delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = k;
   }
@@ -314,7 +316,7 @@
     const blocks = citas.map(c => ({ c, s: C.toMin(c.start), e: Math.max(endOf(c), C.toMin(c.start) + 30) }));
     C.layoutColumns(blocks);
     const evs = blocks.map(({ c, s: st, e, col, cols }) => {
-      const sv = svcOf(c), k = cliOf(c), color = catColor(sv.categoria), dur = e - st;
+      const sv = svcOf(c), k = cliOf(c), color = colorClienta(c.clienta), dur = e - st;
       const top = ((st - open * 60) / 60) * H, h = (dur / 60) * H - 3;
       const sent = c.enviados && c.enviados.confirmacion;
       return `<button type="button" class="ev ${dur <= 45 ? 'short' : ''} ${c.estado === 'cancelada' ? 'cancel' : ''}" data-cita="${esc(c.id)}" style="--c:${color};top:${top}px;height:${h}px;left:calc(60px + (100% - 60px) * ${col / cols} + 2px);width:calc((100% - 60px) / ${cols} - 4px)">
@@ -355,7 +357,7 @@
       ${items.length ? `<div class="group">${items.map(k => {
         const citas = list('cita').filter(c => c.clienta === k.id && c.estado !== 'cancelada');
         const prox = citas.filter(c => c.date >= t).sort((a, b) => (a.date + a.start < b.date + b.start ? -1 : 1))[0];
-        return `<button type="button" class="cell" data-clienta="${esc(k.id)}"><span class="av lg" style="--c:${catColor(prox ? svcOf(prox).categoria : 'Otro')}">${esc(initials(k.nombre))}</span>
+        return `<button type="button" class="cell" data-clienta="${esc(k.id)}"><span class="av lg" style="--c:${colorClienta(k.id)}">${esc(initials(k.nombre))}</span>
           <span class="l">${esc(k.nombre)}<small>${prox ? `Próxima: ${esc(relDay(prox.date) || C.fmtShort(prox.date))}, ${prox.start}` : `${citas.length} ${citas.length === 1 ? 'visita' : 'visitas'}`}</small></span><span class="chev">${I.chev}</span></button>`;
       }).join('')}</div>` : `<p class="empty">${q ? 'No encontré a nadie con ese nombre.' : 'Agrega a tu primera clienta con el +.'}</p>`}`;
   }
@@ -480,7 +482,7 @@
       <div class="seg modo" role="tablist" aria-label="Apariencia"><button type="button" role="tab" data-modo="white" aria-selected="${s.modo !== 'dark'}">White</button><button type="button" role="tab" data-modo="dark" aria-selected="${s.modo === 'dark'}">Dark</button></div>
       <p class="gh">Tema</p>
       <div class="skins" role="radiogroup" aria-label="Tema">${SKINS.map(([k, n, c]) => `<button type="button" class="skin" role="radio" data-skin="${k}" aria-checked="${(s.skin || 'clasico') === k}"><span class="s4">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
-<div class="group" style="margin-top:16px"><div class="cell"><span class="l">Reducir transparencia<small>Fondos sólidos en los controles flotantes</small></span><button type="button" class="sw" role="switch" data-act="transparencia" aria-label="Reducir transparencia" aria-checked="${document.documentElement.dataset.transparencia==='solida'}"></button></div></div><p class="foot">Neutro iOS es el diseño predeterminado. Tus temas opcionales y White/Dark se conservan en tus dispositivos.</p>`;}
+<div class="group" style="margin-top:16px"><div class="cell"><span class="l">Reducir transparencia<small>Fondos sólidos en los controles flotantes</small></span><button type="button" class="sw" role="switch" data-act="transparencia" aria-label="Reducir transparencia" aria-checked="${document.documentElement.dataset.transparencia==='solida'}"></button></div></div><p class="foot">Liquid Glass en White y Dark. Los temas opcionales matizan el fondo White; tus preferencias se conservan en tus dispositivos.</p>`;}
 
   // ---------- Hojas ----------
   function sheetAccesoAdmin(){openSheet(navSheet('Iniciar sesión','Listo')+'<div id="wa-acceso"></div>','Iniciar sesión',root=>{void window.AgendappxCuentas?.montar($('#wa-acceso',root));root.addEventListener('click',e=>{if(e.target.closest('[data-close],[data-done]'))closeSheet();});});}
@@ -795,7 +797,7 @@
     const msg = (key, tplStr, label) => k.telefono ? `<a class="cell" href="${esc(waLink(k.telefono, fill(tplStr, c)))}" target="_blank" rel="noopener" data-sent="${esc(c.id)}:${key}"><span class="ico" style="background:#25D366">W</span><span class="l">${label}<small>${c.enviados && c.enviados[key] ? 'Enviado ' + esc(new Date(c.enviados[key]).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })) : 'Abre WhatsApp con el mensaje listo'}</small></span><span class="chev">${I.chev}</span></a>` : '';
     openSheet(`<div class="sh-nav"><button type="button" data-close>Cerrar</button><b>Cita</b><button type="button" class="done" data-edit>Editar</button></div>
       <div class="group" style="margin-top:6px"><div class="cell">${miniaturaServicio(s)}<span class="l"><b style="font-size:18px">${esc(s.nombre)}</b><small>${esc(C.cap(fechaLarga(c.date)))} · ${c.start} – ${C.fromMin(endOf(c))}</small></span><span class="p">${money(s.precio)}</span></div>
-        <button type="button" class="cell" data-clienta="${esc(k.id || '')}"><span class="av lg" style="--c:${catColor(s.categoria)}">${esc(initials(k.nombre))}</span><span class="l">${esc(k.nombre)}<small>${esc(k.telefono || 'Sin teléfono')}</small></span><span class="chev">${I.chev}</span></button>
+        <button type="button" class="cell" data-clienta="${esc(k.id || '')}"><span class="av lg" style="--c:${colorClienta(c.clienta)}">${esc(initials(k.nombre))}</span><span class="l">${esc(k.nombre)}<small>${esc(k.telefono || 'Sin teléfono')}</small></span><span class="chev">${I.chev}</span></button>
         ${c.notas ? `<div class="cell"><span class="l" style="white-space:pre-wrap">${esc(c.notas)}</span></div>` : ''}</div>
       <p class="gh">Estado</p>
       <div class="group">${ESTADOS.filter(([v])=>v!=='solicitada'||c.estado==='solicitada').map(([v, n]) => `<button type="button" class="cell" data-estado="${v}"><span class="l">${n}</span>${c.estado === v ? `<span style="color:var(--acc)">${I.check}</span>` : ''}</button>`).join('')}</div>
@@ -828,7 +830,7 @@
         <label class="cell"><span class="sr">Notas</span><textarea class="in" id="k-notas" placeholder="Notas: tono favorito, alergias…">${esc(k ? k.notas : '')}</textarea></label>
         <div class="cell"><span class="l">Autoriza WhatsApp automático<small>La clienta aceptó recibir avisos de sus citas</small></span><button class="sw" type="button" role="switch" id="k-consent" aria-label="Autoriza WhatsApp automático" aria-checked="${k?.whatsappOptIn === true}"></button></div></div>
       ${k && k.telefono ? `<div style="padding:14px 16px 0;display:flex;gap:8px;flex-wrap:wrap"><a class="btn wa" href="${esc(waLink(k.telefono, `Hola ${k.nombre.split(' ')[0]} 💅`))}" target="_blank" rel="noopener">Escribir por WhatsApp</a><button type="button" class="btn fill" data-agendar-cli="${esc(k.id)}">Agendar cita</button></div>` : ''}
-      ${citas.length ? `<p class="gh">Visitas</p><div class="group">${citas.slice(0, 20).map(c => `<button type="button" class="cell" data-cita="${esc(c.id)}"><span class="l">${esc(svcOf(c).nombre)}<small>${esc(C.fmtShort(c.date))}, ${c.start} · ${esc(estadoTxt(c.estado))}</small></span><span class="p">${money(svcOf(c).precio)}</span></button>`).join('')}</div>` : ''}
+      ${citas.length ? `<p class="gh">Visitas</p><div class="group">${citas.slice(0, 20).map(c => `<button type="button" class="cell cita-clienta" style="--c:${colorClienta(c.clienta)}" data-cita="${esc(c.id)}"><span class="l">${esc(svcOf(c).nombre)}<small>${esc(C.fmtShort(c.date))}, ${c.start} · ${esc(estadoTxt(c.estado))}</small></span><span class="p">${money(svcOf(c).precio)}</span></button>`).join('')}</div>` : ''}
       ${k ? '<div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar clienta</button></div>' : ''}`, 'Clienta', root => {
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
@@ -1058,7 +1060,7 @@
 
   const Planes=window.AgendappxPlanes.crear({Store,openSheet,closeSheet,navSheet,toast});window.AgendappxPlanes.abrir=()=>Planes.abrir();
   const Social=window.AgendappxSocial.crear({Store,list,openSheet,closeSheet,navSheet,toast,esc,money});Object.assign(window.AgendappxSocial,Social);
-  const Negocio=window.AgendappxNegocio.crear({Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita,fecha:()=>S.day,tab:t=>{S.tab=t;render();scrollTo({top:0});if(t==='servicios')void cargarEquipoServicios();},servicio:sheetServicio,equipo:sheetAccesoAdmin,whatsapp:()=>sheetConexion('whatsapp'),promo:()=>sheetPromo(null)});
+  const Negocio=window.AgendappxNegocio.crear({Store,C,esc,money,today,nowMin,list,byId,svcOf,cliOf,colorClienta,miniaturaServicio,nombreEspecialista,openSheet,closeSheet,navSheet,hora24,toast,render,save,sheetCita,fecha:()=>S.day,tab:t=>{S.tab=t;render();scrollTo({top:0});if(t==='servicios')void cargarEquipoServicios();},servicio:sheetServicio,equipo:sheetAccesoAdmin,whatsapp:()=>sheetConexion('whatsapp'),promo:()=>sheetPromo(null)});
   // ---------- Eventos ----------
   document.addEventListener('click', e => {
     const sentLink = e.target.closest('[data-sent]');
