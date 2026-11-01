@@ -12,3 +12,10 @@
 .buscar-circulo[hidden]{display:none}
 .entrar-negocio{margin-left:auto;padding:8px 14px;border-radius:19px;background:var(--vidrio);color:inherit;text-decoration:none;font-weight:600;font-size:14px;box-shadow:0 2px 10px #0000001a}
 .entrar-negocio[hidden]{display:none}
+.registro-salon>svg{flex:none}.registro-salon .registro-flecha{margin-left:auto;font-size:28px;font-weight:400;line-height:1}
+.navegacion.con-registro .registro-salon{position:absolute;bottom:74px;left:0;right:0;min-height:56px;padding:10px 18px;border-radius:28px;box-shadow:0 5px 18px #0002}
+body.con-registro-negocio main{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))}
+.solo-lectores{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+header #ubicacion{display:none}header .marca{margin-right:auto}
+.categorias-rapidas{display:flex;gap:8px;overflow:auto;margin:0 0 18px;padding:2px 0 6px;scrollbar-width:none}.categorias-rapidas button{flex:none;min-height:44px;padding:10px 17px;background:var(--pastilla);border-radius:24px;font-size:14px}.categorias-rapidas button[aria-pressed=true]{background:var(--t);color:var(--bg)}
+@media(max-width:360px){.registro-salon{padding-inline:13px;gap:8px}.registro-salon b{font-size:13px}.registro-salon small{font-size:11px}header{gap:8px;flex-wrap:wrap}header #ubicacion{max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
