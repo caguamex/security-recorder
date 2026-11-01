@@ -1,6 +1,6 @@
 # Corrección de fidelidad de Liquid Glass · 1 de noviembre de 2026
 
-Antonio mostró en su iPhone Hoy y Agenda vacíos: el material publicado en el PR #25 se veía plano, con bordes uniformes. Pidió realizar los cambios y después continuar la comprobación pendiente. Rama `codex/agendappx-glass-fidelidad` desde `adbf5b0`. **Preparado localmente, sin publicar.** La versión pública sigue siendo `191c09ee-040a-4795-98a2-9d47032f7089`.
+Antonio mostró en su iPhone Hoy y Agenda vacíos: el material publicado en el PR #25 se veía plano, con bordes uniformes. Pidió realizar los cambios y después continuar la comprobación pendiente. Rama `codex/agendappx-glass-fidelidad` desde `adbf5b0`, implementación `938c86c`, [PR #26](https://github.com/caguamex/security-recorder/pull/26). **Preparado localmente, sin publicar.** La versión pública sigue siendo `191c09ee-040a-4795-98a2-9d47032f7089`.
 
 ## Alcance
 
