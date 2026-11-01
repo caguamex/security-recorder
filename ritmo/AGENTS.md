@@ -1,6 +1,8 @@
 # Ritmo: guía para continuar el trabajo
 
-## Comunidad y acceso Neutro — preparación del 31 de octubre de 2026
+## Comunidad y acceso Neutro — publicado y comprobado
+
+Antonio confirmó «demos el siguiente paso ahora» después de recibir las capturas y el estado pendiente de publicar. Aplicación `775ff69`, PR #24, Worker **4e2f209d-2290-40d4-a965-238b42c5e84a**, publicado con `--keep-vars`. Doce archivos públicos idénticos al paquete; salud200, panel anónimo401, Edge/WebKit públicos aprobados sin escrituras ni códigos. Registro fijo, Social inicial y acceso propio publicados. Recursos, variables, Railway, FiNeCi y base conservados. Prueba física iPhone pendiente; `docs/COMUNIDAD-ACCESO-IOS.md` registra el cierre. El siguiente párrafo describe la preparación previa, ya autorizada y publicada.
 
 Antonio pidió conservar «Regístrate como negocio» en la barra de Comunidad y adaptar el login al modelo de Claude. Rama nueva `codex/agendappx-comunidad-acceso-ios` desde `8bbf70e`; leer `docs/COMUNIDAD-ACCESO-IOS.md`. Registro fijo también con sesión de clienta, sus cuatro pestañas conservadas, Entrar/Mi cuenta visible, Social como primera vista y ubicación en filtros. Acceso de pantalla propia con cabecera Agendappx, sin check genérico, campos amplios y alternativa WhatsApp; registro de cuatro pasos conservado. Se corrige además el evento de apertura emitido antes de que cargara la app, esperando DOMContentLoaded. 287/287 pruebas, UI Edge/WebKit y recorridos locales de contraseñas/Social aprobados. Capturas ficticias a390px. Aún no publicado: la autorización anterior fue exclusivamente para el panel; pedir confirmación específica después de mostrar las capturas. Sin SQL, Auth/RLS, envíos, recursos, cambios en Railway o FiNeCi. No cerrar sesiones ni reiniciar cuentas para probar el diseño.
 

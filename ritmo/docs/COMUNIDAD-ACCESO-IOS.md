@@ -2,7 +2,7 @@
 
 ## Estado y alcance
 
-Preparación local en `codex/agendappx-comunidad-acceso-ios`, aplicación `775ff69`, [PR #24](https://github.com/caguamex/security-recorder/pull/24), desde `8bbf70e` (PR #23). Antonio mostró que Comunidad ocultaba el registro al detectar una sesión y que el acceso seguía usando la hoja genérica de la agenda. Esta corrección aún **no está publicada** y requiere su confirmación específica según `.agents/skills/ritmo-confirmar-deploy/SKILL.md`. La autorización anterior solo cubrió la reparación de actualización del panel del dueño.
+Aplicación `775ff69`, rama `codex/agendappx-comunidad-acceso-ios`, [PR #24](https://github.com/caguamex/security-recorder/pull/24), desde `8bbf70e` (PR #23). Antonio mostró que Comunidad ocultaba el registro al detectar una sesión y que el acceso seguía usando la hoja genérica de la agenda. Después de mostrarle las capturas y explicar que el siguiente paso era publicar estos cambios, Antonio confirmó «demos el siguiente paso ahora». **Publicada y comprobada en Cloudflare**; véase el cierre de publicación abajo. Las comprobaciones locales anteriores conservan su contexto.
 
 Referencia vigente de Claude: [inicio.html en a91beea](https://github.com/caguamex/security-recorder/blob/a91beea/ritmo/ios/inicio.html) y `registro.html` de esa misma rama. Se conservan Neutro, SF/sistema, White/Dark, cápsulas, vidrio y áreas seguras aprobadas; no se sortea otra dirección visual ni se cambia de framework. Las reglas generales de diseño no sustituyen ese modelo explícito.
 
@@ -27,7 +27,7 @@ Referencia vigente de Claude: [inicio.html en a91beea](https://github.com/caguam
 
 Las capturas de `imagenes/comunidad-acceso-ios/` son locales. Las de `social/` incluyen una publicación y datos ficticios de la prueba, usando una foto ya autorizada de AB Beauty Room. No se publicaron ni cargaron esos datos en Supabase. Las capturas de error y el resto de recorridos no forman parte del conjunto a guardar.
 
-No hubo migraciones, consultas de datos personales, OTP reales, mensajes, nuevas vinculaciones ni cambios en Railway, servicios, recursos, límites o FiNeCi. La versión de producción sigue siendo el Worker `b47b38fc-c9bb-400b-b7b1-f27b6f562c09` hasta autorización nueva.
+En la preparación no hubo migraciones, consultas de datos personales, OTP reales, mensajes, nuevas vinculaciones ni cambios en Railway, servicios, recursos, límites o FiNeCi. La versión de producción anterior era `b47b38fc-c9bb-400b-b7b1-f27b6f562c09`.
 
 ## Capturas para revisión (390px)
 
@@ -35,3 +35,11 @@ No hubo migraciones, consultas de datos personales, OTP reales, mensajes, nuevas
 - `imagenes/comunidad-acceso-ios/comunidad-con-sesion-light.png` y `comunidad-con-sesion-dark.png`: barra de clienta conservada y registro visible.
 - `imagenes/comunidad-acceso-ios/entrar-white.png` y `entrar-dark.png`: acceso con contraseña y alternativa WhatsApp.
 - `imagenes/comunidad-acceso-ios/registro-light.png` y `registro-dark.png`: primer paso del registro con el mismo marco.
+
+## Publicación autorizada y comprobada
+
+- Paquete generado y simulación aprobada; publicado con `--keep-vars`, sin cambiar nombre, dominio, cron, recursos, variables ni secretos. Worker **`4e2f209d-2290-40d4-a965-238b42c5e84a`**; aplicación **`775ff69`**. Solo cambiaron siete recursos estáticos.
+- **Doce archivos públicos idénticos por SHA-256** al paquete revisado, incluidos el nuevo CSS compartido, Comunidad HTML/CSS/JS, SDK, SW, panel y recuperación. Salud200; panel y resumen anónimos401; cuentas y WhatsApp conservan sus banderas habilitadas.
+- **Edge y WebKit públicos aprobados**: panel de dueño con WhatsApp sin QR, White/Dark390 sin desbordamiento, registro fijo en Comunidad, entrada con pantalla propia y enlace directo de registro. Cero errores JavaScript y cero escrituras o solicitudes de códigos; las búsquedas públicas son POST de lectura. La revisión inicial esperaba un selector antiguo y después navegaba entre hashes del mismo documento; se corrigió el arnés al selector real y a una pestaña nueva para el registro, sin modificar la app publicada.
+- Sin migraciones, cambios en Railway/FiNeCi, activación de mensajes de citas/promociones, nuevas vinculaciones, cuentas de prueba, recursos o planes. Sigue pendiente confirmar el aspecto y acceso físico en el iPhone de Antonio; no se solicitaron códigos sobre su cuenta para verificar la publicación.
+- Entrada pública: https://ritmo-belleza.antonio-t-22.workers.dev/comunidad/ . En un dispositivo con versión anterior, usar el aviso «Actualizar ahora»; si persiste la copia antigua, `/recuperar-acceso/` conserva la sesión y los datos locales. El panel del dueño sigue en `/plataforma/`.
