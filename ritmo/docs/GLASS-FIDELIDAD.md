@@ -1,6 +1,6 @@
 # Corrección de fidelidad de Liquid Glass · 1 de noviembre de 2026
 
-Antonio mostró en su iPhone Hoy y Agenda vacíos: el material publicado en el PR #25 se veía plano, con bordes uniformes. Pidió realizar los cambios y después continuar la comprobación pendiente. Rama `codex/agendappx-glass-fidelidad` desde `adbf5b0`, implementación `938c86c`, [PR #26](https://github.com/caguamex/security-recorder/pull/26). **Preparado localmente, sin publicar.** La versión pública sigue siendo `191c09ee-040a-4795-98a2-9d47032f7089`.
+Antonio mostró en su iPhone Hoy y Agenda vacíos: el material publicado en el PR #25 se veía plano, con bordes uniformes. Pidió realizar los cambios y después continuar la comprobación pendiente. Rama `codex/agendappx-glass-fidelidad` desde `adbf5b0`, implementación `938c86c`, [PR #26](https://github.com/caguamex/security-recorder/pull/26). Antonio confirmó «Sí, publica». **Publicado y comprobado**, versión final `738c1044-0340-4611-aa6e-a05610d0aca9`, con `--keep-vars`.
 
 ## Alcance
 
@@ -21,8 +21,10 @@ Referencia aprobada: https://agendappx-vista-glass-colores.antonio-t-22.workers.
 - La última revisión automática de la sesión anterior no pudo ejecutarse por un límite de uso. Después de que Antonio pidió continuar, la revisión permitió ejecutar la comprobación final. No se eludió el control ni se activaron créditos de pago.
 - Capturas reales de la app local a390px en `imagenes/glass-fidelidad/`, incluidas pantallas sin registros. Las que muestran personas o citas son datos ficticios locales. Las capturas de referencia son material de la demostración aprobada, no de usuarios reales.
 
-## Pendiente
+## Publicación verificada
 
-Mostrar las capturas y solicitar confirmación de publicación conforme a `ritmo-confirmar-deploy`. Si Antonio confirma, actualizar únicamente el Worker existente con `--keep-vars`, comparar recursos publicados y ejecutar `liquid-glass-publicado.mjs` con `AGENDAPPX_WORKER_VERSION` de ese despliegue. Su expectativa White ya está preparada para el fondo corregido. No interpretar el informe JSON de publicación anterior como comprobación de este ajuste.
+Antonio confirmó «Sí, publica» después de ver la corrección y las capturas. Se actualizó únicamente el Worker existente `ritmo-belleza`, con `--keep-vars`. Versión **738c1044-0340-4611-aa6e-a05610d0aca9**, destino https://ritmo-belleza.antonio-t-22.workers.dev/ . Se conservaron disparadores, variables, Hyperdrive y recursos.
 
-Sin migraciones, escrituras reales, códigos, vinculaciones, cambios de recursos/costos o modificaciones de Railway y FiNeCi. No borrar cuentas, sesión o almacenamiento para mostrar el acabado nuevo. La prueba en iPhone físico queda para después de la publicación autorizada.
+La comprobación pública compara 16 recursos byte por byte contra el paquete aprobado, incluidos el CSS compartido, el código de agenda, el SW y los cinco HTML. Se recorren Comunidad, panel del dueño, planes, recuperación, acceso y registro en Edge/WebKit White/Black a390px: sin desbordamientos ni errores JavaScript. Salud200, APIs del panel sin sesión401 y acceso por WhatsApp habilitado. Cero escrituras de aplicación; solo lecturas públicas y validaciones antibots normales de Cloudflare. Evidencia actualizada en `LIQUID-GLASS-PUBLICACION.json` y capturas anónimas en `imagenes/liquid-glass/publicado/`.
+
+Sin migraciones, modificaciones de cuentas, códigos, vinculaciones ni cambios de recursos/costos. Railway y FiNeCi no se tocaron. En pestañas abiertas, usar el aviso «Actualizar ahora»; no borrar datos, sesión o almacenamiento. Falta confirmar la apariencia en el iPhone físico de Antonio. Este resultado ya corresponde al ajuste de fidelidad, no a la publicación anterior del PR #25.
