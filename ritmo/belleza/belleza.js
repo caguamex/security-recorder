@@ -1,4 +1,4 @@
-/* Ritmo Belleza — agenda de salón con aspecto de iPhone.
+/* Agendappx — agenda de salón con aspecto de iPhone.
    Guarda en tu cuenta (capacidad db de Claude) cuando está disponible y, si no, en este dispositivo. */
 (() => {
   'use strict';
@@ -29,6 +29,54 @@
   // ---------- Catálogos ----------
   const CATS = [['Uñas', '#E0457B'], ['Cabello', '#8B5CF6'], ['Pestañas', '#0EA5A4'], ['Cejas', '#F08A24'], ['Facial', '#22A45D'], ['Otro', '#8E8E93']];
   const catColor = c => (CATS.find(x => x[0] === c) || CATS[5])[1];
+  // Referencias visuales de demostración; no se escriben en los datos del salón.
+  const FOTOS_TRABAJOS = {
+    extensiones: ['./trabajos/extensiones-1.jpg', './trabajos/extensiones-2.jpg', './trabajos/extensiones-3.jpg'],
+    lifting: ['./trabajos/lifting-cejas.jpg'],
+  };
+  const fotoValida = foto => typeof foto === 'string' && foto.length <= 48000 && /^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(foto);
+  async function prepararFoto(archivo) {
+    if (!archivo || archivo.size > 20 * 1024 * 1024) throw new Error('Elige una foto de hasta 20 MB.');
+    if (!/^image\/(jpeg|png|webp|avif|heic|heif)$/i.test(archivo.type)) throw new Error('Elige una foto JPG, PNG o WebP.');
+    const url = URL.createObjectURL(archivo), imagen = new Image();
+    try {
+      await new Promise((resolve, reject) => {
+        imagen.onload = resolve;
+        imagen.onerror = () => reject(new Error('No se pudo abrir la foto. Intenta con una imagen JPG, PNG o WebP.'));
+        imagen.src = url;
+      });
+      if (!imagen.naturalWidth || !imagen.naturalHeight) throw new Error('La foto no tiene un tamaño válido.');
+      const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Este navegador no pudo preparar la foto.');
+      for (let lado = 800; lado >= 200; lado = Math.floor(lado * .75)) {
+        const escala = Math.min(1, lado / Math.max(imagen.naturalWidth, imagen.naturalHeight));
+        canvas.width = Math.max(1, Math.round(imagen.naturalWidth * escala));
+        canvas.height = Math.max(1, Math.round(imagen.naturalHeight * escala));
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(imagen, 0, 0, canvas.width, canvas.height);
+        for (const calidad of [.82, .68, .52, .38]) {
+          const foto = canvas.toDataURL('image/jpeg', calidad);
+          if (fotoValida(foto)) return foto;
+        }
+      }
+      throw new Error('No se pudo reducir esta foto. Prueba con otra imagen.');
+    } finally { URL.revokeObjectURL(url); }
+  }
+  function fotosServicio(s) {
+    if (s.foto === null) return [];
+    if (fotoValida(s.foto)) return [s.foto];
+    const nombre = String(s.nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (s.categoria === 'Cejas') return FOTOS_TRABAJOS.lifting;
+    if (s.categoria !== 'Pestañas') return [];
+    if (/lifting|laminado|rizado/.test(nombre)) return FOTOS_TRABAJOS.lifting;
+    if (/extension|volumen|clasica|hibrid|efecto/.test(nombre)) return FOTOS_TRABAJOS.extensiones;
+    return [];
+  }
+  function miniaturaServicio(s) {
+    const foto = fotosServicio(s)[0];
+    return foto ? `<img class="sq trabajo-mini" src="${esc(foto)}" alt="" loading="lazy" decoding="async" style="--foco:${s.categoria === 'Cejas' ? '45%' : '64%'}">`
+      : `<span class="sq" style="--c:${catColor(s.categoria)}"></span>`;
+  }
   const PROMO_COLORS = ['#E0457B', '#8B5CF6', '#0EA5A4', '#F08A24', '#1F3FD1'];
   const ESTADOS = [['confirmada', 'Confirmada'], ['pendiente', 'Por confirmar'], ['completada', 'Completada'], ['cancelada', 'Cancelada']];
   const estadoTxt = e => (ESTADOS.find(x => x[0] === e) || ESTADOS[1])[1];
@@ -40,7 +88,7 @@
     ['cristal', 'Cristal pastel', ['#EFE4FF', '#FFE6F2', '#8B5CF6', '#EC4899']],
   ];
   const DEFAULTS = {
-    skin: 'clasico', negocio: 'Mi salón', abre: '10:00', cierra: '20:00', examplesOff: false,
+    skin: 'clasico', modo: 'white', negocio: 'Mi salón', abre: '10:00', cierra: '20:00', examplesOff: true,
     waConfirm: true, waRecordar: true, waGracias: false,
     tplConfirm: 'Hola {nombre} 💅 Tu cita de {servicio} quedó agendada para el {fecha} a las {hora}. Te esperamos en {negocio}.',
     tplRecordar: 'Hola {nombre} 💅 Te esperamos mañana a las {hora} para tu {servicio}. Responde 1 para confirmar o 2 para cambiar.',
@@ -52,7 +100,7 @@
     get(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } },
   };
-  const Store = (() => {
+  const ClaudeStore = (() => {
     const K = { items: 'belleza.v1.items', settings: 'belleza.v1.settings', mode: 'belleza.v1.mode', cache: 'belleza.v1.cloudcache' };
     const listeners = new Set();
     let mode = 'local', ready = false, items = new Map(), settings = Object.assign({}, DEFAULTS);
@@ -133,44 +181,38 @@
     };
   })();
 
-  // ---------- Ejemplos: se ven mientras no hay datos; se guardan solo si los usas ----------
-  function buildExamples() {
-    const t = today(), d = n => C.addDays(t, n);
-    const S = (id, nombre, categoria, duracion, precio, descripcion) => ({ id, kind: 'servicio', nombre, categoria, duracion, precio, descripcion, example: true });
-    const K = (id, nombre, telefono) => ({ id, kind: 'clienta', nombre, telefono, notas: '', example: true });
-    const A = (id, date, start, clienta, servicio, estado) => ({ id, kind: 'cita', date, start, clienta, servicio, estado, notas: '', enviados: {}, example: true });
-    return [
-      S('es1', 'Uñas acrílicas', 'Uñas', 90, 650, 'Aplicación completa con forma y diseño a elegir.'),
-      S('es2', 'Gelish en manos', 'Uñas', 45, 300, 'Esmaltado semipermanente con brillo hasta 3 semanas.'),
-      S('es3', 'Pedicure spa', 'Uñas', 60, 400, 'Exfoliación, hidratación y esmaltado.'),
-      S('es4', 'Balayage', 'Cabello', 150, 1500, 'Aclarado a mano alzada con matiz.'),
-      S('es5', 'Corte y peinado', 'Cabello', 60, 450, 'Lavado, corte y secado con peinado.'),
-      S('es6', 'Lifting de pestañas', 'Pestañas', 60, 550, 'Curvatura natural que dura de 6 a 8 semanas.'),
-      S('es7', 'Diseño de cejas', 'Cejas', 30, 250, 'Depilación y diseño según tu rostro.'),
-      S('es8', 'Limpieza facial', 'Facial', 60, 600, 'Limpieza profunda con extracción e hidratación.'),
-      K('ek1', 'Mariana Ruiz', '5512345601'), K('ek2', 'Sofía López', '5512345602'), K('ek3', 'Andrea García', '5512345603'),
-      K('ek4', 'Paola Vega', '5512345604'), K('ek5', 'Daniela Torres', '5512345605'), K('ek6', 'Fernanda Cruz', '5512345606'),
-      A('ec1', t, '10:00', 'ek1', 'es1', 'confirmada'), A('ec2', t, '12:00', 'ek2', 'es6', 'confirmada'),
-      A('ec3', t, '14:00', 'ek3', 'es4', 'pendiente'), A('ec4', t, '17:00', 'ek4', 'es7', 'confirmada'),
-      A('ec5', d(1), '11:00', 'ek5', 'es2', 'pendiente'), A('ec6', d(1), '16:00', 'ek6', 'es8', 'confirmada'),
-      A('ec7', d(2), '13:00', 'ek1', 'es3', 'confirmada'), A('ec8', d(-1), '12:00', 'ek2', 'es5', 'completada'),
-      { id: 'ep1', kind: 'promo', titulo: '2x1 en gelish', etiqueta: 'Solo este mes', texto: 'Trae a tu amiga y paguen una. Agenda por WhatsApp.', color: '#E0457B', publicado: {}, example: true },
-      { id: 'ep2', kind: 'promo', titulo: 'Pestañas + cejas $700', etiqueta: 'Combo', texto: 'Lifting de pestañas y diseño de cejas en una sola cita.', color: '#0EA5A4', publicado: {}, example: true },
-      { id: 'ep3', kind: 'promo', titulo: '15% en tu primer balayage', etiqueta: 'Clientas nuevas', texto: 'Menciona esta promo al agendar.', color: '#8B5CF6', publicado: {}, example: true },
-      { id: 'eg1', kind: 'grupo', nombre: 'Ventas Coyoacán', url: 'https://www.facebook.com/groups/feed/', example: true },
-      { id: 'eg2', kind: 'grupo', nombre: 'Mamás de Tlalpan', url: 'https://www.facebook.com/groups/feed/', example: true },
-      { id: 'eg3', kind: 'grupo', nombre: 'Emprendedoras CDMX', url: 'https://www.facebook.com/groups/feed/', example: true },
-    ];
-  }
-  let EX = null;
-  const exampleMode = () => Store.ready && Store.items.size === 0 && !Store.settings.examplesOff;
-  const all = () => (exampleMode() ? (EX = EX || buildExamples()) : [...Store.items.values()]);
+  // Conserva la integración original de Claude; fuera de ella usa caché y API propia.
+  const Store = (() => {
+    if (window.claude && typeof window.claude.use === 'function') return ClaudeStore;
+    const listeners = new Set();
+    let sync;
+    const emit = () => listeners.forEach(f => f());
+    const seguro = fn => { try { fn(); return true; } catch { toast('No se pudo guardar. Libera espacio en este dispositivo y vuelve a intentar.'); return false; } };
+    return {
+      get items() { return sync ? sync.items : new Map(); }, get settings() { return sync ? sync.settings : DEFAULTS; },
+      get ready() { return !!sync; }, get mode() { return sync?.connected ? 'servidor' : 'local'; },
+      get sync() { return sync; }, onChange: f => listeners.add(f),
+      init() {
+        try { sync = window.BellezaSync.crear({ storage: localStorage, fetcher: (...args) => fetch(...args), defaults: DEFAULTS, onChange: emit }); }
+        catch { toast('No se pudo abrir el almacenamiento. Revisa el espacio disponible y vuelve a abrir la app.'); return; }
+        emit(); void sync.sync();
+        window.addEventListener('online', () => void sync.sync());
+        window.addEventListener('storage', () => sync.actualizar());
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void sync.sync(); });
+        setInterval(() => { if (document.visibilityState === 'visible') void sync.sync(); }, 30000);
+      },
+      put(it) { return seguro(() => sync.put({ ...it, updatedAt: new Date().toISOString() })); },
+      putMany(items) { return seguro(() => { for (const it of items) sync.put({ ...it, updatedAt: new Date().toISOString() }); }); },
+      remove(id) { return seguro(() => sync.remove(id)); }, setSettings(patch) { return seguro(() => sync.setSettings(patch)); },
+    };
+  })();
+
+  // La agenda inicia vacía: los registros aparecen únicamente cuando los captura el salón.
+  const all = () => [...Store.items.values()];
   const list = kind => all().filter(x => x.kind === kind);
   const byId = id => all().find(x => x.id === id) || null;
-  // Antes del primer cambio sobre los ejemplos, se copian a tu agenda para que nada desaparezca.
-  function ensureReal() { if (exampleMode()) Store.putMany(clone(EX || buildExamples())); }
-  const save = it => { ensureReal(); Store.put(it); };
-  const remove = id => { ensureReal(); Store.remove(id); };
+  const save = it => Store.put(it) !== false;
+  const remove = id => Store.remove(id) !== false;
 
   // ---------- Utilidades de citas ----------
   const svcOf = c => byId(c.servicio) || { nombre: 'Servicio', categoria: 'Otro', duracion: 60, precio: 0 };
@@ -211,18 +253,19 @@
   const screen = $('#screen');
   function applySkin() {
     const k = Store.settings.skin || 'clasico';
+    if (Store.settings.modo === 'dark') document.documentElement.dataset.modo = 'dark'; else delete document.documentElement.dataset.modo;
     if (k === 'clasico') delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = k;
   }
   function render() {
     applySkin();
     const tabs = [['agenda', 'Agenda'], ['clientas', 'Clientas'], ['servicios', 'Servicios'], ['promos', 'Promos'], ['mas', 'Ajustes']];
-    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${I[k]}${n}</button>`).join('');
-    $('#fab').hidden = S.tab !== 'agenda';
+    $('#tabbar').innerHTML = tabs.map(([k, n]) => `<button type="button" class="tab" role="tab" aria-label="${n}" data-tab="${k}" aria-selected="${S.tab === k || (k === 'servicios' && S.tab === 'promos')}">${I[k]}${n}</button>`).join('');
+    $('#fab').hidden = false;
     if (!Store.ready) { screen.innerHTML = '<p class="empty">Cargando…</p>'; return; }
     screen.innerHTML = ({ agenda: viewAgenda, clientas: viewClientas, servicios: viewServicios, promos: viewServicios, mas: viewMas })[S.tab]();
   }
-  const banner = () => exampleMode() ? `<div class="banner"><p>Estás viendo datos de ejemplo. Edita o agrega lo que quieras: lo que cambies se guarda como tuyo.</p><button type="button" class="btn" data-act="sin-ejemplos">Empezar vacío</button></div>`
-    : list('servicio').some(x => x.example) || list('cita').some(x => x.example) ? `<div class="banner"><p>Todavía tienes datos de ejemplo.</p><button type="button" class="btn" data-act="borrar-ejemplos">Borrar ejemplos</button></div>` : '';
+  // Permite retirar ejemplos guardados por versiones anteriores sin borrar registros propios.
+  const banner = () => all().some(x => x.example) ? `<div class="banner"><p>Todavía tienes datos de ejemplo.</p><button type="button" class="btn" data-act="borrar-ejemplos">Borrar ejemplos</button></div>` : '';
 
   // Agenda
   let lastScrollDay = null;
@@ -241,7 +284,7 @@
       const sent = c.enviados && c.enviados.confirmacion;
       return `<button type="button" class="ev ${dur <= 45 ? 'short' : ''} ${c.estado === 'cancelada' ? 'cancel' : ''}" data-cita="${esc(c.id)}" style="--c:${color};top:${top}px;height:${h}px;left:calc(60px + (100% - 60px) * ${col / cols} + 2px);width:calc((100% - 60px) / ${cols} - 4px)">
         <b>${dur <= 45 ? esc(c.start) + ' ' : ''}${esc(sv.nombre)}${dur <= 45 ? ' · ' + esc(k.nombre.split(' ')[0]) : ''}</b><span class="t">${esc(c.start)} – ${C.fromMin(endOf(c))} · ${money(sv.precio)}</span>
-        <span class="who"><span class="av" style="--c:${color}">${esc(initials(k.nombre))}</span><span class="n">${esc(k.nombre)}</span><span class="st ${c.estado}">${sent && c.estado === 'confirmada' ? '✓ WhatsApp' : esc(estadoTxt(c.estado))}</span></span></button>`;
+        <span class="who"><span class="av" style="--c:${color}">${esc(initials(k.nombre))}</span><span class="n">${esc(k.nombre)}</span><span class="st ${c.estado}">${c.solicitaCambio ? 'Cambiar cita' : sent && c.estado === 'confirmada' ? '✓ WhatsApp' : esc(estadoTxt(c.estado))}</span></span></button>`;
     }).join('');
     let hours = '';
     for (let h = open; h < close; h++) hours += `<div class="hr" style="--h:${H}px"><span>${C.pad(h)}:00</span><i data-newat="${C.pad(h)}:00" aria-hidden="true"></i></div>`;
@@ -300,11 +343,11 @@
     const cats = ['Todas', ...CATS.map(c => c[0]).filter(c => svcs.some(s => s.categoria === c))];
     const shown = svcs.filter(s => S.cat === 'Todas' || s.categoria === S.cat);
     return head + `<div class="hscroll" role="group" aria-label="Categorías">${cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}</div>
-      <div class="cards" id="cards" style="margin-top:12px">${shown.map(s => `<div class="promo" style="--c:${catColor(s.categoria)};min-height:200px"><small>${esc(s.categoria)}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion || '')}</p>
-        <span class="badge" style="left:14px;right:auto">${s.duracion} min · ${money(s.precio)}</span><button type="button" class="badge" data-agendar="${esc(s.id)}" style="border:0">Agendar ›</button></div>`).join('') || '<p class="empty">Agrega tu primer servicio con el +.</p>'}</div>
+      <div class="cards" id="cards" style="margin-top:12px">${shown.map(s => { const fotos = fotosServicio(s); return `<div class="promo${fotos.length ? ' trabajo' : ''}" style="--c:${catColor(s.categoria)};--foco:${s.categoria === 'Cejas' ? '45%' : '64%'};min-height:200px">${fotos.length ? `<img class="trabajo-fondo" src="${esc(fotos[0])}" alt="" decoding="async"><button type="button" class="trabajo-ver" data-fotos="${esc(s.id)}" aria-label="Ver fotos de ${esc(s.nombre)}">Ver fotos</button>` : ''}<small>${esc(s.categoria)}</small><h3>${esc(s.nombre)}</h3><p style="margin-bottom:46px">${esc(s.descripcion || '')}</p>
+        <span class="badge" style="left:14px;right:auto">${s.duracion} min · ${money(s.precio)}</span><button type="button" class="badge" data-agendar="${esc(s.id)}" style="border:0">Agendar ›</button></div>`; }).join('') || '<p class="empty">Agrega tu primer servicio con el +.</p>'}</div>
       <div class="pdots" id="pdots">${shown.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>
       <p class="gh">Todos los servicios · toca para editar</p>
-      ${svcs.length ? `<div class="group">${svcs.slice().sort((a, b) => CATS.findIndex(c => c[0] === a.categoria) - CATS.findIndex(c => c[0] === b.categoria) || a.nombre.localeCompare(b.nombre, 'es')).map(s => `<button type="button" class="cell" data-servicio="${esc(s.id)}"><span class="sq" style="--c:${catColor(s.categoria)}"></span><span class="l">${esc(s.nombre)}<small>${esc(s.categoria)} · ${s.duracion} min</small></span><span class="p">${money(s.precio)}</span></button>`).join('')}</div>` : ''}`;
+      ${svcs.length ? `<div class="group">${svcs.slice().sort((a, b) => CATS.findIndex(c => c[0] === a.categoria) - CATS.findIndex(c => c[0] === b.categoria) || a.nombre.localeCompare(b.nombre, 'es')).map(s => `<button type="button" class="cell" data-servicio="${esc(s.id)}">${miniaturaServicio(s)}<span class="l">${esc(s.nombre)}<small>${esc(s.categoria)} · ${s.duracion} min</small></span><span class="p">${money(s.precio)}</span></button>`).join('')}</div>` : ''}`;
   }
 
   // Conexiones y ajustes
@@ -313,13 +356,14 @@
     const s = Store.settings, man = C.addDays(today(), 1);
     const recordar = citasDe(man).filter(c => c.estado !== 'cancelada');
     const grupos = list('grupo');
-    return `<div class="nav"></div><h1 class="big"><span>Conexiones</span></h1>${banner()}
+    return `<div class="nav"></div><h1 class="big"><span>Ajustes</span></h1>${banner()}
       <p class="gh">Calendarios</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#4285F4">G</span><span class="l">Google Calendar<small>Cada cita tiene su botón «Agregar a Google Calendar»</small></span></div>
         <button type="button" class="cell" data-act="exportar-ics"><span class="ico" style="background:#FF3B30">31</span><span class="l">Apple Calendar<small>Descarga tus citas en un archivo de calendario</small></span><span class="chev">${I.chev}</span></button>
+        ${Store.sync ? `<button type="button" class="cell" data-act="suscripcion"><span class="l">Suscribir Apple o Google Calendar<small>Enlace privado que refleja los cambios de tu agenda</small></span><span class="chev">${I.chev}</span></button>` : ''}
       </div>
-      <p class="foot">Con tu servidor de Railway, las citas aparecerán solas en ambos calendarios.</p>
+      <p class="foot">La suscripción requiere conectar tu servidor. Cada calendario decide cuándo actualizar las citas.</p>
       <p class="gh">WhatsApp</p>
       <div class="group">
         <div class="cell"><span class="ico" style="background:#25D366">✓</span><span class="l">Confirmar al agendar</span>${sw('waConfirm', s.waConfirm, 'Confirmar al agendar')}</div>
@@ -327,13 +371,16 @@
         <div class="cell"><span class="ico" style="background:#25D366">♡</span><span class="l">Gracias y pedir reseña</span>${sw('waGracias', s.waGracias, 'Gracias y pedir reseña')}</div>
         <button type="button" class="cell" data-act="recordatorios"><span class="l">Recordatorios de mañana</span><span class="v">${recordar.length}</span><span class="chev">${I.chev}</span></button>
         <button type="button" class="cell" data-act="mensajes"><span class="l">Editar mensajes</span><span class="chev">${I.chev}</span></button>
+        ${Store.sync ? `<button type="button" class="cell" data-act="estado-whatsapp"><span class="l">Automatización de WhatsApp<small>Estado del número oficial y de los envíos</small></span><span class="chev">${I.chev}</span></button>` : ''}
       </div>
       <div class="bubble">${esc(fill(s.tplRecordar, recordar[0] || { date: man, start: '10:00', servicio: (list('servicio')[0] || {}).id, clienta: (list('clienta')[0] || {}).id }))}</div>
-      <p class="foot">Por ahora se envían desde tu WhatsApp con un toque. Al conectar Railway con la API de WhatsApp Business se enviarán solos.</p>
+      <p class="foot">El envío manual sigue disponible. La automatización requiere el número oficial, consentimiento de la clienta y una ventana gratuita de conversación abierta.</p>
       <p class="gh">Grupos de Facebook</p>
       <div class="group">${grupos.map(g => `<button type="button" class="cell" data-grupo="${esc(g.id)}"><span class="ico" style="background:#1877F2">f</span><span class="l">${esc(g.nombre)}</span><span class="chev">${I.chev}</span></button>`).join('')}
         <button type="button" class="cell" data-act="nuevo-grupo" style="color:var(--acc)"><span class="l">Agregar grupo</span></button></div>
       <p class="foot">Para publicar, abre una promoción y toca «Publicar» en cada grupo.</p>
+      <p class="gh">Apariencia</p>
+      <div class="seg modo" role="tablist" aria-label="Apariencia"><button type="button" role="tab" data-modo="white" aria-selected="${s.modo !== 'dark'}">☀️ White</button><button type="button" role="tab" data-modo="dark" aria-selected="${s.modo === 'dark'}">🌙 Dark</button></div>
       <p class="gh">Tema</p>
       <div class="skins" role="radiogroup" aria-label="Tema">${SKINS.map(([k, n, c]) => `<button type="button" class="skin" role="radio" data-skin="${k}" aria-checked="${(s.skin || 'clasico') === k}"><span class="s4">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
       <p class="gh">Tu negocio</p>
@@ -342,22 +389,135 @@
         <label class="cell"><span class="l">Abre</span><input class="in" type="time" data-setin="abre" value="${esc(s.abre)}" style="max-width:120px"></label>
         <label class="cell"><span class="l">Cierra</span><input class="in" type="time" data-setin="cierra" value="${esc(s.cierra)}" style="max-width:120px"></label>
       </div>
-      <p class="foot">${Store.mode === 'cloud' ? 'Guardado en tu cuenta: lo ves igual en todos tus dispositivos.' : 'Guardado en este dispositivo.'}</p>`;
+      <p class="foot">${Store.mode === 'cloud' ? 'Guardado en tu cuenta: lo ves igual en todos tus dispositivos.' : esc(Store.sync?.status || 'Guardado en este dispositivo.')}</p>
+      ${Store.sync ? `<div class="group" style="margin-top:12px"><button type="button" class="cell" data-act="servidor"><span class="l">Sincronización<small>${Store.sync.connected ? 'Servidor conectado' : 'Conecta tu agenda con tu servidor'}</small></span><span class="chev">${I.chev}</span></button></div>` : ''}`;
   }
 
   // ---------- Hojas ----------
-  const sheet = $('#sheet'), card = $('#sheetCard');
+  async function sheetConexion(tipo) {
+    const sync = Store.sync;
+    if (!sync?.connected) { toast('Primero conecta tu servidor en Sincronización.'); return; }
+    const titulo = tipo === 'calendario' ? 'Suscribir calendario' : 'WhatsApp automático';
+    const done = root => root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
+    openSheet(navSheet(titulo, 'Listo') + '<p class="foot">Consultando tu servidor…</p>', titulo, done);
+    const panel = card;
+    try {
+      const data = await sync.conexiones();
+      if (card !== panel || !S.sheetOpen) return;
+      const mostrar = value => {
+        if (tipo === 'calendario') {
+          openSheet(`${navSheet(titulo, 'Listo')}<p class="foot">Este enlace es privado. Quien lo tenga podrá consultar las citas.</p>
+            <div class="group" style="margin-top:14px"><label class="cell"><textarea class="in" readonly aria-label="Enlace privado del calendario">${esc(value.calendarioUrl)}</textarea></label></div>
+            <button class="cta" type="button" id="calendar-copy">Copiar enlace</button>
+            <a class="cell" href="${esc(value.calendarioUrl.replace(/^https?:/, 'webcal:'))}">Abrir suscripción en Apple Calendar</a>
+            <p class="foot">En Google Calendar, desde su sitio web: Otros calendarios → Desde URL. Pega el enlace copiado. Es una suscripción de lectura; Google puede tardar en actualizarla.</p>
+            <button class="cell danger" type="button" id="calendar-rotate">Renovar enlace privado</button>
+            <p class="foot" id="calendar-status">Renovar invalida las suscripciones anteriores.</p>`, titulo, root => {
+              done(root);
+              root.addEventListener('click', async e => {
+                const b = e.target.closest('button'); if (!b) return;
+                if (b.id === 'calendar-copy') {
+                  try { await navigator.clipboard.writeText(value.calendarioUrl); $('#calendar-status', root).textContent = 'Enlace copiado.'; }
+                  catch { $('#calendar-status', root).textContent = 'Selecciona el enlace y cópialo manualmente.'; }
+                }
+                if (b.id === 'calendar-rotate') {
+                  if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para invalidar el enlace anterior'; return; }
+                  b.disabled = true;
+                  try { mostrar(await sync.renovarCalendario()); }
+                  catch { $('#calendar-status', root).textContent = 'No se pudo renovar. Revisa tu conexión.'; b.disabled = false; }
+                }
+              });
+            });
+        } else {
+          const wa = value.whatsapp;
+          const estados = { pendiente: 'Pendientes', requiere_ventana: 'Requieren mensaje previo de la clienta', procesando: 'Procesando', aceptado: 'Aceptados por Meta', entregado: 'Entregados', leido: 'Leídos', fallido: 'Rechazados', incierto: 'Por revisar antes de reenviar' };
+          openSheet(`${navSheet(titulo, 'Listo')}<p class="gh">${wa.configurado ? 'Número oficial conectado' : 'Conexión pendiente'}</p>
+            <p class="foot">${esc(wa.explicacion)}</p><div class="group" style="margin-top:14px">${Object.entries(wa.conteos || {}).map(([key, count]) => `<div class="cell"><span class="l">${esc(estados[key] || key)}</span><span class="v">${esc(count)}</span></div>`).join('') || '<div class="cell">Todavía no hay envíos automáticos.</div>'}</div>
+            <p class="foot">Modo sin cargos de Meta: solo mensajes de servicio dentro de las 24 horas desde el último mensaje recibido. No se envían plantillas de pago. Autoriza cada clienta desde su ficha.</p>`, titulo, done);
+        }
+      };
+      mostrar(data);
+    } catch {
+      if (card === panel && S.sheetOpen) openSheet(navSheet(titulo, 'Listo') + '<p class="foot">No se pudo consultar el servidor. Revisa tu conexión e intenta de nuevo.</p>', titulo, done);
+    }
+  }
+  function sheetServidor() {
+    const sync = Store.sync;
+    const resumen = data => {
+      if (data === null) return 'Registro eliminado';
+      const labels = { nombre: 'Nombre', telefono: 'WhatsApp', notas: 'Notas', titulo: 'Título', texto: 'Texto', etiqueta: 'Etiqueta',
+        foto: 'Foto', precio: 'Precio', duracion: 'Duración en minutos', categoria: 'Categoría', descripcion: 'Descripción', url: 'Enlace',
+        date: 'Fecha', start: 'Hora', estado: 'Estado', clienta: 'Clienta', servicio: 'Servicio', negocio: 'Negocio',
+        abre: 'Abre', cierra: 'Cierra', modo: 'Apariencia', skin: 'Tema', examplesOff: 'Ocultar ejemplos', waConfirm: 'Confirmar por WhatsApp',
+        waRecordar: 'Recordar por WhatsApp', waGracias: 'Agradecer por WhatsApp', tplConfirm: 'Mensaje de confirmación',
+        tplRecordar: 'Mensaje de recordatorio', tplGracias: 'Mensaje de agradecimiento', enviados: 'Mensajes enviados', publicado: 'Grupos publicados' };
+      return Object.entries(data).filter(([key]) => labels[key]).map(([key, value]) => {
+        if (['clienta', 'servicio'].includes(key)) value = byId(value)?.nombre || 'Sin registro asociado';
+        else if (key === 'foto') value = fotoValida(value) ? 'Foto personalizada' : 'Sin foto';
+        else if (key === 'precio') value = money(value);
+        else if (key === 'modo') value = value === 'dark' ? 'Dark' : 'White';
+        else if (key === 'skin') value = SKINS.find(s => s[0] === value)?.[1] || value;
+        else if (typeof value === 'boolean') value = value ? 'Sí' : 'No';
+        else if (value && typeof value === 'object') value = Object.keys(value).map(id => byId(id)?.nombre || ({ confirmacion: 'Confirmación', recordatorio: 'Recordatorio', gracias: 'Agradecimiento' }[id] || 'Enviado')).join(', ');
+        return `${labels[key]}: ${value || 'Sin datos'}`;
+      }).join('\n');
+    };
+    const conflicto = sync.conflicts.map(c => {
+      const local = sync.pending.find(p => p.id === c.id);
+      return `<p class="gh">${esc(local?.data?.nombre || local?.data?.titulo || c.data?.nombre || c.id)}</p><div class="group"><div class="cell"><span class="l">En este dispositivo<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(local?.data ?? null))}</small></span></div><div class="cell"><span class="l">En el servidor<small style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(resumen(c.data))}</small></span></div><button type="button" class="cell" data-conflicto="${esc(c.id)}" data-local="1">Conservar este dispositivo</button><button type="button" class="cell" data-conflicto="${esc(c.id)}">Conservar el servidor</button></div>`;
+    }).join('');
+    openSheet(`${navSheet('Sincronización', 'Listo')}<p class="foot" role="status" id="sync-status">${esc(sync.status)} · ${sync.pending.length} cambios pendientes.</p>
+      <p class="gh">Tu servidor</p><div class="group"><label class="cell"><span style="flex:none;white-space:nowrap">Token de acceso</span><input class="in" style="flex:1" type="password" id="sync-token" placeholder="Pega tu token" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Token de acceso"></label></div>
+      <p class="foot">Usa el APP_TOKEN de tu servidor. Se guarda en este dispositivo y se envía únicamente a esta misma dirección.</p>
+      <button type="button" class="cta" id="sync-connect">Conectar</button>
+      ${sync.connected ? '<button type="button" class="cell" id="sync-now">Sincronizar ahora</button><button type="button" class="cell" id="sync-disconnect">Desconectar este dispositivo</button>' : ''}${conflicto}`,
+    'Sincronización', root => {
+      const feedback = message => { $('#sync-status', root).textContent = message; };
+      root.addEventListener('click', async e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.id === 'sync-connect') {
+          b.disabled = true;
+          try { await sync.conectar($('#sync-token', root).value); sheetServidor(); }
+          catch (error) { feedback(error.status === 401 ? 'El token no es válido.' : 'No se pudo conectar. Revisa el token y tu conexión.'); }
+          finally { b.disabled = false; }
+        } else if (b.id === 'sync-now') { await sync.sync(); sheetServidor(); }
+        else if (b.id === 'sync-disconnect') { sync.desconectar(); sheetServidor(); }
+        else if (b.dataset.conflicto) { sync.resolver(b.dataset.conflicto, !!b.dataset.local); sheetServidor(); }
+        else if (b.hasAttribute('data-done') || b.hasAttribute('data-close')) closeSheet();
+      });
+    });
+  }
+  const sheet = $('#sheet');
+  let card = $('#sheetCard');
   function openSheet(html, label, mount) {
+    // Cada hoja tiene sus propios manejadores; reabrirla no repite escrituras.
+    const fresh = card.cloneNode(false);
+    card.replaceWith(fresh); card = fresh;
     $('#toast').hidden = true;
     card.innerHTML = '<div class="grab"></div>' + html;
     card.setAttribute('aria-label', label);
     sheet.hidden = false; S.sheetOpen = true; document.body.style.overflow = 'hidden';
     card.scrollTop = 0;
     if (mount) mount(card);
+    document.dispatchEvent(new Event('ritmo:hoja'));
   }
-  function closeSheet() { sheet.hidden = true; card.innerHTML = ''; S.sheetOpen = false; document.body.style.overflow = ''; }
+  function closeSheet() { sheet.hidden = true; card.innerHTML = ''; S.sheetOpen = false; document.body.style.overflow = ''; document.dispatchEvent(new Event('ritmo:hoja')); }
   sheet.addEventListener('mousedown', e => { if (e.target === sheet) closeSheet(); });
   const navSheet = (title, right) => `<div class="sh-nav"><button type="button" data-close>Cancelar</button><b>${esc(title)}</b>${right ? `<button type="button" class="done" data-done>${esc(right)}</button>` : '<span style="width:64px"></span>'}</div>`;
+
+  function sheetFotos(id) {
+    const servicio = byId(id), fotos = servicio && fotosServicio(servicio);
+    if (!fotos?.length) return;
+    openSheet(`${navSheet('Fotos de trabajos', 'Listo')}<p class="foot">${esc(servicio.nombre)}${fotoValida(servicio.foto) ? '' : ' · Fotografías de referencia'}.</p>
+      <div class="trabajo-galeria">${fotos.map((src, i) => {
+        const [ancho, alto] = src === FOTOS_TRABAJOS.lifting[0] ? [720, 1280]
+          : src === FOTOS_TRABAJOS.extensiones[0] ? [1280, 1113] : [1022, 1280];
+        return `<img src="${esc(src)}" ${fotoValida(servicio.foto) ? '' : `width="${ancho}" height="${alto}"`} alt="${esc(servicio.nombre)}: referencia ${i + 1}" decoding="async">`;
+      }).join('')}</div>
+      <img class="trabajo-marca" src="./trabajos/logo-ab-beauty.jpg" alt="AB BEAUTY ROOM">`, 'Fotos de trabajos', root => {
+      root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
+    });
+  }
 
   function sheetCita(opts) {
     const o = opts || {}, edit = o.id ? byId(o.id) : null;
@@ -407,15 +567,16 @@
             const nombre = $('#c-nombre', root).value.trim();
             if (!nombre) { toast('Escribe el nombre de la clienta.'); $('#c-nombre', root).focus(); return; }
             cliId = newId();
-            save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), notas: '' });
+            if (!save({ id: cliId, kind: 'clienta', nombre, telefono: $('#c-tel', root).value.trim(), notas: '' })) return;
           }
           if (!cliId) { toast('Elige una clienta.'); return; }
           if (!st.servicio) { toast('Elige un servicio.'); return; }
           if (!st.start) { toast('Elige un horario.'); return; }
           const cita = Object.assign(edit ? clone(edit) : { id: newId(), kind: 'cita', estado: 'pendiente', enviados: {} }, { clienta: cliId, servicio: st.servicio, date: st.date, start: st.start, notas: $('#c-notas', root).value.trim() });
+          if (edit && (edit.date !== cita.date || edit.start !== cita.start)) delete cita.solicitaCambio;
           delete cita.example;
           const wa = !edit && $('#c-wa', root) && $('#c-wa', root).getAttribute('aria-checked') === 'true';
-          save(cita);
+          if (!save(cita)) return;
           S.day = cita.date; S.tab = 'agenda'; lastScrollDay = null;
           closeSheet(); render();
           if (wa) sheetListo(cita.id); else toast(edit ? 'Cita guardada' : 'Cita agendada');
@@ -455,9 +616,9 @@
         if (!b) return;
         if (b.hasAttribute('data-close')) closeSheet();
         if (b.hasAttribute('data-edit')) { closeSheet(); sheetCita({ id }); }
-        if (b.dataset.estado) { const u = clone(byId(id)); u.estado = b.dataset.estado; delete u.example; save(u); closeSheet(); toast('Cita: ' + estadoTxt(u.estado).toLowerCase()); }
+        if (b.dataset.estado) { const u = clone(byId(id)); u.estado = b.dataset.estado; delete u.example; if (!save(u)) return; closeSheet(); toast('Cita: ' + estadoTxt(u.estado).toLowerCase()); }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(byId(id)); remove(id); closeSheet(); toast('Cita eliminada', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(byId(id)); if (!remove(id)) return; closeSheet(); toast('Cita eliminada', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -469,23 +630,25 @@
     openSheet(`${navSheet(k ? 'Clienta' : 'Nueva clienta', 'Guardar')}
       <div class="group" style="margin-top:6px"><label class="cell"><span class="l">Nombre</span><input class="in" id="k-nombre" value="${esc(k ? k.nombre : '')}" placeholder="Nombre y apellido" autocomplete="off"></label>
         <label class="cell"><span class="l">WhatsApp</span><input class="in" id="k-tel" type="tel" inputmode="tel" value="${esc(k ? k.telefono : '')}" placeholder="55 1234 5678"></label>
-        <label class="cell"><span class="sr">Notas</span><textarea class="in" id="k-notas" placeholder="Notas: tono favorito, alergias…">${esc(k ? k.notas : '')}</textarea></label></div>
+        <label class="cell"><span class="sr">Notas</span><textarea class="in" id="k-notas" placeholder="Notas: tono favorito, alergias…">${esc(k ? k.notas : '')}</textarea></label>
+        <div class="cell"><span class="l">Autoriza WhatsApp automático<small>La clienta aceptó recibir avisos de sus citas</small></span><button class="sw" type="button" role="switch" id="k-consent" aria-label="Autoriza WhatsApp automático" aria-checked="${k?.whatsappOptIn === true}"></button></div></div>
       ${k && k.telefono ? `<div style="padding:14px 16px 0;display:flex;gap:8px;flex-wrap:wrap"><a class="btn wa" href="${esc(waLink(k.telefono, `Hola ${k.nombre.split(' ')[0]} 💅`))}" target="_blank" rel="noopener">Escribir por WhatsApp</a><button type="button" class="btn fill" data-agendar-cli="${esc(k.id)}">Agendar cita</button></div>` : ''}
       ${citas.length ? `<p class="gh">Visitas</p><div class="group">${citas.slice(0, 20).map(c => `<button type="button" class="cell" data-cita="${esc(c.id)}"><span class="l">${esc(svcOf(c).nombre)}<small>${esc(C.fmtShort(c.date))}, ${c.start} · ${esc(estadoTxt(c.estado))}</small></span><span class="p">${money(svcOf(c).precio)}</span></button>`).join('')}</div>` : ''}
       ${k ? '<div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar clienta</button></div>' : ''}`, 'Clienta', root => {
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
+        if (b.id === 'k-consent') b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true'));
         if (b.hasAttribute('data-close')) closeSheet();
         if (b.dataset.agendarCli) { closeSheet(); sheetCita({ clienta: b.dataset.agendarCli }); }
         if (b.hasAttribute('data-done')) {
           const nombre = $('#k-nombre', root).value.trim();
           if (!nombre) { toast('Escribe el nombre.'); return; }
-          const it = Object.assign(k ? clone(k) : { id: newId(), kind: 'clienta' }, { nombre, telefono: $('#k-tel', root).value.trim(), notas: $('#k-notas', root).value.trim() });
-          delete it.example; save(it); closeSheet(); toast('Clienta guardada');
+          const it = Object.assign(k ? clone(k) : { id: newId(), kind: 'clienta' }, { nombre, telefono: $('#k-tel', root).value.trim(), notas: $('#k-notas', root).value.trim(), whatsappOptIn: $('#k-consent', root).getAttribute('aria-checked') === 'true' });
+          delete it.example; if (!save(it)) return; closeSheet(); toast('Clienta guardada');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(k); remove(k.id); closeSheet(); toast('Clienta eliminada', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(k); if (!remove(k.id)) return; closeSheet(); toast('Clienta eliminada', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -493,26 +656,57 @@
   }
   function sheetServicio(id) {
     const s = id ? byId(id) : null;
+    let foto = s?.foto, preparando = false;
     const durs = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240];
     openSheet(`${navSheet(s ? 'Servicio' : 'Nuevo servicio', 'Guardar')}
+      <div class="servicio-foto">
+        <img id="s-foto-preview" alt="Foto del servicio" hidden>
+        <input type="file" id="s-foto" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" aria-label="Seleccionar foto del servicio" hidden>
+        <div class="servicio-foto-acciones"><button type="button" class="btn" data-subir-foto>Subir foto</button><button type="button" class="btn danger" data-quitar-foto hidden>Quitar foto</button></div>
+        <p class="foot" id="s-foto-estado" role="status">Elige una foto para mostrarla en la tarjeta. Se guardará una copia optimizada.</p>
+      </div>
       <div class="group" style="margin-top:6px"><label class="cell"><span class="l">Nombre</span><input class="in" id="s-nombre" value="${esc(s ? s.nombre : '')}" placeholder="Ej. Uñas acrílicas" autocomplete="off"></label>
         <label class="cell"><span class="l">Categoría</span><select class="in" id="s-cat" style="max-width:160px">${CATS.map(c => `<option ${s && s.categoria === c[0] ? 'selected' : ''}>${c[0]}</option>`).join('')}</select></label>
         <label class="cell"><span class="l">Duración</span><select class="in" id="s-dur" style="max-width:160px">${durs.map(d => `<option value="${d}" ${(s ? +s.duracion : 60) === d ? 'selected' : ''}>${d < 60 ? d + ' min' : Math.floor(d / 60) + ' h' + (d % 60 ? ' ' + (d % 60) + ' min' : '')}</option>`).join('')}</select></label>
         <label class="cell"><span class="l">Precio</span><input class="in" id="s-precio" type="number" inputmode="decimal" min="0" step="10" value="${s ? +s.precio : ''}" placeholder="$0" style="max-width:140px"></label>
         <label class="cell"><span class="sr">Descripción</span><textarea class="in" id="s-desc" placeholder="Descripción para tus clientas">${esc(s ? s.descripcion : '')}</textarea></label></div>
       ${s ? '<div class="group" style="margin-top:22px"><button type="button" class="cell danger" data-del style="justify-content:center">Eliminar servicio</button></div>' : ''}`, 'Servicio', root => {
+      const archivo = $('#s-foto', root), preview = $('#s-foto-preview', root), subir = $('[data-subir-foto]', root), quitar = $('[data-quitar-foto]', root), guardar = $('[data-done]', root), estado = $('#s-foto-estado', root);
+      function mostrarFoto() {
+        const src = fotosServicio({ ...s, foto, nombre: $('#s-nombre', root).value, categoria: $('#s-cat', root).value })[0];
+        preview.hidden = !src;
+        if (src) preview.src = src; else preview.removeAttribute('src');
+        subir.textContent = preparando ? 'Preparando foto…' : src ? 'Cambiar foto' : 'Subir foto';
+        quitar.hidden = !src; subir.disabled = quitar.disabled = guardar.disabled = preparando;
+      }
+      mostrarFoto();
+      $('#s-cat', root).addEventListener('change', mostrarFoto);
+      archivo.addEventListener('change', async () => {
+        const elegido = archivo.files?.[0]; if (!elegido) return;
+        preparando = true; mostrarFoto(); estado.textContent = 'Preparando foto…';
+        try {
+          const lista = await prepararFoto(elegido);
+          if (!root.isConnected) return;
+          foto = lista; estado.textContent = 'Foto lista. Toca Guardar para conservarla.';
+        } catch (e) { if (root.isConnected) estado.textContent = e.message || 'No se pudo preparar la foto.'; }
+        finally { preparando = false; archivo.value = ''; if (root.isConnected) mostrarFoto(); }
+      });
       root.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
         if (b.hasAttribute('data-close')) closeSheet();
+        if (b.hasAttribute('data-subir-foto')) archivo.click();
+        if (b.hasAttribute('data-quitar-foto') && !preparando) { foto = null; mostrarFoto(); estado.textContent = 'Foto quitada. Toca Guardar para conservar el cambio.'; }
         if (b.hasAttribute('data-done')) {
+          if (preparando) return;
           const nombre = $('#s-nombre', root).value.trim();
           if (!nombre) { toast('Escribe el nombre del servicio.'); return; }
           const it = Object.assign(s ? clone(s) : { id: newId(), kind: 'servicio' }, { nombre, categoria: $('#s-cat', root).value, duracion: +$('#s-dur', root).value, precio: Math.max(0, +$('#s-precio', root).value || 0), descripcion: $('#s-desc', root).value.trim() });
-          delete it.example; save(it); closeSheet(); toast('Servicio guardado');
+          if (foto !== undefined) it.foto = foto;
+          delete it.example; if (!save(it)) return; closeSheet(); toast('Servicio guardado');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(s); remove(s.id); closeSheet(); toast('Servicio eliminado', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(s); if (!remove(s.id)) return; closeSheet(); toast('Servicio eliminado', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -547,18 +741,18 @@
         if (b.dataset.pub) {
           copy();
           const u = clone(byId(p.id)); u.publicado = Object.assign({}, u.publicado, { [b.dataset.pub]: new Date().toISOString() }); delete u.example;
-          save(u);
+          if (!save(u)) return;
           setTimeout(() => { closeSheet(); sheetPromo(p.id); toast('Texto copiado: pégalo en el grupo'); }, 50);
         }
-        if (b.hasAttribute('data-reset')) { const u = clone(byId(p.id)); u.publicado = {}; delete u.example; save(u); closeSheet(); sheetPromo(p.id); }
+        if (b.hasAttribute('data-reset')) { const u = clone(byId(p.id)); u.publicado = {}; delete u.example; if (!save(u)) return; closeSheet(); sheetPromo(p.id); }
         if (b.hasAttribute('data-done')) {
           const titulo = $('#p-tit', root).value.trim();
           if (!titulo) { toast('Escribe el título.'); return; }
           const it = Object.assign(p ? clone(p) : { id: newId(), kind: 'promo', publicado: {} }, { titulo, etiqueta: $('#p-et', root).value.trim(), texto: $('#p-txt', root).value.trim(), color });
-          delete it.example; save(it); closeSheet(); S.tab = 'promos'; render(); toast('Promoción guardada');
+          delete it.example; if (!save(it)) return; closeSheet(); S.tab = 'promos'; render(); toast('Promoción guardada');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(p); remove(p.id); closeSheet(); toast('Promoción eliminada', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(p); if (!remove(p.id)) return; closeSheet(); toast('Promoción eliminada', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -582,10 +776,10 @@
           if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
           if (url && !/^https:\/\/([a-z0-9-]+\.)?(facebook\.com|fb\.com)\//i.test(url)) { toast('Usa un enlace de facebook.com'); return; }
           const it = Object.assign(g ? clone(g) : { id: newId(), kind: 'grupo' }, { nombre, url });
-          delete it.example; save(it); closeSheet(); toast('Grupo guardado');
+          delete it.example; if (!save(it)) return; closeSheet(); toast('Grupo guardado');
         }
         if (b.hasAttribute('data-del')) {
-          if (b.dataset.sure) { const before = clone(g); remove(g.id); closeSheet(); toast('Grupo eliminado', () => save(before)); }
+          if (b.dataset.sure) { const before = clone(g); if (!remove(g.id)) return; closeSheet(); toast('Grupo eliminado', () => save(before)); }
           else { b.dataset.sure = '1'; b.textContent = 'Toca otra vez para eliminar'; }
         }
       });
@@ -602,7 +796,7 @@
         const b = e.target.closest('button');
         if (!b) return;
         if (b.hasAttribute('data-close')) closeSheet();
-        if (b.hasAttribute('data-done')) { const p = {}; $$('[data-tpl]', root).forEach(t => { p[t.dataset.tpl] = t.value.trim() || DEFAULTS[t.dataset.tpl]; }); Store.setSettings(p); closeSheet(); toast('Mensajes guardados'); }
+        if (b.hasAttribute('data-done')) { const p = {}; $$('[data-tpl]', root).forEach(t => { p[t.dataset.tpl] = t.value.trim() || DEFAULTS[t.dataset.tpl]; }); if (Store.setSettings(p) === false) return; closeSheet(); toast('Mensajes guardados'); }
       });
     });
   }
@@ -682,13 +876,14 @@
       }
       return;
     }
-    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-agendar],[data-act],[data-skin],[data-setsw],[data-newat]');
+    const b = e.target.closest('[data-tab],[data-day],[data-cita],[data-clienta],[data-servicio],[data-promo],[data-grupo],[data-seg],[data-cat],[data-agendar],[data-act],[data-modo],[data-skin],[data-setsw],[data-newat],[data-fotos]');
     if (!b) return;
     const d = b.dataset;
     if (d.tab) { S.tab = d.tab; if (d.tab === 'servicios') S.seg = 'servicios'; lastScrollDay = null; scrollTo({ top: 0 }); render(); }
     else if (d.day) { S.day = d.day; lastScrollDay = null; render(); }
     else if (d.cita) sheetDetalle(d.cita);
     else if (d.clienta !== undefined && d.clienta !== '') sheetClienta(d.clienta);
+    else if (d.fotos) sheetFotos(d.fotos);
     else if (d.servicio) sheetServicio(d.servicio);
     else if (d.promo) sheetPromo(d.promo);
     else if (d.grupo) sheetGrupo(d.grupo);
@@ -697,13 +892,14 @@
     else if (d.agendar) sheetCita({ servicio: d.agendar });
     else if (d.newat) sheetCita({ date: S.day, start: d.newat });
     else if (d.skin) Store.setSettings({ skin: d.skin });
+    else if (d.modo && ['white', 'dark'].includes(d.modo)) Store.setSettings({ modo: d.modo });
     else if (d.setsw) Store.setSettings({ [d.setsw]: !Store.settings[d.setsw] });
     else if (d.act) ({
       mes: sheetMes, hoy: () => { S.day = today(); lastScrollDay = null; render(); },
       'nueva-clienta': () => sheetClienta(null), 'nuevo-servicio': () => sheetServicio(null), 'nueva-promo': () => sheetPromo(null), 'nuevo-grupo': () => sheetGrupo(null),
-      'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes,
-      'sin-ejemplos': () => { Store.setSettings({ examplesOff: true }); toast('Listo. Empieza agregando tus servicios.'); },
-      'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); ex.forEach(x => Store.remove(x.id)); toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
+      'exportar-ics': exportarICS, recordatorios: sheetRecordatorios, mensajes: sheetMensajes, servidor: sheetServidor,
+      suscripcion: () => sheetConexion('calendario'), 'estado-whatsapp': () => sheetConexion('whatsapp'),
+      'borrar-ejemplos': () => { const ex = [...Store.items.values()].filter(x => x.example); for (const x of ex) if (Store.remove(x.id) === false) return; toast(`Ejemplos borrados (${ex.length})`, () => Store.putMany(ex)); },
     })[d.act]?.();
   });
   $('#fab').addEventListener('click', () => sheetCita({ date: S.day }));

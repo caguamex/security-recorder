@@ -25,6 +25,8 @@ node ritmo/herramientas/empaquetar.mjs     # genera dist/ritmo.html
 node ritmo/herramientas/capturas.mjs       # regenera imagenes/ (requiere Playwright)
 ```
 
-## Siguiente paso
+## Ritmo Belleza: PWA y backend
 
-Abre Claude Code en este repositorio y pega el prompt 0 de `docs/PROMPTS.md`.
+La app del salón está publicada en [Cloudflare](https://ritmo-belleza.antonio-t-22.workers.dev), con versión instalable, archivos para usarla sin conexión, API Node + TypeScript en Workers y PostgreSQL en Supabase Free. Consulta [despliegue en Cloudflare](docs/CLOUDFLARE.md) y [manual de uso](docs/USO.md).
+
+[Abre la aplicación publicada](https://belleza-production.up.railway.app) y consulta [el manual de uso](docs/USO.md). El despliegue está dentro del límite de consumo de Railway autorizado por Antonio: 10 USD compartidos por ciclo, sin ampliarlo. WhatsApp oficial está preparado en modo gratuito y pendiente de vincular el número del salón. Los archivos de publicación están en `dist/pwa/`; `dist/belleza.html` sigue siendo la descarga de un solo archivo.
