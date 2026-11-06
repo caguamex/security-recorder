@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {entorno} from './entorno.mjs';
 import {elegirModo} from './ayudas-neutro.mjs';
 const e=await entorno(),salon='aaaaaaaa-1111-4111-8111-111111111111',persona='bbbbbbbb-1111-4111-8111-111111111111',hoy='2026-11-02';
-const rows=[{id:'__settings',negocio:'AB Beauty Room',abre:'09:00',cierra:'20:00',modo:'white',skin:'clasico'},{id:'cejas',kind:'servicio',nombre:'Diseño de cejas',categoria:'Cejas',precio:300,duracion:30},{id:'clienta',kind:'clienta',nombre:'Mariana Torres',telefono:'5511111111',whatsappOptIn:true},{id:'cita-hoy',kind:'cita',clienta:'clienta',servicio:'cejas',date:hoy,start:'16:00',estado:'confirmada'},{id:'solicitud',kind:'cita',clienta:'clienta',servicio:'cejas',date:'2026-11-03',start:'13:00',estado:'solicitada',origen:'explorar'}];
+const rows=[{id:'__settings',negocio:'Salón Aurora',abre:'09:00',cierra:'20:00',modo:'white',skin:'clasico'},{id:'cejas',kind:'servicio',nombre:'Diseño de cejas',categoria:'Cejas',precio:300,duracion:30},{id:'clienta',kind:'clienta',nombre:'Mariana Torres',telefono:'5511111111',whatsappOptIn:true},{id:'cita-hoy',kind:'cita',clienta:'clienta',servicio:'cejas',date:hoy,start:'16:00',estado:'confirmada'},{id:'solicitud',kind:'cita',clienta:'clienta',servicio:'cejas',date:'2026-11-03',start:'13:00',estado:'solicitada',origen:'explorar'}];
 for(const row of rows){const{id,...data}=row;await e.repo.cambiar({id,baseVersion:0,mutationId:crypto.randomUUID(),data:id==='__settings'?data:row});}
 const destino=fileURLToPath(new URL('../../imagenes/negocio-etapa2/',import.meta.url));await mkdir(destino,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL||'msedge'});let guardado=null;const errores=[];

@@ -26,7 +26,7 @@ await sql("INSERT INTO ritmo.codigos_manuales(solicitud_id,cifrado,motivo,vence_
 await sql('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[sesiones.admin,ids.admin]);
 await sql("UPDATE auth.users SET phone='525522222222' WHERE id=$1",[ids.ajena]);
 await sql("INSERT INTO ritmo.negocios_planes(negocio_id,plan,estado,prueba_inicio,prueba_fin) VALUES($1,'salon','prueba',now()-interval '27 days',now()+interval '3 days') ON CONFLICT(negocio_id) DO UPDATE SET estado='prueba',plan='salon',prueba_inicio=EXCLUDED.prueba_inicio,prueba_fin=EXCLUDED.prueba_fin",[ids.otro]);
-await e.fuente({id:'__settings',negocio:'AB Beauty Room',abre:'10:00',cierra:'20:00',examplesOff:true});
+await e.fuente({id:'__settings',negocio:'Salón Aurora',abre:'10:00',cierra:'20:00',examplesOff:true});
 let base='';
 const cuentas={habilitado:true,supabaseURL:supabase,llavePublica:'sb_publishable_prueba_local',salones:new Set([ids.salon]),migracionUsuarioId:ids.admin,acceso:{whatsapp:true,correo:false},plataforma:{key:llave},get origen(){return base;}};
 const server=crearServidor({salud:async()=>{},estado:async()=>[],snapshot:async()=>({records:[],cursor:0,full:true})},'a'.repeat(40),fileURLToPath(new URL('../../dist/pwa/',import.meta.url)),{cuentas:rutasCuentas(e.poolAPI,jwt,cuentas)});
@@ -48,7 +48,7 @@ try{
   assert.equal((await p.locator('.codigo-grande').innerText()).replace(/\s/g,''),'482913');assert.match(await p.locator('#codigo-whatsapp').getAttribute('href'),/^https:\/\/wa\.me\/528441234545\?text=/);
   await p.screenshot({path:capturas+'04-codigo.png',animations:'disabled'});await p.locator(`[data-entregado="${solicitud}"]`).click();await p.locator('.alerta').waitFor({state:'detached'});
   await p.locator('[data-filtro=vencer]').click();assert.equal(await p.locator('[data-salon]').count(),1);
-  await p.locator('#buscar').fill('ab beauty');await p.locator('[data-filtro=todos]').click();
+  await p.locator('#buscar').fill('aurora');await p.locator('[data-filtro=todos]').click();
   await p.locator(`[data-salon="${ids.otro}"]`).click({trial:false}).catch(async()=>{await p.locator('#buscar').fill('');await p.locator(`[data-salon="${ids.otro}"]`).click();});
   await p.locator('#hoja[open]').waitFor();await p.screenshot({path:capturas+'02-salon.png',animations:'disabled'});
   await p.locator('[data-accion=extender_prueba][data-dias="7"]').click();await p.locator('#aviso:not([hidden])').waitFor();

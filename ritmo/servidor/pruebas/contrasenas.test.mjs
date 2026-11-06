@@ -51,8 +51,8 @@ async function llamar(ruta,datos,{origin=origen,token,metodo='POST'}={}){
 }
 
 test('reglas: usuario, contraseña común y temporal fácil de dictar con suficiente azar',()=>{
- assert.equal(normalizarUsuario(' AB.Beauty_Room '),'ab.beauty_room');assert.throws(()=>normalizarUsuario('ab'),x=>x.status===400);assert.throws(()=>normalizarUsuario('ab beauty'),x=>x.status===400);
- assert.match(revisarContrasena('corta1'),/8/);assert.match(revisarContrasena('soloLetras'),/número/);assert.match(revisarContrasena('12345678'),/letra|común/);assert.match(revisarContrasena('Password1'.toLowerCase()),/común/);assert.match(revisarContrasena('abbeauty2026','abbeauty'),/usuario/);assert.equal(revisarContrasena('Rosa-Luna-2026'),null);
+ assert.equal(normalizarUsuario(' Salon.Aurora_1 '),'salon.aurora_1');assert.throws(()=>normalizarUsuario('ab'),x=>x.status===400);assert.throws(()=>normalizarUsuario('ab beauty'),x=>x.status===400);
+ assert.match(revisarContrasena('corta1'),/8/);assert.match(revisarContrasena('soloLetras'),/número/);assert.match(revisarContrasena('12345678'),/letra|común/);assert.match(revisarContrasena('Password1'.toLowerCase()),/común/);assert.match(revisarContrasena('salonaurora2026','salonaurora'),/usuario/);assert.equal(revisarContrasena('Rosa-Luna-2026'),null);
  const t=contrasenaTemporal();assert.match(t,/^[A-Z][a-z]+-[A-Z][a-z]+-\d{3}-[A-Z][a-z]+$/);assert.equal(revisarContrasena(t),null);assert.ok(new Set(Array.from({length:50},contrasenaTemporal)).size>45);
 });
 

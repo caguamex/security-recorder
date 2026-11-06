@@ -209,7 +209,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const PLUS = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 
-  // Datos de ejemplo de AB' Beauty Room (martes 27 de octubre).
+  // Datos de ejemplo de Salón Aurora (martes 27 de octubre).
   const SERV = [
     { id: 'acr', n: 'Uñas acrílicas', min: 90, p: 650, c: '#E0457B' }, { id: 'gel', n: 'Gelish en manos', min: 45, p: 300, c: '#F06A9B' },
     { id: 'ped', n: 'Pedicure spa', min: 60, p: 400, c: '#C2457E' }, { id: 'lif', n: 'Lifting de pestañas', min: 60, p: 550, c: '#14A3A0' },
@@ -298,7 +298,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   const unirse = () => `<div class="auth" style="padding-top:28px">
     <div class="invite">${av(miembro('antonio'))}
       <p style="margin:0 0 4px;color:var(--ink3);font-size:14px">Antonio te invitó a</p>
-      <h1 style="font-size:26px">AB' Beauty Room</h1>
+      <h1 style="font-size:26px">Salón Aurora</h1>
       <p style="margin:6px 0 0"><span class="pill especialista">Especialista</span></p>
       <p class="foot" style="text-align:center">Uñas: Gelish en manos y Pedicure spa · Sábados de 10:00 a 18:00</p></div>
     <p class="fine" style="margin-bottom:6px">La invitación es para Brenda Castillo, se usa una sola vez y vence en 48 horas.</p>
@@ -308,7 +308,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
     <p class="fine">Sin contraseñas. Cada vez que entres te mandamos un código nuevo.</p></div>`;
   const perfil = () => `<div class="auth" style="padding-top:28px">
     <h1 style="text-align:left">Tu perfil</h1>
-    <p class="sub" style="text-align:left;margin-bottom:8px">Así te verá el equipo de AB' Beauty Room en la agenda.</p>
+    <p class="sub" style="text-align:left;margin-bottom:8px">Así te verá el equipo de Salón Aurora en la agenda.</p>
     <div style="display:flex;gap:14px;align-items:center;margin:6px 0 4px"><span class="av" id="pfAv" style="--c:#F59E0B;width:64px;height:64px;font-size:22px">BC</span>
       <div style="min-width:0"><b id="pfNom">Brenda Castillo</b><br><span class="pill especialista">Especialista</span></div></div>
     <label for="pfNombre" class="gh" style="margin:14px 4px 0">Nombre</label>
@@ -336,7 +336,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       <div><span class="e">👩🏻‍🤝‍👩🏽</span><b>Equipo</b>Invita a tu equipo; cada quien ve lo suyo.</div>
       <div><span class="e">🔗</span><b>Tu link</b>Tus clientas ven servicios, precios y horarios libres.</div></div>
     <p class="gh">Mira un salón real</p>
-    <div class="group"><button type="button" class="cell" data-demo="salon"><span class="av" style="--c:#E0457B">AB</span><span class="l"><b>AB' Beauty Room</b><small>agendappx.app/ab-beauty-room</small></span><span class="chev">›</span></button></div>
+    <div class="group"><button type="button" class="cell" data-demo="salon"><span class="av" style="--c:#E0457B">SA</span><span class="l"><b>Salón Aurora</b><small>agendappx.app/salon-aurora</small></span><span class="chev">›</span></button></div>
     <div class="ctas"><button type="button" class="btn line" data-act="ir-entrar">Iniciar sesión</button><button type="button" class="btn fill" data-act="ir-registro">Registrarse</button></div>`;
 
   /* ---------- Perfil público del salón (link para compartir) ---------- */
@@ -359,7 +359,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   const salon = () => { const cat = CATS.find(c => c[0] === S.cat), lista = SERV.filter(x => !cat[2] || cat[2].includes(x.id)), s = serv(S.svc), hs = libres(S.svc, S.dia);
     return `<div class="top on-cover" style="position:relative;z-index:1">${S.desdeApp ? '<button type="button" class="link" data-act="volver-app">‹ Ajustes</button>' : '<span class="brand" style="font-size:14px;color:var(--ink2)">Agendappx</span>'}${S.pant === 'salon' && !S.desdeApp ? '<button type="button" class="link" data-act="ir-entrar">Iniciar sesión</button>' : ''}</div>
       <div class="cover" style="margin-top:-58px"></div>
-      <div class="salon-hd"><span class="av" style="--c:#E0457B">AB</span><h1>AB' Beauty Room</h1>
+      <div class="salon-hd"><span class="av" style="--c:#E0457B">SA</span><h1>Salón Aurora</h1>
         <div class="meta"><span>💅🏻 Uñas · Pestañas · Cejas · Cabello</span><span>🕙 Hoy abierto de 10:00 a 20:00</span><span>📍 Dirección del salón</span></div></div>
       <div class="row2" style="margin-top:14px"><button type="button" class="btn fill" data-act="pedir-primera">Agendar cita</button><button type="button" class="btn soft" data-act="wa-salon" style="color:#128C4B">WhatsApp</button></div>
       <p class="gh">Servicios</p>
@@ -448,8 +448,8 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
   /* ---------- Ajustes, equipo y seguridad ---------- */
   const ajustes = () => { const m = yo();
     return `<div class="nav"><span></span></div><h1>Ajustes</h1>
-      <div class="group"><div class="cell">${av(m)}<span class="l"><b>${esc(m.n)}</b><small>AB' Beauty Room</small></span><span class="pill ${m.rol}">${ROL[m.rol]}</span></div></div>
-      ${S.rol === 'admin' ? `<p class="gh">Tu link para clientas</p><div class="linkbox"><span style="flex:1">agendappx.app/ab-beauty-room</span><button type="button" data-act="copiar-publico">Copiar</button></div>
+      <div class="group"><div class="cell">${av(m)}<span class="l"><b>${esc(m.n)}</b><small>Salón Aurora</small></span><span class="pill ${m.rol}">${ROL[m.rol]}</span></div></div>
+      ${S.rol === 'admin' ? `<p class="gh">Tu link para clientas</p><div class="linkbox"><span style="flex:1">agendappx.app/salon-aurora</span><button type="button" data-act="copiar-publico">Copiar</button></div>
       <div class="group" style="margin-top:10px"><button type="button" class="cell" data-act="ver-publico"><span class="e" style="font-size:22px">👀</span><span class="l">Ver como lo ven tus clientas<small>Servicios, precios, duración y horarios libres</small></span><span class="chev">›</span></button></div>` : ''}
       <p class="gh">Salón</p><div class="group">
         ${puede.equipo() ? `<button type="button" class="cell" data-sub="equipo"><span class="e" style="font-size:22px">👩🏻‍🤝‍👩🏽</span><span class="l">Equipo<small>${EQUIPO.filter(x => x.estado === 'activa').length} personas · 1 invitación pendiente</small></span><span class="chev">›</span></button>` : ''}
@@ -458,7 +458,7 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       ${puede.equipo() ? '' : '<p class="foot">Equipo, conexiones y datos del negocio solo los ve Admin.</p>'}
       <div class="group" style="margin-top:22px"><button type="button" class="cell" data-demo="salir" style="color:var(--bad);justify-content:center">Cerrar sesión</button></div>`; };
   const equipo = () => `<div class="nav"><button type="button" data-sub="">‹ Ajustes</button><button type="button" data-act="invitar" style="font-weight:600">Invitar</button></div>
-    <h1>Equipo</h1><p class="sub">Quién puede entrar a AB' Beauty Room y qué puede hacer.</p>
+    <h1>Equipo</h1><p class="sub">Quién puede entrar a Salón Aurora y qué puede hacer.</p>
     ${['admin', 'recepcion', 'especialista'].map(r => { const g = EQUIPO.filter(m => m.rol === r); return g.length ? `<p class="gh">${ROL[r]}</p><div class="group">${g.map(m => `<button type="button" class="cell" data-sub="miembro:${m.id}">${av(m)}<span class="l">${esc(m.n)}<small>${m.estado === 'pendiente' ? 'Invitación enviada · vence en 41 h' : m.serv.length ? m.serv.map(id => serv(id).n).join(', ') : r === 'admin' ? 'Todo el salón' : 'Agenda y clientas'}</small></span>${m.estado === 'pendiente' ? '<span class="pill pend">Pendiente</span>' : ''}<span class="chev">›</span></button>`).join('')}</div>` : ''; }).join('')}
     <p class="gh">Qué puede hacer cada rol</p>
     <div class="group" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
@@ -557,11 +557,11 @@ h1 { margin: 2px 0 10px; font-size: 32px; font-weight: 800; letter-spacing: -.02
       case 'crear-salon': { const n = $('#csNombre').value.trim(); if (!n) { toast('Escribe el nombre de tu salón'); $('#csNombre').focus(); break; } S.rol = 'admin'; S.registro = false; dentro(); toast(n + ' está listo. Aquí ves datos de ejemplo.'); break; }
       case 'volver-app': ir({ pant: 'app', tab: 'ajustes', sub: null, desdeApp: false }); break;
       case 'ver-publico': ir({ pant: 'salon', desdeApp: true }); break;
-      case 'copiar-publico': { const t = 'https://agendappx.app/ab-beauty-room'; try { navigator.clipboard.writeText(t).then(() => toast('Link copiado. Compártelo por WhatsApp o en tu Instagram.'), () => toast('Selecciona el link para copiarlo')); } catch (err) { toast('Selecciona el link para copiarlo'); } break; }
+      case 'copiar-publico': { const t = 'https://agendappx.app/salon-aurora'; try { navigator.clipboard.writeText(t).then(() => toast('Link copiado. Compártelo por WhatsApp o en tu Instagram.'), () => toast('Selecciona el link para copiarlo')); } catch (err) { toast('Selecciona el link para copiarlo'); } break; }
       case 'pedir-primera': { const hs = libres(S.svc, S.dia); if (hs.length) pedir(hs[0][0], hs[0][1]); else { $('#horarios').scrollIntoView({ behavior: 'smooth' }); toast('Elige otro día'); } break; }
       case 'wa-salon': toast('Abriría el WhatsApp del salón'); break;
       case 'enviar-pedido': { const n = $('#pcNombre').value.trim(), t = $('#pcTel').value.replace(/\D/g, ''); if (!n || t.length < 10) { toast(!n ? 'Escribe tu nombre' : 'Escribe tu WhatsApp a 10 dígitos'); break; }
-        $('#pcOut').innerHTML = `<div class="lock" style="background:color-mix(in srgb,var(--ok) 14%,var(--card))"><span class="e">✅</span><span><b>Simulado:</b> AB' Beauty Room recibió tu solicitud, ${esc(n.split(' ')[0])}. Te confirmarán por WhatsApp al ${esc(t.slice(0, 2) + ' ' + t.slice(2, 6) + ' ' + t.slice(6, 10))}.</span></div><button type="button" class="btn soft" data-act="cerrar" style="margin-top:10px">Listo</button>`; break; }
+        $('#pcOut').innerHTML = `<div class="lock" style="background:color-mix(in srgb,var(--ok) 14%,var(--card))"><span class="e">✅</span><span><b>Simulado:</b> Salón Aurora recibió tu solicitud, ${esc(n.split(' ')[0])}. Te confirmarán por WhatsApp al ${esc(t.slice(0, 2) + ' ' + t.slice(2, 6) + ' ' + t.slice(6, 10))}.</span></div><button type="button" class="btn soft" data-act="cerrar" style="margin-top:10px">Listo</button>`; break; }
       case 'reenviar': toast('Simulado: te mandamos un código nuevo'); break;
       case 'aceptar': { const br = miembro('brenda'); br.estado = 'activa'; br.disp = 'iPhone 12 · Safari'; br.n = $('#pfNombre').value.trim() || br.n; COMO.especialista = 'brenda'; S.rol = 'especialista'; S.invita = false; dentro(); toast('Bienvenida a AB\' Beauty Room, Brenda'); break; }
       case 'sw': b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true')); break;

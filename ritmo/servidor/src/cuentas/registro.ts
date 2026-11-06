@@ -10,7 +10,7 @@ import {apartarUsuario,normalizarUsuario} from './contrasenas.js';
 const h=(v:string)=>createHash('sha256').update(v).digest('hex');
 const uuid=/^[a-f0-9-]{36}$/i,RESERVADOS=['comunidad','api','calendario','salud','webhooks','unirse','planes','assets','recuperar-acceso','plataforma'];
 const slugValido=(v:unknown)=>typeof v==='string'&&/^([a-z0-9][a-z0-9-]{2,59})$/.test(v)&&!RESERVADOS.includes(v);
-/** Enlace corto a partir del nombre del salón: «AB' Beauty Room» → «ab-beauty-room». */
+/** Enlace corto a partir del nombre del salón: «Salón Aurora» → «salon-aurora». */
 export function slugDe(nombre:string){const s=nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,50).replace(/-+$/,'');return s.length>=3?s:(s+'-salon').replace(/^-/,'');}
 type Config={habilitado:boolean;key:string;operacionKey:string;turnstileKey:string;turnstileSiteKey:string;origen:string;supabaseURL:string;llavePublica:string;ip:(r:IncomingMessage)=>string;fetch?:typeof fetch;ahora?:()=>number};
 export class RegistroWhatsApp {

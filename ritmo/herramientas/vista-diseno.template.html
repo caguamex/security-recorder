@@ -36,7 +36,7 @@
     const C=window.RitmoCore, today=C.toKey(new Date());
     let chosenSettings;
     window.BellezaSync={crear({defaults,onChange}) {
-      let settings={...defaults,negocio:'AB Beauty Room',modo:choices.apariencia==='dark'?'dark':'white',skin:choices.tema||'clasico'};
+      let settings={...defaults,negocio:'Salón Aurora',modo:choices.apariencia==='dark'?'dark':'white',skin:choices.tema||'clasico'};
       const items=new Map([
         {id:'sv-cejas',kind:'servicio',nombre:'Diseño de cejas',categoria:'Cejas',duracion:30,precio:250,descripcion:'Diseño y definición de cejas.'},
         {id:'sv-pestanas',kind:'servicio',nombre:'Extensiones de pestañas',categoria:'Pestañas',duracion:90,precio:650,descripcion:'Una mirada definida, a tu estilo.'},

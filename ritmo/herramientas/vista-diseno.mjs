@@ -13,7 +13,7 @@ app=app.replace('fetcher: (...args) => fetch(...args)','fetcher: undefined');
 const browser=await chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL||'msedge'});
 try {
  const page=await browser.newPage();
- for(const name of ['extensiones-1','extensiones-2','extensiones-3','lifting-cejas','logo-ab-beauty']) {
+ for(const name of ['extensiones-1','extensiones-2','extensiones-3','lifting-cejas','logo-salon-aurora']) {
   const original=(await readFile(new URL(`trabajos/${name}.jpg`,src))).toString('base64');
   const foto=await page.evaluate(async b64=>{const img=new Image();img.src='data:image/jpeg;base64,'+b64;await img.decode();const c=document.createElement('canvas');const f=Math.min(1,420/Math.max(img.width,img.height));c.width=Math.round(img.width*f);c.height=Math.round(img.height*f);c.getContext('2d').drawImage(img,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.62);},original);
   app=app.replaceAll(`./trabajos/${name}.jpg`,foto);

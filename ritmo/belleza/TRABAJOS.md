@@ -1,12 +1,12 @@
 # Fotografías de demostración
 
-Antonio proporcionó las fotografías el 25 de octubre de 2026 para ilustrar las tarjetas de servicios.
+Desde el 5 de noviembre de 2026, por instrucción de Antonio, las fotos de referencia y el logo son de **Salón Aurora**, un negocio ficticio de ejemplo. Sustituyen a las fotos y el logo de AB' Beauty Room, que ya no se usan.
 
-- `extensiones-1.jpg`, `extensiones-2.jpg`, `extensiones-3.jpg`: fotos 2, 3 y 4, para servicios de extensiones, volumen, clásicas, híbridas y efectos de pestañas.
-- `lifting-cejas.jpg`: foto 5, referencia visual para lifting, laminado, rizado y cejas. La asignación es ilustrativa; no certifica la técnica realizada en la fotografía.
-- `logo-ab-beauty.jpg`: copia del logo original autorizado de AB BEAUTY ROOM, con su personaje y proporciones conservados.
+- `extensiones-1.jpg`, `extensiones-2.jpg`, `extensiones-3.jpg`: pestañas clásicas, volumen ruso e híbridas; referencias para servicios de extensiones, volumen, clásicas, híbridas y efectos de pestañas.
+- `lifting-cejas.jpg`: referencia visual para lifting, laminado, rizado y cejas. La asignación es ilustrativa; no certifica la técnica realizada en la fotografía.
+- `logo-salon-aurora.jpg`: logo del negocio ficticio Salón Aurora.
 
-Las imágenes originales se copian sin modificaciones. Las tarjetas y miniaturas usan un encuadre CSS; «Ver fotos» permite consultar los originales completos, sus marcas y el logo. La captura de pantalla (foto 1) solo sirvió para identificar las tarjetas y no se publica como trabajo.
+Las cuatro fotografías se generaron con Nano Banana en Google Flow (sin costo) y se recortaron a las mismas dimensiones de las anteriores (1280 × 1113, 1022 × 1280 y 720 × 1280). El logo se dibujó con HTML y SVG. No muestran a personas reales identificables ni marcas de terceros.
 
 La asociación se calcula en el frontend por categoría y nombre; no cambia registros, precios, base de datos ni configuraciones de producción. Uñas, cabello y categorías sin una referencia correspondiente conservan su apariencia actual. No se agregan servicios de ejemplo a la agenda real.
 

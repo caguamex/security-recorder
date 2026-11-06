@@ -8,7 +8,7 @@ import {entorno} from './entorno.mjs';
 import {elegirModo} from './ayudas-neutro.mjs';
 const e=await entorno(),salon='aaaaaaaa-1111-4111-8111-111111111111',ale='11111111-1111-4111-8111-111111111111',sofia='22222222-2222-4222-8222-222222222222';
 const day='2026-10-29',rows=[
- {id:'__settings',negocio:'AB Beauty Room',abre:'09:00',cierra:'20:00',modo:'white',skin:'clasico'},
+ {id:'__settings',negocio:'Salón Aurora',abre:'09:00',cierra:'20:00',modo:'white',skin:'clasico'},
  {id:'s1',kind:'servicio',nombre:'Diseño de cejas',categoria:'Cejas',precio:300,duracion:30},
  {id:'s2',kind:'servicio',nombre:'Pestañas clásicas',categoria:'Pestañas',precio:650,duracion:90},
  {id:'c1',kind:'clienta',nombre:'Mariana Torres',telefono:'5511111111',notas:'',whatsappOptIn:true},

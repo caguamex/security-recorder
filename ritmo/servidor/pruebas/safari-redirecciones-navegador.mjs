@@ -49,7 +49,7 @@ const server = createServer((req,res) => {
   res.writeHead(200, {'Content-Type':'application/json'}).end(JSON.stringify(path === '/api/cuentas/config' ? {habilitado:false} : path.includes('/explorar') ? {negocios:[],trabajos:[]} : {}));
   return;
  }
- if (path === '/ab-beauty-room') req.url = '/comunidad/';
+ if (path === '/salon-aurora') req.url = '/comunidad/';
  void estatico(req,res,actual);
 });
 server.listen(0, '127.0.0.1'); await once(server, 'listening');
@@ -102,7 +102,7 @@ try {
  assert.match(await p.evaluate(()=>document.cookie), /prueba_sesion=conservada/);
  assert.deepEqual(await p.evaluate(()=>new Promise((resolve,reject)=>{const r=indexedDB.open('prueba-fotos',1);r.onerror=()=>reject(r.error);r.onsuccess=()=>{const db=r.result,t=db.transaction('fotos').objectStore('fotos').get('pendiente');t.onsuccess=()=>{db.close();resolve(Array.from(t.result));};};})), [1,2,3]);
  // Las tres páginas cacheadas mantienen encabezados, HTML y no propagan la redirección.
- for (const path of ['/', '/comunidad/', '/planes/', '/ab-beauty-room']) {
+ for (const path of ['/', '/comunidad/', '/planes/', '/salon-aurora']) {
   await p.goto(base+path);
   const resultado=await p.evaluate(async()=>{const r=await fetch(location.pathname,{redirect:'manual'});return {ok:r.ok,redirected:r.redirected,tipo:r.headers.get('content-type'),csp:r.headers.get('content-security-policy'),html:await r.text()};});
   assert.equal(resultado.ok, true, path);
@@ -114,7 +114,7 @@ try {
  const nuevoCache = await p.evaluate(async()=> (await caches.keys()).find(k=>k.startsWith('ritmo-belleza-')));
  assert.notEqual(nuevoCache, 'ritmo-belleza-safari-anterior');
  await context.setOffline(true);
- for (const path of ['/', '/comunidad/', '/planes/', '/ab-beauty-room']) {
+ for (const path of ['/', '/comunidad/', '/planes/', '/salon-aurora']) {
   await p.goto(base+path);
   assert.match(await p.title(), /Agendappx/);
  }

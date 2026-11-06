@@ -697,7 +697,7 @@
           : src === FOTOS_TRABAJOS.extensiones[0] ? [1280, 1113] : [1022, 1280];
         return `<img src="${esc(src)}" ${fotoValida(servicio.foto) ? '' : `width="${ancho}" height="${alto}"`} alt="${esc(servicio.nombre)}: referencia ${i + 1}" decoding="async">`;
       }).join('')}</div>
-      <img class="trabajo-marca" src="./trabajos/logo-ab-beauty.jpg" alt="AB BEAUTY ROOM">`, 'Fotos de trabajos', root => {
+      <img class="trabajo-marca" src="./trabajos/logo-salon-aurora.jpg" alt="SALÓN AURORA">`, 'Fotos de trabajos', root => {
       root.addEventListener('click', e => { if (e.target.closest('[data-close],[data-done]')) closeSheet(); });
     });
   }
