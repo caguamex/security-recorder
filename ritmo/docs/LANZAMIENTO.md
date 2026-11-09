@@ -1,6 +1,6 @@
 # Lanzamiento de Agendappx
 
-Rama `claude/agendappx-lanzamiento`, encima de lo publicado (PR #26). Todo quedó unido también en la rama principal `claude/es-posible-esto-tjimmb`, junto con los PR #1 a #26.
+Todo está en la rama principal `claude/es-posible-esto-tjimmb`: los PR #1 a #26 (lo que hoy está en producción) más `claude/agendappx-lanzamiento`. Los PR #2 a #26 se cerraron el 9 de noviembre de 2026 porque ya estaban incluidos; #5 y #8 quedaron reemplazados por trabajo posterior.
 
 ## Qué se agregó
 
@@ -38,12 +38,11 @@ En tu iPhone, con «Actualizar ahora» si aparece:
 Hola Codex. Claude preparó lo que falta para abrir Agendappx al público.
 NO lo vuelvas a hacer: revísalo y publícalo conmigo, paso por paso.
 
-RAMA: claude/agendappx-lanzamiento (parte de tu codex/agendappx-glass-fidelidad,
-PR #26). Ábrela como PR sobre el #26. Lee ritmo/docs/LANZAMIENTO.md.
-Toda la cadena #1–#26 ya está unida en la rama principal
-claude/es-posible-esto-tjimmb. A partir de ahora, parte tus ramas
-nuevas de ahí o de claude/agendappx-lanzamiento. Los PR #5 y #8 quedaron
-sustituidos por trabajo posterior: dime si los cierras.
+RAMA: claude/es-posible-esto-tjimmb (la principal). Ya contiene toda
+la cadena #1–#26 (lo publicado) y lo nuevo de claude/agendappx-lanzamiento.
+Los PR #1–#26 están cerrados o unidos. Publica desde la rama principal y
+parte de ahí tus ramas nuevas, con PR hacia la principal, sin cadenas.
+Lee ritmo/docs/LANZAMIENTO.md.
 
 INCLUYE
 1. Aviso de privacidad y términos (/privacidad/, /terminos/) con
