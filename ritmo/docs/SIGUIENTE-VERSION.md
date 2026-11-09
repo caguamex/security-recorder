@@ -1,0 +1,42 @@
+# Siguiente versión de Agendappx
+
+Fuente: encargo completo pegado por Antonio y documentos de claude/es-posible-esto-tjimmb, commit f743ccf. Se leyeron completos CUENTAS.md y WHATSAPP-AUTOMATICO.md. Sustituyen instrucciones anteriores sobre esas áreas, incluyendo anticipo nuevo predeterminado del 30 %, lectura solo de nombres/números de contactos y login por WhatsApp. La aclaración posterior autoriza códigos, citas y promociones las 24 horas. Conservar los datos y decisiones ya guardados; no recalcular anticipos existentes por cambiar el predeterminado.
+
+Orden aprobado como encargo: 1) sesión de plataforma para códigos y hook firmado de Supabase; 2) cuentas con teléfono, correo de respaldo, MFA, equipo y conservación del Admin existente; 3) Realtime/push, agenda por especialista, horarios, bienvenida, perfil público, calendarios y respaldo; 4) avisos/anticipos; 5) contactos y promociones. El buscador ya está publicado, Worker a8277d15-0c7d-41b5-b65d-b24b4694a1ec. No volver a migrar o crear desde cero lo ya existente.
+
+La sesión para códigos usa exclusivamente 528661241483, en Agendappx, sin administrar ni cerrar la sesión de FiNeCi. Los salones vinculan sus números para citas y promociones. Verificar en el teléfono que haya un espacio libre antes de solicitar permiso para vincular. Sin privilegios de operación de plataforma desde la app de un salón. El payload HTTP real de Send SMS Hook contiene user y sms.otp: validar firma Standard Webhooks, antigüedad/repeticiones y adaptar internamente; no aceptar un endpoint libre para mensajes arbitrarios ni registrar códigos. No responder exitoso a una entrega que no fue aceptada.
+
+Ya existe un servicio Railway separado, una réplica, máximo 0.5 GB/0.1 vCPU. Sigue sin teléfono ni envío real autorizado. Conservar cifrado, custodia y rol mínimo; ampliar el diseño para distinguir plataforma y negocio sin atribuir la plataforma a un salón ficticio ni reutilizar sesiones de FiNeCi.
+
+Estimación de planificación informada: 27–44 h efectivas de desarrollo y pruebas, sin esperas de autorizaciones/proveedores. Railway consultado el 28 de octubre: uso compartido 1.3615 USD, proyección actual 2.4240 USD y límite 10 USD, aviso 5 USD. No representa dos sesiones activas. Presupuesto provisional del servicio con ambas sesiones 3–6 USD/mes, por medir, sin sumar nuevamente un proceso ya incluido en la proyección. No aumentar límites ni planes. El seguimiento de siete días existente cuenta el inicio real del servicio del 27 de octubre; un informe posterior debe diferenciar servicio sin vincular de sesiones conectadas.
+
+Bloqueos externos conocidos: Brevo no terminó verificación; no hay correo transaccional listo. Sesión Wrangler sin permiso challenge-widgets.write; los códigos de autorización previos vencieron. R2 requiere suscripción con facturación por uso pese a cuota gratis, y por la regla global de costos necesita presentación de condiciones y autorización antes de activarlo. No usar cuotas gratuitas como garantía de costo cero.
+
+Próxima etapa de implementación: hook de códigos y sesión de plataforma, con pruebas locales. Antes de migrar datos, cada despliegue, vincular un número y primer envío real, pedir las confirmaciones correspondientes. No considerar los códigos de acceso ni el consentimiento de horario como autorización de envío real. Las funciones temporales anónimas de PR #5 quedaron reemplazadas por el login de WhatsApp, no publicarlas como solución definitiva.
+
+## Horario 24 horas publicado — 28 de octubre de 2026
+
+Antonio confirmó «publícalo» y «sigue» después de autorizar códigos, citas y promociones a cualquier hora. Se implementó y publicó el cambio en los avisos de citas existentes y su texto de configuración. No se publicaron como terminados el login por WhatsApp, la sesión de plataforma ni las campañas: continúan en preparación según SIGUIENTE-VERSION.md.
+
+Aplicación `a17a88b`, rama codex/agendappx-siguiente-version, PR #7. Cloudflare `843ab4e0-a836-4acd-9a1e-abf420770707`; Railway `9a4a3f3b-8a32-48fd-a652-2a1c09d2ab99`, SUCCESS, proceso listo 2026-10-28T07:57:22.104148792Z. No reiniciar el conteo semanal: el servicio comenzó originalmente el 27 de octubre, y estos logs corresponden a su actualización. Una réplica, máximo 0.5 GB/0.1 vCPU; sin cambios de planes ni límites.
+
+Se eliminaron filtros de silencio 21–08 y la omisión nocturna del aviso anterior a la cita. Se conserva la hora programada, caducidad al comenzar/cancelar la cita, consentimiento, pausas, límites y freno persistente. La huella de configuración cambia a 24h-v1 para actualizar planes pendientes conservando la confirmación ya enviada, los anticipos y los resultados inciertos. Anticipo predeterminado 30 % y las otras funciones del encargo completo se incorporarán en su etapa propia; no se cambiaron pagos ni preferencias guardadas en esta publicación.
+
+Verificación: 180 pruebas automáticas, cero fallos; navegador SDK real con Auth/WhatsApp simulado y RLS local, pagos/fotos/White/Dark a 390/768/1440. Incluye noches, cruce de medianoche y de las 21, programación de madrugada, caducidad, replanificación sin duplicados, consentimiento y topes. Producción: Cloudflare y Railway /salud 200; agenda anónima 401, Meta 503; JavaScript publicado idéntico por SHA-256; navegador real conserva buscador y panel sin errores. Lectura con rol mínimo confirmó cero sesiones. `WA_VINCULACION_HABILITADA=false`, `WA_ENVIOS_HABILITADOS=false`; no hubo mensajes reales ni cambios en FiNeCi. No se ejecutó migración.
+
+
+## Login por WhatsApp preparado — 28 de octubre de 2026
+
+Antonio pidió implementar el login por WhatsApp. Se agregó el proxy OTP con el SDK real, límites durables 3/destino/15 min y 10/IP/h, cinco intentos y diez minutos, hook Standard Webhooks con texto fijo, sesión cifrada de plataforma aislada en tablas plataforma_*, prioridad de códigos y acceso de Admin con MFA. Sesiones nuevas de Auth requieren admisión del proxy para impedir que la API pública evite los límites. Se conserva la identidad existente mediante phone_change autenticado; no hay altas ni fusiones automáticas. Recuperación solo por enlace de operación registrado y UUID esperado. Correo tiene bandera independiente y sigue pendiente del SMTP real.
+
+193 pruebas automáticas aprobadas y navegador local con SDK real/RLS: WhatsApp, correo simulado, MFA, Recepción, mismo UUID, vinculación propia, espera de veinte segundos y White/Dark a 390/768/1440. Cloudflare dry-run. Detalles, configuración, operación y límites reales en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md). No confundir preparación con publicación: esta migración y etapa no están desplegadas, el número no está vinculado y no hubo códigos reales. Confirmaciones pendientes antes de migrar/publicar, vincular y primer envío. Los diez códigos de respaldo MFA y el resto del encargo de cuentas siguen pendientes de sus etapas propias.
+
+
+## Login publicado, activación pendiente — 28 de octubre de 2026
+
+Antonio confirmó «sí autorizo». Respaldo verificado y migración 20261028163724_login_whatsapp_aprobado_20261028 aplicada. Las 21 tablas previas conservan sus huellas exactas y el mismo Admin. Aplicación 9e3c0e8, PR #7; Worker 0679a8c3-eb04-483a-ad3b-410356aaeb6b y Railway b63a5b0a-e9dd-443b-a87f-4feff1dfc80c SUCCESS, sin modificar planes, límites, recursos ni FiNeCi. Salud, archivos y pantalla real de login verificados; detalle y respaldo en docs/LOGIN-WHATSAPP.md (desde docs, LOGIN-WHATSAPP.md).
+
+La pantalla está publicada; los códigos aún NO funcionan: external.phone=false, Send SMS Hook pendiente y control del navegador deshabilitado en Work. Se pidió habilitarlo para completar la configuración de Supabase y cerrar altas públicas. Correo y las cuatro banderas de vinculación/envío de Railway siguen apagados. Cero sesiones vinculadas y envíos reales. Confirmaciones para vincular número y primer código siguen pendientes. Preservar el inicio real del servicio del 27 de octubre para el seguimiento semanal.
+
+
+Panel de Supabase accesible el 28 de octubre: registro abierto cerrado y verificado. Hook HTTPS preparado, pendiente del pegado humano de la clave privada y Create hook por la política del navegador sobre credenciales. Phone sigue apagado; no vincular ni enviar sin confirmaciones. Ver LOGIN-WHATSAPP.md, última entrada.

@@ -1,0 +1,40 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ritmo-belleza",
+  "account_id": "d325ee774b6b3d212280fbc3ebe40f3d",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-26",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "../dist/pwa",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/calendario/*",
+      "/webhooks/*",
+      "/salud"
+    ]
+  },
+  "vars": {
+    "TZ": "America/Mexico_City",
+    "PUBLIC_URL": "https://ritmo-belleza.antonio-t-22.workers.dev"
+  },
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
+  },
+  "observability": {
+    "enabled": false
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "1eb7ac0aa8da4ed4914302faa7f1b89c"
+    }
+  ]
+}

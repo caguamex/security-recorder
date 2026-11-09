@@ -1,0 +1,63 @@
+<div id="ritmo-design-review" class="viz-dotted-background" style="padding:18px 0;display:grid;justify-items:center">
+  <div id="ritmo-design-phone" aria-label="Ritmo Belleza: nuevo diseño" style="display:block;width:min(390px,100%);height:760px;overflow:auto;position:relative;transform:translateZ(0);border-radius:24px;box-shadow:0 16px 44px #0002"></div>
+  <template id="ritmo-design-content">
+    <style>
+      __PRODUCT_CSS__
+      :host { display:block;box-sizing:border-box;font:400 16px/1.35 var(--ui);color:var(--ink);background:var(--bg); }
+      .app { min-height:760px;max-width:none;margin:0;padding-top:12px; }
+      .tabbar { max-width:none !important; }
+      .sheet { border-radius:24px; }
+    </style>
+    __PRODUCT_HTML__
+  </template>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('ritmo-design-review');
+  const host = root.querySelector('#ritmo-design-phone');
+  const shadow = host.attachShadow({mode:'open'});
+  shadow.append(root.querySelector('template').content.cloneNode(true));
+  const realDocument = document, realWindow = window;
+  const previous = realWindow.openai?.widgetState;
+  const choices = previous?.modelContent || previous || {};
+  const documentProxy = {
+    documentElement:host,body:host,visibilityState:'visible',
+    querySelector:shadow.querySelector.bind(shadow),
+    querySelectorAll:shadow.querySelectorAll.bind(shadow),
+    createElement:realDocument.createElement.bind(realDocument),
+    addEventListener:shadow.addEventListener.bind(shadow),
+    dispatchEvent:shadow.dispatchEvent.bind(shadow)
+  };
+  const memory = new Map();
+  const localStorageProxy = {getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)};
+  const windowProxy = {addEventListener:()=>{},open:()=>null};
+  (function(document,window,self,localStorage,scrollTo,setInterval) {
+    __PRODUCT_CORE__
+    const C=window.RitmoCore, today=C.toKey(new Date());
+    let chosenSettings;
+    window.BellezaSync={crear({defaults,onChange}) {
+      let settings={...defaults,negocio:'AB Beauty Room',modo:choices.apariencia==='dark'?'dark':'white',skin:choices.tema||'clasico'};
+      const items=new Map([
+        {id:'sv-cejas',kind:'servicio',nombre:'Diseño de cejas',categoria:'Cejas',duracion:30,precio:250,descripcion:'Diseño y definición de cejas.'},
+        {id:'sv-pestanas',kind:'servicio',nombre:'Extensiones de pestañas',categoria:'Pestañas',duracion:90,precio:650,descripcion:'Una mirada definida, a tu estilo.'},
+        {id:'sv-unas',kind:'servicio',nombre:'Uñas acrílicas',categoria:'Uñas',duracion:90,precio:650,descripcion:'Forma y diseño a elegir.'},
+        {id:'cl-m',kind:'clienta',nombre:'Mariana Ruiz',telefono:'',notas:''},
+        {id:'cl-s',kind:'clienta',nombre:'Sofía López',telefono:'',notas:''},
+        {id:'ct-m',kind:'cita',date:today,start:'10:00',clienta:'cl-m',servicio:'sv-unas',estado:'confirmada',enviados:{}},
+        {id:'ct-s',kind:'cita',date:today,start:'12:00',clienta:'cl-s',servicio:'sv-pestanas',estado:'pendiente',enviados:{}}
+      ].map(x=>[x.id,x]));
+      chosenSettings=()=>settings;
+      const unavailable=()=>Promise.reject(new Error('Esta vista funciona sin conectar tu agenda.'));
+      return {get items(){return items;},get settings(){return settings;},connected:false,status:'Vista previa',pending:[],conflicts:[],
+        put(x){items.set(x.id,x);onChange();},remove(id){items.delete(id);onChange();},
+        setSettings(x){settings={...settings,...x};onChange();},sync:()=>Promise.resolve(),actualizar:()=>{},
+        conectar:unavailable,conexiones:unavailable,renovarCalendario:unavailable,desconectar:()=>{},resolver:()=>{}};
+    }};
+    __PRODUCT_APP__
+    shadow.addEventListener('click',()=>queueMicrotask(()=>{
+      const settings=chosenSettings?.();
+      if(settings&&realWindow.openai?.setWidgetState)realWindow.openai.setWidgetState({modelContent:{apariencia:settings.modo,tema:settings.skin}}).catch(()=>{});
+    }));
+  })(documentProxy,windowProxy,windowProxy,localStorageProxy,()=>host.scrollTo({top:0}),()=>0);
+})();
+</script>

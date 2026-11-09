@@ -1,0 +1,15 @@
+.git
+**/node_modules
+**/.env
+**/.env.*
+ritmo/servidor/build
+ritmo/imagenes
+ritmo/dist
+
+**/.wrangler
+**/.dev.vars
+**/.dev.vars.*
+**/build
+**/pruebas
+ritmo/supabase/.temp
+supabase/.temp

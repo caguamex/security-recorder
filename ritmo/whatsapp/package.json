@@ -1,0 +1,15 @@
+{
+  "name": "agendappx-whatsapp",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node inicio.mjs"
+  },
+  "dependencies": {
+    "baileys": "7.0.0-rc13",
+    "pg": "8.23.1"
+  }
+}

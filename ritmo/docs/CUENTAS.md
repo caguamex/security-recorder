@@ -197,3 +197,7 @@ Planes y cobro (Mercado Pago o Stripe) y un número de WhatsApp por salón. Los 
 - Una invitación vencida, usada o con código incorrecto se rechaza.
 - Admin sin `aal2` no puede usar acciones de Admin.
 - La bitácora registra crear, mover y cancelar con usuario y hora.
+
+## Aclaración posterior de Antonio — 28 de octubre de 2026
+
+Antonio confirmó expresamente: «los códigos a cualquier hora, citas y promociones también». Los códigos, avisos de citas y promociones se pueden enviar las 24 horas. Esta decisión sustituye las ventanas de silencio de cualquier versión anterior; no cambia consentimiento, topes, pausas, prioridades, idempotencia ni freno de emergencia. Los avisos conservan su momento según la cita y los recordatorios caducados no se mandan después de empezar. Esta decisión no autoriza vincular números, migrar datos o publicar una etapa sin su confirmación correspondiente.

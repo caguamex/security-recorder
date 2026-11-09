@@ -1,1 +1,15 @@
 ritmo-kit.zip
+node_modules/
+.env
+.env.*
+!.env.example
+ritmo/servidor/build/
+.taste-skill/
+.wrangler/
+.dev.vars
+.dev.vars.*
+ritmo/nube/build/
+ritmo/dist/pwa/_headers
+
+# Caché de la CLI, sin migraciones ni secretos.
+supabase/.temp/

@@ -1,6 +1,7 @@
 // Junta index.html + core.js + parser.js + app.js en un solo archivo que abre con doble clic.
 // Uso: node ritmo/herramientas/empaquetar.mjs   →   ritmo/dist/ritmo.html
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync, rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,7 +24,61 @@ console.log('Listo: ritmo/dist/ritmo.html (' + Math.round(pagina.length / 1024) 
 
 // Ritmo Belleza
 let bel = readFileSync(join(raiz, 'belleza', 'index.html'), 'utf8');
+bel = bel.replace('<link rel="stylesheet" href="estilo-neutro-ios.css">', () => '<style>'+readFileSync(join(raiz,'belleza','estilo-neutro-ios.css'),'utf8')+'</style>');
+bel = bel.replace('<link rel="stylesheet" href="estilo-liquid-glass.css">', () => '<style>'+readFileSync(join(raiz,'belleza','estilo-liquid-glass.css'),'utf8')+'</style>');
+bel = bel.replace('<link rel="stylesheet" href="acceso-neutro.css">', () => '<style>'+readFileSync(join(raiz,'belleza','acceso-neutro.css'),'utf8')+'</style>');
 bel = bel.replace('<script src="core.js"></script>', () => `<script>\n${readFileSync(join(proto, 'core.js'), 'utf8')}</script>`)
+  .replace('<script src="sincronizacion.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'sincronizacion.js'), 'utf8')}</script>`)
+  .replace('<script src="cuentas.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'cuentas.js'), 'utf8')}</script>`)
+  .replace('<script src="whatsapp-vinculacion.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'whatsapp-vinculacion.js'), 'utf8')}</script>`)
+  .replace('<script src="planes.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'planes.js'), 'utf8')}</script>`)
+  .replace('<script src="avisos-pwa.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'avisos-pwa.js'), 'utf8')}</script>`)
+  .replace('<script src="social.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'social.js'), 'utf8')}</script>`)
+  .replace('<script src="colores-clientas.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'colores-clientas.js'), 'utf8')}</script>`)
+  .replace('<script src="negocio.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'negocio.js'), 'utf8')}</script>`)
   .replace('<script src="belleza.js"></script>', () => `<script>\n${readFileSync(join(raiz, 'belleza', 'belleza.js'), 'utf8')}</script>`);
+// El documento de un solo archivo también conserva las fotos sin conexión.
+bel = bel.replace(/\.\/trabajos\/[a-z0-9-]+\.jpg/g, recurso =>
+  'data:image/jpeg;base64,' + readFileSync(join(raiz, 'belleza', recurso)).toString('base64'));
 writeFileSync(join(raiz, 'dist', 'belleza.html'), pagina.replace(html, () => bel));
 console.log('Listo: ritmo/dist/belleza.html');
+
+// Publicación PWA: documento completo, recursos locales y caché versionada por contenido.
+const fuente = join(raiz, 'belleza'), pwa = join(raiz, 'dist', 'pwa');
+mkdirSync(pwa, { recursive: true });
+for (const recurso of ['estilo-liquid-glass.css', 'colores-clientas.js', 'recuperar-acceso', 'acceso-neutro.css', 'estilo-neutro-ios.css', 'planes.js', 'planes', 'plataforma', 'legal', 'privacidad', 'terminos', 'avisos-pwa.js', 'social.js', 'negocio.js', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
+  cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
+}
+cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));
+// Aviso de privacidad y términos: los datos del responsable salen de belleza/legal/datos.json.
+{const datos=JSON.parse(readFileSync(join(fuente,'legal','datos.json'),'utf8')),faltan=[];const html=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ for(const r of ['privacidad','terminos']){const f=join(pwa,r,'index.html');writeFileSync(f,readFileSync(f,'utf8').replace(/(<(span|b) data-legal="([a-z]+)">)\[[^\]]*\](<\/\2>)/g,(m,a,_t,k,c)=>{if(!String(datos[k]||'').trim()){faltan.push(k);return m;}return a+html(datos[k].trim())+c;}));}
+ rmSync(join(pwa,'legal','datos.json'),{force:true});
+ if(faltan.length)console.warn('AVISO: faltan datos legales en belleza/legal/datos.json: '+[...new Set(faltan)].join(', ')+'. No abras Agendappx al público hasta llenarlos.');}
+mkdirSync(join(pwa,'comunidad'),{recursive:true});for(const n of ['index.html','real.css','real.mjs','actualizacion.mjs','manifest.webmanifest'])cpSync(join(raiz,'comunidad',n),join(pwa,'comunidad',n));
+cpSync(join(fuente,'cuentas.js'),join(pwa,'comunidad','cuentas-cliente.js'));
+let cuerpo = readFileSync(join(fuente, 'index.html'), 'utf8')
+  .replace(/<link[^>]+https:\/\/fonts\.[^>]+>\s*/g, '');
+const metadatos = `<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#F2F2F7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Agendappx">
+<meta name="application-name" content="Agendappx">
+<link rel="apple-touch-icon" href="./iconos/icono-180.png">
+<link rel="icon" href="./iconos/icono-192.png">
+<link rel="stylesheet" href="./fuentes/fuentes.css">`;
+const documento = pagina.replace('<head>', '<head>' + metadatos).replace(html, () => cuerpo + '\n<script src="pwa.js"></script>');
+writeFileSync(join(pwa, 'index.html'), documento);
+function archivos(dir, prefijo = './') {
+  return readdirSync(dir, { withFileTypes: true }).flatMap(e => e.isDirectory()
+    ? archivos(join(dir, e.name), prefijo + e.name + '/') : ['sw.js', '_headers', '_redirects'].includes(e.name) ? [] : [prefijo + e.name]);
+}
+const recursos = archivos(pwa).sort();
+const hash = createHash('sha256');
+for (const recurso of recursos) hash.update(recurso).update(readFileSync(join(pwa, recurso)));
+const worker = readFileSync(join(fuente, 'sw.js'), 'utf8');
+hash.update(worker);
+writeFileSync(join(pwa, 'sw.js'), worker.replace('__VERSION__', hash.digest('hex').slice(0, 16))
+  .replace('__ASSETS__', JSON.stringify(['./', ...recursos])));
+console.log('Listo: ritmo/dist/pwa/');

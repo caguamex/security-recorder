@@ -1,0 +1,38 @@
+{
+  "name": "ritmo-belleza-servidor",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc && node ../herramientas/compilar-cuentas.mjs && node ../herramientas/empaquetar.mjs",
+    "start": "node build/index.js",
+    "test": "npm run build && node --test pruebas/*.test.mjs ../pruebas/*.test.js",
+    "test:login": "npm run build && node --test pruebas/login-whatsapp.test.mjs && node pruebas/login-whatsapp-navegador.mjs",
+    "test:navegador": "npm run build && node pruebas/navegador.mjs",
+    "test:fotos": "npm run build && node pruebas/fotos-navegador.mjs",
+    "test:actualizacion": "npm run build && node pruebas/actualizacion-navegador.mjs",
+    "test:diseno": "npm run build && node pruebas/diseno-navegador.mjs",
+    "test:whatsapp": "npm run build && node --test pruebas/whatsapp-*.test.mjs && node pruebas/whatsapp-solo-envios-navegador.mjs && node pruebas/whatsapp-vinculacion-navegador.mjs",
+    "test:calendario": "npm run build && node --test pruebas/dispositivos.test.mjs && node pruebas/calendario-navegador.mjs && node pruebas/calendario-pendientes-navegador.mjs",
+    "test:registro": "npm run build && node --test pruebas/registro-whatsapp.test.mjs && node pruebas/registro-whatsapp-navegador.mjs",
+    "test:contrasenas": "npm run build && node --test pruebas/contrasenas.test.mjs && node pruebas/contrasenas-navegador.mjs",
+    "test:dueno": "npm run build && node --test pruebas/dueno-whatsapp.test.mjs && node pruebas/dueno-navegador.mjs && node pruebas/dueno-actualizacion-navegador.mjs",
+    "test:plataforma":"npm run build && node --test pruebas/plataforma.test.mjs && node pruebas/plataforma-navegador.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
+    "jose": "6.2.13",
+    "pg": "^8.16.3",
+    "web-push": "3.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.15.0",
+    "esbuild": "0.28.2",
+    "playwright": "^1.58.0",
+    "typescript": "^5.9.3"
+  }
+}

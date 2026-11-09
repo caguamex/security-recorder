@@ -74,7 +74,7 @@ No hay botones ni respuestas automáticas. Si la clienta contesta, lo lee y resp
   - «escribiendo…» de 2 a 5 segundos antes de cada uno;
   - máximo 30 por hora y 150 por día por número (configurable hacia abajo).
   - Lo que no alcance a salir espera a la siguiente vuelta, respetando los horarios de la cita: si un #4 ya no tiene sentido, se omite.
-- **Horario silencioso**: nada entre 21:00 y 08:00 (hora de Ciudad de México). Lo que caiga ahí espera a las 08:00, salvo el #4, que se omite.
+- **Horario de envío: las 24 horas**, por decisión posterior expresa de Antonio del 28 de octubre de 2026. Aplica a códigos de acceso, avisos de citas y promociones. No posponer ni omitir un mensaje por ser de noche; conservar el momento programado, caducidad de recordatorios, consentimiento, pausas, prioridades y topes.
 - **#3 el día**:
   - si la cita empieza menos de 2 horas después de esa hora (con 09:00, antes de las 11:00), sale la noche anterior a las 19:00 como «Mañana es tu cita», para no juntarse con el #4;
   - se **omite** si la cita se agendó menos de 3 horas antes de esa hora, o si ya se mandó el #1 o el #2 en las últimas 3 horas.
@@ -128,7 +128,7 @@ Antonio quiere sincronizar los contactos del WhatsApp vinculado, como en FiNeCi,
 3. La app muestra el plan antes de confirmar: «Se enviará a 79 clientas: 40 hoy, 39 mañana».
 4. «Programar envío» crea una campaña. El servicio la manda poco a poco:
    - **máximo 40 promociones al día** por número (configurable solo hacia abajo);
-   - de 10:00 a 19:00, con pausas de 1 a 3 minutos;
+   - a cualquier hora, con pausas de 1 a 3 minutos (cambio expreso de Antonio del 28 de octubre de 2026);
    - 2 o 3 variaciones del texto;
    - **nunca** dos promociones a la misma clienta en menos de 7 días.
 5. En Mensajes de WhatsApp se ve el avance de cada campaña («40 de 79»), con botones para pausar o cancelar.
@@ -140,7 +140,7 @@ Antonio quiere sincronizar los contactos del WhatsApp vinculado, como en FiNeCi,
 
 ## 6. Pruebas mínimas
 
-- Ningún envío sin consentimiento, en horario silencioso, a números sin cita, ni pasados los topes por hora y por día.
+- Ningún aviso de cita sin consentimiento, sin cita vigente ni pasados los topes por hora y por día. Comprobar también avisos nocturnos sin posponerlos hasta las 08:00.
 - Las pausas entre mensajes se respetan (prueba con reloj simulado).
 - El #3 se omite al agendar el mismo día con menos de 3 h; el #4 se omite con menos de 90 min.
 - Mover una cita invalida los pendientes, manda el #5 y reprograma los recordatorios. Cancelar invalida todo.
@@ -153,6 +153,10 @@ Antonio quiere sincronizar los contactos del WhatsApp vinculado, como en FiNeCi,
 - Con `WHATSAPP_REMITENTE=vinculado`, Cloudflare no envía nada.
 - La sincronización guarda solo nombre y número; ningún mensaje.
 - Una promoción nunca llega a quien no tiene `promosOptIn`, ni a la misma clienta dos veces en 7 días.
-- Se respeta el tope de 40 al día y el horario de 10:00 a 19:00.
+- Se respeta el tope de 40 promociones al día y las pausas de 1 a 3 min; la campaña puede avanzar también por la noche, por instrucción posterior de Antonio.
 - Quitar el permiso saca a la clienta de las campañas pendientes.
 - Un error de WhatsApp pausa todas las campañas.
+
+## Precedencia de la aclaración del 28 de octubre
+
+Los documentos del commit f743ccf sustituyen los encargos anteriores. Después Antonio autorizó códigos, citas y promociones a cualquier hora. Por ello, las referencias antiguas a silencio 21–08 o promociones 10–19 quedan sustituidas. Permanecen los límites de 30/h y 150/día por número para avisos, 40 promociones/día, separación de siete días, consentimiento, prioridad códigos → citas → promociones y freno ante bloqueo. Esto es la especificación de la siguiente versión, no un cambio ya publicado en el servicio existente.
