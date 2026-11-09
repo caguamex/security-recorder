@@ -1,6 +1,6 @@
 // Junta index.html + core.js + parser.js + app.js en un solo archivo que abre con doble clic.
 // Uso: node ritmo/herramientas/empaquetar.mjs   →   ritmo/dist/ritmo.html
-import { readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync, rmSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,10 +46,15 @@ console.log('Listo: ritmo/dist/belleza.html');
 // Publicación PWA: documento completo, recursos locales y caché versionada por contenido.
 const fuente = join(raiz, 'belleza'), pwa = join(raiz, 'dist', 'pwa');
 mkdirSync(pwa, { recursive: true });
-for (const recurso of ['estilo-liquid-glass.css', 'colores-clientas.js', 'recuperar-acceso', 'acceso-neutro.css', 'estilo-neutro-ios.css', 'planes.js', 'planes', 'plataforma', 'avisos-pwa.js', 'social.js', 'negocio.js', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
+for (const recurso of ['estilo-liquid-glass.css', 'colores-clientas.js', 'recuperar-acceso', 'acceso-neutro.css', 'estilo-neutro-ios.css', 'planes.js', 'planes', 'plataforma', 'legal', 'privacidad', 'terminos', 'avisos-pwa.js', 'social.js', 'negocio.js', 'belleza.js', 'cuentas.js', 'whatsapp-vinculacion.js', 'sincronizacion.js', 'pwa.js', 'manifest.webmanifest', 'iconos', 'fuentes', 'trabajos']) {
   cpSync(join(fuente, recurso), join(pwa, recurso), { recursive: true });
 }
 cpSync(join(proto, 'core.js'), join(pwa, 'core.js'));
+// Aviso de privacidad y términos: los datos del responsable salen de belleza/legal/datos.json.
+{const datos=JSON.parse(readFileSync(join(fuente,'legal','datos.json'),'utf8')),faltan=[];const html=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ for(const r of ['privacidad','terminos']){const f=join(pwa,r,'index.html');writeFileSync(f,readFileSync(f,'utf8').replace(/(<(span|b) data-legal="([a-z]+)">)\[[^\]]*\](<\/\2>)/g,(m,a,_t,k,c)=>{if(!String(datos[k]||'').trim()){faltan.push(k);return m;}return a+html(datos[k].trim())+c;}));}
+ rmSync(join(pwa,'legal','datos.json'),{force:true});
+ if(faltan.length)console.warn('AVISO: faltan datos legales en belleza/legal/datos.json: '+[...new Set(faltan)].join(', ')+'. No abras Agendappx al público hasta llenarlos.');}
 mkdirSync(join(pwa,'comunidad'),{recursive:true});for(const n of ['index.html','real.css','real.mjs','actualizacion.mjs','manifest.webmanifest'])cpSync(join(raiz,'comunidad',n),join(pwa,'comunidad',n));
 cpSync(join(fuente,'cuentas.js'),join(pwa,'comunidad','cuentas-cliente.js'));
 let cuerpo = readFileSync(join(fuente, 'index.html'), 'utf8')
