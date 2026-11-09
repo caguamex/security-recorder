@@ -12,8 +12,10 @@ test('aviso de privacidad y términos: contenido mínimo de la ley y publicados 
  // Sin recursos externos: la política de seguridad de la app solo permite 'self'.
  for(const h of [aviso,terminos])assert.equal(/(?:src|href)="https?:/.test(h),false);
 });
-test('las rutas legales no se confunden con el enlace de un salón',async()=>{
+test('las rutas legales no se confunden con el enlace de un salón ni se pueden registrar',async()=>{
  const w=await leer('nube/worker.mjs');for(const r of ['/privacidad','/terminos','/legal'])assert.ok(w.includes(`'${r}'`),r);
+ const reg=await leer('servidor/src/cuentas/registro.ts'),m=await leer('supabase/migrations/20261109121000_enlaces_reservados.sql');
+ for(const r of ['privacidad','terminos','legal','plataforma','recuperar-acceso'])assert.ok(reg.includes(`'${r}'`)&&m.includes(`'${r}'`),r);
 });
 test('registro, reservas y Mi negocio enlazan el aviso y los términos',async()=>{
  const registro=await leer('servidor/cliente/registro.js');assert.match(registro,/href="\/privacidad\/"[^]*href="\/terminos\/"/);
