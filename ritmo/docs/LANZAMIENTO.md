@@ -14,6 +14,7 @@ Todo está en la rama principal `claude/es-posible-esto-tjimmb`: los PR #1 a #26
    - Los precios se calculan en el servidor: Solo $249, Salón $449 (fundadora $199) y Pro $799; el anual cuesta 10 meses.
    - Se enciende solo cuando la CLABE es válida (18 dígitos con dígito verificador), con las variables de Cloudflare `COBRO_CLABE`, `COBRO_BANCO` y `COBRO_TITULAR`. Sin ellas, todo sigue como hoy.
    - Migración aditiva: `20261109120000_cobros_transferencia.sql`.
+3. **Enlaces reservados**: ningún salón puede registrar `privacidad`, `terminos`, `legal`, `plataforma` ni `recuperar-acceso` como enlace (servidor y base: `20261109121000_enlaces_reservados.sql`). Hallazgo de la auditoría del 9 de noviembre.
 
 Pruebas: 296/296, más `pagos-navegador.mjs`, `planes-etapa3-navegador.mjs`, `plataforma-navegador.mjs` y `contrasenas-navegador.mjs` en Chromium. Capturas en `imagenes/pagos-transferencia/`.
 
@@ -67,7 +68,8 @@ PASO 2 · DATOS QUE TE DOY YO (no son secretos)
 
 PASO 3 · PUBLICAR (pídeme confirmación ANTES de cada punto)
 a) Respaldo de la base.
-b) Migración 20261109120000_cobros_transferencia.sql. Revisa que
+b) Migraciones 20261109120000_cobros_transferencia.sql y
+   20261109121000_enlaces_reservados.sql (en ese orden). Revisa que
    negocios_planes conserve sus filas y que los salones legado sigan
    igual.
 c) Worker con --keep-vars y las tres variables COBRO_*.

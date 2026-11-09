@@ -12,7 +12,7 @@ async function entorno(t){
  const e=await entornoSocial();t.after(()=>e.cerrar());
  const sql=async(q,a)=>{const c=await e.pool.connect();try{return await c.query(q,a);}finally{c.release();}};
  await sql("SELECT set_config('ritmo.plataforma_admin',$1,false)",[ids.admin]);
- for(const m of ['20261030180000_panel_plataforma.sql','20261109120000_cobros_transferencia.sql'])await sql(await readFile(new URL('../../supabase/migrations/'+m,import.meta.url),'utf8'));
+ for(const m of ['20261030180000_panel_plataforma.sql','20261109120000_cobros_transferencia.sql','20261109121000_enlaces_reservados.sql'])await sql(await readFile(new URL('../../supabase/migrations/'+m,import.meta.url),'utf8'));
  for(const u of ['admin','ajena','recepcion'])await sql('INSERT INTO ritmo.acceso_sesiones(sesion_id,usuario_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[sesiones[u],ids[u]]);
  // «Otro salón» (Admin: ajena) es un salón nuevo en prueba; «salon» conserva su acceso existente.
  await sql("INSERT INTO ritmo.negocios_planes(negocio_id,plan,estado,prueba_inicio,prueba_fin) VALUES($1,'salon','prueba',now()-interval '20 days',now()+interval '10 days') ON CONFLICT(negocio_id) DO UPDATE SET estado='prueba',plan='salon',prueba_inicio=EXCLUDED.prueba_inicio,prueba_fin=EXCLUDED.prueba_fin,fundadora_numero=NULL",[ids.otro]);
@@ -21,6 +21,11 @@ async function entorno(t){
  const llamar=async(rutas,ruta,{metodo='GET',datos}={})=>{const req=Readable.from(datos?[Buffer.from(JSON.stringify(datos))]:[]);req.method=metodo;req.headers={'content-type':'application/json',authorization:'Bearer x',...(metodo==='GET'?{}:{origin:origen})};let estado=0,cuerpo='';const res={writeHead(s){estado=s;return this;},end(b){cuerpo=b;}};await rutas(req,res,new URL(origen+ruta));return {estado,d:JSON.parse(cuerpo)};};
  return {...e,sql,salon,panel,llamar};
 }
+test('enlaces reservados: un salón no puede llamarse privacidad, terminos ni legal',async t=>{
+ const e=await entorno(t);
+ for(const slug of ['privacidad','terminos','legal','plataforma'])await assert.rejects(()=>e.salon('SELECT ritmo.editar_perfil_publico($1,$2::jsonb)',[ids.otro,JSON.stringify({slug,visible:false})]),x=>x.code==='22023',slug);
+ await e.salon('SELECT ritmo.editar_perfil_publico($1,$2::jsonb)',[ids.otro,JSON.stringify({slug:'otro-salon-ok',visible:false,descripcion:'',ciudad:'',colonia:'',direccion:''})]);
+});
 test('CLABE: solo se habilita el cobro con 18 dígitos y dígito verificador correcto',()=>{
  assert.deepEqual(cobroValido(COBRO),COBRO);
  assert.equal(cobroValido({...COBRO,clabe:'012180001234567890'}),null);
