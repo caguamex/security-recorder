@@ -31,6 +31,13 @@ export function rutasPlataforma(pool:ConexionSQL,jwt:{verificar:(s:string)=>Prom
    const d=descifrarCodigo(opciones.key,await funcion('SELECT ritmo.plataforma_revelar_codigo($1) AS r',[codigo[1]]));
    const mensaje='Tu código de Agendappx es *'+d.codigo+'*. Vence en 10 minutos. No lo compartas con nadie.';
    return responder({codigo:d.codigo,telefono:'+'+d.telefono,mensaje,whatsapp:'https://wa.me/'+d.telefono+'?text='+encodeURIComponent(mensaje)});}
+  // Pagos por transferencia: el administrador confirma (activa el periodo) o rechaza con motivo.
+  if(ruta==='/api/plataforma/pagos'&&req.method==='GET')return responder({pagos:await funcion('SELECT ritmo.plataforma_pagos() AS r')});
+  const pago=/^\/api\/plataforma\/pagos\/([a-f0-9-]{36})\/(confirmar|rechazar)$/.exec(ruta);
+  if(pago&&req.method==='POST'){const d=await cuerpo(req);
+   if(pago[2]==='confirmar')return responder(await funcion('SELECT ritmo.plataforma_pago_confirmar($1) AS r',[pago[1]]));
+   if(typeof d.motivo!=='string'||!d.motivo.trim()||d.motivo.length>300)throw new ErrorAPI(400,'Escribe el motivo.');
+   await funcion('SELECT ritmo.plataforma_pago_rechazar($1,$2) AS r',[pago[1],d.motivo]);return responder({rechazado:true});}
   const accion=/^\/api\/plataforma\/salones\/([a-f0-9-]{36})$/.exec(ruta);
   if(accion&&req.method==='POST'){const d=await cuerpo(req);if(!ACCIONES.includes(d.accion)||d.valor!==undefined&&(typeof d.valor!=='object'||Array.isArray(d.valor)||d.valor===null))throw new ErrorAPI(400,'Acción inválida.');
    return responder(await funcion('SELECT ritmo.plataforma_accion($1,$2,$3::jsonb) AS r',[accion[1],d.accion,JSON.stringify(d.valor||{})]));}

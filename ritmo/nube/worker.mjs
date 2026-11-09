@@ -65,6 +65,8 @@ const servidor = crearServidor(repo, env.APP_TOKEN || '', '/no-publicar', {
     // Quien abre la app por primera vez ve las publicaciones de Comunidad.
     inicioPublico:env.AGENDAPPX_INICIO_PUBLICO==='true',
     // Panel: respaldo manual de códigos y avisos al celular del administrador.
+    // Cobro por transferencia: solo se muestra si la CLABE es válida (variables de Cloudflare, no secretos).
+    cobro:{clabe:env.COBRO_CLABE,banco:env.COBRO_BANCO,titular:env.COBRO_TITULAR},
     plataforma:{key:env.ACCESO_HMAC_KEY,publica:env.PUSH_VAPID_PUBLICA,privada:env.PUSH_VAPID_PRIVADA},
     acceso:{whatsapp:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true'},
     rutasAcceso:rutasAcceso(pool,jwt,{registro:env.AGENDAPPX_REGISTRO_HABILITADO==='true',sesionesConOtp:true,recuperacionHash:env.ACCESO_RECUPERACION_HASH,recuperacionUsuario:env.MIGRACION_USUARIO_ID,habilitado:env.ACCESO_WHATSAPP_HABILITADO==='true',correo:env.ACCESO_CORREO_HABILITADO==='true',key:env.ACCESO_HMAC_KEY,origen:env.PUBLIC_URL,supabaseURL:env.SUPABASE_URL,llavePublica:env.SUPABASE_PUBLISHABLE_KEY,salones:new Set(String(env.WHATSAPP_SALONES_HABILITADOS||'').split(',').filter(Boolean)),ip:req=>String(req.headers['cf-connecting-ip']||'')}),

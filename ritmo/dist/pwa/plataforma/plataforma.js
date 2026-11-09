@@ -4,7 +4,8 @@
  const fecha=v=>v?new Date(v).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}):'—';
  const hace=v=>{if(!v)return 'sin uso';const d=Math.floor((Date.now()-new Date(v))/86400000);return d<=0?'hoy':d===1?'ayer':'hace '+d+' días';};
  const PLANES={solo:'Solo',salon:'Salón',pro:'Pro'};
- let salones=[],resumen={},codigos=[],respaldo=false,filtro='todos',q='',actual=null,codigoActual=null,avisador,revision=0;
+ const dinero=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0}).format(n);
+ let salones=[],resumen={},codigos=[],pagos=[],respaldo=false,filtro='todos',q='',actual=null,codigoActual=null,avisador,revision=0;
  // Mismo aviso de versión nueva que Comunidad: «Actualizar» también instala el código del panel, no solo los datos.
  const actualizador=import('/comunidad/actualizacion.mjs').then(m=>m.prepararActualizacion()).catch(()=>null);
  const aviso=t=>{clearTimeout(avisador);$('#aviso').textContent=t;$('#aviso').hidden=false;avisador=setTimeout(()=>{$('#aviso').hidden=true;},3500);};
@@ -21,6 +22,7 @@
   const lista=salones.filter(pasa);
   $('#contenido').innerHTML=`<div class="cifras">${cifra(r.salones,'Salones',r.nuevosSemana+' nuevos esta semana')}${cifra(r.enPrueba,'En prueba gratis',r.pruebaPorVencer+' vencen en 5 días')}${cifra(r.pruebaVencida,'Pruebas vencidas','Para ofrecerles un plan')}${cifra((r.fundadoras||0)+' de 20','Precio de fundadora')}
    ${cifra(r.personas,'Personas con acceso')}${cifra(r.clientas,'Clientas registradas')}${cifra(r.citasSemana,'Citas movidas esta semana')}${cifra(r.solicitudesSemana,'Pedidas desde la app','Esta semana')}</div>
+   ${pagos.length?`<h2>Pagos por confirmar · ${pagos.length}</h2><div class="grupo alerta">${pagos.map(x=>`<div class="celda" style="flex-wrap:wrap"><span class="punto ${x.estado==='reportado'?'aviso':'ok'}"></span><span class="l"><b>${esc(x.salon)} · ${esc(dinero(x.monto))}</b><small>${esc(PLANES[x.plan])} ${x.anual?'anual':'mensual'} · Ref. ${esc(x.referencia)}</small><small>${x.estado==='reportado'?'Avisó que ya transfirió · '+esc(minutos(x.reportadoEn)):'Aún no avisa que transfirió'}${x.nota?' · «'+esc(x.nota)+'»':''}</small></span><span style="display:flex;gap:8px;width:100%;justify-content:flex-end;margin-top:8px"><button type="button" class="mini" data-pago-rechazar="${esc(x.id)}">Rechazar</button><button type="button" class="mini" data-pago-confirmar="${esc(x.id)}">Confirmar pago</button></span></div>`).join('')}</div><p class="vacio">Confirma solo cuando veas el depósito en tu banco con esa referencia.</p>`:''}
    ${codigos.length?`<h2>Códigos sin entregar · ${codigos.length}</h2><div class="grupo alerta">${codigos.map(x=>`<div class="celda"><span class="punto mal"></span><span class="l"><b>${esc(x.telefono||'Número protegido')}</b><small>${esc({sms:'Para entrar o registrarse',phone_change:'Para vincular su número',email:'Correo'}[x.tipo]||'Código de acceso')} · ${esc(MOTIVO[x.motivo]||'No salió')} · ${esc(minutos(x.creadoEn))}</small><small>Vence ${esc(new Date(x.venceEn).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hourCycle:'h23'}))}</small></span><button type="button" class="mini" data-codigo="${esc(x.id)}">${x.revelado?'Ver de nuevo':'Ver y enviar'}</button></div>`).join('')}</div>`:''}
    <h2>Salud de la plataforma</h2><div class="grupo">
     <div class="celda"><span class="punto ${conectado?'ok':'mal'}"></span><span class="l">WhatsApp de códigos (866 124 1483)<small>${conectado?'Conectado':'Revisar: '+esc(w.estado||'sin datos')}${w.ultimaConexion?' · última conexión '+esc(fecha(w.ultimaConexion)):''}</small></span></div>
@@ -36,7 +38,7 @@
    <h2>Lo último que hiciste</h2><div class="grupo" id="bitacora"><p class="vacio">Cargando…</p></div>`;
   void cargarBitacora();
  }
- const NOMBRE_ACCION={verificar:'Verificación',ocultar:'Ocultado de Explorar',extender_prueba:'Prueba extendida',plan:'Plan cambiado',suspender:'Salón en pausa',reactivar:'Salón reactivado'};
+ const NOMBRE_ACCION={pago_confirmado:'Pago confirmado',pago_rechazado:'Pago rechazado',verificar:'Verificación',ocultar:'Ocultado de Explorar',extender_prueba:'Prueba extendida',plan:'Plan cambiado',suspender:'Salón en pausa',reactivar:'Salón reactivado'};
  async function cargarBitacora(){try{const d=await api('/api/plataforma/bitacora');$('#bitacora').innerHTML=d.bitacora.slice(0,15).map(b=>`<div class="celda"><span class="l">${esc(NOMBRE_ACCION[b.accion]||b.accion)} · ${esc(b.salon)}<small>${esc(new Date(b.en).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short',hourCycle:'h23'}))}${b.detalle?.dias?' · +'+esc(b.detalle.dias)+' días':''}${b.detalle?.plan?' · '+esc(PLANES[b.detalle.plan]):''}${b.detalle?.motivo?' · '+esc(b.detalle.motivo):''}</small></span></div>`).join('')||'<p class="vacio">Todavía no hay acciones.</p>';}catch{}}
  function hoja(s){actual=s;const [c,e]=estadoSalon(s),d=diasPrueba(s),wa=s.duena?.whatsapp?String(s.duena.whatsapp).replace(/\D/g,''):'';
   $('#hoja-titulo').textContent=s.nombre;
@@ -60,17 +62,19 @@
    <a class="btn p" href="${esc(d.whatsapp)}" target="_blank" rel="noopener" id="codigo-whatsapp">Enviar por WhatsApp</a><button type="button" class="btn" data-entregado="${esc(id)}">Ya lo envié</button>
    <p class="vacio" style="padding:12px 4px 0;text-align:left">Se abre tu WhatsApp con el mensaje listo para ese número. Vence a los 10 minutos de haberlo pedido; si venció, la persona puede pedir otro.</p>`;
   if(!$('#hoja').open)$('#hoja').showModal();}
- async function cargar(){const turno=++revision;try{const [r,s,c]=await Promise.all([api('/api/plataforma/resumen'),api('/api/plataforma/salones'),api('/api/plataforma/codigos').catch(()=>({codigos:[],activo:false}))]);if(turno!==revision)return;resumen=r;salones=s.salones;codigos=c.codigos;respaldo=c.activo;$('#salir-dueno').hidden=false;$('#panel').classList.remove('entrada-dueno');pintar();}
+ async function cargar(){const turno=++revision;try{const [r,s,c,p]=await Promise.all([api('/api/plataforma/resumen'),api('/api/plataforma/salones'),api('/api/plataforma/codigos').catch(()=>({codigos:[],activo:false})),api('/api/plataforma/pagos').catch(()=>({pagos:[]}))]);if(turno!==revision)return;resumen=r;salones=s.salones;codigos=c.codigos;pagos=p.pagos;respaldo=c.activo;$('#salir-dueno').hidden=false;$('#panel').classList.remove('entrada-dueno');pintar();}
   catch(e){if(turno!==revision)return;if(e.entrar){$('#salir-dueno').hidden=true;if($('#acceso-plataforma'))return;$('#panel').classList.add('entrada-dueno');$('#contenido').innerHTML='<section class="acceso-dueno"><p class="etapa-dueno">DUEÑO DE AGENDAPPX</p><div id="acceso-plataforma"></div><p class="nota-dueno">Aquí administras los negocios registrados. No necesitas crear un salón ni elegir un plan.</p></section>';await window.AgendappxCuentas.montar($('#acceso-plataforma'),{plataforma:true,alVerificar:()=>{void cargar();}});}else $('#contenido').innerHTML=`<p class="vacio">${esc(e.message)}</p>`;}}
  async function accion(a,valor={}){await api('/api/plataforma/salones/'+actual.id,{accion:a,valor});aviso({verificar:'Listo.',extender_prueba:'Prueba extendida.',plan:'Plan cambiado.',suspender:'Salón en pausa.',reactivar:'Salón reactivado.',ocultar:'Ya no aparece en Explorar.'}[a]);
   const id=actual.id;await cargar();const s=salones.find(x=>x.id===id);if(s&&$('#hoja').open)hoja(s);}
  document.addEventListener('click',async ev=>{const b=ev.target.closest('button');if(!b)return;try{
   if(b.id==='recargar'){if(await (await actualizador)?.pendiente()){(await actualizador).aplicar();return;}await cargar();aviso('Actualizado.');}
-  if(b.id==='salir-dueno'){revision++;salones=[];resumen={};codigos=[];actual=null;codigoActual=null;$('#contenido').textContent='Cerrando sesión…';if($('#hoja').open)$('#hoja').close();$('#hoja-cuerpo').replaceChildren();await window.AgendappxCuentas.salir();await cargar();return;}
+  if(b.id==='salir-dueno'){revision++;salones=[];resumen={};codigos=[];pagos=[];actual=null;codigoActual=null;$('#contenido').textContent='Cerrando sesión…';if($('#hoja').open)$('#hoja').close();$('#hoja-cuerpo').replaceChildren();await window.AgendappxCuentas.salir();await cargar();return;}
   if(b.id==='hoja-cerrar')$('#hoja').close();
   if(b.dataset.filtro){filtro=b.dataset.filtro;pintar();}
   if(b.dataset.codigo){b.disabled=true;await verCodigo(b.dataset.codigo);return;}
   if(b.dataset.entregado){await api('/api/plataforma/codigos/'+b.dataset.entregado+'/entregado',{});$('#hoja').close();aviso('Listo. Quedó anotado.');await cargar();return;}
+  if(b.dataset.pagoConfirmar){const x=pagos.find(v=>v.id===b.dataset.pagoConfirmar);if(!x||!confirm('¿Ya viste '+dinero(x.monto)+' con la referencia '+x.referencia+' en tu banco? Se activará el plan de '+x.salon+'.'))return;b.disabled=true;const d=await api('/api/plataforma/pagos/'+x.id+'/confirmar',{});aviso('Pago confirmado. Plan activo hasta el '+fecha(d.pagadoHasta)+'.');await cargar();return;}
+  if(b.dataset.pagoRechazar){const motivo=prompt('¿Por qué lo rechazas? El salón verá este motivo.','No encontré la transferencia con esa referencia.');if(!motivo?.trim())return;b.disabled=true;await api('/api/plataforma/pagos/'+b.dataset.pagoRechazar+'/rechazar',{motivo:motivo.trim().slice(0,300)});aviso('Pago rechazado.');await cargar();return;}
   if(b.id==='avisos-celular'){await window.AgendappxAvisos.activar('plataforma');aviso('Te avisaremos en este celular.');return;}
   if(b.dataset.salon)hoja(salones.find(s=>s.id===b.dataset.salon));
   const a=b.dataset.accion;if(!a)return;b.disabled=true;
